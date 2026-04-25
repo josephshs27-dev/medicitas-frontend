@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Agendar Cita Médica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
+        .spinner { border: 3px solid #e2e8f0; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        input, select, textarea { font-size: 16px !important; }
+    </style>
+</head>
+<body class="text-slate-800 font-sans pb-10">
+
+    <div id="loadingView" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
+        <div class="spinner mb-4 w-10 h-10 border-4"></div>
+        <p class="text-slate-500 font-semibold animate-pulse">Cargando disponibilidad...</p>
+    </div>
+
+    <div class="bg-indigo-600 text-white p-6 rounded-b-[2rem] shadow-md mb-6 relative">
+        <div class="max-w-md mx-auto flex items-center gap-4">
+            <div id="docLogoContainer" class="w-16 h-16 bg-white rounded-full p-1 shadow-inner hidden">
+                <img id="docLogo" src="" class="w-full h-full object-contain rounded-full">
+            </div>
+            <div>
+                <h1 id="docName" class="text-xl font-bold leading-tight">Cargando Doctor...</h1>
+                <p id="docAddress" class="text-indigo-200 text-sm mt-1 text-sm line-clamp-2"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto px-4 space-y-6" id="bookingApp" style="display: none;">
+        
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+            <h2 class="font-bold text-lg mb-3 flex items-center gap-2"><span>1.</span> Selecciona la Fecha 📅</h2>
+            <input type="date" id="selectedDate" class="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 text-slate-800 font-semibold focus:ring-2 focus:ring-indigo-500 outline-none">
+            <p id="dateError" class="text-red-500 text-sm font-bold mt-2 hidden"></p>
+        </div>
+
+        <div id="timeStep" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 opacity-50 pointer-events-none transition-all duration-300">
+            <h2 class="font-bold text-lg mb-3 flex items-center gap-2"><span>2.</span> Horarios Disponibles ⏰</h2>
+            <div id="timeSlots" class="grid grid-cols-3 gap-3">
+                <p class="col-span-3 text-sm text-slate-400 text-center py-4">Selecciona una fecha primero</p>
+            </div>
+            <input type="hidden" id="selectedTime">
+        </div>
+
+        <div id="formStep" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 opacity-50 pointer-events-none transition-all duration-300">
+            <h2 class="font-bold text-lg mb-4 flex items-center gap-2"><span>3.</span> Tus Datos 👤</h2>
+            <form id="bookingForm" class="space-y-4">
+                
+                <div id="divPatOwner" class="hidden mb-4">
+                    <label class="block text-sm font-semibold text-slate-600 mb-1">Nombre del Dueño</label>
+                    <input type="text" id="pOwner" class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50 outline-none">
+                </div>
+
+                <div>
+                    <label id="lblPatName" class="block text-sm font-semibold text-slate-600 mb-1">Nombre Completo</label>
+                    <input type="text" id="pName" required class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50 outline-none">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label id="lblPatCedula" class="block text-sm font-semibold text-slate-600 mb-1">Cédula / RUC</label>
+                        <input type="tel" id="pCedula" required class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">WhatsApp</label>
+                        <input type="tel" id="pPhone" required placeholder="099..." class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50 outline-none">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-slate-600 mb-1">Motivo de consulta</label>
+                    <input type="text" id="pReason" required placeholder="Ej: Chequeo general" class="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-slate-50 outline-none">
+                </div>
+                
+                <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-indigo-700 active:scale-95 transition-all mt-4 flex justify-center items-center gap-2">
+                    Confirmar Cita Médica
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <div id="successView" class="hidden fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+            <span class="text-4xl">✅</span>
+        </div>
+        <h2 class="text-3xl font-black text-slate-800 mb-2">¡Cita Confirmada!</h2>
+        <p class="text-slate-600 mb-8">Tu solicitud ha sido enviada al consultorio. Te esperamos el <strong id="resDate"></strong> a las <strong id="resTime"></strong>.</p>
+        <button onclick="window.location.reload()" class="bg-slate-100 text-slate-700 font-bold py-3 px-8 rounded-xl">Agendar otra cita</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc",
+            authDomain: "medicitas-app.firebaseapp.com",
+            projectId: "medicitas-app",
+            storageBucket: "medicitas-app.firebasestorage.app",
+            messagingSenderId: "310910036460",
+            appId: "1:310910036460:web:1a979471880251173838c9",
+            measurementId: "G-P3WWTZ3SH0"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let doctorId = null;
+        let clinicConfig = null;
+        let bookedTimesForDate = [];
+
+        function adaptarUI(especialidad) {
+            if (especialidad === 'veterinaria') {
+                document.getElementById('lblPatCedula').textContent = 'Cédula del Dueño';
+                document.getElementById('lblPatName').textContent = 'Nombre de la Mascota';
+                document.getElementById('divPatOwner').classList.remove('hidden');
+                document.getElementById('pOwner').required = true;
+            } else {
+                document.getElementById('lblPatCedula').textContent = 'Cédula / RUC';
+                document.getElementById('lblPatName').textContent = 'Nombre Completo';
+                document.getElementById('divPatOwner').classList.add('hidden');
+                document.getElementById('pOwner').required = false;
+            }
+        }
+
+        window.onload = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            doctorId = urlParams.get('doc');
+
+            if (!doctorId) {
+                document.getElementById('loadingView').innerHTML = '<p class="text-red-500 font-bold p-6 text-center">Error: Enlace inválido. Falta el ID del doctor.</p>';
+                return;
+            }
+
+            try {
+                const docSnap = await db.collection('users').doc(doctorId).get();
+                if (!docSnap.exists) throw new Error("Doctor no encontrado");
+                
+                const doctorData = docSnap.data();
+                clinicConfig = doctorData.clinicInfo || {};
+                
+                if(!clinicConfig.horarioInicio) clinicConfig.horarioInicio = "08:00";
+                if(!clinicConfig.horarioFin) clinicConfig.horarioFin = "17:00";
+                if(!clinicConfig.duracionCita) clinicConfig.duracionCita = 30;
+                if(!clinicConfig.diasBloqueados) clinicConfig.diasBloqueados = [];
+
+                adaptarUI(clinicConfig.especialidad || 'medicina');
+
+                document.getElementById('docName').textContent = clinicConfig.nombre || doctorData.nombre;
+                document.getElementById('docAddress').textContent = clinicConfig.direccion || "Consultorio";
+                if(clinicConfig.logo) {
+                    document.getElementById('docLogo').src = clinicConfig.logo;
+                    document.getElementById('docLogoContainer').classList.remove('hidden');
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('selectedDate').setAttribute('min', today);
+
+                document.getElementById('loadingView').style.display = 'none';
+                document.getElementById('bookingApp').style.display = 'block';
+
+            } catch (error) {
+                document.getElementById('loadingView').innerHTML = `<p class="text-red-500 font-bold text-center">${error.message}</p>`;
+            }
+        };
+
+        document.getElementById('selectedDate').addEventListener('change', async (e) => {
+            const date = e.target.value;
+            const errorLabel = document.getElementById('dateError');
+            
+            if(clinicConfig.diasBloqueados.includes(date)) {
+                errorLabel.textContent = "El doctor no atiende en esta fecha (Feriado).";
+                errorLabel.classList.remove('hidden');
+                document.getElementById('timeStep').classList.add('opacity-50', 'pointer-events-none');
+                return;
+            }
+            
+            errorLabel.classList.add('hidden');
+            document.getElementById('timeSlots').innerHTML = '<div class="col-span-3 flex justify-center py-2"><div class="spinner"></div></div>';
+            
+            try {
+                const aptsSnap = await db.collection('appointments').where('doctorId', '==', doctorId).where('fecha', '==', date).get();
+                
+                bookedTimesForDate = [];
+                aptsSnap.forEach(doc => {
+                    if(doc.data().estado !== 'cancelada') {
+                        bookedTimesForDate.push(doc.data().hora);
+                    }
+                });
+
+                generarCuadriculaHorarios();
+                document.getElementById('timeStep').classList.remove('opacity-50', 'pointer-events-none');
+            } catch(error) {
+                console.error("Error obteniendo citas:", error);
+            }
+        });
+
+        function generarCuadriculaHorarios() {
+            const container = document.getElementById('timeSlots');
+            container.innerHTML = '';
+            document.getElementById('formStep').classList.add('opacity-50', 'pointer-events-none');
+            document.getElementById('selectedTime').value = '';
+
+            const startMin = timeToMinutes(clinicConfig.horarioInicio);
+            const endMin = timeToMinutes(clinicConfig.horarioFin);
+            const dur = parseInt(clinicConfig.duracionCita);
+
+            let slots = [];
+            for(let m = startMin; m < endMin; m += dur) {
+                let timeString = minutesToTime(m);
+                slots.push(timeString);
+            }
+
+            if(slots.length === 0) {
+                container.innerHTML = '<p class="col-span-3 text-sm text-red-500 text-center">No hay horarios configurados.</p>';
+                return;
+            }
+
+            slots.forEach(time => {
+                const isBooked = bookedTimesForDate.includes(time);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = time;
+                
+                if(isBooked) {
+                    btn.className = 'py-3 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed line-through text-sm font-bold';
+                    btn.disabled = true;
+                } else {
+                    btn.className = 'time-btn py-3 rounded-xl border border-indigo-200 bg-white text-indigo-700 font-bold text-sm hover:bg-indigo-50 active:bg-indigo-100 transition-colors';
+                    btn.onclick = () => seleccionarHora(time, btn);
+                }
+                container.appendChild(btn);
+            });
+        }
+
+        function seleccionarHora(time, btnRef) {
+            document.querySelectorAll('.time-btn').forEach(b => {
+                b.classList.remove('bg-indigo-600', 'text-white');
+                b.classList.add('bg-white', 'text-indigo-700');
+            });
+            btnRef.classList.remove('bg-white', 'text-indigo-700');
+            btnRef.classList.add('bg-indigo-600', 'text-white');
+
+            document.getElementById('selectedTime').value = time;
+            document.getElementById('formStep').classList.remove('opacity-50', 'pointer-events-none');
+            document.getElementById('formStep').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // 🔥 BLOQUE BLINDADO PARA EVITAR QUE SE QUEDE CARGANDO 🔥
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const time = document.getElementById('selectedTime').value;
+            const date = document.getElementById('selectedDate').value;
+            
+            if(!time) return alert("Por favor, selecciona una hora.");
+
+            btn.innerHTML = '<div class="spinner border-white border-t-indigo-200 w-5 h-5"></div> Procesando...';
+            btn.disabled = true;
+
+            const phone = document.getElementById('pPhone').value;
+            const cedula = document.getElementById('pCedula').value;
+            const name = document.getElementById('pName').value;
+            const reason = document.getElementById('pReason').value;
+            
+            const ownerEl = document.getElementById('pOwner');
+            const owner = ownerEl ? ownerEl.value : '';
+
+            try {
+                const patQuery = await db.collection('patients')
+                    .where('doctorId', '==', doctorId)
+                    .where('cedula', '==', cedula)
+                    .get();
+
+                let patientIdToUse = null;
+
+                if(patQuery.empty) {
+                    const newPatData = {
+                        doctorId: doctorId,
+                        nombre: name,
+                        cedula: cedula,
+                        telefonoWhatsApp: phone,
+                        fechaRegistro: new Date(),
+                        activo: true
+                    };
+                    if(owner) newPatData.dueno = owner; 
+
+                    const newPatRef = await db.collection('patients').add(newPatData);
+                    patientIdToUse = newPatRef.id;
+                } else {
+                    patientIdToUse = patQuery.docs[0].id;
+                }
+
+                await db.collection('appointments').add({
+                    doctorId: doctorId,
+                    patientId: patientIdToUse,
+                    fecha: date,
+                    hora: time,
+                    motivo: "ONLINE: " + reason,
+                    monto: 0,
+                    estado: 'pendiente',
+                    notas: 'Agendado por el paciente vía Web',
+                    fechaCreacion: new Date()
+                });
+
+                document.getElementById('bookingApp').style.display = 'none';
+                document.getElementById('resDate').textContent = date;
+                document.getElementById('resTime').textContent = time;
+                document.getElementById('successView').classList.remove('hidden');
+
+            } catch (error) {
+                alert("Hubo un error de conexión al agendar. Intenta de nuevo.");
+                console.error(error);
+                btn.innerHTML = 'Confirmar Cita Médica';
+                btn.disabled = false;
+            }
+        });
+
+        function timeToMinutes(timeStr) {
+            const [h, m] = timeStr.split(':');
+            return parseInt(h) * 60 + parseInt(m);
+        }
+        function minutesToTime(mins) {
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        }
+    </script>
+</body>
+</html>
