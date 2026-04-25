@@ -376,6 +376,12 @@
                         </div>
                         <div id="medicinesContainer" class="space-y-3"></div>
                     </div>
+
+                    <div class="mt-4">
+                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">💡 Recomendaciones Generadas</h4>
+                        <textarea id="rxRecomendaciones" rows="3" class="w-full text-sm px-3 py-2 border border-orange-200 bg-orange-50 rounded focus:ring-2 focus:ring-orange-500" placeholder="Consejos y cuidados en casa..."></textarea>
+                    </div>
+
                 </div>
                 <div class="px-6 py-4 border-t flex gap-3 bg-gray-50 rounded-b-lg">
                     <button onclick="closePrescriptionModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg hover:bg-gray-100">Cancelar</button>
@@ -415,6 +421,9 @@
     </div>
 
     <script>
+        // 🔥 ENCHUFE UNIVERSAL (AQUÍ PEGAREMOS EL LINK DE NGROK DESPUÉS) 🔥
+        const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev";
+
         // ============================================
         // CONFIGURACIÓN FIREBASE
         // ============================================
@@ -438,7 +447,6 @@
         let globalBlockedDates = []; 
         let qrInterval = null;
 
-        // 🔥 FUNCIÓN CAMALEÓN: Adapta la interfaz a la especialidad 🔥
         function adaptarUI() {
             const esp = clinicDataGlobal?.especialidad || 'medicina';
             
@@ -480,9 +488,6 @@
             if(container) container.innerHTML = html;
         }
 
-        // ============================================
-        // LÓGICA DE WHATSAPP Y LINKS
-        // ============================================
         function copiarMiLink() {
             if(!currentUser) return;
             const currentPath = window.location.href.split('?')[0]; 
@@ -506,13 +511,13 @@
             document.getElementById('qrStatusText').textContent = 'Solicitando contenedor seguro...'; 
             document.getElementById('qrCodeDisplay').innerHTML = '';
             try { 
-                await fetch('http://localhost:3000/api/whatsapp/start', { 
+                await fetch(`${API_BASE_URL}/api/whatsapp/start`, { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
                     body: JSON.stringify({ doctorId: currentUser.uid }) 
                 }); 
             } catch(e) { 
-                document.getElementById('qrStatusText').textContent = 'Error: Servidor apagado'; 
+                document.getElementById('qrStatusText').textContent = 'Error: Servidor apagado o sin Ngrok'; 
                 return; 
             }
             if(qrInterval) clearInterval(qrInterval); 
@@ -522,7 +527,7 @@
 
         async function checkWhatsAppStatus() {
             try {
-                const res = await fetch(`http://localhost:3000/api/whatsapp/status/${currentUser.uid}`); 
+                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${currentUser.uid}`); 
                 const data = await res.json(); 
                 const statusText = document.getElementById('qrStatusText');
                 
@@ -543,9 +548,6 @@
             } catch(e) {}
         }
 
-        // ============================================
-        // AUTENTICACIÓN
-        // ============================================
         document.getElementById('toggleSignupBtn').addEventListener('click', () => { document.getElementById('signupForm').classList.remove('hidden'); document.getElementById('toggleSignupBtn').classList.add('hidden'); });
         document.getElementById('toggleBackBtn').addEventListener('click', () => { document.getElementById('signupForm').classList.add('hidden'); document.getElementById('toggleSignupBtn').classList.remove('hidden'); });
 
@@ -609,9 +611,6 @@
 
         document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
 
-        // ============================================
-        // MODALES Y CONFIGURACIÓN
-        // ============================================
         function encodeImageFileAsURL(element) { 
             let file = element.files[0]; 
             let reader = new FileReader(); 
@@ -679,9 +678,6 @@
             } 
         }
         
-        // ============================================
-        // DIRECTORIO DE PACIENTES
-        // ============================================
         async function loadPatients() { 
             try { 
                 const snapshot = await db.collection('patients').where('doctorId', '==', currentUser.uid).get(); 
@@ -763,25 +759,21 @@
             renderPatientsDirectory(patients.filter(p => p.nombre.toLowerCase().includes(term) || (p.cedula && p.cedula.includes(term)))); 
         });
 
-        // 🔥 FUNCIÓN DE BORRAR PACIENTE (RESTAURADA) 🔥
         async function deletePatientCompletely(patientId) { 
             const pat = patients.find(p => p.id === patientId);
             if(!confirm(`⚠️ ATENCIÓN ⚠️\n¿Seguro que deseas eliminar permanentemente a ${pat.nombre}?\nSe borrarán también todas sus citas e historial médico.`)) return;
             
             try {
-                // Borrar citas asociadas
                 const citasSnapshot = await db.collection('appointments').where('patientId', '==', patientId).get();
                 const batchCitas = db.batch(); 
                 citasSnapshot.forEach(doc => batchCitas.delete(doc.ref)); 
                 await batchCitas.commit();
 
-                // Borrar signos vitales e historial asociado
                 const vitalsSnapshot = await db.collection('patients').doc(patientId).collection('vitals').get();
                 const batchVitals = db.batch(); 
                 vitalsSnapshot.forEach(doc => batchVitals.delete(doc.ref)); 
                 await batchVitals.commit();
 
-                // Borrar el paciente
                 await db.collection('patients').doc(patientId).delete(); 
                 mostrarMensaje('Paciente eliminado permanentemente', 'success');
                 await loadPatients(); 
@@ -791,9 +783,6 @@
             }
         }
         
-        // ============================================
-        // AGENDA DE CITAS Y DASHBOARD
-        // ============================================
         async function loadAppointments() { 
             try { 
                 const snapshot = await db.collection('appointments').where('doctorId', '==', currentUser.uid).orderBy('fecha', 'desc').orderBy('hora', 'desc').get(); 
@@ -900,9 +889,6 @@
             document.getElementById('pendingAppointmentsCount').textContent = appointments.filter(a => a.estado === 'pendiente').length;
         }
 
-        // ============================================
-        // MODALES DE HISTORIA CLÍNICA Y RECETAS
-        // ============================================
         async function openHistoryModal(patientId) { 
             if(!patientId || patientId === 'undefined') return alert('No se pudo encontrar el paciente.');
             document.getElementById('historyModal').classList.remove('hidden'); 
@@ -928,7 +914,7 @@
             const a = appointments.find(x => x.id === id); 
             const p = patients.find(x => x.id === a.patientId); 
             try {
-                await fetch('http://localhost:3000/send-reminder', { 
+                await fetch(`${API_BASE_URL}/send-reminder`, { 
                     method:'POST', 
                     headers:{'Content-Type':'application/json'}, 
                     body:JSON.stringify({ 
@@ -950,8 +936,8 @@
             document.getElementById('prescriptionModal').classList.remove('hidden'); 
             document.getElementById('rxBorrador').value = '';
             document.getElementById('rxDiagnostico').value = '';
+            document.getElementById('rxRecomendaciones').value = '';
             
-            // Limpia los campos vitales dinámicos
             document.querySelectorAll('.vital-input').forEach(input => input.value = '');
             
             document.getElementById('medicinesContainer').innerHTML = ''; 
@@ -970,7 +956,6 @@
             </div>`); 
         }
 
-        // 🔥 FUNCIÓN MEJORADA: Enviar los datos vitales a la Inteligencia Artificial 🔥
         async function procesarConIA() { 
             const btn = document.getElementById('btnCopiloto'); 
             const borrador = document.getElementById('rxBorrador').value;
@@ -981,7 +966,6 @@
                 return;
             }
 
-            // NUEVO: Recopilar los datos vitales específicos para que la IA sepa raza, piezas dentales, etc.
             let datosExtras = [];
             document.querySelectorAll('.vital-input').forEach(input => {
                 if(input.value) {
@@ -994,13 +978,13 @@
             btn.disabled = true;
 
             try { 
-                const res = await fetch('http://localhost:3000/api/ia-copilot', { 
+                const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, { 
                     method:'POST', 
                     headers:{'Content-Type':'application/json'}, 
                     body:JSON.stringify({ 
                         notasBorrador: borrador,
                         especialidad: esp,
-                        contextoClinico: contextoClinico // Enviamos los datos vitales a la IA
+                        contextoClinico: contextoClinico 
                     }) 
                 }); 
                 
@@ -1008,6 +992,14 @@
 
                 const data = await res.json(); 
                 document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
+                
+                // 🔥 CARGAR RECOMENDACIONES EN LA CAJA NARANJA 🔥
+                if (data.recomendaciones && data.recomendaciones.length > 0) {
+                    document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
+                } else {
+                    document.getElementById('rxRecomendaciones').value = '';
+                }
+
                 document.getElementById('medicinesContainer').innerHTML = ''; 
                 
                 if(data.receta && data.receta.length > 0) {
@@ -1033,7 +1025,6 @@
             
             let diag = document.getElementById('rxDiagnostico').value; 
             
-            // Reúne los signos vitales sin importar la especialidad
             const esp = clinicDataGlobal?.especialidad || 'medicina';
             let customVitalsStr = [];
             let vitalsObj = {};
@@ -1058,12 +1049,15 @@
                 if(n) meds.push({ medicamento:n, dosis:r.querySelector('.med-dose').value }); 
             }); 
             
+            // 🔥 LEER LAS RECOMENDACIONES PARA EL PDF 🔥
+            const recText = document.getElementById('rxRecomendaciones').value;
+            const recomendacionesList = recText ? recText.split('\n').filter(r => r.trim() !== '') : [];
+
             const btn = document.getElementById('btnSubmitPrescription');
             btn.innerHTML = '⏳ Guardando y generando PDF...';
             btn.disabled = true;
 
             try {
-                // Guarda en el historial del paciente
                 if(diag || customVitalsStr.length > 0 || meds.length > 0) {
                     await db.collection('patients').doc(p.id).collection('vitals').add({ 
                         fecha: new Date(), 
@@ -1072,8 +1066,7 @@
                     }); 
                 }
 
-                // Llama al servidor para generar el PDF y mandarlo por WhatsApp
-                await fetch('http://localhost:3000/send-prescription', { 
+                await fetch(`${API_BASE_URL}/send-prescription`, { 
                     method:'POST', 
                     headers:{'Content-Type':'application/json'}, 
                     body:JSON.stringify({ 
@@ -1083,6 +1076,7 @@
                         diagnostico: diag, 
                         vitals: vitalsObj, 
                         prescription: meds, 
+                        recomendaciones: recomendacionesList, // Se envían al backend
                         clinicInfo: clinicDataGlobal 
                     }) 
                 }); 
@@ -1097,9 +1091,6 @@
             }
         }
 
-        // ============================================
-        // LÓGICA DE COBROS Y COMPROBANTES DE PAGO
-        // ============================================
         function openBillingModal(id, name) { 
             document.getElementById('billingAptId').value = id; 
             document.getElementById('billingPatName').textContent = name; 
@@ -1133,8 +1124,7 @@
             btn.disabled = true;
 
             try {
-                // Envía el mensaje de comprobante por WhatsApp
-                const resMsg = await fetch('http://localhost:3000/send-message', { 
+                const resMsg = await fetch(`${API_BASE_URL}/send-message`, { 
                     method:'POST', 
                     headers:{'Content-Type':'application/json'}, 
                     body:JSON.stringify({ 
@@ -1147,7 +1137,6 @@
                 const dataMsg = await resMsg.json();
                 if (!resMsg.ok || !dataMsg.success) throw new Error(dataMsg.error || "Fallo en la red");
 
-                // Actualiza la cita a completada con el monto real
                 await db.collection('appointments').doc(id).update({ estado: 'completada', monto: tot });
                 closeBillingModal(); 
                 await loadAppointments(); 
@@ -1160,9 +1149,6 @@
             }
         }
 
-        // ============================================
-        // FUNCIONES GLOBALES DE MENSAJES Y ALERTAS
-        // ============================================
         function mostrarError(msg) { 
             const d = document.getElementById('authError'); 
             d.textContent = msg; 
