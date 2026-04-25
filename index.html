@@ -423,9 +423,8 @@
     <script>
         // 🔥 ENCHUFE UNIVERSAL CON PASE VIP PARA NGROK 🔥
         // Reemplaza esto con tu URL de Ngrok
-        const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev"; 
+        const API_BASE_URL = "http://localhost:3000"; 
         
-        // Cabecera secreta para saltar la pantalla de advertencia de Ngrok
         const ngrokHeaders = {
             'Content-Type': 'application/json',
             'ngrok-skip-browser-warning': 'true'
@@ -515,10 +514,14 @@
             document.getElementById('qrStatusText').textContent = 'Solicitando contenedor seguro...'; 
             document.getElementById('qrCodeDisplay').innerHTML = '';
             try { 
+                // 🔥 ENVIAMOS EL ORIGEN WEB AL SERVIDOR PARA ARMAR EL LINK DINÁMICO 🔥
                 await fetch(`${API_BASE_URL}/api/whatsapp/start`, { 
                     method: 'POST', 
                     headers: ngrokHeaders, 
-                    body: JSON.stringify({ doctorId: currentUser.uid }) 
+                    body: JSON.stringify({ 
+                        doctorId: currentUser.uid,
+                        frontendUrl: window.location.origin
+                    }) 
                 }); 
             } catch(e) { 
                 document.getElementById('qrStatusText').textContent = 'Error: Servidor apagado o sin Ngrok'; 
@@ -531,7 +534,6 @@
 
         async function checkWhatsAppStatus() {
             try {
-                // El pase VIP para que Ngrok deje pasar el GET
                 const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${currentUser.uid}`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 }); 
@@ -606,7 +608,6 @@
                 adaptarUI(); 
                 await loadPatients(); 
                 await loadAppointments();
-                // requestWhatsAppConnection(); Quitado el auto-inicio para evitar spam en ngrok
             } else {
                 currentUser = null; 
                 clinicDataGlobal = null; 
@@ -1063,10 +1064,12 @@
             btn.disabled = true;
 
             try {
-                if(diag || customVitalsStr.length > 0 || meds.length > 0) {
+                // 🔥 AHORA GUARDAMOS LAS RECOMENDACIONES EN FIREBASE 🔥
+                if(diag || customVitalsStr.length > 0 || meds.length > 0 || recomendacionesList.length > 0) {
                     await db.collection('patients').doc(p.id).collection('vitals').add({ 
                         fecha: new Date(), 
                         diagnostico: diag, 
+                        recomendaciones: recomendacionesList,
                         ...vitalsObj 
                     }); 
                 }
