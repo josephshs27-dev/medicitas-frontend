@@ -421,12 +421,16 @@
     </div>
 
     <script>
-        // 🔥 ENCHUFE UNIVERSAL (AQUÍ PEGAREMOS EL LINK DE NGROK DESPUÉS) 🔥
-        const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev";
+        // 🔥 ENCHUFE UNIVERSAL CON PASE VIP PARA NGROK 🔥
+        // Reemplaza esto con tu URL de Ngrok
+        const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev"; 
+        
+        // Cabecera secreta para saltar la pantalla de advertencia de Ngrok
+        const ngrokHeaders = {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        };
 
-        // ============================================
-        // CONFIGURACIÓN FIREBASE
-        // ============================================
         const firebaseConfig = {
             apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc", 
             authDomain: "medicitas-app.firebaseapp.com",
@@ -513,7 +517,7 @@
             try { 
                 await fetch(`${API_BASE_URL}/api/whatsapp/start`, { 
                     method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
+                    headers: ngrokHeaders, 
                     body: JSON.stringify({ doctorId: currentUser.uid }) 
                 }); 
             } catch(e) { 
@@ -527,7 +531,10 @@
 
         async function checkWhatsAppStatus() {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${currentUser.uid}`); 
+                // El pase VIP para que Ngrok deje pasar el GET
+                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${currentUser.uid}`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                }); 
                 const data = await res.json(); 
                 const statusText = document.getElementById('qrStatusText');
                 
@@ -599,7 +606,7 @@
                 adaptarUI(); 
                 await loadPatients(); 
                 await loadAppointments();
-                requestWhatsAppConnection();
+                // requestWhatsAppConnection(); Quitado el auto-inicio para evitar spam en ngrok
             } else {
                 currentUser = null; 
                 clinicDataGlobal = null; 
@@ -916,7 +923,7 @@
             try {
                 await fetch(`${API_BASE_URL}/send-reminder`, { 
                     method:'POST', 
-                    headers:{'Content-Type':'application/json'}, 
+                    headers: ngrokHeaders, 
                     body:JSON.stringify({ 
                         doctorId: currentUser.uid, 
                         phoneNumber:p.telefonoWhatsApp, 
@@ -980,7 +987,7 @@
             try { 
                 const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, { 
                     method:'POST', 
-                    headers:{'Content-Type':'application/json'}, 
+                    headers: ngrokHeaders, 
                     body:JSON.stringify({ 
                         notasBorrador: borrador,
                         especialidad: esp,
@@ -993,7 +1000,6 @@
                 const data = await res.json(); 
                 document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
                 
-                // 🔥 CARGAR RECOMENDACIONES EN LA CAJA NARANJA 🔥
                 if (data.recomendaciones && data.recomendaciones.length > 0) {
                     document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
                 } else {
@@ -1049,7 +1055,6 @@
                 if(n) meds.push({ medicamento:n, dosis:r.querySelector('.med-dose').value }); 
             }); 
             
-            // 🔥 LEER LAS RECOMENDACIONES PARA EL PDF 🔥
             const recText = document.getElementById('rxRecomendaciones').value;
             const recomendacionesList = recText ? recText.split('\n').filter(r => r.trim() !== '') : [];
 
@@ -1068,7 +1073,7 @@
 
                 await fetch(`${API_BASE_URL}/send-prescription`, { 
                     method:'POST', 
-                    headers:{'Content-Type':'application/json'}, 
+                    headers: ngrokHeaders, 
                     body:JSON.stringify({ 
                         doctorId: currentUser.uid, 
                         phoneNumber: p.telefonoWhatsApp, 
@@ -1076,7 +1081,7 @@
                         diagnostico: diag, 
                         vitals: vitalsObj, 
                         prescription: meds, 
-                        recomendaciones: recomendacionesList, // Se envían al backend
+                        recomendaciones: recomendacionesList,
                         clinicInfo: clinicDataGlobal 
                     }) 
                 }); 
@@ -1126,7 +1131,7 @@
             try {
                 const resMsg = await fetch(`${API_BASE_URL}/send-message`, { 
                     method:'POST', 
-                    headers:{'Content-Type':'application/json'}, 
+                    headers: ngrokHeaders, 
                     body:JSON.stringify({ 
                         doctorId: currentUser.uid, 
                         phoneNumber: p.telefonoWhatsApp, 
