@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slideIn { animation: slideIn 0.3s ease-out; }
@@ -324,18 +325,35 @@
             </div>
         </div>
 
-        <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center py-4">
-            <div class="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-blue-50 rounded-t-lg">
+        <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center py-4">
+            <div class="bg-white rounded-xl w-full max-w-5xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
                     <div>
-                        <h3 class="text-xl font-bold text-blue-900 flex items-center gap-2">📖 Historial Clínico</h3>
+                        <h3 class="text-2xl font-bold text-blue-900 flex items-center gap-2">📖 Expediente Clínico Digital</h3>
                         <p class="text-sm font-semibold text-blue-700 mt-1" id="historyPatientInfo">Cargando...</p>
                     </div>
-                    <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+                    <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none transition-colors">&times;</button>
                 </div>
-                <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-50" id="historyTimeline"></div>
-                <div class="px-6 py-4 border-t flex justify-end bg-white rounded-b-lg">
-                    <button onclick="closeHistoryModal()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-6 rounded-lg transition">Cerrar Historial</button>
+                <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-50 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="space-y-4">
+                        <div id="chartContainer" class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm hidden h-64">
+                            <canvas id="vitalsChartCanvas"></canvas>
+                        </div>
+                        <div class="bg-indigo-50 p-4 border border-indigo-100 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">🧠 Inteligencia Clínica</h4>
+                            <p class="text-sm text-gray-700 leading-relaxed">Este expediente se construye y actualiza automáticamente con cada consulta procesada por la Inteligencia Artificial. Los datos vitales se grafican cronológicamente para evaluar la evolución del paciente.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+                        <h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Cronología de Atenciones</h4>
+                        <div id="historyTimeline" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scroll">
+                            </div>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t flex justify-end bg-white rounded-b-xl">
+                    <button onclick="closeHistoryModal()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-6 rounded-lg transition shadow">Cerrar Expediente</button>
                 </div>
             </div>
         </div>
@@ -422,7 +440,6 @@
 
     <script>
         // 🔥 ENCHUFE UNIVERSAL CON PASE VIP PARA NGROK 🔥
-        // Reemplaza esto con tu URL de Ngrok
         const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev"; 
         
         const ngrokHeaders = {
@@ -514,7 +531,6 @@
             document.getElementById('qrStatusText').textContent = 'Solicitando contenedor seguro...'; 
             document.getElementById('qrCodeDisplay').innerHTML = '';
             try { 
-                // 🔥 ENVIAMOS EL ORIGEN WEB AL SERVIDOR PARA ARMAR EL LINK DINÁMICO 🔥
                 await fetch(`${API_BASE_URL}/api/whatsapp/start`, { 
                     method: 'POST', 
                     headers: ngrokHeaders, 
@@ -703,17 +719,28 @@
         document.getElementById('newPatientBtn').addEventListener('click', () => document.getElementById('newPatientModal').classList.remove('hidden')); 
         document.getElementById('closePatientModalBtn').addEventListener('click', () => document.getElementById('newPatientModal').classList.add('hidden'));
         
+        // 🔥 VALIDACIÓN ESTRICTA: ANTIDUPLICADOS DE CÉDULA/RUC 🔥
         document.getElementById('saveNewPatientBtn').addEventListener('click', async () => { 
-            const name = document.getElementById('newPatientName').value; 
-            const cedula = document.getElementById('newPatientCedula').value; 
-            const phone = document.getElementById('newPatientPhone').value; 
-            const email = document.getElementById('newPatientEmail').value;
+            const name = document.getElementById('newPatientName').value.trim(); 
+            const cedula = document.getElementById('newPatientCedula').value.trim(); 
+            const phone = document.getElementById('newPatientPhone').value.trim(); 
+            const email = document.getElementById('newPatientEmail').value.trim();
             const ownerEl = document.getElementById('newPatientOwner');
-            const owner = ownerEl ? ownerEl.value : '';
+            const owner = ownerEl ? ownerEl.value.trim() : '';
 
-            if(!name || !phone) return alert("Faltan campos obligatorios");
+            if(!name || !phone || !cedula) return alert("Nombre, Teléfono y Cédula son obligatorios.");
 
             try { 
+                // Verificar si la cédula ya existe para esta clínica
+                const existing = await db.collection('patients')
+                    .where('doctorId', '==', currentUser.uid)
+                    .where('cedula', '==', cedula)
+                    .get();
+
+                if(!existing.empty) {
+                    return mostrarError(`⚠️ Ya existe un paciente registrado con la Cédula/RUC: ${cedula}. Busca en tu directorio.`);
+                }
+
                 await db.collection('patients').add({ 
                     nombre: name, 
                     cedula: cedula, 
@@ -897,26 +924,109 @@
             document.getElementById('pendingAppointmentsCount').textContent = appointments.filter(a => a.estado === 'pendiente').length;
         }
 
+        // 🔥 FUNCIONALIDAD EXPEDIENTE CLÍNICO AVANZADO 🔥
         async function openHistoryModal(patientId) { 
             if(!patientId || patientId === 'undefined') return alert('No se pudo encontrar el paciente.');
             document.getElementById('historyModal').classList.remove('hidden'); 
             
+            const pat = patients.find(p => p.id === patientId);
+            document.getElementById('historyPatientInfo').innerHTML = `👤 ${pat.nombre} &nbsp;|&nbsp; 🆔 CI/RUC: <span class="font-bold">${pat.cedula || 'N/A'}</span> &nbsp;|&nbsp; 📱 Tel: ${pat.telefonoWhatsApp}`;
+            
             try {
-                const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'desc').get(); 
+                // Obtenemos los registros ordenados desde el más antiguo al más nuevo para graficar
+                const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'asc').get(); 
+                
                 if(snap.empty) {
                     document.getElementById('historyTimeline').innerHTML = '<p class="text-center text-gray-500 mt-10 font-bold">Sin Historial Clínico registrado.</p>';
+                    document.getElementById('chartContainer').classList.add('hidden');
+                    if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
                     return;
                 }
-                document.getElementById('historyTimeline').innerHTML = snap.docs.map(d => `
-                <div class="bg-white p-4 border border-gray-200 rounded-lg mb-3 shadow-sm">
-                    <h4 class="font-bold text-indigo-900 border-b pb-2 mb-2">${new Date(d.data().fecha.toDate ? d.data().fecha.toDate() : d.data().fecha).toLocaleDateString()}</h4>
-                    <p class="text-sm text-gray-700 whitespace-pre-wrap">${d.data().diagnostico || 'Sin diagnóstico en este encuentro.'}</p>
-                </div>`).join(''); 
+
+                const docs = snap.docs;
+                const labels = [];
+                const dataPeso = [];
+
+                let timelineHtml = '';
+                
+                // Recorremos al revés (del más nuevo al más viejo) para la línea de tiempo
+                for(let i = docs.length - 1; i >= 0; i--) {
+                    const d = docs[i].data();
+                    const rawDate = d.fecha.toDate ? d.fecha.toDate() : d.fecha;
+                    const dateStr = new Date(rawDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                    let vitalsStr = '';
+                    if(d.peso) vitalsStr += `Peso: ${d.peso}kg | `;
+                    if(d.presion) vitalsStr += `Presión: ${d.presion} | `;
+                    if(d.ritmo) vitalsStr += `FC: ${d.ritmo}bpm | `;
+                    if(d.altura) vitalsStr += `Altura: ${d.altura}cm`;
+
+                    timelineHtml += `
+                    <div class="bg-white p-4 border-l-4 border-indigo-500 rounded-r-lg mb-4 shadow-sm hover:shadow-md transition">
+                        <div class="flex justify-between items-center border-b pb-2 mb-2">
+                            <h4 class="font-bold text-indigo-900">📅 ${dateStr}</h4>
+                            <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded font-bold">Consulta IA</span>
+                        </div>
+                        ${vitalsStr ? `<p class="text-xs text-gray-600 mb-3 font-semibold bg-gray-50 p-2 rounded">📊 ${vitalsStr}</p>` : ''}
+                        <div class="space-y-2">
+                            <p class="text-sm text-gray-800 whitespace-pre-wrap"><span class="font-bold text-gray-900">🩺 Evolución:</span><br>${d.diagnostico || 'Sin diagnóstico registrado.'}</p>
+                            ${d.recomendaciones && d.recomendaciones.length > 0 ? `
+                                <div class="bg-orange-50 p-3 rounded border border-orange-100 mt-2">
+                                    <p class="text-sm text-orange-900 whitespace-pre-wrap"><span class="font-bold flex items-center gap-1">💡 Recomendaciones:</span>• ${d.recomendaciones.join('<br>• ')}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>`;
+
+                    // Recolectamos datos para la gráfica (en orden cronológico)
+                    labels.unshift(dateStr); // unshift porque estamos recorriendo al revés
+                    if(d.peso) dataPeso.unshift(parseFloat(d.peso));
+                }
+                
+                document.getElementById('historyTimeline').innerHTML = timelineHtml;
+
+                // Generar Gráfica con Chart.js si hay suficientes datos
+                const ctx = document.getElementById('vitalsChartCanvas');
+                if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
+
+                if (dataPeso.length > 0) {
+                    document.getElementById('chartContainer').classList.remove('hidden');
+                    window.vitalsChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Evolución de Peso (kg)',
+                                data: dataPeso,
+                                borderColor: '#4f46e5',
+                                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#4f46e5',
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { position: 'bottom' } },
+                            scales: { y: { beginAtZero: false } }
+                        }
+                    });
+                } else {
+                    document.getElementById('chartContainer').classList.add('hidden');
+                }
+
             } catch(e) {
-                document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center font-bold">Error cargando el historial.</p>';
+                document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center font-bold">Error cargando el expediente.</p>';
             }
         }
-        function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); }
+        
+        function closeHistoryModal() { 
+            document.getElementById('historyModal').classList.add('hidden'); 
+            if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
+        }
         
         async function sendWhatsAppReminder(id) { 
             const a = appointments.find(x => x.id === id); 
@@ -1064,7 +1174,6 @@
             btn.disabled = true;
 
             try {
-                // 🔥 AHORA GUARDAMOS LAS RECOMENDACIONES EN FIREBASE 🔥
                 if(diag || customVitalsStr.length > 0 || meds.length > 0 || recomendacionesList.length > 0) {
                     await db.collection('patients').doc(p.id).collection('vitals').add({ 
                         fecha: new Date(), 
