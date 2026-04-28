@@ -151,7 +151,7 @@
                                     <p class="text-5xl font-black mt-2 text-green-50" id="kpiIngresos">$0.00</p>
                                 </div>
                                 <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-purple-100 text-sm font-semibold uppercase tracking-wider">Total Pacientes (Histórico)</p>
+                                    <p class="text-purple-100 text-sm font-semibold uppercase tracking-wider">Total Pacientes</p>
                                     <p class="text-5xl font-black mt-2" id="kpiPacientes">0</p>
                                 </div>
                                 <div class="bg-gradient-to-br from-orange-500 to-orange-700 text-white rounded-xl shadow p-6">
@@ -163,7 +163,7 @@
                     </div>
 
                     <div id="tabContentAgenda" class="hidden h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
                             <div class="lg:col-span-1">
                                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-0">
                                     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">📅 Nueva Cita</h2>
@@ -193,7 +193,7 @@
                                             <label class="block text-sm font-bold text-gray-700 mb-1">Estado</label>
                                             <select id="appointmentStatus" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
                                                 <option value="pendiente">Pendiente de Atención</option>
-                                                <option value="confirmada">Confirmada (WhatsApp)</option>
+                                                <option value="confirmada">Confirmada</option>
                                             </select>
                                         </div>
                                         <div>
@@ -209,10 +209,10 @@
                                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full flex flex-col">
                                     <div class="flex justify-between items-center mb-6 border-b pb-4">
                                         <h2 class="text-xl font-bold text-gray-900">Vista de Agenda</h2>
-                                        <select id="filterAppointmentStatus" class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white font-bold text-gray-700 focus:ring-2 focus:ring-blue-500">
-                                            <option value="activas" selected>Citas por Atender (Activas)</option>
+                                        <select id="filterAppointmentStatus" onchange="renderAppointments()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white font-bold text-gray-700 focus:ring-2 focus:ring-blue-500">
+                                            <option value="activas" selected>Citas Activas (Pendientes/Confirmadas)</option>
                                             <option value="hoy">Solo Citas de Hoy</option>
-                                            <option value="todas">Histórico de Citas</option>
+                                            <option value="todas">Histórico Completo</option>
                                             <option value="completada">Citas Completadas/Cobradas</option>
                                         </select>
                                     </div>
@@ -245,7 +245,7 @@
             </div>
         </div>
 
-        <div id="whatsappModal" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center py-4">
+        <div id="whatsappModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[60] flex items-center justify-center py-4">
             <div class="bg-white rounded-xl w-full max-w-sm mx-4 flex flex-col animate-slideIn shadow-2xl text-center p-6">
                 <h3 class="text-2xl font-black text-green-700 mb-2">Conecta tu Clínica</h3>
                 <p class="text-sm text-gray-600 mb-6">Escanea este QR con el WhatsApp del consultorio para activar tu asistente virtual y el envío de recetas.</p>
@@ -261,46 +261,117 @@
             </div>
         </div>
 
-        <div id="settingsModal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-2xl mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
+        <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center py-4">
+            <div class="bg-white rounded-lg w-full max-w-2xl mx-4 flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-lg">
                     <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">⚙️ Configuración del Consultorio</h3>
                     <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
                 </div>
                 <div class="p-6 space-y-6 overflow-y-auto custom-scroll" style="max-height: 70vh;">
+                    
                     <div>
                         <h4 class="font-bold text-indigo-900 mb-2 border-b pb-1">📄 Datos para la Receta Médica</h4>
                         <div class="space-y-3">
-                            <div><label class="block text-sm font-bold text-indigo-700 mb-1">Especialidad (Muta la IA)</label><select id="clinicSpecialty" class="w-full px-3 py-2 border border-indigo-200 bg-indigo-50 rounded-lg font-semibold"><option value="medicina">Medicina General</option><option value="odontologia">Odontología</option><option value="fisioterapia">Fisioterapia</option><option value="nutricion">Nutrición</option><option value="veterinaria">Veterinaria</option></select></div>
-                            <div><label class="block text-sm font-semibold text-gray-700 mb-1">Nombre Clínica</label><input type="text" id="clinicName" class="w-full px-3 py-2 border rounded-lg"></div>
-                            <div class="grid grid-cols-2 gap-3"><div><label class="block text-sm font-semibold text-gray-700 mb-1">RUC</label><input type="text" id="clinicRuc" class="w-full px-3 py-2 border rounded-lg"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label><input type="text" id="clinicPhone" class="w-full px-3 py-2 border rounded-lg"></div></div>
-                            <div><label class="block text-sm font-semibold text-gray-700 mb-1">Dirección</label><input type="text" id="clinicAddress" class="w-full px-3 py-2 border rounded-lg"></div>
-                            <div><label class="block text-sm font-semibold text-gray-700 mb-2">Logotipo</label><input type="file" accept="image/png, image/jpeg" class="block w-full text-sm" onchange="encodeImageFileAsURL(this)"><input type="hidden" id="clinicLogoBase64"><img id="logoPreview" src="" class="hidden h-16 object-contain border mt-2"></div>
+                            <div>
+                                <label class="block text-sm font-bold text-indigo-700 mb-1">Especialidad de la Clínica (Muta el Sistema)</label>
+                                <select id="clinicSpecialty" class="w-full px-3 py-2 border border-indigo-200 bg-indigo-50 rounded-lg focus:ring-2 focus:ring-indigo-500 font-semibold mb-2">
+                                    <option value="medicina">Medicina General / Especialidades Médicas</option>
+                                    <option value="odontologia">Odontología</option>
+                                    <option value="fisioterapia">Fisioterapia y Rehabilitación</option>
+                                    <option value="nutricion">Nutrición y Dietética</option>
+                                    <option value="veterinaria">Clínica Veterinaria</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de la Clínica / Doctor</label>
+                                <input type="text" id="clinicName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">RUC</label>
+                                    <input type="text" id="clinicRuc" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
+                                    <input type="text" id="clinicPhone" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Dirección del Consultorio</label>
+                                <input type="text" id="clinicAddress" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Logotipo</label>
+                                <input type="file" id="clinicLogoUpload" accept="image/png, image/jpeg" class="block w-full text-sm text-gray-500" onchange="encodeImageFileAsURL(this)">
+                                <input type="hidden" id="clinicLogoBase64">
+                                <img id="logoPreview" src="" class="hidden h-16 object-contain border rounded p-1 shadow-sm mt-2">
+                            </div>
                         </div>
                     </div>
+                    
                     <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                        <h4 class="font-bold text-blue-900 mb-2 border-b border-blue-200 pb-1">🗓️ Horarios Online</h4>
-                        <div class="grid grid-cols-2 gap-4 mb-4"><div><label class="block text-sm font-semibold text-gray-700 mb-1">Hora Inicio</label><input type="time" id="scheduleStart" class="w-full px-3 py-2 border rounded-lg bg-white"></div><div><label class="block text-sm font-semibold text-gray-700 mb-1">Hora Fin</label><input type="time" id="scheduleEnd" class="w-full px-3 py-2 border rounded-lg bg-white"></div></div>
-                        <div class="mb-4"><label class="block text-sm font-semibold text-gray-700 mb-1">Duración Consulta</label><select id="scheduleDuration" class="w-full px-3 py-2 border rounded-lg bg-white"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
-                        <div><label class="block text-sm font-semibold text-gray-700 mb-1">Días Feriados</label><div class="flex gap-2 mb-2"><input type="date" id="scheduleBlockDate" class="flex-1 px-3 py-2 border rounded-lg"><button type="button" onclick="addBlockedDate()" class="bg-blue-600 text-white px-4 rounded-lg font-bold">Añadir</button></div><div id="blockedDatesList" class="flex flex-wrap gap-2 mt-2"></div></div>
+                        <h4 class="font-bold text-blue-900 mb-2 border-b border-blue-200 pb-1">🗓️ Horarios y Agendamiento Online</h4>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Hora Inicio</label>
+                                <input type="time" id="scheduleStart" class="w-full px-3 py-2 border rounded-lg bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Hora Fin</label>
+                                <input type="time" id="scheduleEnd" class="w-full px-3 py-2 border rounded-lg bg-white">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Duración Consulta</label>
+                            <select id="scheduleDuration" class="w-full px-3 py-2 border rounded-lg bg-white">
+                                <option value="15">15 minutos</option>
+                                <option value="30" selected>30 minutos</option>
+                                <option value="45">45 minutos</option>
+                                <option value="60">60 minutos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Días Feriados / Vacaciones</label>
+                            <div class="flex gap-2 mb-2">
+                                <input type="date" id="scheduleBlockDate" class="flex-1 px-3 py-2 border rounded-lg text-sm bg-white">
+                                <button type="button" onclick="addBlockedDate()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm">Añadir</button>
+                            </div>
+                            <div id="blockedDatesList" class="flex flex-wrap gap-2 mt-2"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="px-6 py-4 border-t flex justify-end gap-3 bg-gray-50 rounded-b-xl">
-                    <button onclick="closeSettingsModal()" class="bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 rounded-lg">Cancelar</button>
-                    <button onclick="saveClinicSettings()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg">Guardar</button>
+                <div class="px-6 py-4 border-t flex justify-end gap-3 bg-gray-50 rounded-b-lg">
+                    <button onclick="closeSettingsModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition">Cancelar</button>
+                    <button onclick="saveClinicSettings()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition">Guardar Configuración</button>
                 </div>
             </div>
         </div>
 
-        <div id="newPatientModal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center">
-            <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 animate-slideIn">
+        <div id="newPatientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 animate-slideIn">
                 <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Registrar Paciente</h3>
                 <div class="space-y-3">
-                    <div><label id="lblPatCedula" class="block text-sm font-bold text-gray-700 mb-1">Cédula / RUC *</label><input type="text" id="newPatientCedula" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"></div>
-                    <div id="divPatOwner" class="hidden"><label class="block text-sm font-bold text-gray-700 mb-1">Nombre del Dueño *</label><input type="text" id="newPatientOwner" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"></div>
-                    <div><label id="lblPatName" class="block text-sm font-bold text-gray-700 mb-1">Nombre Completo *</label><input type="text" id="newPatientName" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500"></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Teléfono WhatsApp *</label><input type="tel" id="newPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="+593..."></div>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Email (Opcional)</label><input type="email" id="newPatientEmail" class="w-full px-3 py-2 border rounded-lg bg-gray-50"></div>
+                    <div>
+                        <label id="lblPatCedula" class="block text-sm font-bold text-gray-700 mb-1">Cédula / RUC *</label>
+                        <input type="text" id="newPatientCedula" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div id="divPatOwner" class="hidden">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Nombre del Dueño *</label>
+                        <input type="text" id="newPatientOwner" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label id="lblPatName" class="block text-sm font-bold text-gray-700 mb-1">Nombre Completo *</label>
+                        <input type="text" id="newPatientName" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono WhatsApp *</label>
+                        <input type="tel" id="newPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="+593...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Email (Opcional)</label>
+                        <input type="email" id="newPatientEmail" class="w-full px-3 py-2 border rounded-lg bg-gray-50">
+                    </div>
                 </div>
                 <div class="flex gap-3 mt-6">
                     <button type="button" onclick="document.getElementById('newPatientModal').classList.add('hidden')" class="flex-1 bg-gray-200 hover:bg-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
@@ -309,34 +380,81 @@
             </div>
         </div>
 
-        <div id="historyModal" class="hidden fixed inset-0 bg-black/60 z-[70] flex items-center justify-center py-4">
+        <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center py-4">
             <div class="bg-white rounded-xl w-full max-w-5xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
                 <div class="px-6 py-4 border-b flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
-                    <div><h3 class="text-2xl font-bold text-blue-900 flex items-center gap-2">📖 Expediente Clínico</h3><p class="text-sm font-semibold text-blue-700 mt-1" id="historyPatientInfo">Cargando...</p></div>
-                    <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl">&times;</button>
+                    <div>
+                        <h3 class="text-2xl font-bold text-blue-900 flex items-center gap-2">📖 Expediente Clínico</h3>
+                        <p class="text-sm font-semibold text-blue-700 mt-1" id="historyPatientInfo">Cargando...</p>
+                    </div>
+                    <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
                 </div>
                 <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-50 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
                     <div class="space-y-4">
-                        <div id="chartContainer" class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm hidden h-64"><canvas id="vitalsChartCanvas"></canvas></div>
-                        <div class="bg-indigo-50 p-4 border border-indigo-100 rounded-lg shadow-sm"><h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">🧠 Inteligencia Clínica</h4><p class="text-sm text-gray-700 leading-relaxed">Este expediente se construye y actualiza automáticamente con cada consulta procesada por la Inteligencia Artificial.</p></div>
+                        <div id="chartContainer" class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm hidden h-64">
+                            <canvas id="vitalsChartCanvas"></canvas>
+                        </div>
+                        <div class="bg-indigo-50 p-4 border border-indigo-100 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">🧠 Inteligencia Clínica</h4>
+                            <p class="text-sm text-gray-700 leading-relaxed">Este expediente se construye y actualiza automáticamente con cada consulta procesada por la Inteligencia Artificial.</p>
+                        </div>
                     </div>
-                    <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm"><h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Cronología de Atenciones</h4><div id="historyTimeline" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scroll"></div></div>
+
+                    <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+                        <h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Cronología de Atenciones</h4>
+                        <div id="historyTimeline" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scroll">
+                            </div>
+                    </div>
                 </div>
-                <div class="px-6 py-4 border-t flex justify-end bg-white rounded-b-xl"><button onclick="closeHistoryModal()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-6 rounded-lg">Cerrar</button></div>
+                <div class="px-6 py-4 border-t flex justify-end bg-white rounded-b-xl">
+                    <button onclick="closeHistoryModal()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-6 rounded-lg">Cerrar</button>
+                </div>
             </div>
         </div>
 
-        <div id="prescriptionModal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center py-4">
+        <div id="prescriptionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center py-4">
             <div class="bg-white rounded-xl w-full max-w-3xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-indigo-50 rounded-t-xl"><h3 class="text-xl font-bold text-indigo-900">⚕️ Evolución y Receta</h3><button onclick="closePrescriptionModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl">&times;</button></div>
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-indigo-50 rounded-t-xl">
+                    <h3 class="text-xl font-bold text-indigo-900">⚕️ Evolución y Receta</h3>
+                    <button onclick="closePrescriptionModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+                </div>
                 <div class="p-6 overflow-y-auto custom-scroll flex-1 space-y-6">
                     <input type="hidden" id="rxAppointmentId">
-                    <div class="bg-indigo-100 border-l-4 border-indigo-500 p-3 rounded mb-4"><p class="text-xs text-indigo-700 font-bold uppercase">Atendiendo a:</p><p class="font-bold text-lg text-indigo-900" id="rxPatientName"></p></div>
-                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200 shadow-sm mb-6"><h4 class="font-bold text-purple-900 mb-2 flex items-center gap-2">✨ Copiloto Médico (IA)</h4><textarea id="rxBorrador" rows="2" placeholder="Escribe tus notas rápidas aquí..." class="w-full text-sm px-3 py-2 border rounded mb-2 shadow-inner"></textarea><button type="button" onclick="procesarConIA()" id="btnCopiloto" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg shadow-md">🪄 Estructurar Automáticamente</button></div>
-                    <div><h4 class="font-bold text-gray-800 mb-2 border-b pb-1">🩺 Diagnóstico / Evolución</h4><textarea id="rxDiagnostico" rows="3" class="w-full text-sm px-3 py-2 border rounded"></textarea></div>
-                    <div><h4 class="font-bold text-gray-800 mb-2 border-b pb-1">📊 Control Clínico</h4><div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="dynamicVitalsContainer"></div></div>
-                    <div><div class="flex justify-between items-center mb-2 border-b pb-1"><h4 class="font-bold text-gray-800">💊 Medicación</h4><button onclick="addMedicineRow()" class="text-xs bg-indigo-200 text-indigo-800 font-bold px-3 py-1 rounded">+ Agregar</button></div><div id="medicinesContainer" class="space-y-3"></div></div>
-                    <div class="mt-4"><h4 class="font-bold text-gray-800 mb-2 border-b pb-1">💡 Recomendaciones Generadas</h4><textarea id="rxRecomendaciones" rows="3" class="w-full text-sm px-3 py-2 border border-orange-200 bg-orange-50 rounded"></textarea></div>
+                    <div class="bg-indigo-100 border-l-4 border-indigo-500 p-3 rounded mb-4">
+                        <p class="text-xs text-indigo-700 font-bold uppercase">Atendiendo a:</p>
+                        <p class="font-bold text-lg text-indigo-900" id="rxPatientName"></p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200 shadow-sm mb-6">
+                        <h4 class="font-bold text-purple-900 mb-2 flex items-center gap-2">✨ Copiloto Médico (IA)</h4>
+                        <textarea id="rxBorrador" rows="2" placeholder="Escribe tus notas rápidas aquí..." class="w-full text-sm px-3 py-2 border rounded mb-2 shadow-inner focus:ring-2 focus:ring-purple-500"></textarea>
+                        <button type="button" onclick="procesarConIA()" id="btnCopiloto" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg shadow-md">🪄 Estructurar Automáticamente</button>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">🩺 Diagnóstico / Evolución</h4>
+                        <textarea id="rxDiagnostico" rows="3" class="w-full text-sm px-3 py-2 border rounded focus:ring-2 focus:ring-indigo-500"></textarea>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">📊 Control Clínico</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="dynamicVitalsContainer"></div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between items-center mb-2 border-b pb-1">
+                            <h4 class="font-bold text-gray-800">💊 Medicación</h4>
+                            <button onclick="addMedicineRow()" class="text-xs bg-indigo-200 text-indigo-800 font-bold px-3 py-1 rounded">+ Agregar Manual</button>
+                        </div>
+                        <div id="medicinesContainer" class="space-y-3"></div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">💡 Recomendaciones Generadas</h4>
+                        <textarea id="rxRecomendaciones" rows="3" class="w-full text-sm px-3 py-2 border border-orange-200 bg-orange-50 rounded focus:ring-2 focus:ring-orange-500"></textarea>
+                    </div>
+
                 </div>
                 <div class="px-6 py-4 border-t flex gap-3 bg-gray-50 rounded-b-xl">
                     <button onclick="closePrescriptionModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
@@ -345,17 +463,31 @@
             </div>
         </div>
 
-        <div id="billingModal" class="hidden fixed inset-0 bg-black/50 z-[70] flex items-center justify-center py-4">
+        <div id="billingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[70] flex items-center justify-center py-4">
             <div class="bg-white rounded-xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-green-50 rounded-t-xl"><h3 class="text-xl font-bold text-green-900">💵 Registrar Cobro</h3><button onclick="closeBillingModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl">&times;</button></div>
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-green-50 rounded-t-xl">
+                    <h3 class="text-xl font-bold text-green-900">💵 Registrar Cobro</h3>
+                    <button onclick="closeBillingModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+                </div>
                 <div class="p-6 space-y-4">
-                    <input type="hidden" id="billingAptId"><p class="text-sm text-gray-600 mb-4">Valor a cobrar a <strong id="billingPatName" class="text-gray-900"></strong>.</p>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Subtotal ($)</label><input type="number" id="billingSubtotal" step="0.01" min="0" class="w-full px-4 py-3 border-2 rounded-xl font-bold text-xl text-center bg-gray-50" oninput="calculateTotal()"></div>
-                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border mt-2"><input type="checkbox" id="billingIva" class="w-5 h-5 text-green-600" onchange="calculateTotal()"><label for="billingIva" class="font-semibold text-gray-700 w-full cursor-pointer">Añadir IVA (15%)</label></div>
-                    <div class="mt-4 p-4 bg-green-100 rounded-xl text-center border border-green-200"><p class="text-green-800 font-bold text-sm">TOTAL</p><p class="text-5xl font-black text-green-900 mt-1" id="billingTotalDisplay">$0.00</p></div>
+                    <input type="hidden" id="billingAptId">
+                    <p class="text-sm text-gray-600 mb-4">Valor a cobrar a <strong id="billingPatName" class="text-gray-900"></strong>.</p>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Subtotal ($)</label>
+                        <input type="number" id="billingSubtotal" step="0.01" min="0" class="w-full px-4 py-3 border-2 rounded-xl font-bold text-xl text-center bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none" oninput="calculateTotal()">
+                    </div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border mt-2">
+                        <input type="checkbox" id="billingIva" class="w-5 h-5 text-green-600" onchange="calculateTotal()">
+                        <label for="billingIva" class="font-semibold text-gray-700 w-full cursor-pointer">Añadir IVA (15%)</label>
+                    </div>
+                    <div class="mt-4 p-4 bg-green-100 rounded-xl text-center border border-green-200">
+                        <p class="text-green-800 font-bold text-sm">TOTAL</p>
+                        <p class="text-5xl font-black text-green-900 mt-1" id="billingTotalDisplay">$0.00</p>
+                    </div>
                 </div>
                 <div class="px-6 py-4 border-t bg-gray-50 rounded-b-xl">
-                    <button id="btnFinalizarCobro" onclick="submitBilling()" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg">Finalizar y Enviar 📲</button>
+                    <button id="btnFinalizarCobro" onclick="submitBilling()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg">Finalizar y Enviar 📲</button>
                 </div>
             </div>
         </div>
@@ -363,7 +495,8 @@
     </div>
 
     <script>
-        const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev"; // Reemplazar con tu ngrok
+        // CONFIGURACIÓN (Actualiza el Ngrok si ha cambiado)
+        const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev"; 
         
         const ngrokHeaders = {
             'Content-Type': 'application/json',
@@ -390,17 +523,17 @@
         let globalBlockedDates = []; 
         let qrInterval = null;
 
-        // =====================================
-        // 🔥 LÓGICA DEL SISTEMA DE PESTAÑAS 🔥
-        // =====================================
+        // ==========================================
+        // 1. NAVEGACIÓN Y TABS
+        // ==========================================
         function switchTab(tabId) {
-            const tabs = ['Dashboard', 'Agenda', 'Pacientes'];
+            const tabs = ['dashboard', 'agenda', 'pacientes'];
             
             tabs.forEach(t => {
-                const btn = document.getElementById(`tabBtn${t}`);
-                const content = document.getElementById(`tabContent${t}`);
+                const content = document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
                 
-                if (t.toLowerCase() === tabId) {
+                if (t === tabId) {
                     content.classList.remove('hidden');
                     btn.className = "flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-blue-100 text-blue-800 border-2 border-blue-600 transition-all";
                 } else {
@@ -409,13 +542,14 @@
                 }
             });
 
-            // Si se cambia a la pestaña dashboard, actualizamos métricas por si acaso
-            if(tabId === 'dashboard') updateDashboardStats();
+            if(tabId === 'dashboard') {
+                updateDashboardStats();
+            }
         }
 
-        // =====================================
-        // 🔥 LÓGICA DE FILTRADO FINANCIERO 🔥
-        // =====================================
+        // ==========================================
+        // 2. DASHBOARD Y FILTRO FINANCIERO
+        // ==========================================
         function updateDashboardStats() {
             if(!appointments) return;
             
@@ -423,7 +557,6 @@
             const now = new Date();
             let filteredApts = [];
 
-            // Funciones de utilidad para fechas
             const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -443,22 +576,18 @@
                 return true;
             });
 
-            // Calcular ingresos (solo de citas 'completadas')
             const ingresos = filteredApts.filter(a => a.estado === 'completada').reduce((sum, a) => sum + (parseFloat(a.monto) || 0), 0);
-            
-            // Citas pendientes
             const pendientes = filteredApts.filter(a => a.estado === 'pendiente' || a.estado === 'confirmada').length;
 
-            // Actualizar la interfaz
             document.getElementById('kpiCitas').textContent = filteredApts.length;
             document.getElementById('kpiIngresos').textContent = `$${ingresos.toFixed(2)}`;
-            document.getElementById('kpiPacientes').textContent = patients.length; // Los pacientes siempre mostramos el histórico total
+            document.getElementById('kpiPacientes').textContent = patients.length; 
             document.getElementById('kpiPendientes').textContent = pendientes;
         }
 
-        // =====================================
-        // AUTENTICACIÓN Y CARGA DE DATOS
-        // =====================================
+        // ==========================================
+        // 3. AUTENTICACIÓN
+        // ==========================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user; 
@@ -477,7 +606,10 @@
                         document.getElementById('suspendedPrice').textContent = (data.precioSuscripcion || 15).toFixed(2);
                         return; 
                     }
-                    if(data.clinicInfo) clinicDataGlobal = data.clinicInfo; 
+
+                    if(data.clinicInfo) { 
+                        clinicDataGlobal = data.clinicInfo; 
+                    }
                 }
                 
                 document.getElementById('suspendedView').classList.add('hidden');
@@ -487,7 +619,7 @@
                 adaptarUI(); 
                 await loadPatients(); 
                 await loadAppointments();
-                updateDashboardStats(); // Ejecuta las métricas al iniciar
+                updateDashboardStats();
             } else {
                 currentUser = null; 
                 clinicDataGlobal = null; 
@@ -500,8 +632,11 @@
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => { 
             e.preventDefault(); 
-            try { await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); } 
-            catch (error) { mostrarError(error.message); } 
+            try { 
+                await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); 
+            } catch (error) { 
+                mostrarError(error.message); 
+            } 
         });
 
         document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
@@ -514,16 +649,28 @@
             const email = document.getElementById('signupEmail').value; 
             const password = document.getElementById('signupPassword').value; 
             const phone = document.getElementById('signupPhone').value;
+            
             if (!name || !email || !password || !phone) return mostrarError('Completa todos los campos obligatorios');
             try { 
                 const cred = await auth.createUserWithEmailAndPassword(email, password); 
-                await db.collection('users').doc(cred.user.uid).set({ userId: cred.user.uid, nombre: name, email: email, telefonoWhatsApp: phone, rol: 'doctor', estadoSuscripcion: 'activo', precioSuscripcion: 15, fechaRegistro: new Date() }); 
-            } catch (error) { mostrarError(error.message); }
+                await db.collection('users').doc(cred.user.uid).set({ 
+                    userId: cred.user.uid, 
+                    nombre: name, 
+                    email: email, 
+                    telefonoWhatsApp: phone, 
+                    rol: 'doctor', 
+                    estadoSuscripcion: 'activo',
+                    precioSuscripcion: 15,
+                    fechaRegistro: new Date() 
+                }); 
+            } catch (error) { 
+                mostrarError(error.message); 
+            }
         });
 
-        // =====================================
-        // PACIENTES Y CITAS (Mantenido igual pero adaptado a tabs)
-        // =====================================
+        // ==========================================
+        // 4. PACIENTES
+        // ==========================================
         async function loadPatients() { 
             try { 
                 const snapshot = await db.collection('patients').where('doctorId', '==', currentUser.uid).get(); 
@@ -531,29 +678,37 @@
                 snapshot.forEach(doc => patients.push({ id: doc.id, ...doc.data() })); 
                 patients.sort((a, b) => a.nombre.localeCompare(b.nombre)); 
                 
-                document.getElementById('patientSelect').innerHTML = '<option value="">-- Seleccionar --</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join(''); 
+                document.getElementById('patientSelect').innerHTML = '<option value="">-- Seleccionar Paciente --</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join(''); 
                 renderPatientsDirectory(patients); 
                 updateDashboardStats();
-            } catch (error) { console.error("Error al cargar pacientes:", error); } 
+            } catch (error) {
+                console.error("Error al cargar pacientes:", error);
+            } 
         }
 
         function renderPatientsDirectory(listToRender) { 
             const container = document.getElementById('patientsDirectoryList');
-            if (listToRender.length === 0) { container.innerHTML = '<p class="text-gray-500 text-sm col-span-full text-center py-6">No se encontraron pacientes.</p>'; return; }
+            if (listToRender.length === 0) { 
+                container.innerHTML = '<p class="text-gray-500 text-sm col-span-full text-center py-6">No se encontraron pacientes registrados.</p>'; 
+                return; 
+            }
+
             const esp = clinicDataGlobal?.especialidad || 'medicina';
+            
             container.innerHTML = listToRender.map(p => {
                 const ownerTxt = (esp === 'veterinaria' && p.dueno) ? `<p class="text-xs text-gray-600 mt-1">👤 Dueño: <span class="font-semibold">${p.dueno}</span></p>` : '';
-                return `<div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md hover:border-indigo-200 transition relative">
-                    <button onclick="deletePatientCompletely('${p.id}')" class="absolute top-2 right-2 text-red-300 hover:text-red-600 font-bold text-lg">🗑️</button>
-                    <h4 class="font-bold text-gray-900 truncate pr-6">${p.nombre}</h4>
+                return `
+                <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md hover:border-indigo-200 transition relative">
+                    <button onclick="deletePatientCompletely('${p.id}')" class="absolute top-2 right-2 text-red-300 hover:text-red-600 font-bold text-lg" title="Eliminar permanentemente">🗑️</button>
+                    <h4 class="font-bold text-gray-900 text-lg truncate pr-6">${p.nombre}</h4>
                     ${ownerTxt}
                     <p class="text-xs text-gray-500 mt-1">🆔 CI/RUC: <span class="font-semibold">${p.cedula || 'N/A'}</span></p>
-                    <p class="text-xs text-gray-500">📱 ${p.telefonoWhatsApp || 'N/A'}</p>
-                    <button onclick="openHistoryModal('${p.id}')" class="mt-3 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs py-2 rounded-lg transition border border-indigo-100">📖 Ver Historia Clínica</button>
+                    <p class="text-xs text-indigo-600 font-bold mt-1">📱 ${p.telefonoWhatsApp || 'N/A'}</p>
+                    <button onclick="openHistoryModal('${p.id}')" class="mt-3 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-black text-xs py-2 rounded-lg transition border border-indigo-100">📖 VER EXPEDIENTE</button>
                 </div>`;
             }).join(''); 
         }
-
+        
         document.getElementById('searchPatientInput').addEventListener('input', (e) => { 
             const term = e.target.value.toLowerCase(); 
             renderPatientsDirectory(patients.filter(p => p.nombre.toLowerCase().includes(term) || (p.cedula && p.cedula.includes(term)))); 
@@ -568,30 +723,69 @@
             const owner = ownerEl ? ownerEl.value.trim() : '';
 
             if(!name || !phone || !cedula) return alert("Nombre, Teléfono y Cédula son obligatorios.");
+
             try { 
-                const existing = await db.collection('patients').where('doctorId', '==', currentUser.uid).where('cedula', '==', cedula).get();
-                if(!existing.empty) return mostrarError(`⚠️ Ya existe un paciente registrado con la Cédula/RUC: ${cedula}.`);
-                await db.collection('patients').add({ nombre: name, cedula: cedula, telefonoWhatsApp: phone, email: email, dueno: owner, doctorId: currentUser.uid, fechaRegistro: new Date(), activo: true }); 
+                const existing = await db.collection('patients')
+                    .where('doctorId', '==', currentUser.uid)
+                    .where('cedula', '==', cedula)
+                    .get();
+
+                if(!existing.empty) {
+                    return mostrarError(`⚠️ Ya existe un paciente registrado con la Cédula/RUC: ${cedula}.`);
+                }
+
+                await db.collection('patients').add({ 
+                    nombre: name, 
+                    cedula: cedula, 
+                    telefonoWhatsApp: phone, 
+                    email: email, 
+                    dueno: owner, 
+                    doctorId: currentUser.uid, 
+                    fechaRegistro: new Date(), 
+                    activo: true 
+                }); 
                 
-                document.getElementById('newPatientName').value = ''; document.getElementById('newPatientCedula').value = ''; document.getElementById('newPatientPhone').value = ''; document.getElementById('newPatientEmail').value = ''; if(ownerEl) ownerEl.value = ''; 
+                document.getElementById('newPatientName').value = ''; 
+                document.getElementById('newPatientCedula').value = ''; 
+                document.getElementById('newPatientPhone').value = ''; 
+                document.getElementById('newPatientEmail').value = ''; 
+                if(ownerEl) ownerEl.value = ''; 
+                
                 document.getElementById('newPatientModal').classList.add('hidden'); 
-                await loadPatients(); mostrarMensaje('Paciente registrado correctamente', 'success'); 
-            } catch (error) { mostrarMensaje('Error al guardar el paciente', 'error'); } 
+                await loadPatients(); 
+                mostrarMensaje('Paciente registrado correctamente', 'success'); 
+            } catch (error) {
+                mostrarMensaje('Error al guardar el paciente: ' + error.message, 'error');
+            } 
         });
 
         async function deletePatientCompletely(patientId) { 
             const pat = patients.find(p => p.id === patientId);
-            if(!confirm(`⚠️ ATENCIÓN ⚠️\n¿Seguro que deseas eliminar permanentemente a ${pat.nombre}?`)) return;
+            if(!confirm(`⚠️ ATENCIÓN ⚠️\n¿Seguro que deseas eliminar permanentemente a ${pat.nombre}?\nSe borrarán también todas sus citas e historial médico.`)) return;
+            
             try {
                 const citasSnapshot = await db.collection('appointments').where('patientId', '==', patientId).get();
-                const batchCitas = db.batch(); citasSnapshot.forEach(doc => batchCitas.delete(doc.ref)); await batchCitas.commit();
+                const batchCitas = db.batch(); 
+                citasSnapshot.forEach(doc => batchCitas.delete(doc.ref)); 
+                await batchCitas.commit();
+
                 const vitalsSnapshot = await db.collection('patients').doc(patientId).collection('vitals').get();
-                const batchVitals = db.batch(); vitalsSnapshot.forEach(doc => batchVitals.delete(doc.ref)); await batchVitals.commit();
+                const batchVitals = db.batch(); 
+                vitalsSnapshot.forEach(doc => batchVitals.delete(doc.ref)); 
+                await batchVitals.commit();
+
                 await db.collection('patients').doc(patientId).delete(); 
-                mostrarMensaje('Paciente eliminado', 'success'); await loadPatients(); await loadAppointments();
-            } catch(error) { mostrarMensaje('Error al eliminar', 'error'); }
+                mostrarMensaje('Paciente eliminado permanentemente', 'success');
+                await loadPatients(); 
+                await loadAppointments();
+            } catch(error) {
+                mostrarMensaje('Error al eliminar: ' + error.message, 'error');
+            }
         }
 
+        // ==========================================
+        // 5. CITAS Y AGENDA
+        // ==========================================
         async function loadAppointments() { 
             try { 
                 const snapshot = await db.collection('appointments').where('doctorId', '==', currentUser.uid).orderBy('fecha', 'desc').orderBy('hora', 'desc').get(); 
@@ -599,10 +793,10 @@
                 snapshot.forEach(doc => appointments.push({ id: doc.id, ...doc.data() })); 
                 renderAppointments(); 
                 updateDashboardStats(); 
-            } catch (error) { console.error("Firebase Error en Citas:", error); } 
+            } catch (error) {
+                console.error("Firebase Error en Citas:", error);
+            } 
         }
-
-        document.getElementById('filterAppointmentStatus').addEventListener('change', renderAppointments);
 
         function renderAppointments() { 
             const container = document.getElementById('appointmentsList');
@@ -615,7 +809,10 @@
             else if (sFilter === 'todas') filtered = appointments;
             else filtered = appointments.filter(a => a.estado === sFilter);
 
-            if (filtered.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-8 font-bold bg-gray-50 rounded-xl border border-dashed">No hay citas en esta vista.</p>'; return; }
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8 font-bold bg-gray-50 rounded-xl border border-dashed border-gray-200">No hay citas para mostrar en esta vista.</p>';
+                return;
+            }
 
             const statusColors = { 'pendiente': 'bg-yellow-100 text-yellow-800 border-yellow-200', 'confirmada': 'bg-blue-100 text-blue-800 border-blue-200', 'completada': 'bg-green-100 text-green-800 border-green-200' };
 
@@ -625,82 +822,608 @@
                 const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
                 
                 return `
-                <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-blue-300 transition bg-white mb-4">
+                <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-blue-300 transition bg-white mb-4">
                     <div class="flex justify-between items-start mb-3">
                         <div>
                             <h3 class="font-black text-lg text-gray-800">${p?.nombre || 'Paciente Eliminado'}</h3>
                             <p class="text-xs text-gray-500 font-semibold mt-1">📱 ${p?.telefonoWhatsApp || 'S/N'}</p>
                         </div>
-                        <span class="px-3 py-1 rounded-md text-[10px] uppercase font-black tracking-wider border ${statusColors[apt.estado] || 'bg-gray-100'}">${apt.estado}</span>
+                        <span class="px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${statusColors[apt.estado] || 'bg-gray-100'}">${apt.estado}</span>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4 text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">
                         <div><p class="text-slate-400 text-[10px] uppercase font-bold">Fecha / Hora</p><p class="font-bold text-slate-700">${dateStr} | ${apt.hora}</p></div>
                         <div><p class="text-slate-400 text-[10px] uppercase font-bold">Monto Cobrado</p><p class="font-black text-green-600">$${(apt.monto || 0).toFixed(2)}</p></div>
                         <div class="col-span-2 md:col-span-1"><p class="text-slate-400 text-[10px] uppercase font-bold">Motivo</p><p class="font-medium text-slate-600 truncate" title="${apt.motivo}">${apt.motivo}</p></div>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        <button onclick="sendWhatsAppReminder('${apt.id}')" class="bg-green-100 hover:bg-green-200 text-green-700 text-xs py-2 rounded-lg font-bold transition border border-green-200">💬 Recordar</button>
-                        <button onclick="openPrescriptionModal('${apt.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2 rounded-lg font-bold shadow-sm transition">⚕️ Atender</button>
-                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs py-2 rounded-lg font-bold transition border border-blue-200">📖 Historial</button>
-                        <button onclick="deleteAppointment('${apt.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs py-2 rounded-lg font-bold transition border border-red-100">🗑️ Borrar</button>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+                        <button onclick="sendWhatsAppReminder('${apt.id}')" class="bg-green-50 hover:bg-green-100 text-green-700 text-xs py-2 rounded-lg font-bold transition border border-green-100">💬 RECORDAR</button>
+                        <button onclick="openPrescriptionModal('${apt.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2 rounded-lg font-black shadow-sm transition">⚕️ ATENDER</button>
+                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs py-2 rounded-lg font-bold transition border border-blue-100">📖 HISTORIAL</button>
+                        <button onclick="deleteAppointment('${apt.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs py-2 rounded-lg font-bold transition border border-red-100">🗑️ BORRAR</button>
                     </div>
                 </div>`; 
             }).join(''); 
         }
-
+        
         document.getElementById('appointmentForm').addEventListener('submit', async (e) => { 
             e.preventDefault(); 
             try {
-                await db.collection('appointments').add({ patientId: document.getElementById('patientSelect').value, doctorId: currentUser.uid, fecha: document.getElementById('appointmentDate').value, hora: document.getElementById('appointmentTime').value, motivo: document.getElementById('appointmentReason').value, monto: 0, estado: document.getElementById('appointmentStatus').value, notas: document.getElementById('appointmentNotes').value, recordatorioEnviado: false, fechaCreacion: new Date() }); 
+                await db.collection('appointments').add({ 
+                    patientId: document.getElementById('patientSelect').value, 
+                    doctorId: currentUser.uid, 
+                    fecha: document.getElementById('appointmentDate').value, 
+                    hora: document.getElementById('appointmentTime').value, 
+                    motivo: document.getElementById('appointmentReason').value, 
+                    monto: 0, 
+                    estado: document.getElementById('appointmentStatus').value, 
+                    notas: document.getElementById('appointmentNotes').value,
+                    recordatorioEnviado: false,
+                    fechaCreacion: new Date()
+                }); 
                 document.getElementById('appointmentForm').reset();
-                await loadAppointments(); mostrarMensaje('Cita agendada', 'success'); 
-            } catch (error) { mostrarMensaje('Error al agendar', 'error'); }
+                await loadAppointments(); 
+                mostrarMensaje('Cita agendada correctamente', 'success'); 
+            } catch (error) {
+                mostrarMensaje('Error al agendar: ' + error.message, 'error');
+            }
         });
 
-        async function deleteAppointment(id) { if(confirm('¿Eliminar cita?')) { await db.collection('appointments').doc(id).delete(); await loadAppointments(); } }
+        async function deleteAppointment(id) { 
+            if(confirm('¿Seguro que deseas eliminar esta cita de tu agenda?')) { 
+                await db.collection('appointments').doc(id).delete(); 
+                await loadAppointments(); 
+            } 
+        }
 
-        // =====================================
-        // RESTO DE FUNCIONES DE UTILIDAD (Mantengo tu código original que funciona perfecto)
-        // =====================================
+        // ==========================================
+        // 6. HISTORIAL CLÍNICO Y GRÁFICAS
+        // ==========================================
+        async function openHistoryModal(patientId) { 
+            if(!patientId || patientId === 'undefined') return alert('No se pudo encontrar el paciente.');
+            document.getElementById('historyModal').classList.remove('hidden'); 
+            
+            const pat = patients.find(p => p.id === patientId);
+            document.getElementById('historyPatientInfo').innerHTML = `👤 ${pat.nombre} &nbsp;|&nbsp; 🆔 CI/RUC: <span class="font-bold">${pat.cedula || 'N/A'}</span> &nbsp;|&nbsp; 📱 Tel: ${pat.telefonoWhatsApp}`;
+            
+            try {
+                const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'asc').get(); 
+                
+                if(snap.empty) {
+                    document.getElementById('historyTimeline').innerHTML = '<p class="text-center text-gray-500 mt-10 font-bold">Sin Historial Clínico registrado.</p>';
+                    document.getElementById('chartContainer').classList.add('hidden');
+                    if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
+                    return;
+                }
+
+                const docs = snap.docs;
+                const labels = [];
+                const dataPeso = [];
+
+                let timelineHtml = '';
+                
+                for(let i = docs.length - 1; i >= 0; i--) {
+                    const d = docs[i].data();
+                    const rawDate = d.fecha.toDate ? d.fecha.toDate() : d.fecha;
+                    const dateStr = new Date(rawDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                    let vitalsStr = '';
+                    if(d.peso) vitalsStr += `Peso: ${d.peso}kg | `;
+                    if(d.presion) vitalsStr += `Presión: ${d.presion} | `;
+                    if(d.ritmo) vitalsStr += `FC: ${d.ritmo}bpm | `;
+                    if(d.altura) vitalsStr += `Altura: ${d.altura}cm`;
+
+                    let recsHtml = '';
+                    if(d.recomendaciones && d.recomendaciones.length > 0) {
+                        recsHtml = `
+                        <div class="bg-orange-50 p-3 rounded-xl border border-orange-100 mt-2">
+                            <p class="text-xs font-bold text-orange-800 mb-1">💡 RECOMENDACIONES:</p>
+                            <ul class="text-xs text-orange-900 space-y-1">
+                                ${d.recomendaciones.map(r => `<li>• ${r}</li>`).join('')}
+                            </ul>
+                        </div>`;
+                    }
+
+                    timelineHtml += `
+                    <div class="bg-white p-5 border-l-4 border-blue-500 rounded-r-2xl shadow-sm border border-gray-100 mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-sm font-black text-blue-900">📅 ${dateStr}</span>
+                            <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded font-bold uppercase tracking-wider">Atención IA</span>
+                        </div>
+                        <p class="text-sm text-gray-700 font-medium mb-2">
+                            <span class="font-black text-gray-900 uppercase text-[10px] tracking-widest">Evolución:</span><br>
+                            ${d.diagnostico || 'Sin diagnóstico registrado.'}
+                        </p>
+                        ${vitalsStr ? `<p class="text-xs text-slate-500 font-bold mb-2">📊 ${vitalsStr}</p>` : ''}
+                        ${recsHtml}
+                    </div>`;
+
+                    labels.unshift(dateStr); 
+                    if(d.peso) dataPeso.unshift(parseFloat(d.peso));
+                }
+                
+                document.getElementById('historyTimeline').innerHTML = timelineHtml;
+
+                const ctx = document.getElementById('vitalsChartCanvas');
+                if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
+
+                if (dataPeso.length > 0) {
+                    document.getElementById('chartContainer').classList.remove('hidden');
+                    window.vitalsChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Evolución de Peso (kg)',
+                                data: dataPeso,
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#2563eb',
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { position: 'bottom' } },
+                            scales: { y: { beginAtZero: false } }
+                        }
+                    });
+                } else {
+                    document.getElementById('chartContainer').classList.add('hidden');
+                }
+
+            } catch(e) {
+                document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center font-bold">Error cargando el expediente.</p>';
+            }
+        }
+        
+        function closeHistoryModal() { 
+            document.getElementById('historyModal').classList.add('hidden'); 
+            if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
+        }
+
+        // ==========================================
+        // 7. IA COPILOT Y RECETAS
+        // ==========================================
+        function openPrescriptionModal(id) { 
+            document.getElementById('rxAppointmentId').value = id; 
+            document.getElementById('prescriptionModal').classList.remove('hidden'); 
+            document.getElementById('rxBorrador').value = '';
+            document.getElementById('rxDiagnostico').value = '';
+            document.getElementById('rxRecomendaciones').value = '';
+            
+            document.querySelectorAll('.vital-input').forEach(input => input.value = '');
+            
+            document.getElementById('medicinesContainer').innerHTML = ''; 
+            addMedicineRow(); 
+        }
+
+        function closePrescriptionModal() { document.getElementById('prescriptionModal').classList.add('hidden'); }
+
+        function addMedicineRow(med=null) { 
+            const id = 'med_' + Date.now() + Math.floor(Math.random() * 1000); 
+            document.getElementById('medicinesContainer').insertAdjacentHTML('beforeend', `
+            <div id="${id}" class="flex gap-2 mb-2 relative bg-white p-3 border border-gray-200 rounded-xl shadow-sm animate-slideIn">
+                <input class="border border-gray-300 p-2 w-full text-sm rounded-lg med-name focus:ring-2 focus:ring-indigo-500" value="${med?.medicamento||''}" placeholder="Medicina (Ej. Paracetamol)">
+                <input class="border border-gray-300 p-2 w-1/2 text-sm rounded-lg med-dose focus:ring-2 focus:ring-indigo-500" value="${med?.dosis||''}" placeholder="Dosis / Frecuencia">
+                <button onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600 font-bold text-lg" title="Quitar medicina">✖</button>
+            </div>`); 
+        }
+
+        async function procesarConIA() { 
+            const btn = document.getElementById('btnCopiloto'); 
+            const borrador = document.getElementById('rxBorrador').value;
+            const esp = clinicDataGlobal?.especialidad || 'medicina';
+            
+            if(!borrador.trim()) {
+                alert("Escribe algunas notas primero para que la IA pueda trabajar.");
+                return;
+            }
+
+            let datosExtras = [];
+            document.querySelectorAll('.vital-input').forEach(input => {
+                if(input.value) {
+                    datosExtras.push(`${input.previousElementSibling.textContent}: ${input.value}`);
+                }
+            });
+            const contextoClinico = datosExtras.length > 0 ? "Datos medidos en consulta: " + datosExtras.join(', ') : "";
+
+            btn.innerHTML='⏳ Pensando...'; 
+            btn.disabled = true;
+
+            try { 
+                const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, { 
+                    method:'POST', 
+                    headers: ngrokHeaders, 
+                    body:JSON.stringify({ 
+                        notasBorrador: borrador,
+                        especialidad: esp,
+                        contextoClinico: contextoClinico 
+                    }) 
+                }); 
+                
+                if(!res.ok) throw new Error("Fallo en el servidor de IA");
+
+                const data = await res.json(); 
+                document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
+                
+                if (data.recomendaciones && data.recomendaciones.length > 0) {
+                    document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
+                } else {
+                    document.getElementById('rxRecomendaciones').value = '';
+                }
+
+                document.getElementById('medicinesContainer').innerHTML = ''; 
+                
+                if(data.receta && data.receta.length > 0) {
+                    data.receta.forEach(m => addMedicineRow(m)); 
+                } else {
+                    addMedicineRow();
+                }
+
+                document.getElementById('rxBorrador').value = ''; 
+                mostrarMensaje('Notas procesadas con Inteligencia Artificial', 'success');
+            } catch(e){
+                alert("Hubo un error con la Inteligencia Artificial. Revisa que tu servidor Node y Ngrok estén corriendo.");
+            } finally { 
+                btn.innerHTML='🪄 Estructurar Automáticamente'; 
+                btn.disabled = false;
+            } 
+        }
+
+        async function submitPrescription() { 
+            const id = document.getElementById('rxAppointmentId').value; 
+            const a = appointments.find(x=>x.id===id); 
+            const p = patients.find(x=>x.id===a.patientId); 
+            
+            let diag = document.getElementById('rxDiagnostico').value; 
+            
+            const esp = clinicDataGlobal?.especialidad || 'medicina';
+            let customVitalsStr = [];
+            let vitalsObj = {};
+            
+            document.querySelectorAll('.vital-input').forEach(input => {
+                if(input.value) {
+                    customVitalsStr.push(`${input.previousElementSibling.textContent}: ${input.value}`);
+                    if(input.id === 'rxPresion') vitalsObj.presion = input.value;
+                    if(input.id === 'rxPeso') vitalsObj.peso = input.value;
+                    if(input.id === 'rxRitmo') vitalsObj.ritmo = input.value;
+                    if(input.id === 'rxAltura') vitalsObj.altura = input.value;
+                }
+            });
+
+            if(esp !== 'medicina' && customVitalsStr.length > 0) {
+                diag = `[Datos Clínicos: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
+            }
+
+            const meds = []; 
+            Array.from(document.getElementById('medicinesContainer').children).forEach(r => { 
+                const n = r.querySelector('.med-name').value; 
+                if(n) meds.push({ medicamento:n, dosis:r.querySelector('.med-dose').value }); 
+            }); 
+            
+            const recText = document.getElementById('rxRecomendaciones').value;
+            const recomendacionesList = recText ? recText.split('\n').filter(r => r.trim() !== '') : [];
+
+            const btn = document.getElementById('btnSubmitPrescription');
+            btn.innerHTML = '⏳ Guardando y generando PDF...';
+            btn.disabled = true;
+
+            try {
+                if(diag || customVitalsStr.length > 0 || meds.length > 0 || recomendacionesList.length > 0) {
+                    await db.collection('patients').doc(p.id).collection('vitals').add({ 
+                        fecha: new Date(), 
+                        diagnostico: diag, 
+                        recomendaciones: recomendacionesList,
+                        ...vitalsObj 
+                    }); 
+                }
+
+                await fetch(`${API_BASE_URL}/send-prescription`, { 
+                    method:'POST', 
+                    headers: ngrokHeaders, 
+                    body:JSON.stringify({ 
+                        doctorId: currentUser.uid, 
+                        phoneNumber: p.telefonoWhatsApp, 
+                        patientName: p.nombre, 
+                        diagnostico: diag, 
+                        vitals: vitalsObj, 
+                        prescription: meds, 
+                        recomendaciones: recomendacionesList,
+                        clinicInfo: clinicDataGlobal 
+                    }) 
+                }); 
+                
+                closePrescriptionModal(); 
+                openBillingModal(id, p.nombre); 
+            } catch (err) {
+                mostrarMensaje("Error al guardar y enviar la receta al servidor", "error");
+            } finally {
+                btn.innerHTML = 'Siguiente: Generar Cobro ➡️';
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 8. COBROS Y COMPROBANTE
+        // ==========================================
+        function openBillingModal(id, name) { 
+            document.getElementById('billingAptId').value = id; 
+            document.getElementById('billingPatName').textContent = name; 
+            document.getElementById('billingSubtotal').value = '';
+            document.getElementById('billingIva').checked = false;
+            document.getElementById('billingTotalDisplay').textContent = '$0.00';
+            document.getElementById('billingModal').classList.remove('hidden'); 
+        }
+
+        function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
+        
+        function calculateTotal() { 
+            const s = parseFloat(document.getElementById('billingSubtotal').value) || 0; 
+            const t = document.getElementById('billingIva').checked ? s*1.15 : s; 
+            document.getElementById('billingTotalDisplay').textContent = '$' + t.toFixed(2); 
+        }
+
+        async function submitBilling() { 
+            const id = document.getElementById('billingAptId').value; 
+            const a = appointments.find(x => x.id === id); 
+            const p = patients.find(x => x.id === a.patientId);
+            
+            const sub = parseFloat(document.getElementById('billingSubtotal').value) || 0; 
+            const iva = document.getElementById('billingIva').checked; 
+            const tot = iva ? sub * 1.15 : sub;
+            
+            // EL MENSAJE PREMIUM COMPLETO
+            const msg = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Consultorio Médico'}\n\n👤 Paciente: ${p.nombre}\n💵 Total cancelado: $${tot.toFixed(2)}\n\n¡Gracias por su confianza!`;
+            
+            const btn = document.getElementById('btnFinalizarCobro');
+            btn.innerHTML = '⏳ Registrando y Enviando...';
+            btn.disabled = true;
+
+            try {
+                const resMsg = await fetch(`${API_BASE_URL}/send-message`, { 
+                    method: 'POST', 
+                    headers: ngrokHeaders, 
+                    body: JSON.stringify({ 
+                        doctorId: currentUser.uid, 
+                        phoneNumber: p.telefonoWhatsApp, 
+                        message: msg 
+                    }) 
+                });
+
+                const dataMsg = await resMsg.json();
+                if (!resMsg.ok || !dataMsg.success) throw new Error(dataMsg.error || "Fallo en la red");
+
+                await db.collection('appointments').doc(id).update({ estado: 'completada', monto: tot });
+                closeBillingModal(); 
+                
+                await loadAppointments(); 
+                mostrarMensaje('Cobro registrado y comprobante enviado al paciente', 'success');
+            } catch (err) {
+                alert('Hubo un error enviando el comprobante por WhatsApp. Verifica que Ngrok y el servidor estén activos.');
+            } finally {
+                btn.innerHTML = 'Finalizar y Enviar 📲';
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 9. WHATSAPP (CONEXIÓN Y RECORDATORIOS)
+        // ==========================================
+        function openWhatsAppModal() { 
+            document.getElementById('whatsappModal').classList.remove('hidden'); 
+            requestWhatsAppConnection(); 
+        }
+        
+        function closeWhatsAppModal() { 
+            document.getElementById('whatsappModal').classList.add('hidden'); 
+            if(qrInterval) clearInterval(qrInterval); 
+        }
+
+        async function requestWhatsAppConnection() {
+            if(!currentUser) return;
+            document.getElementById('qrStatusText').textContent = 'Solicitando contenedor seguro...'; 
+            document.getElementById('qrCodeDisplay').innerHTML = '';
+            try { 
+                await fetch(`${API_BASE_URL}/api/whatsapp/start`, { 
+                    method: 'POST', 
+                    headers: ngrokHeaders, 
+                    body: JSON.stringify({ 
+                        doctorId: currentUser.uid,
+                        frontendUrl: window.location.origin
+                    }) 
+                }); 
+            } catch(e) { 
+                document.getElementById('qrStatusText').textContent = 'Error: Servidor apagado o sin Ngrok'; 
+                return; 
+            }
+            if(qrInterval) clearInterval(qrInterval); 
+            qrInterval = setInterval(checkWhatsAppStatus, 3000); 
+            checkWhatsAppStatus();
+        }
+
+        async function checkWhatsAppStatus() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${currentUser.uid}`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                }); 
+                const data = await res.json(); 
+                const statusText = document.getElementById('qrStatusText');
+                
+                if(data.status === 'connected') { 
+                    document.getElementById('qrCodeDisplay').innerHTML = '<div class="text-green-500 text-6xl mb-2 flex justify-center">✅</div>'; 
+                    statusText.textContent = '¡WhatsApp Conectado y Listo!'; 
+                    statusText.className = 'text-green-600 font-bold mt-2'; 
+                    clearInterval(qrInterval); 
+                } else if(data.status === 'needs_scan' && data.qr) { 
+                    document.getElementById('qrCodeDisplay').innerHTML = ''; 
+                    new QRCode(document.getElementById('qrCodeDisplay'), { text: data.qr, width: 200, height: 200 }); 
+                    statusText.textContent = 'Escanea este QR con tu celular'; 
+                    statusText.className = 'text-gray-800 font-bold mt-2'; 
+                } else { 
+                    document.getElementById('qrCodeDisplay').innerHTML = '<div class="spinner mx-auto"></div>'; 
+                    statusText.textContent = 'Generando QR... (Puede tardar 30s)'; 
+                }
+            } catch(e) {}
+        }
+
+        async function sendWhatsAppReminder(id) { 
+            const a = appointments.find(x => x.id === id); 
+            const p = patients.find(x => x.id === a.patientId); 
+            try {
+                await fetch(`${API_BASE_URL}/send-reminder`, { 
+                    method:'POST', 
+                    headers: ngrokHeaders, 
+                    body:JSON.stringify({ 
+                        doctorId: currentUser.uid, 
+                        phoneNumber:p.telefonoWhatsApp, 
+                        patientName:p.nombre, 
+                        appointmentDate:a.fecha, 
+                        appointmentTime:a.hora 
+                    }) 
+                }); 
+                mostrarMensaje('Recordatorio de WhatsApp enviado correctamente', 'success'); 
+            } catch(e) {
+                mostrarMensaje('Error de conexión con el servidor Node', 'error');
+            }
+        }
+
+        // ==========================================
+        // 10. CONFIGURACIÓN Y UTILIDADES
+        // ==========================================
         function adaptarUI() {
             const esp = clinicDataGlobal?.especialidad || 'medicina';
-            if (esp === 'veterinaria') { document.getElementById('lblPatCedula').textContent = 'Cédula del Dueño *'; document.getElementById('lblPatName').textContent = 'Nombre de la Mascota *'; document.getElementById('divPatOwner').classList.remove('hidden'); } 
-            else { document.getElementById('lblPatCedula').textContent = 'Cédula / RUC *'; document.getElementById('lblPatName').textContent = 'Nombre Completo *'; document.getElementById('divPatOwner').classList.add('hidden'); }
+            
+            if (esp === 'veterinaria') {
+                document.getElementById('lblPatCedula').textContent = 'Cédula del Dueño *';
+                document.getElementById('lblPatName').textContent = 'Nombre de la Mascota *';
+                document.getElementById('divPatOwner').classList.remove('hidden');
+            } else {
+                document.getElementById('lblPatCedula').textContent = 'Cédula / RUC *';
+                document.getElementById('lblPatName').textContent = 'Nombre Completo *';
+                document.getElementById('divPatOwner').classList.add('hidden');
+            }
+            
             const container = document.getElementById('dynamicVitalsContainer');
             let html = '';
-            if (esp === 'odontologia') html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Pieza Dental</label><input type="text" id="rxPieza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Alergias</label><input type="text" id="rxAlergias" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            else if (esp === 'fisioterapia') html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Dolor (1-10)</label><input type="number" id="rxDolor" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Zona</label><input type="text" id="rxZona" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Movilidad</label><input type="text" id="rxMov" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            else if (esp === 'nutricion') html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso(kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura(cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">% Grasa</label><input type="number" id="rxGrasa" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">IMC</label><input type="number" id="rxImc" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            else if (esp === 'veterinaria') html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso(kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Temp(°C)</label><input type="number" id="rxTemp" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">FC</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Raza</label><input type="text" id="rxRaza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            else html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Presión</label><input type="text" id="rxPresion" placeholder="120/80" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso(kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura(cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div><div><label class="block text-xs font-semibold text-gray-600 mb-1">FC(bpm)</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
+            if (esp === 'odontologia') {
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Pieza Dental</label><input type="text" id="rxPieza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Alergias</label><input type="text" id="rxAlergias" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
+            } else if (esp === 'fisioterapia') {
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Nivel Dolor (1-10)</label><input type="number" id="rxDolor" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Zona Afectada</label><input type="text" id="rxZona" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Movilidad</label><input type="text" id="rxMov" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
+            } else if (esp === 'nutricion') {
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso Inicial (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">% Grasa</label><input type="number" id="rxGrasa" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">IMC</label><input type="number" id="rxImc" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
+            } else if (esp === 'veterinaria') {
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Temp (°C)</label><input type="number" id="rxTemp" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">F. Cardíaca</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Especie/Raza</label><input type="text" id="rxRaza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
+            } else {
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Presión Arterial</label><input type="text" id="rxPresion" placeholder="120/80" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">FC (bpm)</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
+            }
             if(container) container.innerHTML = html;
         }
-        function copiarMiLink() { const b = window.location.href.split('?')[0]; navigator.clipboard.writeText(`${b.substring(0,b.lastIndexOf('/'))}/agendar.html?doc=${currentUser.uid}`).then(()=>mostrarMensaje('¡Link copiado!','success')); }
-        function openWhatsAppModal() { document.getElementById('whatsappModal').classList.remove('hidden'); requestWhatsAppConnection(); }
-        function closeWhatsAppModal() { document.getElementById('whatsappModal').classList.add('hidden'); if(qrInterval) clearInterval(qrInterval); }
-        async function requestWhatsAppConnection() { document.getElementById('qrStatusText').textContent = 'Solicitando contenedor...'; document.getElementById('qrCodeDisplay').innerHTML = ''; try { await fetch(`${API_BASE_URL}/api/whatsapp/start`,{method:'POST',headers:ngrokHeaders,body:JSON.stringify({doctorId:currentUser.uid,frontendUrl:window.location.origin})}); }catch(e){return;} if(qrInterval) clearInterval(qrInterval); qrInterval=setInterval(checkWhatsAppStatus,3000); checkWhatsAppStatus(); }
-        async function checkWhatsAppStatus() { try{ const res=await fetch(`${API_BASE_URL}/api/whatsapp/status/${currentUser.uid}`,{headers:{'ngrok-skip-browser-warning':'true'}}); const data=await res.json(); const st=document.getElementById('qrStatusText'); if(data.status==='connected'){document.getElementById('qrCodeDisplay').innerHTML='<div class="text-green-500 text-6xl mb-2">✅</div>';st.textContent='¡Conectado!';st.className='text-green-600 font-bold';clearInterval(qrInterval);}else if(data.status==='needs_scan'&&data.qr){document.getElementById('qrCodeDisplay').innerHTML='';new QRCode(document.getElementById('qrCodeDisplay'),{text:data.qr,width:200,height:200});st.textContent='Escanea QR';st.className='text-gray-800 font-bold';}else{document.getElementById('qrCodeDisplay').innerHTML='<div class="spinner mx-auto"></div>';st.textContent='Generando...';} }catch(e){} }
-        function encodeImageFileAsURL(element) { let f=element.files[0];let r=new FileReader();r.onloadend=function(){document.getElementById('clinicLogoBase64').value=r.result;document.getElementById('logoPreview').src=r.result;document.getElementById('logoPreview').classList.remove('hidden');};if(f)r.readAsDataURL(f); }
-        function openSettingsModal() { if(clinicDataGlobal){document.getElementById('clinicSpecialty').value=clinicDataGlobal.especialidad||'medicina';document.getElementById('clinicName').value=clinicDataGlobal.nombre||'';document.getElementById('clinicRuc').value=clinicDataGlobal.ruc||'';document.getElementById('clinicAddress').value=clinicDataGlobal.direccion||'';document.getElementById('clinicPhone').value=clinicDataGlobal.telefono||'';if(clinicDataGlobal.logo){document.getElementById('clinicLogoBase64').value=clinicDataGlobal.logo;document.getElementById('logoPreview').src=clinicDataGlobal.logo;document.getElementById('logoPreview').classList.remove('hidden');}document.getElementById('scheduleStart').value=clinicDataGlobal.horarioInicio||'08:00';document.getElementById('scheduleEnd').value=clinicDataGlobal.horarioFin||'17:00';document.getElementById('scheduleDuration').value=clinicDataGlobal.duracionCita||'30';globalBlockedDates=clinicDataGlobal.diasBloqueados||[];}else{globalBlockedDates=[];} renderBlockedDates(); document.getElementById('settingsModal').classList.remove('hidden'); }
+
+        function encodeImageFileAsURL(element) { 
+            let file = element.files[0]; 
+            let reader = new FileReader(); 
+            reader.onloadend = function() { 
+                document.getElementById('clinicLogoBase64').value = reader.result; 
+                document.getElementById('logoPreview').src = reader.result; 
+                document.getElementById('logoPreview').classList.remove('hidden'); 
+            }; 
+            if(file) reader.readAsDataURL(file); 
+        }
+        
+        function openSettingsModal() { 
+            if(clinicDataGlobal) { 
+                document.getElementById('clinicSpecialty').value = clinicDataGlobal.especialidad || 'medicina'; 
+                document.getElementById('clinicName').value = clinicDataGlobal.nombre || ''; 
+                document.getElementById('clinicRuc').value = clinicDataGlobal.ruc || ''; 
+                document.getElementById('clinicAddress').value = clinicDataGlobal.direccion || ''; 
+                document.getElementById('clinicPhone').value = clinicDataGlobal.telefono || ''; 
+                if(clinicDataGlobal.logo) { 
+                    document.getElementById('clinicLogoBase64').value = clinicDataGlobal.logo; 
+                    document.getElementById('logoPreview').src = clinicDataGlobal.logo; 
+                    document.getElementById('logoPreview').classList.remove('hidden'); 
+                } 
+                document.getElementById('scheduleStart').value = clinicDataGlobal.horarioInicio || '08:00'; 
+                document.getElementById('scheduleEnd').value = clinicDataGlobal.horarioFin || '17:00'; 
+                document.getElementById('scheduleDuration').value = clinicDataGlobal.duracionCita || '30'; 
+                globalBlockedDates = clinicDataGlobal.diasBloqueados || []; 
+            } else { 
+                document.getElementById('clinicSpecialty').value = 'medicina'; 
+                document.getElementById('scheduleStart').value = '08:00'; 
+                document.getElementById('scheduleEnd').value = '17:00'; 
+                document.getElementById('scheduleDuration').value = '30'; 
+                globalBlockedDates = []; 
+            } 
+            renderBlockedDates(); 
+            document.getElementById('settingsModal').classList.remove('hidden'); 
+        }
+        
         function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-        function addBlockedDate() { const i=document.getElementById('scheduleBlockDate');if(i.value&&!globalBlockedDates.includes(i.value)){globalBlockedDates.push(i.value);i.value='';renderBlockedDates();} }
-        function removeBlockedDate(d) { globalBlockedDates=globalBlockedDates.filter(x=>x!==d);renderBlockedDates(); }
-        function renderBlockedDates() { document.getElementById('blockedDatesList').innerHTML=globalBlockedDates.map(d=>`<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">${d} <button type="button" onclick="removeBlockedDate('${d}')">&times;</button></span>`).join(''); }
-        async function saveClinicSettings() { const info={especialidad:document.getElementById('clinicSpecialty').value,nombre:document.getElementById('clinicName').value,ruc:document.getElementById('clinicRuc').value,direccion:document.getElementById('clinicAddress').value,telefono:document.getElementById('clinicPhone').value,logo:document.getElementById('clinicLogoBase64').value,horarioInicio:document.getElementById('scheduleStart').value,horarioFin:document.getElementById('scheduleEnd').value,duracionCita:document.getElementById('scheduleDuration').value,diasBloqueados:globalBlockedDates};try{await db.collection('users').doc(currentUser.uid).update({clinicInfo:info});clinicDataGlobal=info;adaptarUI();closeSettingsModal();mostrarMensaje('Guardado');}catch(e){mostrarMensaje('Error','error');} }
-        async function openHistoryModal(patientId) { document.getElementById('historyModal').classList.remove('hidden'); const pat=patients.find(p=>p.id===patientId); document.getElementById('historyPatientInfo').innerHTML=`👤 ${pat.nombre} | CI: ${pat.cedula}`; try{const snap=await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();if(snap.empty){document.getElementById('historyTimeline').innerHTML='<p>Sin Historial</p>';document.getElementById('chartContainer').classList.add('hidden');return;} const docs=snap.docs; const labels=[]; const dataPeso=[]; let html=''; for(let i=docs.length-1;i>=0;i--){const d=docs[i].data();const ds=new Date(d.fecha.toDate?d.fecha.toDate():d.fecha).toLocaleDateString();html+=`<div class="bg-white p-4 border-l-4 border-indigo-500 mb-4 shadow-sm"><h4>📅 ${ds}</h4><p class="text-sm">Evolución: ${d.diagnostico||''}</p></div>`;labels.unshift(ds);if(d.peso)dataPeso.unshift(parseFloat(d.peso));} document.getElementById('historyTimeline').innerHTML=html; const ctx=document.getElementById('vitalsChartCanvas');if(window.vitalsChartInstance)window.vitalsChartInstance.destroy();if(dataPeso.length>0){document.getElementById('chartContainer').classList.remove('hidden');window.vitalsChartInstance=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'Peso',data:dataPeso,borderColor:'#4f46e5'}]}});}else{document.getElementById('chartContainer').classList.add('hidden');}}catch(e){} }
-        function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); if(window.vitalsChartInstance)window.vitalsChartInstance.destroy(); }
-        async function sendWhatsAppReminder(id) { const a=appointments.find(x=>x.id===id);const p=patients.find(x=>x.id===a.patientId);try{await fetch(`${API_BASE_URL}/send-reminder`,{method:'POST',headers:ngrokHeaders,body:JSON.stringify({doctorId:currentUser.uid,phoneNumber:p.telefonoWhatsApp,patientName:p.nombre,appointmentDate:a.fecha,appointmentTime:a.hora})});mostrarMensaje('Enviado');}catch(e){mostrarMensaje('Error','error');} }
-        function openPrescriptionModal(id) { document.getElementById('rxAppointmentId').value=id;document.getElementById('prescriptionModal').classList.remove('hidden');document.getElementById('rxBorrador').value='';document.getElementById('rxDiagnostico').value='';document.getElementById('rxRecomendaciones').value='';document.querySelectorAll('.vital-input').forEach(i=>i.value='');document.getElementById('medicinesContainer').innerHTML='';addMedicineRow(); }
-        function closePrescriptionModal() { document.getElementById('prescriptionModal').classList.add('hidden'); }
-        function addMedicineRow(med=null) { const id='med_'+Date.now();document.getElementById('medicinesContainer').insertAdjacentHTML('beforeend',`<div id="${id}" class="flex gap-2 mb-2 bg-white p-2 border rounded"><input class="border p-1 w-full med-name" value="${med?.medicamento||''}" placeholder="Medicina"><input class="border p-1 w-1/2 med-dose" value="${med?.dosis||''}" placeholder="Dosis"><button onclick="document.getElementById('${id}').remove()" class="text-red-500 font-bold">✖</button></div>`); }
-        async function procesarConIA() { const btn=document.getElementById('btnCopiloto');const b=document.getElementById('rxBorrador').value;const esp=clinicDataGlobal?.especialidad||'medicina';if(!b)return alert("Escribe notas");btn.innerHTML='⏳ Procesando...';btn.disabled=true;try{const res=await fetch(`${API_BASE_URL}/api/ia-copilot`,{method:'POST',headers:ngrokHeaders,body:JSON.stringify({notasBorrador:b,especialidad:esp,contextoClinico:''})});const data=await res.json();document.getElementById('rxDiagnostico').value=data.diagnostico||'';if(data.recomendaciones)document.getElementById('rxRecomendaciones').value=data.recomendaciones.join('\\n');document.getElementById('medicinesContainer').innerHTML='';if(data.receta)data.receta.forEach(m=>addMedicineRow(m));mostrarMensaje('IA Lista');}catch(e){}finally{btn.innerHTML='🪄 Estructurar';btn.disabled=false;} }
-        async function submitPrescription() { const id=document.getElementById('rxAppointmentId').value;const a=appointments.find(x=>x.id===id);const p=patients.find(x=>x.id===a.patientId);let diag=document.getElementById('rxDiagnostico').value;const vitalsObj={};document.querySelectorAll('.vital-input').forEach(i=>{if(i.value&&i.id==='rxPresion')vitalsObj.presion=i.value;if(i.value&&i.id==='rxPeso')vitalsObj.peso=i.value;});const meds=[];Array.from(document.getElementById('medicinesContainer').children).forEach(r=>{const n=r.querySelector('.med-name').value;if(n)meds.push({medicamento:n,dosis:r.querySelector('.med-dose').value});});const recs=document.getElementById('rxRecomendaciones').value?document.getElementById('rxRecomendaciones').value.split('\\n'):[];const btn=document.getElementById('btnSubmitPrescription');btn.innerHTML='⏳ Guardando...';btn.disabled=true;try{await db.collection('patients').doc(p.id).collection('vitals').add({fecha:new Date(),diagnostico:diag,recomendaciones:recs,...vitalsObj});await fetch(`${API_BASE_URL}/send-prescription`,{method:'POST',headers:ngrokHeaders,body:JSON.stringify({doctorId:currentUser.uid,phoneNumber:p.telefonoWhatsApp,patientName:p.nombre,diagnostico:diag,vitals:vitalsObj,prescription:meds,recomendaciones:recs,clinicInfo:clinicDataGlobal})});closePrescriptionModal();openBillingModal(id,p.nombre);}catch(e){}finally{btn.innerHTML='Siguiente ➡️';btn.disabled=false;} }
-        function openBillingModal(id,name) { document.getElementById('billingAptId').value=id;document.getElementById('billingPatName').textContent=name;document.getElementById('billingSubtotal').value='';document.getElementById('billingModal').classList.remove('hidden'); }
-        function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
-        function calculateTotal() { const s=parseFloat(document.getElementById('billingSubtotal').value)||0;const t=document.getElementById('billingIva').checked?s*1.15:s;document.getElementById('billingTotalDisplay').textContent='$'+t.toFixed(2); }
-        async function submitBilling() { const id=document.getElementById('billingAptId').value;const a=appointments.find(x=>x.id===id);const p=patients.find(x=>x.id===a.patientId);const t=document.getElementById('billingIva').checked?(parseFloat(document.getElementById('billingSubtotal').value)||0)*1.15:(parseFloat(document.getElementById('billingSubtotal').value)||0);const msg=`🧾 *COMPROBANTE*\\nTotal: $${t.toFixed(2)}`;const btn=document.getElementById('btnFinalizarCobro');btn.disabled=true;try{await fetch(`${API_BASE_URL}/send-message`,{method:'POST',headers:ngrokHeaders,body:JSON.stringify({doctorId:currentUser.uid,phoneNumber:p.telefonoWhatsApp,message:msg})});await db.collection('appointments').doc(id).update({estado:'completada',monto:t});closeBillingModal();await loadAppointments();mostrarMensaje('Cobrado');}catch(e){}finally{btn.disabled=false;} }
-        function mostrarError(msg) { const d=document.getElementById('authError');d.textContent=msg;d.classList.remove('hidden');setTimeout(()=>d.classList.add('hidden'),5000); }
-        function mostrarMensaje(msg,type='success') { const d=document.getElementById('formMessage');d.textContent=msg;d.className=`p-4 rounded-lg mt-4 font-bold shadow border ${type==='success'?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}`;d.classList.remove('hidden');setTimeout(()=>d.classList.add('hidden'),3500); }
+        function addBlockedDate() { const input = document.getElementById('scheduleBlockDate'); const date = input.value; if(date && !globalBlockedDates.includes(date)) { globalBlockedDates.push(date); input.value = ''; renderBlockedDates(); } }
+        function removeBlockedDate(d) { globalBlockedDates = globalBlockedDates.filter(x => x !== d); renderBlockedDates(); }
+        function renderBlockedDates() { document.getElementById('blockedDatesList').innerHTML = globalBlockedDates.map(date => `<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded flex items-center">${date} <button type="button" onclick="removeBlockedDate('${date}')" class="text-red-500 font-bold ml-1 hover:text-red-700">&times;</button></span>`).join(''); }
+        
+        async function saveClinicSettings() { 
+            const info = { 
+                especialidad: document.getElementById('clinicSpecialty').value, 
+                nombre: document.getElementById('clinicName').value, 
+                ruc: document.getElementById('clinicRuc').value, 
+                direccion: document.getElementById('clinicAddress').value, 
+                telefono: document.getElementById('clinicPhone').value, 
+                logo: document.getElementById('clinicLogoBase64').value, 
+                horarioInicio: document.getElementById('scheduleStart').value, 
+                horarioFin: document.getElementById('scheduleEnd').value, 
+                duracionCita: document.getElementById('scheduleDuration').value, 
+                diasBloqueados: globalBlockedDates 
+            }; 
+            try { 
+                await db.collection('users').doc(currentUser.uid).update({ clinicInfo: info }); 
+                clinicDataGlobal = info; 
+                adaptarUI(); 
+                closeSettingsModal(); 
+                mostrarMensaje('Configuración de la clínica guardada', 'success'); 
+            } catch (error) { 
+                mostrarMensaje('Error al guardar: ' + error.message, 'error'); 
+            } 
+        }
+
+        function copiarMiLink() {
+            if(!currentUser) return;
+            const currentPath = window.location.href.split('?')[0]; 
+            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            const miLink = `${basePath}/agendar.html?doc=${currentUser.uid}`;
+            navigator.clipboard.writeText(miLink).then(() => mostrarMensaje('¡Enlace copiado al portapapeles!', 'success')).catch(err => alert("Copia manualmente tu link: " + miLink));
+        }
+
+        function mostrarError(msg) { 
+            const d = document.getElementById('authError'); 
+            d.textContent = msg; 
+            d.classList.remove('hidden'); 
+            setTimeout(()=>d.classList.add('hidden'), 5000); 
+        }
+        
+        function mostrarMensaje(msg, type='success') { 
+            const d = document.getElementById('formMessage'); 
+            d.textContent = msg; 
+            d.className = `p-4 rounded-lg mt-4 font-bold shadow-md border ${type==='success'?'bg-green-100 text-green-800 border-green-300':'bg-red-100 text-red-800 border-red-300'}`; 
+            d.classList.remove('hidden'); 
+            setTimeout(()=>d.classList.add('hidden'), 3500); 
+        }
     </script>
 </body>
 </html>
