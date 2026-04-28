@@ -2,74 +2,245 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Ventas - MediCitas Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Ventas - MediCitas Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <style>
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slideIn { animation: slideIn 0.3s ease-out; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
-    <div class="max-w-4xl mx-auto p-6">
-        <div class="bg-indigo-700 text-white p-8 rounded-2xl shadow-xl mb-8">
-            <h1 class="text-3xl font-black">Mi Panel de Comisiones 💰</h1>
-            <p id="vendedorName" class="text-indigo-100 mt-1">Cargando...</p>
-            
-            <div class="grid grid-cols-2 gap-4 mt-6">
-                <div class="bg-white/10 p-4 rounded-xl">
-                    <p class="text-xs uppercase font-bold opacity-70">Comisiones este mes</p>
-                    <p class="text-4xl font-black" id="totalCommissions">$0.00</p>
-                </div>
-                <div class="bg-white/10 p-4 rounded-xl">
-                    <p class="text-xs uppercase font-bold opacity-70">Cartera Activa</p>
-                    <p class="text-4xl font-black" id="activeClinics">0</p>
-                </div>
-            </div>
-        </div>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col font-sans">
 
-        <div class="bg-white rounded-2xl shadow-sm border p-6">
-            <h2 class="font-bold text-xl mb-4">Estado de mis Negocios</h2>
-            <div id="myClinicsList" class="space-y-4">
+    <div id="loginView" class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 w-full max-w-md animate-slideIn">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">💼</div>
+                <h2 class="text-2xl font-black text-slate-900">Portal de Partners</h2>
+                <p class="text-slate-500 text-sm mt-1">Ingresa para gestionar tus comisiones.</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                 </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                </div>
+                <button type="submit" id="btnSubmitLogin" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl transition-all shadow-lg active:scale-95">Iniciar Sesión</button>
+            </form>
+            
+            <div id="authError" class="mt-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg hidden text-sm font-bold text-center"></div>
+        </div>
+    </div>
+
+    <div id="dashboardView" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+        
+        <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">💼</span>
+                <h1 class="text-xl font-black text-slate-800">MediCitas <span class="text-indigo-600">Partners</span></h1>
+            </div>
+            <button onclick="logout()" class="text-slate-500 hover:text-red-500 font-bold text-sm transition-colors">Cerrar Sesión</button>
+        </nav>
+
+        <div class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="max-w-4xl mx-auto">
+                
+                <div class="bg-gradient-to-br from-indigo-600 to-blue-700 text-white p-8 rounded-3xl shadow-xl mb-8 animate-slideIn">
+                    <h2 class="text-3xl font-black mb-1">Hola, <span id="vendedorNameDisplay">Partner</span> 👋</h2>
+                    <p class="text-indigo-100 text-sm font-medium mb-8">Aquí está el resumen de tu cartera de clientes.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/20">
+                            <p class="text-xs uppercase font-bold tracking-wider text-indigo-100 mb-1">Comisión Recurrente Mensual</p>
+                            <p class="text-5xl font-black" id="totalCommissions">$0.00</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/20">
+                            <p class="text-xs uppercase font-bold tracking-wider text-indigo-100 mb-1">Clínicas Activas (Pagando)</p>
+                            <p class="text-5xl font-black" id="activeClinics">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8 animate-slideIn" style="animation-delay: 0.1s;">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
+                        <h3 class="font-black text-xl text-slate-800">Estado de mis Negocios</h3>
+                        <span class="bg-indigo-50 text-indigo-700 font-bold text-xs px-3 py-1 rounded-full">Actualizado en vivo</span>
+                    </div>
+                    
+                    <div id="myClinicsList" class="space-y-4">
+                        <div class="flex justify-center py-8"><div class="spinner border-indigo-600"></div></div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
     <script>
-        // LÓGICA DE COMISIÓN:
-        // Suscripción >= $20 -> $4 comisión
-        // Suscripción < $20 -> $3 comisión
+        // ============================================
+        // 1. CONFIGURACIÓN DE FIREBASE
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc", 
+            authDomain: "medicitas-app.firebaseapp.com",
+            projectId: "medicitas-app", 
+            storageBucket: "medicitas-app.firebasestorage.app",
+            messagingSenderId: "310910036460", 
+            appId: "1:310910036460:web:1a979471880251173838c9"
+        };
+
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth(); 
+        const db = firebase.firestore();
+
+        let currentVendedorId = null;
+
+        // ============================================
+        // 2. MOTOR DE LOGIN Y PROTECCIÓN DE RUTAS
+        // ============================================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitLogin');
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            const errDiv = document.getElementById('authError');
+            
+            btn.disabled = true;
+            btn.innerHTML = 'Verificando...';
+            errDiv.classList.add('hidden');
+
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+            } catch(err) {
+                errDiv.textContent = "Credenciales inválidas. Verifica tu correo y contraseña.";
+                errDiv.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = 'Iniciar Sesión';
+            }
+        });
+
+        function logout() { auth.signOut(); }
+
+        auth.onAuthStateChanged(async (user) => {
+            if(user) {
+                // Verificar que el usuario que intenta entrar SÍ sea un vendedor
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if(userDoc.exists && userDoc.data().rol === 'vendedor') {
+                        currentVendedorId = user.uid;
+                        document.getElementById('vendedorNameDisplay').textContent = userDoc.data().nombre;
+                        
+                        document.getElementById('loginView').classList.add('hidden');
+                        document.getElementById('dashboardView').classList.remove('hidden');
+                        
+                        loadMyStats(user.uid);
+                    } else {
+                        // Si es un doctor o el admin intentando entrar aquí, lo echamos
+                        auth.signOut();
+                        document.getElementById('authError').textContent = "Acceso denegado: Esta cuenta no pertenece a un vendedor.";
+                        document.getElementById('authError').classList.remove('hidden');
+                    }
+                } catch(e) {
+                    console.error("Error validando rol:", e);
+                }
+            } else {
+                currentVendedorId = null;
+                document.getElementById('loginView').classList.remove('hidden');
+                document.getElementById('dashboardView').classList.add('hidden');
+                document.getElementById('btnSubmitLogin').disabled = false;
+                document.getElementById('btnSubmitLogin').innerHTML = 'Iniciar Sesión';
+            }
+        });
+
+        // ============================================
+        // 3. LÓGICA DE CÁLCULO DE COMISIONES B2B
+        // ============================================
+        
+        // REGLA DE NEGOCIO:
+        // Suscripción >= $20 -> Comisión de $4
+        // Suscripción < $20 -> Comisión de $3
         function calculateComm(price, status) {
-            if(status !== 'activo') return 0; // Si no paga, no hay comisión
+            if(status !== 'activo') return 0; // Si la clínica está suspendida/no paga, la comisión es $0
             return (price >= 20) ? 4 : 3;
         }
 
         async function loadMyStats(vendedorId) {
-            const snap = await db.collection('users').where('vendedorId', '==', vendedorId).get();
-            let html = '';
-            let total = 0;
-            let activas = 0;
-
-            snap.forEach(doc => {
-                const d = doc.data();
-                const comm = calculateComm(d.precioSuscripcion, d.estadoSuscripcion);
-                total += comm;
-                if(d.estadoSuscripcion === 'activo') activas++;
-
-                html += `
-                <div class="flex justify-between items-center border-b pb-3">
-                    <div>
-                        <p class="font-bold">${d.clinicInfo?.nombre || d.nombre}</p>
-                        <p class="text-xs ${d.estadoSuscripcion === 'activo' ? 'text-green-600' : 'text-red-500'} font-bold uppercase">${d.estadoSuscripcion}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-lg font-black ${comm > 0 ? 'text-indigo-600' : 'text-slate-400'}">+$${comm.toFixed(2)}</p>
-                        <p class="text-[10px] text-slate-500 uppercase">Comisión Mensual</p>
-                    </div>
-                </div>`;
-            });
+            const container = document.getElementById('myClinicsList');
             
-            document.getElementById('myClinicsList').innerHTML = html;
-            document.getElementById('totalCommissions').textContent = '$' + total.toFixed(2);
-            document.getElementById('activeClinics').textContent = activas;
+            try {
+                // Buscar todas las clínicas asignadas a este vendedor específico
+                const snap = await db.collection('users')
+                    .where('rol', '==', 'doctor')
+                    .where('vendedorId', '==', vendedorId)
+                    .orderBy('fechaRegistro', 'desc')
+                    .get();
+                
+                let html = '';
+                let totalMensual = 0;
+                let clinicasActivas = 0;
+
+                if(snap.empty) {
+                    container.innerHTML = `
+                        <div class="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            <span class="text-4xl block mb-2">🌱</span>
+                            <p class="text-slate-500 font-bold">Aún no tienes clínicas registradas.</p>
+                            <p class="text-slate-400 text-sm">Empieza a vender para ver tus comisiones aquí.</p>
+                        </div>`;
+                    return;
+                }
+
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const info = d.clinicInfo || {};
+                    const precioSuscripcion = d.precioSuscripcion || 15;
+                    const estado = d.estadoSuscripcion || 'activo';
+                    
+                    const comm = calculateComm(precioSuscripcion, estado);
+                    totalMensual += comm;
+                    
+                    if(estado === 'activo') clinicasActivas++;
+
+                    // Etiquetas visuales para el estado de la clínica
+                    const statusBadge = estado === 'activo' 
+                        ? `<span class="bg-green-100 text-green-700 font-black text-[10px] px-2 py-0.5 rounded uppercase tracking-wider">Activo (Pagando)</span>`
+                        : `<span class="bg-red-100 text-red-700 font-black text-[10px] px-2 py-0.5 rounded uppercase tracking-wider">Suspendido (Impago)</span>`;
+
+                    html += `
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-indigo-200 transition-colors gap-4">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="font-black text-slate-800 text-lg">${info.nombre || d.nombre}</h4>
+                                ${statusBadge}
+                            </div>
+                            <p class="text-sm text-slate-500 font-medium">Plan contratado: <span class="font-bold text-slate-700">$${precioSuscripcion.toFixed(2)}/mes</span></p>
+                            <p class="text-xs text-slate-400 mt-1">Registrado el: ${d.fechaRegistro ? d.fechaRegistro.toDate().toLocaleDateString() : 'N/A'}</p>
+                        </div>
+                        <div class="sm:text-right bg-white p-3 rounded-xl border border-slate-100 shadow-sm min-w-[120px]">
+                            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Tu Comisión</p>
+                            <p class="text-2xl font-black ${comm > 0 ? 'text-indigo-600' : 'text-slate-300'}">+$${comm.toFixed(2)}</p>
+                        </div>
+                    </div>`;
+                });
+                
+                // Actualizar la interfaz
+                container.innerHTML = html;
+                document.getElementById('totalCommissions').textContent = '$' + totalMensual.toFixed(2);
+                document.getElementById('activeClinics').textContent = clinicasActivas;
+
+            } catch (error) {
+                console.error("Error cargando estadísticas del vendedor:", error);
+                container.innerHTML = `
+                    <div class="p-4 bg-red-50 text-red-600 rounded-xl font-bold text-center border border-red-100">
+                        Hubo un problema de conexión al cargar tus datos.
+                    </div>`;
+            }
         }
     </script>
 </body>
