@@ -52,28 +52,38 @@
 
         <div class="p-6 flex-1 overflow-hidden flex flex-col max-w-7xl mx-auto w-full">
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-slate-800 border border-slate-700 p-5 rounded-xl shadow-lg">
-                    <p class="text-slate-400 text-sm font-semibold uppercase">Clínicas Registradas</p>
-                    <p class="text-4xl font-black text-white mt-1" id="kpiTotalClinics">0</p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg">
+                    <p class="text-slate-400 text-xs font-semibold uppercase">Clínicas Totales</p>
+                    <p class="text-3xl font-black text-white mt-1" id="kpiTotalClinics">0</p>
                 </div>
-                <div class="bg-slate-800 border border-slate-700 p-5 rounded-xl shadow-lg">
-                    <p class="text-slate-400 text-sm font-semibold uppercase">Clínicas Activas</p>
-                    <p class="text-4xl font-black text-green-400 mt-1" id="kpiActiveClinics">0</p>
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg">
+                    <p class="text-slate-400 text-xs font-semibold uppercase">Clínicas Activas</p>
+                    <p class="text-3xl font-black text-green-400 mt-1" id="kpiActiveClinics">0</p>
                 </div>
-                <div class="bg-slate-800 border border-slate-700 p-5 rounded-xl shadow-lg relative overflow-hidden">
-                    <p class="text-slate-400 text-sm font-semibold uppercase z-10 relative">Ingreso Proyectado (MRR)</p>
-                    <p class="text-4xl font-black text-blue-400 mt-1 z-10 relative" id="kpiRevenue">$0</p>
-                    <div class="absolute -right-4 -bottom-4 text-7xl opacity-10">💰</div>
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg relative overflow-hidden">
+                    <p class="text-slate-400 text-xs font-semibold uppercase z-10 relative">Fuerza de Ventas</p>
+                    <p class="text-3xl font-black text-indigo-400 mt-1 z-10 relative" id="kpiTotalVendedores">0</p>
+                    <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">👥</div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg relative overflow-hidden">
+                    <p class="text-slate-400 text-xs font-semibold uppercase z-10 relative">Ingreso (MRR)</p>
+                    <p class="text-3xl font-black text-blue-400 mt-1 z-10 relative" id="kpiRevenue">$0</p>
+                    <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">💰</div>
                 </div>
             </div>
 
-            <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
+            <div class="flex gap-3 mb-4">
+                <button onclick="switchTab('clinicas')" id="btnTabClinicas" class="px-6 py-2 rounded-lg font-bold bg-blue-600 text-white shadow-lg transition-colors">🏥 Gestión de Clínicas</button>
+                <button onclick="switchTab('vendedores')" id="btnTabVendedores" class="px-6 py-2 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors">👥 Equipo de Ventas</button>
+            </div>
+
+            <div id="viewClinicas" class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Gestión de Suscriptores y Precios</h2>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Suscriptores y Precios</h2>
                     <div class="flex gap-2">
                         <button onclick="openNewClinicModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Registrar Nueva Clínica</button>
-                        <button onclick="loadClinics()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
+                        <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
                     </div>
                 </div>
                 <div class="overflow-x-auto overflow-y-auto custom-scroll flex-1 p-4">
@@ -82,7 +92,7 @@
                             <tr class="text-xs uppercase text-slate-400 border-b border-slate-700">
                                 <th class="pb-3 pr-4 font-semibold">Dr. / Administrador</th>
                                 <th class="pb-3 px-4 font-semibold">Clínica & Especialidad</th>
-                                <th class="pb-3 px-4 font-semibold">Estado (Suscripción)</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Estado (Bot)</th>
                                 <th class="pb-3 px-4 font-semibold text-center">Precio Mensual ($)</th>
                                 <th class="pb-3 pl-4 font-semibold text-right">Acción Maestra</th>
                             </tr>
@@ -92,6 +102,31 @@
                     </table>
                 </div>
             </div>
+
+            <div id="viewVendedores" class="hidden bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">👥 Fuerza de Ventas y Comisiones</h2>
+                    <div class="flex gap-2">
+                        <button onclick="openNewVendedorModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Nuevo Vendedor</button>
+                        <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto overflow-y-auto custom-scroll flex-1 p-4">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-xs uppercase text-slate-400 border-b border-slate-700">
+                                <th class="pb-3 pr-4 font-semibold">Nombre del Vendedor</th>
+                                <th class="pb-3 px-4 font-semibold">Contacto</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Fecha de Ingreso</th>
+                                <th class="pb-3 pl-4 font-semibold text-right">ID Referido (Vínculo)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vendedoresTableBody" class="text-sm">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -102,13 +137,13 @@
                 <button onclick="closeNewClinicModal()" class="text-slate-400 hover:text-red-500 font-bold text-2xl">&times;</button>
             </div>
             <div class="p-6 space-y-4">
-                <p class="text-xs text-slate-400 mb-4">Esta cuenta se creará directamente en la base de datos oficial. Las credenciales ingresadas aquí son las que le entregarás al cliente para que inicie sesión.</p>
+                <p class="text-xs text-slate-400 mb-2">Las credenciales ingresadas aquí son las que le entregarás al cliente para que inicie sesión.</p>
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">Nombre del Doctor/Clínica</label>
                     <input type="text" id="newC_Nombre" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico (Login)</label>
                     <input type="email" id="newC_Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                 </div>
                 <div>
@@ -135,16 +170,53 @@
                         <option value="veterinaria">Veterinaria</option>
                     </select>
                 </div>
+                <div class="p-3 bg-indigo-900/30 border border-indigo-500/50 rounded-lg">
+                    <label class="block text-sm font-bold text-indigo-300 mb-1">Asignar a un Vendedor (Comisión)</label>
+                    <select id="newC_Vendedor" class="w-full px-3 py-2 bg-slate-900 border border-indigo-500/50 rounded text-white focus:ring-1 focus:ring-indigo-500">
+                        <option value="">-- Venta Directa (Sin comisión) --</option>
+                        </select>
+                </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-700 flex justify-end gap-3">
                 <button onclick="closeNewClinicModal()" class="text-slate-300 hover:text-white px-4 py-2 text-sm font-bold">Cancelar</button>
-                <button id="btnCreateClinic" onclick="submitNewClinic()" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded shadow text-sm font-bold">Generar Credenciales</button>
+                <button id="btnCreateClinic" onclick="submitNewClinic()" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded shadow text-sm font-bold">Generar Clínica</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="newVendedorModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center py-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-md mx-4 shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-indigo-400">👥 Registrar Nuevo Vendedor</h3>
+                <button onclick="closeNewVendedorModal()" class="text-slate-400 hover:text-red-500 font-bold text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Nombre Completo</label>
+                    <input type="text" id="newV_Nombre" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico (Login Panel Vendedor)</label>
+                    <input type="email" id="newV_Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                    <input type="text" id="newV_Pass" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Teléfono (WhatsApp)</label>
+                    <input type="text" id="newV_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-indigo-500">
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-700 flex justify-end gap-3">
+                <button onclick="closeNewVendedorModal()" class="text-slate-300 hover:text-white px-4 py-2 text-sm font-bold">Cancelar</button>
+                <button id="btnCreateVendedor" onclick="submitNewVendedor()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded shadow text-sm font-bold">Crear Vendedor</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 🛑 PEGA AQUÍ TU ENLACE DE NGROK PARA QUE EL PANEL PUEDA HABLAR CON EL SERVIDOR 🛑
+        // 🛑 TU ENLACE DE NGROK ACTUAL (Backend) 🛑
         const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev";
         
         const firebaseConfig = {
@@ -160,7 +232,12 @@
         const auth = firebase.auth(); 
         const db = firebase.firestore();
 
-        // LOGIN
+        // ALMACENAMIENTO LOCAL EN MEMORIA
+        let mapaVendedores = {}; 
+
+        // ==========================================
+        // LOGIN Y NAVEGACIÓN DE PESTAÑAS
+        // ==========================================
         document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('adminEmail').value;
@@ -168,9 +245,8 @@
             try {
                 await auth.signInWithEmailAndPassword(email, pass);
             } catch(err) {
-                const errDiv = document.getElementById('adminError');
-                errDiv.textContent = "Acceso denegado. Credenciales inválidas.";
-                errDiv.classList.remove('hidden');
+                document.getElementById('adminError').textContent = "Acceso denegado. Credenciales inválidas.";
+                document.getElementById('adminError').classList.remove('hidden');
             }
         });
 
@@ -180,14 +256,70 @@
             if(user) {
                 document.getElementById('loginAdminView').classList.add('hidden');
                 document.getElementById('dashboardAdminView').classList.remove('hidden');
-                loadClinics();
+                loadGlobalData();
             } else {
                 document.getElementById('loginAdminView').classList.remove('hidden');
                 document.getElementById('dashboardAdminView').classList.add('hidden');
             }
         });
 
-        async function loadClinics() {
+        function switchTab(tab) {
+            const btnC = document.getElementById('btnTabClinicas');
+            const btnV = document.getElementById('btnTabVendedores');
+            
+            if(tab === 'clinicas') {
+                document.getElementById('viewClinicas').classList.remove('hidden');
+                document.getElementById('viewVendedores').classList.add('hidden');
+                
+                btnC.className = "px-6 py-2 rounded-lg font-bold bg-blue-600 text-white shadow-lg transition-colors";
+                btnV.className = "px-6 py-2 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors";
+            } else {
+                document.getElementById('viewClinicas').classList.add('hidden');
+                document.getElementById('viewVendedores').classList.remove('hidden');
+                
+                btnV.className = "px-6 py-2 rounded-lg font-bold bg-indigo-600 text-white shadow-lg transition-colors";
+                btnC.className = "px-6 py-2 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors";
+            }
+        }
+
+        // ==========================================
+        // CARGA DE DATOS (CLÍNICAS Y VENDEDORES)
+        // ==========================================
+        async function loadGlobalData() {
+            // 1. Cargar Vendedores primero para tener el mapa de nombres
+            try {
+                const vendSnap = await db.collection('users').where('rol', '==', 'vendedor').get();
+                mapaVendedores = {};
+                let vendHtml = '';
+                let selectOptions = '<option value="">-- Venta Directa (Sin comisión) --</option>';
+                
+                if (vendSnap.empty) {
+                    vendHtml = '<tr><td colspan="4" class="text-center py-6 text-slate-500">No hay vendedores registrados.</td></tr>';
+                } else {
+                    vendSnap.forEach(doc => {
+                        const v = doc.data();
+                        mapaVendedores[doc.id] = v.nombre;
+                        selectOptions += `<option value="${doc.id}">${v.nombre}</option>`;
+                        
+                        const fecha = v.fechaRegistro && v.fechaRegistro.toDate ? v.fechaRegistro.toDate().toLocaleDateString() : 'N/A';
+                        
+                        vendHtml += `
+                        <tr class="border-b border-slate-700/50 hover:bg-slate-700/20">
+                            <td class="py-4 pr-4"><p class="font-bold text-white">${v.nombre}</p></td>
+                            <td class="py-4 px-4"><p class="text-sm text-slate-300">📱 ${v.telefonoWhatsApp}</p><p class="text-xs text-slate-500">${v.email}</p></td>
+                            <td class="py-4 px-4 text-center"><p class="text-sm text-slate-300">${fecha}</p></td>
+                            <td class="py-4 pl-4 text-right"><span class="bg-indigo-900/40 text-indigo-300 px-2 py-1 rounded text-xs font-mono border border-indigo-700">${doc.id}</span></td>
+                        </tr>`;
+                    });
+                }
+                
+                document.getElementById('vendedoresTableBody').innerHTML = vendHtml;
+                document.getElementById('newC_Vendedor').innerHTML = selectOptions;
+                document.getElementById('kpiTotalVendedores').textContent = vendSnap.size;
+
+            } catch (e) { console.error("Error cargando vendedores", e); }
+
+            // 2. Cargar Clínicas
             const tbody = document.getElementById('clinicsTableBody');
             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-500">Cargando base de datos global...</td></tr>';
             
@@ -200,57 +332,59 @@
 
                 if (totales === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-500">Aún no hay clínicas registradas en el sistema.</td></tr>';
-                    return;
+                } else {
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const info = data.clinicInfo || {};
+                        const estado = data.estadoSuscripcion || 'activo'; 
+                        const precioSuscripcion = data.precioSuscripcion || 15; 
+                        const vendName = data.vendedorId ? (mapaVendedores[data.vendedorId] || 'Vendedor Borrado') : 'Venta Directa';
+                        
+                        if(estado === 'activo') {
+                            activas++;
+                            ingresosTotalesMensuales += parseFloat(precioSuscripcion);
+                        }
+
+                        const statusBadge = estado === 'activo' 
+                            ? `<span class="bg-green-900/30 text-green-400 border border-green-800 px-3 py-1 rounded-full text-xs font-bold tracking-wide">🟢 ACTIVO</span>`
+                            : `<span class="bg-red-900/30 text-red-400 border border-red-800 px-3 py-1 rounded-full text-xs font-bold tracking-wide">🔴 SUSPENDIDO</span>`;
+                        
+                        const toggleAction = estado === 'activo'
+                            ? `<button onclick="toggleSuscripcion('${doc.id}', 'suspendido')" class="bg-red-900/50 hover:bg-red-600 text-red-200 hover:text-white border border-red-800 px-3 py-1 rounded transition text-xs font-bold w-full">Suspender</button>`
+                            : `<button onclick="toggleSuscripcion('${doc.id}', 'activo')" class="bg-green-900/50 hover:bg-green-600 text-green-200 hover:text-white border border-green-800 px-3 py-1 rounded transition text-xs font-bold w-full">Reactivar</button>`;
+
+                        html += `
+                        <tr class="border-b border-slate-700/50 hover:bg-slate-700/20 transition group">
+                            <td class="py-4 pr-4">
+                                <p class="font-bold text-white">${data.nombre}</p>
+                                <p class="text-xs text-slate-500 mt-1">✉️ ${data.email}</p>
+                            </td>
+                            <td class="py-4 px-4">
+                                <p class="font-semibold text-blue-300">${info.nombre || '<span class="text-slate-600 italic">No configurada</span>'}</p>
+                                <p class="text-xs text-slate-400 mt-1 capitalize">${info.especialidad || 'General'}</p>
+                                <div class="mt-2 inline-flex items-center bg-slate-800 border border-slate-600 rounded px-2 py-0.5">
+                                    <span class="text-[10px] text-slate-400 uppercase mr-1">Ref:</span>
+                                    <span class="text-[10px] font-bold ${data.vendedorId ? 'text-indigo-400' : 'text-slate-300'}">${vendName}</span>
+                                </div>
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                ${statusBadge}
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <span class="text-slate-400">$</span>
+                                    <input type="number" id="price_${doc.id}" value="${precioSuscripcion}" class="w-16 bg-slate-900 border border-slate-600 text-white px-2 py-1 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none text-sm">
+                                    <button onclick="actualizarPrecio('${doc.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold transition" title="Guardar Precio">💾</button>
+                                </div>
+                            </td>
+                            <td class="py-4 pl-4 text-right">
+                                ${toggleAction}
+                            </td>
+                        </tr>`;
+                    });
+                    tbody.innerHTML = html;
                 }
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const info = data.clinicInfo || {};
-                    const estado = data.estadoSuscripcion || 'activo'; 
-                    const precioSuscripcion = data.precioSuscripcion || 15; 
-                    
-                    if(estado === 'activo') {
-                        activas++;
-                        ingresosTotalesMensuales += parseFloat(precioSuscripcion);
-                    }
-
-                    const statusBadge = estado === 'activo' 
-                        ? `<span class="bg-green-900/30 text-green-400 border border-green-800 px-3 py-1 rounded-full text-xs font-bold tracking-wide">🟢 ACTIVO</span>`
-                        : `<span class="bg-red-900/30 text-red-400 border border-red-800 px-3 py-1 rounded-full text-xs font-bold tracking-wide">🔴 SUSPENDIDO</span>`;
-                    
-                    const toggleAction = estado === 'activo'
-                        ? `<button onclick="toggleSuscripcion('${doc.id}', 'suspendido')" class="bg-red-900/50 hover:bg-red-600 text-red-200 hover:text-white border border-red-800 px-3 py-1 rounded transition text-xs font-bold w-full">Suspender Clínica</button>`
-                        : `<button onclick="toggleSuscripcion('${doc.id}', 'activo')" class="bg-green-900/50 hover:bg-green-600 text-green-200 hover:text-white border border-green-800 px-3 py-1 rounded transition text-xs font-bold w-full">Reactivar Clínica</button>`;
-
-                    html += `
-                    <tr class="border-b border-slate-700/50 hover:bg-slate-700/20 transition group">
-                        <td class="py-4 pr-4">
-                            <p class="font-bold text-white">${data.nombre}</p>
-                            <p class="text-xs text-slate-400 font-mono mt-1" title="ID: ${doc.id}">${doc.id.substring(0,8)}...</p>
-                            <p class="text-xs text-slate-500 mt-1">✉️ ${data.email}</p>
-                        </td>
-                        <td class="py-4 px-4">
-                            <p class="font-semibold text-blue-300">${info.nombre || '<span class="text-slate-600 italic">No configurada</span>'}</p>
-                            <p class="text-xs text-slate-400 mt-1 capitalize">${info.especialidad || 'General'}</p>
-                            <p class="text-sm text-slate-300 mt-1">📱 ${data.telefonoWhatsApp || 'N/A'}</p>
-                        </td>
-                        <td class="py-4 px-4">
-                            ${statusBadge}
-                        </td>
-                        <td class="py-4 px-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <span class="text-slate-400">$</span>
-                                <input type="number" id="price_${doc.id}" value="${precioSuscripcion}" class="w-16 bg-slate-900 border border-slate-600 text-white px-2 py-1 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none text-sm">
-                                <button onclick="actualizarPrecio('${doc.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold transition" title="Guardar Precio">💾</button>
-                            </div>
-                        </td>
-                        <td class="py-4 pl-4 text-right">
-                            ${toggleAction}
-                        </td>
-                    </tr>`;
-                });
-
-                tbody.innerHTML = html;
+                
                 document.getElementById('kpiTotalClinics').textContent = totales;
                 document.getElementById('kpiActiveClinics').textContent = activas;
                 document.getElementById('kpiRevenue').textContent = '$' + ingresosTotalesMensuales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -267,36 +401,37 @@
             try {
                 await db.collection('users').doc(userId).update({ precioSuscripcion: parseFloat(nuevoPrecio) });
                 alert("✅ Precio actualizado correctamente en la base de datos.");
-                loadClinics(); 
+                loadGlobalData(); 
             } catch(e) { alert("Error al actualizar precio: " + e.message); }
         }
 
         async function toggleSuscripcion(userId, nuevoEstado) {
             const accion = nuevoEstado === 'suspendido' ? 'SUSPENDER' : 'REACTIVAR';
-            if(confirm(`⚠️ ¿Seguro que deseas ${accion} el acceso y el bot para este usuario?`)) {
+            if(confirm(`⚠️ ¿Seguro que deseas ${accion} el acceso para este usuario?`)) {
                 try {
                     await db.collection('users').doc(userId).update({ estadoSuscripcion: nuevoEstado });
-                    loadClinics(); 
+                    loadGlobalData(); 
                 } catch(e) { alert("Error al actualizar estado: " + e.message); }
             }
         }
 
-        // 🔥 FUNCIONES DE CREACIÓN DE CLÍNICAS B2B 🔥
-        function openNewClinicModal() { 
-            document.getElementById('newClinicModal').classList.remove('hidden'); 
-        }
-        function closeNewClinicModal() { 
-            document.getElementById('newClinicModal').classList.add('hidden'); 
-        }
+        // ==========================================
+        // CREACIÓN DE CLÍNICAS Y VENDEDORES (APIs)
+        // ==========================================
+        
+        // --- MODAL CLÍNICA ---
+        function openNewClinicModal() { document.getElementById('newClinicModal').classList.remove('hidden'); }
+        function closeNewClinicModal() { document.getElementById('newClinicModal').classList.add('hidden'); }
 
         async function submitNewClinic() {
             const btn = document.getElementById('btnCreateClinic');
-            const email = document.getElementById('newC_Email').value;
-            const pass = document.getElementById('newC_Pass').value;
-            const nombre = document.getElementById('newC_Nombre').value;
-            const tel = document.getElementById('newC_Tel').value;
+            const email = document.getElementById('newC_Email').value.trim();
+            const pass = document.getElementById('newC_Pass').value.trim();
+            const nombre = document.getElementById('newC_Nombre').value.trim();
+            const tel = document.getElementById('newC_Tel').value.trim();
             const esp = document.getElementById('newC_Esp').value;
             const precio = document.getElementById('newC_Precio').value;
+            const vendId = document.getElementById('newC_Vendedor').value; // ID del vendedor
 
             if(!email || !pass || !nombre) return alert("Llena Nombre, Email y Contraseña.");
 
@@ -306,19 +441,16 @@
             try {
                 const req = await fetch(`${API_BASE_URL}/api/admin/create-clinic`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                    body: JSON.stringify({ email, password: pass, nombre, telefono: tel, especialidad: esp, precio })
+                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                    body: JSON.stringify({ email, password: pass, nombre, telefono: tel, especialidad: esp, precio, vendedorId: vendId })
                 });
 
                 const res = await req.json();
                 if(res.success) {
                     alert(`✅ Clínica Creada con Éxito.\n\nCredenciales para entregar al cliente:\nUser: ${email}\nPass: ${pass}`);
                     closeNewClinicModal();
-                    loadClinics();
-                    // Limpiar formulario
+                    loadGlobalData();
+                    // Limpiar
                     document.getElementById('newC_Email').value = '';
                     document.getElementById('newC_Pass').value = '';
                     document.getElementById('newC_Nombre').value = '';
@@ -326,12 +458,48 @@
                 } else {
                     alert("Error: " + res.error);
                 }
-            } catch(e) {
-                alert("Error de conexión con el servidor Node.js. ¿Está Ngrok encendido?");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = "Generar Credenciales";
-            }
+            } catch(e) { alert("Error de conexión con el servidor Node.js."); } 
+            finally { btn.disabled = false; btn.innerHTML = "Generar Clínica"; }
+        }
+
+        // --- MODAL VENDEDOR ---
+        function openNewVendedorModal() { document.getElementById('newVendedorModal').classList.remove('hidden'); }
+        function closeNewVendedorModal() { document.getElementById('newVendedorModal').classList.add('hidden'); }
+
+        async function submitNewVendedor() {
+            const btn = document.getElementById('btnCreateVendedor');
+            const email = document.getElementById('newV_Email').value.trim();
+            const pass = document.getElementById('newV_Pass').value.trim();
+            const nombre = document.getElementById('newV_Nombre').value.trim();
+            const tel = document.getElementById('newV_Tel').value.trim();
+
+            if(!email || !pass || !nombre) return alert("Llena Nombre, Email y Contraseña.");
+
+            btn.disabled = true;
+            btn.innerHTML = "Creando...";
+
+            try {
+                const req = await fetch(`${API_BASE_URL}/api/admin/create-vendedor`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                    body: JSON.stringify({ email, password: pass, nombre, telefono: tel })
+                });
+
+                const res = await req.json();
+                if(res.success) {
+                    alert(`✅ Vendedor Creado con Éxito.`);
+                    closeNewVendedorModal();
+                    loadGlobalData(); // Recarga listas
+                    // Limpiar
+                    document.getElementById('newV_Email').value = '';
+                    document.getElementById('newV_Pass').value = '';
+                    document.getElementById('newV_Nombre').value = '';
+                    document.getElementById('newV_Tel').value = '';
+                } else {
+                    alert("Error: " + res.error);
+                }
+            } catch(e) { alert("Error de conexión con el servidor Node.js."); } 
+            finally { btn.disabled = false; btn.innerHTML = "Crear Vendedor"; }
         }
     </script>
 </body>

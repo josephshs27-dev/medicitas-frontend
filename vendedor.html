@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Ventas - MediCitas Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="bg-indigo-700 text-white p-8 rounded-2xl shadow-xl mb-8">
+            <h1 class="text-3xl font-black">Mi Panel de Comisiones 💰</h1>
+            <p id="vendedorName" class="text-indigo-100 mt-1">Cargando...</p>
+            
+            <div class="grid grid-cols-2 gap-4 mt-6">
+                <div class="bg-white/10 p-4 rounded-xl">
+                    <p class="text-xs uppercase font-bold opacity-70">Comisiones este mes</p>
+                    <p class="text-4xl font-black" id="totalCommissions">$0.00</p>
+                </div>
+                <div class="bg-white/10 p-4 rounded-xl">
+                    <p class="text-xs uppercase font-bold opacity-70">Cartera Activa</p>
+                    <p class="text-4xl font-black" id="activeClinics">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border p-6">
+            <h2 class="font-bold text-xl mb-4">Estado de mis Negocios</h2>
+            <div id="myClinicsList" class="space-y-4">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // LÓGICA DE COMISIÓN:
+        // Suscripción >= $20 -> $4 comisión
+        // Suscripción < $20 -> $3 comisión
+        function calculateComm(price, status) {
+            if(status !== 'activo') return 0; // Si no paga, no hay comisión
+            return (price >= 20) ? 4 : 3;
+        }
+
+        async function loadMyStats(vendedorId) {
+            const snap = await db.collection('users').where('vendedorId', '==', vendedorId).get();
+            let html = '';
+            let total = 0;
+            let activas = 0;
+
+            snap.forEach(doc => {
+                const d = doc.data();
+                const comm = calculateComm(d.precioSuscripcion, d.estadoSuscripcion);
+                total += comm;
+                if(d.estadoSuscripcion === 'activo') activas++;
+
+                html += `
+                <div class="flex justify-between items-center border-b pb-3">
+                    <div>
+                        <p class="font-bold">${d.clinicInfo?.nombre || d.nombre}</p>
+                        <p class="text-xs ${d.estadoSuscripcion === 'activo' ? 'text-green-600' : 'text-red-500'} font-bold uppercase">${d.estadoSuscripcion}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-black ${comm > 0 ? 'text-indigo-600' : 'text-slate-400'}">+$${comm.toFixed(2)}</p>
+                        <p class="text-[10px] text-slate-500 uppercase">Comisión Mensual</p>
+                    </div>
+                </div>`;
+            });
+            
+            document.getElementById('myClinicsList').innerHTML = html;
+            document.getElementById('totalCommissions').textContent = '$' + total.toFixed(2);
+            document.getElementById('activeClinics').textContent = activas;
+        }
+    </script>
+</body>
+</html>
