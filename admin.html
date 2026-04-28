@@ -71,7 +71,10 @@
             <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                     <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Gestión de Suscriptores y Precios</h2>
-                    <button onclick="loadClinics()" class="text-slate-400 hover:text-white transition" title="Refrescar Datos">🔄</button>
+                    <div class="flex gap-2">
+                        <button onclick="openNewClinicModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Registrar Nueva Clínica</button>
+                        <button onclick="loadClinics()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto overflow-y-auto custom-scroll flex-1 p-4">
                     <table class="w-full text-left border-collapse">
@@ -92,7 +95,58 @@
         </div>
     </div>
 
+    <div id="newClinicModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center py-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-md mx-4 shadow-2xl">
+            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white">🏢 Registrar Clínica B2B</h3>
+                <button onclick="closeNewClinicModal()" class="text-slate-400 hover:text-red-500 font-bold text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-slate-400 mb-4">Esta cuenta se creará directamente en la base de datos oficial. Las credenciales ingresadas aquí son las que le entregarás al cliente para que inicie sesión.</p>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Nombre del Doctor/Clínica</label>
+                    <input type="text" id="newC_Nombre" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                    <input type="email" id="newC_Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña Temporal</label>
+                    <input type="text" id="newC_Pass" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Teléfono (WhatsApp)</label>
+                        <input type="text" id="newC_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Suscripción ($)</label>
+                        <input type="number" id="newC_Precio" value="15" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Especialidad Principal</label>
+                    <select id="newC_Esp" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                        <option value="medicina">Medicina General</option>
+                        <option value="odontologia">Odontología</option>
+                        <option value="fisioterapia">Fisioterapia</option>
+                        <option value="nutricion">Nutrición</option>
+                        <option value="veterinaria">Veterinaria</option>
+                    </select>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-700 flex justify-end gap-3">
+                <button onclick="closeNewClinicModal()" class="text-slate-300 hover:text-white px-4 py-2 text-sm font-bold">Cancelar</button>
+                <button id="btnCreateClinic" onclick="submitNewClinic()" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded shadow text-sm font-bold">Generar Credenciales</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 🛑 PEGA AQUÍ TU ENLACE DE NGROK PARA QUE EL PANEL PUEDA HABLAR CON EL SERVIDOR 🛑
+        const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev";
+        
         const firebaseConfig = {
             apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc", 
             authDomain: "medicitas-app.firebaseapp.com",
@@ -138,7 +192,7 @@
             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-500">Cargando base de datos global...</td></tr>';
             
             try {
-                const snapshot = await db.collection('users').where('rol', '==', 'doctor').get();
+                const snapshot = await db.collection('users').where('rol', '==', 'doctor').orderBy('fechaRegistro', 'desc').get();
                 let html = '';
                 let activas = 0;
                 let totales = snapshot.size;
@@ -153,7 +207,6 @@
                     const data = doc.data();
                     const info = data.clinicInfo || {};
                     const estado = data.estadoSuscripcion || 'activo'; 
-                    // El precio por defecto será 15 si nunca se le ha asignado uno
                     const precioSuscripcion = data.precioSuscripcion || 15; 
                     
                     if(estado === 'activo') {
@@ -187,7 +240,7 @@
                         <td class="py-4 px-4 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <span class="text-slate-400">$</span>
-                                <input type="number" id="price_${doc.id}" value="${precioSuscripcion}" class="w-20 bg-slate-900 border border-slate-600 text-white px-2 py-1 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none">
+                                <input type="number" id="price_${doc.id}" value="${precioSuscripcion}" class="w-16 bg-slate-900 border border-slate-600 text-white px-2 py-1 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none text-sm">
                                 <button onclick="actualizarPrecio('${doc.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold transition" title="Guardar Precio">💾</button>
                             </div>
                         </td>
@@ -198,8 +251,6 @@
                 });
 
                 tbody.innerHTML = html;
-                
-                // Actualizar KPIs con ingresos reales sumados
                 document.getElementById('kpiTotalClinics').textContent = totales;
                 document.getElementById('kpiActiveClinics').textContent = activas;
                 document.getElementById('kpiRevenue').textContent = '$' + ingresosTotalesMensuales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -213,29 +264,73 @@
         async function actualizarPrecio(userId) {
             const nuevoPrecio = document.getElementById(`price_${userId}`).value;
             if(!nuevoPrecio || nuevoPrecio < 0) return alert("Ingresa un precio válido.");
-            
             try {
-                await db.collection('users').doc(userId).update({
-                    precioSuscripcion: parseFloat(nuevoPrecio)
-                });
+                await db.collection('users').doc(userId).update({ precioSuscripcion: parseFloat(nuevoPrecio) });
                 alert("✅ Precio actualizado correctamente en la base de datos.");
-                loadClinics(); // Recarga para actualizar el KPI de ingresos
-            } catch(e) {
-                alert("Error al actualizar precio: " + e.message);
-            }
+                loadClinics(); 
+            } catch(e) { alert("Error al actualizar precio: " + e.message); }
         }
 
         async function toggleSuscripcion(userId, nuevoEstado) {
             const accion = nuevoEstado === 'suspendido' ? 'SUSPENDER' : 'REACTIVAR';
             if(confirm(`⚠️ ¿Seguro que deseas ${accion} el acceso y el bot para este usuario?`)) {
                 try {
-                    await db.collection('users').doc(userId).update({
-                        estadoSuscripcion: nuevoEstado
-                    });
-                    loadClinics(); // Recarga la tabla
-                } catch(e) {
-                    alert("Error al actualizar estado: " + e.message);
+                    await db.collection('users').doc(userId).update({ estadoSuscripcion: nuevoEstado });
+                    loadClinics(); 
+                } catch(e) { alert("Error al actualizar estado: " + e.message); }
+            }
+        }
+
+        // 🔥 FUNCIONES DE CREACIÓN DE CLÍNICAS B2B 🔥
+        function openNewClinicModal() { 
+            document.getElementById('newClinicModal').classList.remove('hidden'); 
+        }
+        function closeNewClinicModal() { 
+            document.getElementById('newClinicModal').classList.add('hidden'); 
+        }
+
+        async function submitNewClinic() {
+            const btn = document.getElementById('btnCreateClinic');
+            const email = document.getElementById('newC_Email').value;
+            const pass = document.getElementById('newC_Pass').value;
+            const nombre = document.getElementById('newC_Nombre').value;
+            const tel = document.getElementById('newC_Tel').value;
+            const esp = document.getElementById('newC_Esp').value;
+            const precio = document.getElementById('newC_Precio').value;
+
+            if(!email || !pass || !nombre) return alert("Llena Nombre, Email y Contraseña.");
+
+            btn.disabled = true;
+            btn.innerHTML = "Generando...";
+
+            try {
+                const req = await fetch(`${API_BASE_URL}/api/admin/create-clinic`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ email, password: pass, nombre, telefono: tel, especialidad: esp, precio })
+                });
+
+                const res = await req.json();
+                if(res.success) {
+                    alert(`✅ Clínica Creada con Éxito.\n\nCredenciales para entregar al cliente:\nUser: ${email}\nPass: ${pass}`);
+                    closeNewClinicModal();
+                    loadClinics();
+                    // Limpiar formulario
+                    document.getElementById('newC_Email').value = '';
+                    document.getElementById('newC_Pass').value = '';
+                    document.getElementById('newC_Nombre').value = '';
+                    document.getElementById('newC_Tel').value = '';
+                } else {
+                    alert("Error: " + res.error);
                 }
+            } catch(e) {
+                alert("Error de conexión con el servidor Node.js. ¿Está Ngrok encendido?");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Generar Credenciales";
             }
         }
     </script>
