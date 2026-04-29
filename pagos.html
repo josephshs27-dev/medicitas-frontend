@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturación y Suscripción - MediCitas Pro</title>
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- NAVBAR SIMPLE -->
+    <nav class="bg-slate-900 text-white shadow-md border-b border-slate-800 relative z-10">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">💳</span>
+                <h1 class="text-xl font-black tracking-tight">Portal de Facturación</h1>
+            </div>
+            <button onclick="window.location.href='index.html'" class="text-slate-300 hover:text-white font-bold text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg transition-colors border border-slate-700">
+                ⬅ Volver a la Agenda
+            </button>
+        </div>
+    </nav>
+
+    <!-- CARGANDO -->
+    <div id="loadingView" class="flex-1 flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Verificando conexión segura...</p>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div id="mainContainer" class="hidden flex-1 w-full max-w-5xl mx-auto px-4 py-10">
+        
+        <!-- ESTADO 1: CONFIGURAR PAGO (SIN SUSCRIPCIÓN ACTIVA O SUSPENDIDO) -->
+        <div id="setupBillingView" class="hidden animate-fadeIn">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black text-slate-900 mb-3">Activa tu Plan Premium</h2>
+                <p class="text-slate-500 max-w-xl mx-auto">Configura tu método de pago de forma 100% segura para habilitar la Inteligencia Artificial, envíos de WhatsApp y el agendamiento online.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                
+                <!-- Resumen del Plan -->
+                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+                        <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Plan Profesional</span>
+                        <span class="text-3xl font-black text-slate-900">$20<span class="text-sm text-slate-400 font-medium">/mes</span></span>
+                    </div>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3 text-slate-700"><span class="text-green-500 font-bold">✓</span> Asistente IA en WhatsApp 24/7</li>
+                        <li class="flex items-center gap-3 text-slate-700"><span class="text-green-500 font-bold">✓</span> Recetas y PDF automáticos</li>
+                        <li class="flex items-center gap-3 text-slate-700"><span class="text-green-500 font-bold">✓</span> Directorio de pacientes ilimitado</li>
+                        <li class="flex items-center gap-3 text-slate-700"><span class="text-green-500 font-bold">✓</span> Enlace de reservas web propio</li>
+                    </ul>
+                    
+                    <!-- Sellos de Seguridad Visuales -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <p class="text-xs font-bold text-slate-400 uppercase mb-3 text-center tracking-wider">Transacción 100% Segura</p>
+                        <div class="flex justify-center items-center gap-6 opacity-60 grayscale">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Visa.svg/1200px-Visa.svg.png" alt="Visa" class="h-4">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1200px-Mastercard-logo.svg.png" alt="Mastercard" class="h-6">
+                            <div class="flex items-center gap-1 text-xs font-bold text-slate-700"><span class="text-green-600">🔒</span> PCI-DSS Compliant</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Legal y Botón de Pago -->
+                <div class="bg-white rounded-3xl p-8 shadow-xl border border-indigo-100 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
+                    
+                    <h3 class="text-xl font-black text-slate-900 mb-4">Autorización de Débito</h3>
+                    
+                    <!-- Caja legal scrolleable -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 h-40 overflow-y-auto custom-scroll text-xs text-slate-600 mb-6 leading-relaxed space-y-2">
+                        <p><strong>1. Aceptación del Servicio:</strong> El presente acuerdo rige el acceso y uso de la plataforma MediCitas Pro (Software como Servicio).</p>
+                        <p><strong>2. Autorización Expresa:</strong> El Suscriptor autoriza de manera expresa a la plataforma a realizar un cargo automático y recurrente por el valor del plan seleccionado, utilizando la tarjeta registrada a través de la pasarela autorizada (PayPhone). La plataforma no almacena directamente los datos de la tarjeta, operando mediante tecnología de tokenización bancaria bajo normativas PCI-DSS.</p>
+                        <p><strong>3. Ciclo de Facturación:</strong> El cobro se realizará de manera mensual. El ciclo se establece en base a la fecha de ingreso.</p>
+                        <p><strong>4. Cancelación:</strong> Puede cancelar la renovación en cualquier momento desde este panel. La cancelación evitará futuros cargos, pero no generará reembolsos por días no utilizados.</p>
+                    </div>
+
+                    <!-- Checkbox Obligatorio -->
+                    <div class="flex items-start gap-3 mb-6 p-3 bg-indigo-50 rounded-xl border border-indigo-100 cursor-pointer hover:bg-indigo-100 transition" onclick="document.getElementById('legalCheck').click()">
+                        <input type="checkbox" id="legalCheck" class="mt-1 w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" onchange="togglePayButton()">
+                        <label class="text-sm font-bold text-indigo-900 cursor-pointer select-none">He leído, comprendo y acepto los Términos de Suscripción, y autorizo el débito mensual recurrente.</label>
+                    </div>
+
+                    <!-- Botón de PayPhone (Simulado por ahora) -->
+                    <button id="btnPayphoneMock" disabled class="w-full bg-slate-300 text-slate-500 font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-not-allowed">
+                        <span class="opacity-50">🔒 Debes aceptar los términos primero</span>
+                    </button>
+                    
+                    <p class="text-[10px] text-center text-slate-400 mt-4">Tus datos están encriptados con tecnología AES-256. MediCitas Pro nunca tiene acceso a tu información bancaria.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESTADO 2: SUSCRIPCIÓN ACTIVA (DASHBOARD DE COBROS) -->
+        <div id="activeBillingView" class="hidden animate-fadeIn space-y-8">
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900">Estado de Cuenta</h2>
+                    <p class="text-slate-500">Administra tu suscripción y métodos de pago.</p>
+                </div>
+                <div class="bg-green-100 text-green-800 border border-green-200 px-4 py-2 rounded-xl flex items-center gap-2 font-black shadow-sm">
+                    <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span></span>
+                    Suscripción Activa
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Tarjeta Principal: Próximo Cobro -->
+                <div class="lg:col-span-2 bg-gradient-to-br from-indigo-900 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-20 translate-x-20 blur-2xl"></div>
+                    
+                    <p class="text-indigo-200 font-bold uppercase tracking-widest text-xs mb-6">Resumen de Suscripción</p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-8 items-start sm:items-end justify-between">
+                        <div>
+                            <p class="text-sm text-slate-300 mb-1">Tu próximo cobro automático será el:</p>
+                            <p class="text-4xl sm:text-5xl font-black text-white" id="nextBillingDate">-- de --</p>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <p class="text-sm text-slate-300 mb-1">Monto a debitar:</p>
+                            <p class="text-3xl font-black text-green-400">$20.00</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-slate-700 flex items-center gap-4">
+                        <div class="bg-slate-800 px-4 py-2 rounded-lg flex items-center gap-3 border border-slate-700">
+                            <span class="text-xl">💳</span>
+                            <div>
+                                <p class="text-[10px] uppercase text-slate-400 font-bold tracking-widest">Tarjeta Registrada</p>
+                                <p class="font-mono font-bold text-slate-200" id="maskedCard">**** **** **** ----</p>
+                            </div>
+                        </div>
+                        <button onclick="alert('Módulo de actualización de tarjeta en desarrollo')" class="text-sm text-indigo-400 hover:text-indigo-300 font-bold underline">Actualizar Tarjeta</button>
+                    </div>
+                </div>
+
+                <!-- Panel Lateral: Acciones -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-black text-slate-800 mb-2">Zona de Peligro</h4>
+                        <p class="text-sm text-slate-500 mb-6">Si cancelas tu suscripción, perderás el acceso a la Inteligencia Artificial y la integración con WhatsApp al finalizar tu ciclo actual.</p>
+                    </div>
+                    <button onclick="cancelSubscription()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-black border border-red-200 py-3 rounded-xl transition-colors active:scale-95">
+                        Suspender Suscripción
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // CONFIGURACIÓN FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc", 
+            authDomain: "medicitas-app.firebaseapp.com",
+            projectId: "medicitas-app", 
+            storageBucket: "medicitas-app.firebasestorage.app",
+            messagingSenderId: "310910036460", 
+            appId: "1:310910036460:web:1a979471880251173838c9"
+        };
+
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const auth = firebase.auth(); 
+        const db = firebase.firestore();
+
+        let currentUserUid = null;
+
+        // VERIFICACIÓN DE SESIÓN Y CARGA DE ESTADO
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUserUid = user.uid;
+                
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    
+                    if (userDoc.exists && userDoc.data().rol === 'doctor') {
+                        const userData = userDoc.data();
+                        
+                        document.getElementById('loadingView').classList.add('hidden');
+                        document.getElementById('mainContainer').classList.remove('hidden');
+
+                        // Lógica para determinar qué pantalla mostrar
+                        // Si el doctor está activo Y tiene un token guardado (simulado con tarjetaRegistrada)
+                        if (userData.estadoSuscripcion === 'activo' && userData.tarjetaToken) {
+                            
+                            // Mostrar Vista Activa
+                            document.getElementById('activeBillingView').classList.remove('hidden');
+                            
+                            // Calcular y mostrar fecha (Ejemplo: suma 30 días a la fecha de registro o último cobro)
+                            let nextDate = new Date();
+                            if(userData.fechaUltimoCobro) {
+                                nextDate = new Date(userData.fechaUltimoCobro.toDate());
+                                nextDate.setMonth(nextDate.getMonth() + 1);
+                            } else {
+                                nextDate.setDate(nextDate.getDate() + 30); // Placeholder si no hay fecha exacta
+                            }
+                            
+                            const opcionesFecha = { day: 'numeric', month: 'long' };
+                            document.getElementById('nextBillingDate').textContent = nextDate.toLocaleDateString('es-ES', opcionesFecha);
+                            
+                            // Mostrar tarjeta enmascarada
+                            document.getElementById('maskedCard').textContent = `**** **** **** ${userData.tarjetaTerminacion || '0000'}`;
+
+                        } else {
+                            // Mostrar Vista de Configuración (Paywall Seguro)
+                            document.getElementById('setupBillingView').classList.remove('hidden');
+                        }
+
+                    } else {
+                        // No es doctor o no existe
+                        alert("Acceso denegado. Redirigiendo...");
+                        window.location.href = 'index.html';
+                    }
+                } catch (error) {
+                    console.error("Error cargando perfil:", error);
+                }
+            } else {
+                // No logueado
+                window.location.href = 'index.html';
+            }
+        });
+
+        // CONTROL DEL CHECKBOX LEGAL
+        function togglePayButton() {
+            const isChecked = document.getElementById('legalCheck').checked;
+            const btn = document.getElementById('btnPayphoneMock');
+            
+            if (isChecked) {
+                btn.disabled = false;
+                btn.className = "w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95";
+                btn.innerHTML = `💳 Pagar y Suscribirse con PayPhone`;
+                btn.onclick = simulatePayPhoneProcess; // Conectado al simulador
+            } else {
+                btn.disabled = true;
+                btn.className = "w-full bg-slate-300 text-slate-500 font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-not-allowed";
+                btn.innerHTML = `<span class="opacity-50">🔒 Debes aceptar los términos primero</span>`;
+                btn.onclick = null;
+            }
+        }
+
+        // SIMULADOR DE PASARELA (HASTA QUE INTEGREMOS EL SDK REAL)
+        async function simulatePayPhoneProcess() {
+            const btn = document.getElementById('btnPayphoneMock');
+            btn.innerHTML = `<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Procesando pago seguro...`;
+            btn.disabled = true;
+
+            // Simulamos la espera del banco (2.5 segundos)
+            setTimeout(async () => {
+                try {
+                    // Guardamos el token falso y activamos la cuenta en Firestore
+                    await db.collection('users').doc(currentUserUid).update({
+                        estadoSuscripcion: 'activo',
+                        tarjetaToken: 'tok_mock_8934fhdjkshfsdf',
+                        tarjetaTerminacion: '4242',
+                        fechaUltimoCobro: new Date()
+                    });
+
+                    alert("✅ ¡Pago procesado con éxito! Tu suscripción está activa.");
+                    window.location.reload(); // Recarga para mostrar el dashboard de cobros
+                    
+                } catch(e) {
+                    alert("Error en el servidor al registrar el pago.");
+                    btn.innerHTML = `💳 Pagar y Suscribirse con PayPhone`;
+                    btn.disabled = false;
+                }
+            }, 2500);
+        }
+
+        // CANCELAR SUSCRIPCIÓN
+        async function cancelSubscription() {
+            if(confirm("⚠️ ¿Estás totalmente seguro de cancelar tu suscripción recurrente?\n\nAl finalizar tu ciclo actual, el bot de WhatsApp y la IA dejarán de funcionar. Tu historial clínico se mantendrá guardado a salvo.")) {
+                
+                try {
+                    // Quitamos el token y lo pasamos a estado suspendido (o "cancelando")
+                    await db.collection('users').doc(currentUserUid).update({
+                        estadoSuscripcion: 'suspendido',
+                        tarjetaToken: firebase.firestore.FieldValue.delete(),
+                        tarjetaTerminacion: firebase.firestore.FieldValue.delete()
+                    });
+
+                    alert("Tu suscripción ha sido cancelada correctamente. Los débitos automáticos han sido detenidos.");
+                    window.location.reload();
+                } catch(e) {
+                    alert("Error procesando la solicitud.");
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
