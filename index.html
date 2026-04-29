@@ -32,6 +32,8 @@
                     <h1 class="text-2xl font-bold tracking-tight">MediCitas Pro</h1>
                 </div>
                 <div class="flex gap-2" id="navButtons" style="display:none;">
+                    <!-- 🛑 BOTÓN DE PAGOS AÑADIDO AQUÍ -->
+                    <button onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
                     <button onclick="openWhatsAppModal()" class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm">📱 WhatsApp</button>
                     <button onclick="copiarMiLink()" class="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm">🔗 Mi Link</button>
                     <button onclick="openSettingsModal()" class="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded-lg transition font-semibold flex items-center gap-2 text-sm">⚙️ Configuración</button>
@@ -95,18 +97,19 @@
                 </div>
             </div>
 
+            <!-- PANTALLA DE BLOQUEO POR FALTA DE PAGO (Mejorada para pagos.html) -->
             <div id="suspendedView" class="hidden min-h-[70vh] flex flex-col items-center justify-center text-center px-4 animate-slideIn">
                 <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
                     <span class="text-6xl block mb-4">⛔</span>
                     <h2 class="text-3xl font-black text-white mb-2">Acceso Suspendido</h2>
-                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción a MediCitas Pro ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial en WhatsApp, por favor regulariza tu pago mensual.</p>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción a MediCitas Pro ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
                     
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 mb-6">
                         <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
                         <p class="text-4xl font-black text-green-400">$<span id="suspendedPrice">0.00</span></p>
                     </div>
 
-                    <button onclick="alert('La pasarela de PayPhone estará disponible pronto.')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg">💳 Pagar con Tarjeta</button>
+                    <button onclick="window.location.href='pagos.html'" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg border border-blue-400">💳 Ir al Portal de Pagos</button>
                     <button onclick="auth.signOut()" class="mt-4 text-slate-400 hover:text-white underline text-sm font-bold">Cerrar Sesión</button>
                 </div>
             </div>
@@ -123,6 +126,19 @@
                 <div class="flex-1 overflow-hidden relative">
 
                     <div id="tabContentDashboard" class="h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
+                        
+                        <!-- 🛑 AVISO DE PRÓXIMO PAGO AÑADIDO AQUÍ -->
+                        <div class="bg-indigo-50 border border-indigo-200 text-indigo-900 p-4 rounded-xl mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🗓️</span>
+                                <div>
+                                    <p class="text-xs uppercase font-black text-indigo-500 tracking-wider">Estado de Suscripción</p>
+                                    <p class="font-bold text-sm">Tu próximo débito automático está programado para el: <strong id="nextPaymentDateDisplay" class="text-indigo-700 bg-white px-2 py-1 rounded shadow-sm border border-indigo-100">--/--/----</strong></p>
+                                </div>
+                            </div>
+                            <button onclick="window.location.href='pagos.html'" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors whitespace-nowrap shadow-sm">Administrar Pago</button>
+                        </div>
+
                         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
                             <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 border-b border-gray-100 pb-4">
                                 <div>
@@ -586,7 +602,7 @@
         }
 
         // ==========================================
-        // 3. AUTENTICACIÓN
+        // 3. AUTENTICACIÓN Y VALIDACIÓN DE PAGO
         // ==========================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -595,10 +611,35 @@
                 
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 if(!userDoc.exists) { 
-                    await db.collection('users').doc(user.uid).set({ userId: user.uid, email: user.email, rol: 'doctor', estadoSuscripcion: 'activo', precioSuscripcion: 15, fechaRegistro: new Date() }); 
+                    await db.collection('users').doc(user.uid).set({ 
+                        userId: user.uid, 
+                        email: user.email, 
+                        rol: 'doctor', 
+                        estadoSuscripcion: 'activo', 
+                        precioSuscripcion: 15, 
+                        fechaRegistro: new Date() 
+                    }); 
                 } else {
                     const data = userDoc.data();
                     
+                    // 🛑 ESCUDO: Comprobar fecha de vencimiento
+                    if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
+                        let lastDate = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
+                        let nextPaymentDate = new Date(lastDate);
+                        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); // Suma un mes exacto
+                        
+                        // Si la fecha actual ya superó la fecha de su próximo pago...
+                        if(new Date() > nextPaymentDate) {
+                            // Se suspende y bloquea en tiempo real
+                            await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
+                            data.estadoSuscripcion = 'suspendido';
+                        } else {
+                            // Si aún tiene tiempo, mostramos su fecha en el Dashboard
+                            const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+                            document.getElementById('nextPaymentDateDisplay').textContent = nextPaymentDate.toLocaleDateString('es-ES', opciones);
+                        }
+                    }
+
                     if(data.estadoSuscripcion === 'suspendido') {
                         document.getElementById('dashboardView').classList.add('hidden');
                         document.getElementById('navButtons').style.display = 'none';
