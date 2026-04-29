@@ -80,7 +80,7 @@
 
             <div id="viewClinicas" class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Suscriptores y Precios</h2>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Suscriptores y Planes</h2>
                     <div class="flex gap-2">
                         <button onclick="openNewClinicModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Registrar Nueva Clínica</button>
                         <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
@@ -93,7 +93,7 @@
                                 <th class="pb-3 pr-4 font-semibold">Dr. / Administrador</th>
                                 <th class="pb-3 px-4 font-semibold">Clínica & Especialidad</th>
                                 <th class="pb-3 px-4 font-semibold text-center">Estado (Bot)</th>
-                                <th class="pb-3 px-4 font-semibold text-center">Precio Mensual ($)</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Plan de Suscripción</th>
                                 <th class="pb-3 pl-4 font-semibold text-right">Acción Maestra</th>
                             </tr>
                         </thead>
@@ -156,8 +156,12 @@
                         <input type="text" id="newC_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Suscripción ($)</label>
-                        <input type="number" id="newC_Precio" value="15" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Plan de Suscripción</label>
+                        <select id="newC_Plan" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                            <option value="15">Básico ($15.00/mes)</option>
+                            <option value="25">Consultorio ($25.00/mes)</option>
+                            <option value="35">Centro Médico ($35.00/mes)</option>
+                        </select>
                     </div>
                 </div>
                 <div>
@@ -372,9 +376,12 @@
                             </td>
                             <td class="py-4 px-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <span class="text-slate-400">$</span>
-                                    <input type="number" id="price_${doc.id}" value="${precioSuscripcion}" class="w-16 bg-slate-900 border border-slate-600 text-white px-2 py-1 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none text-sm">
-                                    <button onclick="actualizarPrecio('${doc.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold transition" title="Guardar Precio">💾</button>
+                                    <select id="plan_${doc.id}" class="w-32 bg-slate-900 border border-slate-600 text-white px-2 py-1 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none text-sm">
+                                        <option value="15" ${precioSuscripcion == 15 ? 'selected' : ''}>Básico ($15)</option>
+                                        <option value="25" ${precioSuscripcion == 25 ? 'selected' : ''}>Consultorio ($25)</option>
+                                        <option value="35" ${precioSuscripcion == 35 ? 'selected' : ''}>Centro Médico ($35)</option>
+                                    </select>
+                                    <button onclick="actualizarPlan('${doc.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold transition" title="Guardar Plan">💾</button>
                                 </div>
                             </td>
                             <td class="py-4 pl-4 text-right">
@@ -395,14 +402,14 @@
             }
         }
 
-        async function actualizarPrecio(userId) {
-            const nuevoPrecio = document.getElementById(`price_${userId}`).value;
-            if(!nuevoPrecio || nuevoPrecio < 0) return alert("Ingresa un precio válido.");
+        async function actualizarPlan(userId) {
+            const nuevoPrecio = document.getElementById(`plan_${userId}`).value;
+            if(!nuevoPrecio) return alert("Selecciona un plan válido.");
             try {
                 await db.collection('users').doc(userId).update({ precioSuscripcion: parseFloat(nuevoPrecio) });
-                alert("✅ Precio actualizado correctamente en la base de datos.");
+                alert("✅ Plan actualizado correctamente. La clínica verá este nuevo precio en su portal de pagos.");
                 loadGlobalData(); 
-            } catch(e) { alert("Error al actualizar precio: " + e.message); }
+            } catch(e) { alert("Error al actualizar plan: " + e.message); }
         }
 
         async function toggleSuscripcion(userId, nuevoEstado) {
@@ -430,7 +437,7 @@
             const nombre = document.getElementById('newC_Nombre').value.trim();
             const tel = document.getElementById('newC_Tel').value.trim();
             const esp = document.getElementById('newC_Esp').value;
-            const precio = document.getElementById('newC_Precio').value;
+            const precio = document.getElementById('newC_Plan').value;
             const vendId = document.getElementById('newC_Vendedor').value; // ID del vendedor
 
             if(!email || !pass || !nombre) return alert("Llena Nombre, Email y Contraseña.");
