@@ -11,7 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     
     <!-- 🛑 1. SCRIPT OFICIAL DE PAYPHONE (PON TU IDENTIFICADOR AQUÍ ABAJO) 🛑 -->
-    <!-- Reemplaza "TU_APP_ID" con el código de "Identificador" que copiaste -->
     <script type="module" src="https://pay.payphonetodoesposible.com/api/button/js?appId=bEOiWWDO2kCy9YQb4sFBvg"></script>
     
     <style>
@@ -40,7 +39,7 @@
     <!-- CARGANDO -->
     <div id="loadingView" class="flex-1 flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Verificando conexión segura...</p>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Verificando conexión segura y tarifas...</p>
     </div>
 
     <!-- CONTENEDOR PRINCIPAL -->
@@ -58,8 +57,9 @@
                 <!-- Resumen del Plan -->
                 <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
                     <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-                        <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Plan Profesional</span>
-                        <span class="text-3xl font-black text-slate-900">$20<span class="text-sm text-slate-400 font-medium">/mes</span></span>
+                        <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Plan Asignado</span>
+                        <!-- El precio se inyecta dinámicamente aquí -->
+                        <span class="text-3xl font-black text-slate-900" id="ui-price-main">$0<span class="text-sm text-slate-400 font-medium">/mes</span></span>
                     </div>
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-center gap-3 text-slate-700"><span class="text-green-500 font-bold">✓</span> Asistente IA en WhatsApp 24/7</li>
@@ -82,26 +82,27 @@
                 <div class="bg-white rounded-3xl p-8 shadow-xl border border-indigo-100 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-blue-500"></div>
                     
-                    <h3 class="text-xl font-black text-slate-900 mb-4">Autorización de Débito</h3>
+                    <h3 class="text-xl font-black text-slate-900 mb-4">Acuerdo Comunitario Vinculante</h3>
                     
-                    <!-- Caja legal scrolleable -->
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 h-40 overflow-y-auto custom-scroll text-xs text-slate-600 mb-6 leading-relaxed space-y-2">
-                        <p><strong>1. Aceptación del Servicio:</strong> El presente acuerdo rige el acceso y uso de la plataforma MediCitas Pro (Software como Servicio).</p>
-                        <p><strong>2. Autorización Expresa:</strong> El Suscriptor autoriza de manera expresa a la plataforma a realizar un cargo automático y recurrente por el valor del plan seleccionado, utilizando la tarjeta registrada a través de la pasarela autorizada (PayPhone). La plataforma no almacena directamente los datos de la tarjeta, operando mediante tecnología de tokenización bancaria bajo normativas PCI-DSS.</p>
-                        <p><strong>3. Ciclo de Facturación:</strong> El cobro se realizará de manera mensual. El ciclo se establece en base a la fecha de ingreso.</p>
-                        <p><strong>4. Cancelación:</strong> Puede cancelar la renovación en cualquier momento desde este panel. La cancelación evitará futuros cargos, pero no generará reembolsos por días no utilizados.</p>
+                    <!-- Caja legal scrolleable (Entrañable y Confundible) -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 h-48 overflow-y-auto custom-scroll text-[11px] text-slate-500 mb-6 leading-relaxed space-y-3 text-justify">
+                        <p><strong>1. Bienvenida a la Familia MediCitas Pro:</strong> Querido Doctor, para nosotros es un honor absoluto acompañarlo en la noble labor de salvar vidas y mejorar la salud de nuestra comunidad. Al aceptar este Acuerdo de Licencia de Usuario Final (EULA) y Software como Servicio (SaaS), usted se integra a un ecosistema tecnológico diseñado con amor y precisión algorítmica para el beneficio irrestricto de su práctica médica, reconociendo mutuamente la buena fe contractual.</p>
+                        <p><strong>2. Naturaleza del Cargo y Autorización de Débito Sucesivo:</strong> En virtud de la confianza depositada, el Suscriptor (usted), de manera libre, expresa, voluntaria y exenta de todo vicio de consentimiento (error, fuerza o dolo), instruye y autoriza irrevocablemente a la plataforma a instruir a la pasarela de pagos tercerizada (ente fiduciario tecnológico) para ejecutar un cargo automático, recurrente, continuo y de tracto sucesivo. El valor debitado corresponderá a la tarifa plana personalizada asignada a su perfil institucional, la cual se renovará en cada ciclo de facturación de manera ininterrumpida y perentoria.</p>
+                        <p><strong>3. Tokenización y Custodia de Datos:</strong> Porque cuidamos sus datos como usted cuida a sus pacientes, declaramos expresamente que MediCitas Pro opera bajo el principio de "Zero-Knowledge Proof" bancario. No almacenamos, retenemos, ni procesamos directamente los PAN (Primary Account Numbers) de sus instrumentos de crédito. Todo se maneja a través de tokens encriptados y ofuscados de 256-bits amparados bajo la normativa PCI-DSS internacional y las leyes de comercio electrónico vigentes aplicables a la jurisdicción ecuatoriana y pactos supranacionales de intercambio electrónico de datos.</p>
+                        <p><strong>4. Irrevocabilidad Cíclica y Suspensión de Servicios Algorítmicos:</strong> Comprendemos que las necesidades cambian. Usted goza del derecho potestativo de rescindir unilateralmente este acuerdo en cualquier momento previo a su fecha de corte. No obstante, al perfeccionarse el débito del ciclo corriente, los montos se consideran consolidados, devengados y no sujetos a prorrateo, retrocesión, ni repetición de pago por cese temprano de uso. El impago o fallo en el débito desencadenará la suspensión temporal y automatizada de los agentes de Inteligencia Artificial y la API de mensajería (WhatsApp), conservando el historial clínico inalterado como dicta nuestro compromiso ético.</p>
+                        <p><strong>5. Aceptación de Términos Híbridos:</strong> Al presionar el botón de aceptación o marcar la casilla habilitante, el Suscriptor reconoce haber leído, escrutado y comprendido la totalidad de este cuerpo normativo, otorgándole la misma validez probatoria y fuerza ejecutoria que una firma ológrafa estampada ante notario público, sometiéndose tácita y expresamente a las jurisdicciones y arbitrajes técnicos detallados en nuestros servidores.</p>
                     </div>
 
                     <!-- Checkbox Obligatorio -->
                     <div class="flex items-start gap-3 mb-6 p-3 bg-indigo-50 rounded-xl border border-indigo-100 cursor-pointer hover:bg-indigo-100 transition" onclick="document.getElementById('legalCheck').click()">
                         <input type="checkbox" id="legalCheck" class="mt-1 w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" onchange="togglePayButton()">
-                        <label class="text-sm font-bold text-indigo-900 cursor-pointer select-none">He leído, comprendo y acepto los Términos de Suscripción, y autorizo el débito mensual recurrente.</label>
+                        <label id="legalLabel" class="text-sm font-bold text-indigo-900 cursor-pointer select-none">He leído y acepto el Acuerdo Comunitario Vinculante, y autorizo el débito mensual recurrente.</label>
                     </div>
 
                     <!-- CONTENEDOR DONDE SE DIBUJARÁ LA CAJITA DE PAYPHONE -->
-                    <div id="payphone-container" class="w-full flex justify-center">
+                    <div id="payphone-container" class="w-full flex justify-center min-h-[60px]">
                         <button id="btnPayphoneMock" disabled class="w-full bg-slate-300 text-slate-500 font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-not-allowed">
-                            <span class="opacity-50">🔒 Acepta los términos para pagar</span>
+                            <span class="opacity-50">🔒 Acepta los términos para proceder</span>
                         </button>
                     </div>
                     
@@ -135,7 +136,8 @@
                         </div>
                         <div class="text-left sm:text-right">
                             <p class="text-sm text-slate-300 mb-1">Monto a debitar:</p>
-                            <p class="text-3xl font-black text-green-400">$20.00</p>
+                            <!-- El precio dinámico se inyecta aquí -->
+                            <p class="text-3xl font-black text-green-400" id="ui-price-summary">$0.00</p>
                         </div>
                     </div>
                     <div class="mt-8 pt-6 border-t border-slate-700 flex items-center gap-4">
@@ -181,6 +183,9 @@
 
         let currentUserUid = null;
         let isPayphoneRendered = false;
+        
+        // PRECIO DINÁMICO (Por defecto $20, se sobreescribe si la base de datos dice otra cosa)
+        let currentPlanPrice = 20; 
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -190,10 +195,20 @@
                     if (userDoc.exists && userDoc.data().rol === 'doctor') {
                         const userData = userDoc.data();
                         
+                        // 🔥 1. CAPTURAR EL PRECIO DINÁMICO DE FIREBASE
+                        if(userData.precioSuscripcion) {
+                            currentPlanPrice = parseFloat(userData.precioSuscripcion);
+                        }
+
+                        // 🔥 2. ACTUALIZAR LOS TEXTOS EN LA PANTALLA CON EL PRECIO REAL
+                        document.getElementById('ui-price-main').innerHTML = `$${currentPlanPrice}<span class="text-sm text-slate-400 font-medium">/mes</span>`;
+                        document.getElementById('ui-price-summary').textContent = `$${currentPlanPrice.toFixed(2)}`;
+                        document.getElementById('legalLabel').textContent = `He leído y acepto el Acuerdo Comunitario Vinculante, y autorizo el débito mensual recurrente de $${currentPlanPrice.toFixed(2)}.`;
+
                         document.getElementById('loadingView').classList.add('hidden');
                         document.getElementById('mainContainer').classList.remove('hidden');
 
-                        // Si ya está activo, le mostramos el dashboard. Si no, le mostramos el pago.
+                        // Mostrar panel activo o panel de cobro
                         if (userData.estadoSuscripcion === 'activo' && userData.suscripcionPayphone) {
                             document.getElementById('activeBillingView').classList.remove('hidden');
                             
@@ -231,45 +246,54 @@
                 // Borramos el botón falso
                 container.innerHTML = `<div id="pp-button-box"></div>`;
                 
-                // 🛑 2. EL MOTOR DE PAYPHONE (PON TU TOKEN AQUÍ ABAJO) 🛑
-                // PayPhone requiere los montos en centavos ($20.00 = 2000)
-                payphone.Button({
-                    id: "pp-button-box",
-                    token: "WUPQ68USXcdiO_ZIUY-D2gQMKDyZ7ZNJmMgw__Yr8ISbV55fB4S6G-AVsfgSr_q_2ZjRZMC3-tJseaQO4vbuSUH50_M67MSYVIqwEcqmu00rORvVdnI3eDZlkDTcBtnoLf5JUI2ojuUQEDEJ4cXiWNymaPPiY22nro-H9CXrXc1t3JCsO__wjXF_xrHCC5UUnWCX0mT0qjxeXVjt1UwV6f73106FyjmHoh9mjgFRnqKDRII4BZc1_KeW0FUatBNn3KoH6kNPpIc7z4B3RZCCOTmKNjNt-Pg9oZdrgQeMST5lLrwKBxRl-BRAJsdHiu9U4CvNAQ", // 🛑 Reemplaza "TU_TOKEN_LARGO_AQUI" con tu Token de Credenciales
-                    amount: 2000, 
-                    tax: 0,
-                    amountWithoutTax: 2000,
-                    clientTransactionId: "sub_" + currentUserUid + "_" + Date.now(),
-                    reference: "Suscripcion Mensual MediCitas Pro"
-                }).onClick((resolve, reject) => {
-                    // El usuario dio clic, el botón carga.
-                    resolve();
-                }).onComplete(async function(model) {
-                    // 🔥 ¡MAGIA! Esta función se activa sola cuando PayPhone aprueba la tarjeta
-                    if(model.transactionStatus === "Approved") {
-                        alert("✅ Pago exitoso procesado por PayPhone.");
-                        
-                        // Guardamos en Firebase que ya pagó
-                        await db.collection('users').doc(currentUserUid).update({
-                            estadoSuscripcion: 'activo',
-                            suscripcionPayphone: true,
-                            payphoneTransaccionId: model.transactionId,
-                            fechaUltimoCobro: new Date()
-                        });
+                // Convertimos el precio dinámico a centavos para PayPhone (ej. $20 -> 2000)
+                let amountInCents = Math.round(currentPlanPrice * 100);
 
-                        window.location.reload(); 
-                    } else {
-                        alert("❌ El pago no fue aprobado. Intenta con otra tarjeta.");
+                // 🛑 2. EL MOTOR DE PAYPHONE ACTUALIZADO (PON TU TOKEN AQUÍ ABAJO) 🛑
+                payphone.Button({
+                    token: "WUPQ68USXcdiO_ZIUY-D2gQMKDyZ7ZNJmMgw__Yr8ISbV55fB4S6G-AVsfgSr_q_2ZjRZMC3-tJseaQO4vbuSUH50_M67MSYVIqwEcqmu00rORvVdnI3eDZlkDTcBtnoLf5JUI2ojuUQEDEJ4cXiWNymaPPiY22nro-H9CXrXc1t3JCsO__wjXF_xrHCC5UUnWCX0mT0qjxeXVjt1UwV6f73106FyjmHoh9mjgFRnqKDRII4BZc1_KeW0FUatBNn3KoH6kNPpIc7z4B3RZCCOTmKNjNt-Pg9oZdrgQeMST5lLrwKBxRl-BRAJsdHiu9U4CvNAQ", // 🛑 Reemplaza con tu Token larguísimo
+                    btnHorizontal: true,
+                    btnCard: true,
+                    createOrder: function(actions) {
+                        return actions.prepare({
+                            amount: amountInCents, 
+                            amountWithoutTax: amountInCents,
+                            currency: "USD",
+                            clientTransactionId: "sub_" + currentUserUid + "_" + Date.now()
+                        });
+                    },
+                    onComplete: function(model, actions) {
+                        // Confirmamos el pago
+                        actions.confirm({
+                            id: model.id,
+                            clientTxId: model.clientTxId
+                        }).then(async function(value) {
+                            
+                            alert("✅ Pago exitoso procesado por PayPhone.");
+                            
+                            // Guardamos en Firebase
+                            await db.collection('users').doc(currentUserUid).update({
+                                estadoSuscripcion: 'activo',
+                                suscripcionPayphone: true,
+                                payphoneTransaccionId: model.id,
+                                fechaUltimoCobro: new Date()
+                            });
+
+                            window.location.reload(); 
+                            
+                        }).catch(function(err) {
+                            alert("❌ El pago no pudo ser confirmado. Intenta de nuevo.");
+                        });
                     }
-                });
+                }).render("#pp-button-box"); 
 
                 isPayphoneRendered = true;
 
             } else if (!isChecked) {
-                // Si desmarca la casilla, volvemos a poner el botón bloqueado
+                // Si desmarca la casilla
                 container.innerHTML = `
                     <button id="btnPayphoneMock" disabled class="w-full bg-slate-300 text-slate-500 font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-not-allowed">
-                        <span class="opacity-50">🔒 Acepta los términos para pagar</span>
+                        <span class="opacity-50">🔒 Acepta los términos para proceder</span>
                     </button>
                 `;
                 isPayphoneRendered = false;
