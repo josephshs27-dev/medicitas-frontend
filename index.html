@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -25,19 +26,19 @@
 <body class="bg-gray-50 h-screen flex flex-col">
     <div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
         
-        <nav class="bg-blue-600 text-white shadow-md z-10 relative">
+        <nav id="navBar" class="bg-blue-600 text-white shadow-md z-10 relative transition-colors duration-500">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                    <h1 class="text-2xl font-bold tracking-tight">MediCitas Pro</h1>
+                <div class="flex items-center gap-3">
+                    <img id="navLogoImg" src="" alt="Logo" class="hidden h-10 w-10 object-contain bg-white rounded-full p-0.5 shadow-sm">
+                    <svg id="navLogoSvg" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">MediCitas Pro</h1>
                 </div>
                 <div class="flex gap-2" id="navButtons" style="display:none;">
-                    <!-- 🛑 BOTÓN DE PAGOS AÑADIDO AQUÍ -->
-                    <button onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
+                    <button id="btnNavSuscripcion" onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
                     <button onclick="openWhatsAppModal()" class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm">📱 WhatsApp</button>
-                    <button onclick="copiarMiLink()" class="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm">🔗 Mi Link</button>
-                    <button onclick="openSettingsModal()" class="bg-blue-500 hover:bg-blue-700 px-3 py-2 rounded-lg transition font-semibold flex items-center gap-2 text-sm">⚙️ Configuración</button>
-                    <button id="logoutBtn" class="bg-red-500 hover:bg-red-700 px-3 py-2 rounded-lg transition font-semibold text-sm">Salir</button>
+                    <button onclick="copiarMiLink()" class="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm hidden md:flex">🔗 Mi Link</button>
+                    <button id="btnNavConfig" onclick="openSettingsModal()" class="bg-black/20 hover:bg-black/40 px-3 py-2 rounded-lg transition font-semibold flex items-center gap-2 text-sm">⚙️ Configuración</button>
+                    <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg transition font-bold text-sm shadow-sm">Salir</button>
                 </div>
             </div>
         </nav>
@@ -97,7 +98,6 @@
                 </div>
             </div>
 
-            <!-- PANTALLA DE BLOQUEO POR FALTA DE PAGO (Mejorada para pagos.html) -->
             <div id="suspendedView" class="hidden min-h-[70vh] flex flex-col items-center justify-center text-center px-4 animate-slideIn">
                 <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
                     <span class="text-6xl block mb-4">⛔</span>
@@ -127,7 +127,6 @@
 
                     <div id="tabContentDashboard" class="h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
                         
-                        <!-- 🛑 AVISO DE PRÓXIMO PAGO AÑADIDO AQUÍ -->
                         <div class="bg-indigo-50 border border-indigo-200 text-indigo-900 p-4 rounded-xl mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-sm">
                             <div class="flex items-center gap-3">
                                 <span class="text-2xl">🗓️</span>
@@ -286,7 +285,7 @@
                 <div class="p-6 space-y-6 overflow-y-auto custom-scroll" style="max-height: 70vh;">
                     
                     <div>
-                        <h4 class="font-bold text-indigo-900 mb-2 border-b pb-1">📄 Datos para la Receta Médica</h4>
+                        <h4 class="font-bold text-indigo-900 mb-2 border-b pb-1">📄 Datos y Marca Blanca</h4>
                         <div class="space-y-3">
                             <div>
                                 <label class="block text-sm font-bold text-indigo-700 mb-1">Especialidad de la Clínica (Muta el Sistema)</label>
@@ -299,10 +298,17 @@
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de la Clínica / Doctor</label>
-                                <input type="text" id="clinicName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de la Clínica / Doctor</label>
+                                    <input type="text" id="clinicName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Color Corporativo (Barra Superior)</label>
+                                    <input type="color" id="clinicColor" class="w-full h-10 px-1 py-1 border rounded-lg cursor-pointer" value="#2563eb">
+                                </div>
                             </div>
+                            
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">RUC</label>
@@ -318,7 +324,7 @@
                                 <input type="text" id="clinicAddress" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Logotipo</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Logotipo de la Clínica</label>
                                 <input type="file" id="clinicLogoUpload" accept="image/png, image/jpeg" class="block w-full text-sm text-gray-500" onchange="encodeImageFileAsURL(this)">
                                 <input type="hidden" id="clinicLogoBase64">
                                 <img id="logoPreview" src="" class="hidden h-16 object-contain border rounded p-1 shadow-sm mt-2">
@@ -397,7 +403,7 @@
         </div>
 
         <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-5xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
+            <div class="bg-white rounded-xl w-full max-w-6xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
                 <div class="px-6 py-4 border-b flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
                     <div>
                         <h3 class="text-2xl font-bold text-blue-900 flex items-center gap-2">📖 Expediente Clínico</h3>
@@ -405,12 +411,25 @@
                     </div>
                     <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
                 </div>
-                <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-50 grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-50 grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
-                    <div class="space-y-4">
+                    <div class="space-y-6">
                         <div id="chartContainer" class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm hidden h-64">
                             <canvas id="vitalsChartCanvas"></canvas>
                         </div>
+                        
+                        <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                <h4 class="font-bold text-gray-800 flex items-center gap-2">🩻 Estudios e Imagenología</h4>
+                                <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
+                                <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm transition">📁 Subir Archivo</button>
+                            </div>
+                            <div id="patientImagesGallery" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-48 overflow-y-auto custom-scroll p-1">
+                                <p class="text-xs text-gray-400 col-span-full text-center py-4">No hay estudios cargados aún.</p>
+                            </div>
+                        </div>
+
                         <div class="bg-indigo-50 p-4 border border-indigo-100 rounded-lg shadow-sm">
                             <h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">🧠 Inteligencia Clínica</h4>
                             <p class="text-sm text-gray-700 leading-relaxed">Este expediente se construye y actualiza automáticamente con cada consulta procesada por la Inteligencia Artificial.</p>
@@ -420,7 +439,7 @@
                     <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
                         <h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Cronología de Atenciones</h4>
                         <div id="historyTimeline" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scroll">
-                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="px-6 py-4 border-t flex justify-end bg-white rounded-b-xl">
@@ -531,8 +550,13 @@
         const app = firebase.initializeApp(firebaseConfig); 
         const auth = firebase.auth(); 
         const db = firebase.firestore();
+        const storage = firebase.storage(); // 🛑 STORAGE INICIALIZADO
         
         let currentUser = null; 
+        let userRole = 'doctor';
+        let parentDoctorId = null; // 🛑 CLAVE PARA LA SECRETARIA (Guarda el ID del doctor dueño)
+        let currentPatientIdForImages = null; 
+
         let patients = []; 
         let appointments = []; 
         let clinicDataGlobal = null; 
@@ -543,6 +567,11 @@
         // 1. NAVEGACIÓN Y TABS
         // ==========================================
         function switchTab(tabId) {
+            // Si es secretaria, bloqueamos el Dashboard
+            if(userRole === 'secretaria' && tabId === 'dashboard') {
+                return mostrarMensaje('Acceso restringido para el rol Secretaria', 'error');
+            }
+
             const tabs = ['dashboard', 'agenda', 'pacientes'];
             
             tabs.forEach(t => {
@@ -567,7 +596,7 @@
         // 2. DASHBOARD Y FILTRO FINANCIERO
         // ==========================================
         function updateDashboardStats() {
-            if(!appointments) return;
+            if(!appointments || userRole === 'secretaria') return;
             
             const filterValue = document.getElementById('financeFilter').value;
             const now = new Date();
@@ -602,7 +631,7 @@
         }
 
         // ==========================================
-        // 3. AUTENTICACIÓN Y VALIDACIÓN DE PAGO
+        // 3. AUTENTICACIÓN, ROLES Y MARCA BLANCA
         // ==========================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -619,22 +648,34 @@
                         precioSuscripcion: 15, 
                         fechaRegistro: new Date() 
                     }); 
+                    parentDoctorId = user.uid;
                 } else {
                     const data = userDoc.data();
+                    userRole = data.rol || 'doctor';
                     
-                    // 🛑 ESCUDO: Comprobar fecha de vencimiento
-                    if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
+                    // 🛑 RESTRICCIÓN DE ROLES: SECRETARIA
+                    if(userRole === 'secretaria') {
+                        parentDoctorId = data.doctorId; // Lee de la BD quién es su jefe
+                        // Ocultamos botones sensibles
+                        document.getElementById('btnNavSuscripcion').style.display = 'none';
+                        document.getElementById('btnNavConfig').style.display = 'none';
+                        document.getElementById('tabBtnDashboard').style.display = 'none';
+                        // La llevamos directo a la agenda
+                        switchTab('agenda');
+                    } else {
+                        parentDoctorId = user.uid;
+                    }
+                    
+                    // ESCUDO: Comprobar fecha de vencimiento (Solo aplica para el doctor dueño)
+                    if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro && userRole !== 'secretaria') {
                         let lastDate = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
                         let nextPaymentDate = new Date(lastDate);
-                        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); // Suma un mes exacto
+                        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); 
                         
-                        // Si la fecha actual ya superó la fecha de su próximo pago...
                         if(new Date() > nextPaymentDate) {
-                            // Se suspende y bloquea en tiempo real
                             await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
                             data.estadoSuscripcion = 'suspendido';
                         } else {
-                            // Si aún tiene tiempo, mostramos su fecha en el Dashboard
                             const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
                             document.getElementById('nextPaymentDateDisplay').textContent = nextPaymentDate.toLocaleDateString('es-ES', opciones);
                         }
@@ -648,8 +689,17 @@
                         return; 
                     }
 
+                    // 🛑 MARCA BLANCA: Aplicamos colores y logos
                     if(data.clinicInfo) { 
                         clinicDataGlobal = data.clinicInfo; 
+                        aplicarMarcaBlanca(clinicDataGlobal);
+                    } else if (userRole === 'secretaria') {
+                        // Si es secretaria, leemos la info del doctor jefe para la marca blanca
+                        const docInfo = await db.collection('users').doc(parentDoctorId).get();
+                        if(docInfo.exists && docInfo.data().clinicInfo) {
+                            clinicDataGlobal = docInfo.data().clinicInfo;
+                            aplicarMarcaBlanca(clinicDataGlobal);
+                        }
                     }
                 }
                 
@@ -660,9 +710,10 @@
                 adaptarUI(); 
                 await loadPatients(); 
                 await loadAppointments();
-                updateDashboardStats();
+                if(userRole !== 'secretaria') updateDashboardStats();
             } else {
                 currentUser = null; 
+                parentDoctorId = null;
                 clinicDataGlobal = null; 
                 document.getElementById('loginView').classList.remove('hidden'); 
                 document.getElementById('dashboardView').classList.add('hidden'); 
@@ -670,6 +721,19 @@
                 document.getElementById('navButtons').style.display = 'none';
             }
         });
+
+        // 🛑 FUNCIÓN DE MARCA BLANCA
+        function aplicarMarcaBlanca(info) {
+            if(!info) return;
+            if(info.color) { document.getElementById('navBar').style.backgroundColor = info.color; }
+            if(info.nombre) { document.getElementById('navTitle').textContent = info.nombre; }
+            if(info.logo) {
+                const img = document.getElementById('navLogoImg');
+                img.src = info.logo;
+                img.classList.remove('hidden');
+                document.getElementById('navLogoSvg').classList.add('hidden');
+            }
+        }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => { 
             e.preventDefault(); 
@@ -714,14 +778,15 @@
         // ==========================================
         async function loadPatients() { 
             try { 
-                const snapshot = await db.collection('patients').where('doctorId', '==', currentUser.uid).get(); 
+                // 🛑 Ahora consultamos usando parentDoctorId (soporta secretarias)
+                const snapshot = await db.collection('patients').where('doctorId', '==', parentDoctorId).get(); 
                 patients = []; 
                 snapshot.forEach(doc => patients.push({ id: doc.id, ...doc.data() })); 
                 patients.sort((a, b) => a.nombre.localeCompare(b.nombre)); 
                 
                 document.getElementById('patientSelect').innerHTML = '<option value="">-- Seleccionar Paciente --</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join(''); 
                 renderPatientsDirectory(patients); 
-                updateDashboardStats();
+                if(userRole !== 'secretaria') updateDashboardStats();
             } catch (error) {
                 console.error("Error al cargar pacientes:", error);
             } 
@@ -767,7 +832,7 @@
 
             try { 
                 const existing = await db.collection('patients')
-                    .where('doctorId', '==', currentUser.uid)
+                    .where('doctorId', '==', parentDoctorId)
                     .where('cedula', '==', cedula)
                     .get();
 
@@ -781,7 +846,7 @@
                     telefonoWhatsApp: phone, 
                     email: email, 
                     dueno: owner, 
-                    doctorId: currentUser.uid, 
+                    doctorId: parentDoctorId, 
                     fechaRegistro: new Date(), 
                     activo: true 
                 }); 
@@ -815,6 +880,12 @@
                 vitalsSnapshot.forEach(doc => batchVitals.delete(doc.ref)); 
                 await batchVitals.commit();
 
+                // Eliminar imágenes de Firestore (Los archivos en Storage quedarán huérfanos por ahora, se puede programar un Cloud Function para limpiarlos)
+                const imagesSnapshot = await db.collection('patients').doc(patientId).collection('images').get();
+                const batchImages = db.batch(); 
+                imagesSnapshot.forEach(doc => batchImages.delete(doc.ref)); 
+                await batchImages.commit();
+
                 await db.collection('patients').doc(patientId).delete(); 
                 mostrarMensaje('Paciente eliminado permanentemente', 'success');
                 await loadPatients(); 
@@ -829,11 +900,11 @@
         // ==========================================
         async function loadAppointments() { 
             try { 
-                const snapshot = await db.collection('appointments').where('doctorId', '==', currentUser.uid).orderBy('fecha', 'desc').orderBy('hora', 'desc').get(); 
+                const snapshot = await db.collection('appointments').where('doctorId', '==', parentDoctorId).orderBy('fecha', 'desc').orderBy('hora', 'desc').get(); 
                 appointments = []; 
                 snapshot.forEach(doc => appointments.push({ id: doc.id, ...doc.data() })); 
                 renderAppointments(); 
-                updateDashboardStats(); 
+                if(userRole !== 'secretaria') updateDashboardStats(); 
             } catch (error) {
                 console.error("Firebase Error en Citas:", error);
             } 
@@ -891,7 +962,7 @@
             try {
                 await db.collection('appointments').add({ 
                     patientId: document.getElementById('patientSelect').value, 
-                    doctorId: currentUser.uid, 
+                    doctorId: parentDoctorId, 
                     fecha: document.getElementById('appointmentDate').value, 
                     hora: document.getElementById('appointmentTime').value, 
                     motivo: document.getElementById('appointmentReason').value, 
@@ -917,15 +988,18 @@
         }
 
         // ==========================================
-        // 6. HISTORIAL CLÍNICO Y GRÁFICAS
+        // 6. HISTORIAL CLÍNICO E IMAGENOLOGÍA
         // ==========================================
         async function openHistoryModal(patientId) { 
             if(!patientId || patientId === 'undefined') return alert('No se pudo encontrar el paciente.');
+            currentPatientIdForImages = patientId; // Guardamos globalmente
+            
             document.getElementById('historyModal').classList.remove('hidden'); 
             
             const pat = patients.find(p => p.id === patientId);
             document.getElementById('historyPatientInfo').innerHTML = `👤 ${pat.nombre} &nbsp;|&nbsp; 🆔 CI/RUC: <span class="font-bold">${pat.cedula || 'N/A'}</span> &nbsp;|&nbsp; 📱 Tel: ${pat.telefonoWhatsApp}`;
             
+            // Cargar Cronología y Gráficos
             try {
                 const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'asc').get(); 
                 
@@ -933,97 +1007,169 @@
                     document.getElementById('historyTimeline').innerHTML = '<p class="text-center text-gray-500 mt-10 font-bold">Sin Historial Clínico registrado.</p>';
                     document.getElementById('chartContainer').classList.add('hidden');
                     if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
-                    return;
-                }
-
-                const docs = snap.docs;
-                const labels = [];
-                const dataPeso = [];
-
-                let timelineHtml = '';
-                
-                for(let i = docs.length - 1; i >= 0; i--) {
-                    const d = docs[i].data();
-                    const rawDate = d.fecha.toDate ? d.fecha.toDate() : d.fecha;
-                    const dateStr = new Date(rawDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-
-                    let vitalsStr = '';
-                    if(d.peso) vitalsStr += `Peso: ${d.peso}kg | `;
-                    if(d.presion) vitalsStr += `Presión: ${d.presion} | `;
-                    if(d.ritmo) vitalsStr += `FC: ${d.ritmo}bpm | `;
-                    if(d.altura) vitalsStr += `Altura: ${d.altura}cm`;
-
-                    let recsHtml = '';
-                    if(d.recomendaciones && d.recomendaciones.length > 0) {
-                        recsHtml = `
-                        <div class="bg-orange-50 p-3 rounded-xl border border-orange-100 mt-2">
-                            <p class="text-xs font-bold text-orange-800 mb-1">💡 RECOMENDACIONES:</p>
-                            <ul class="text-xs text-orange-900 space-y-1">
-                                ${d.recomendaciones.map(r => `<li>• ${r}</li>`).join('')}
-                            </ul>
-                        </div>`;
-                    }
-
-                    timelineHtml += `
-                    <div class="bg-white p-5 border-l-4 border-blue-500 rounded-r-2xl shadow-sm border border-gray-100 mb-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-sm font-black text-blue-900">📅 ${dateStr}</span>
-                            <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded font-bold uppercase tracking-wider">Atención IA</span>
-                        </div>
-                        <p class="text-sm text-gray-700 font-medium mb-2">
-                            <span class="font-black text-gray-900 uppercase text-[10px] tracking-widest">Evolución:</span><br>
-                            ${d.diagnostico || 'Sin diagnóstico registrado.'}
-                        </p>
-                        ${vitalsStr ? `<p class="text-xs text-slate-500 font-bold mb-2">📊 ${vitalsStr}</p>` : ''}
-                        ${recsHtml}
-                    </div>`;
-
-                    labels.unshift(dateStr); 
-                    if(d.peso) dataPeso.unshift(parseFloat(d.peso));
-                }
-                
-                document.getElementById('historyTimeline').innerHTML = timelineHtml;
-
-                const ctx = document.getElementById('vitalsChartCanvas');
-                if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
-
-                if (dataPeso.length > 0) {
-                    document.getElementById('chartContainer').classList.remove('hidden');
-                    window.vitalsChartInstance = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Evolución de Peso (kg)',
-                                data: dataPeso,
-                                borderColor: '#2563eb',
-                                backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                pointBackgroundColor: '#2563eb',
-                                pointRadius: 4,
-                                pointHoverRadius: 6
-                            }]
-                        },
-                        options: { 
-                            responsive: true, 
-                            maintainAspectRatio: false, 
-                            plugins: { legend: { position: 'bottom' } },
-                            scales: { y: { beginAtZero: false } }
-                        }
-                    });
                 } else {
-                    document.getElementById('chartContainer').classList.add('hidden');
-                }
+                    const docs = snap.docs;
+                    const labels = [];
+                    const dataPeso = [];
 
+                    let timelineHtml = '';
+                    
+                    for(let i = docs.length - 1; i >= 0; i--) {
+                        const d = docs[i].data();
+                        const rawDate = d.fecha.toDate ? d.fecha.toDate() : d.fecha;
+                        const dateStr = new Date(rawDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                        let vitalsStr = '';
+                        if(d.peso) vitalsStr += `Peso: ${d.peso}kg | `;
+                        if(d.presion) vitalsStr += `Presión: ${d.presion} | `;
+                        if(d.ritmo) vitalsStr += `FC: ${d.ritmo}bpm | `;
+                        if(d.altura) vitalsStr += `Altura: ${d.altura}cm`;
+
+                        let recsHtml = '';
+                        if(d.recomendaciones && d.recomendaciones.length > 0) {
+                            recsHtml = `
+                            <div class="bg-orange-50 p-3 rounded-xl border border-orange-100 mt-2">
+                                <p class="text-xs font-bold text-orange-800 mb-1">💡 RECOMENDACIONES:</p>
+                                <ul class="text-xs text-orange-900 space-y-1">
+                                    ${d.recomendaciones.map(r => `<li>• ${r}</li>`).join('')}
+                                </ul>
+                            </div>`;
+                        }
+
+                        timelineHtml += `
+                        <div class="bg-white p-5 border-l-4 border-blue-500 rounded-r-2xl shadow-sm border border-gray-100 mb-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-sm font-black text-blue-900">📅 ${dateStr}</span>
+                                <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded font-bold uppercase tracking-wider">Atención IA</span>
+                            </div>
+                            <p class="text-sm text-gray-700 font-medium mb-2">
+                                <span class="font-black text-gray-900 uppercase text-[10px] tracking-widest">Evolución:</span><br>
+                                ${d.diagnostico || 'Sin diagnóstico registrado.'}
+                            </p>
+                            ${vitalsStr ? `<p class="text-xs text-slate-500 font-bold mb-2">📊 ${vitalsStr}</p>` : ''}
+                            ${recsHtml}
+                        </div>`;
+
+                        labels.unshift(dateStr); 
+                        if(d.peso) dataPeso.unshift(parseFloat(d.peso));
+                    }
+                    
+                    document.getElementById('historyTimeline').innerHTML = timelineHtml;
+
+                    const ctx = document.getElementById('vitalsChartCanvas');
+                    if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
+
+                    if (dataPeso.length > 0) {
+                        document.getElementById('chartContainer').classList.remove('hidden');
+                        window.vitalsChartInstance = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Evolución de Peso (kg)',
+                                    data: dataPeso,
+                                    borderColor: '#2563eb',
+                                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointBackgroundColor: '#2563eb',
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: false } } }
+                        });
+                    } else {
+                        document.getElementById('chartContainer').classList.add('hidden');
+                    }
+                }
             } catch(e) {
                 document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center font-bold">Error cargando el expediente.</p>';
             }
+
+            // 🛑 Cargar Galería de Imágenes
+            loadPatientImages(patientId);
         }
         
         function closeHistoryModal() { 
             document.getElementById('historyModal').classList.add('hidden'); 
             if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
+        }
+
+        // 🛑 NUEVAS FUNCIONES DE IMAGENOLOGÍA
+        async function uploadPatientImage(inputElement) {
+            const file = inputElement.files[0];
+            if(!file || !currentPatientIdForImages) return;
+
+            const btn = document.getElementById('btnUploadImg');
+            btn.textContent = '⏳ Subiendo...';
+            btn.disabled = true;
+
+            try {
+                // Sube a Firebase Storage en una carpeta exclusiva del doctor y paciente
+                const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
+                await storageRef.put(file);
+                const downloadURL = await storageRef.getDownloadURL();
+
+                // Guarda la referencia en Firestore
+                await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({
+                    url: downloadURL,
+                    nombre: file.name,
+                    fechaCreacion: new Date()
+                });
+
+                mostrarMensaje('Imagen subida y encriptada con éxito.', 'success');
+                loadPatientImages(currentPatientIdForImages); // Recarga la galería
+
+            } catch (error) {
+                mostrarMensaje('Error al subir archivo: ' + error.message, 'error');
+            } finally {
+                btn.textContent = '📁 Subir Archivo';
+                btn.disabled = false;
+                inputElement.value = ''; // Reset input
+            }
+        }
+
+        async function loadPatientImages(patientId) {
+            const gallery = document.getElementById('patientImagesGallery');
+            gallery.innerHTML = '<div class="spinner mx-auto col-span-full"></div>';
+
+            try {
+                const snap = await db.collection('patients').doc(patientId).collection('images').orderBy('fechaCreacion', 'desc').get();
+                if(snap.empty) {
+                    gallery.innerHTML = '<p class="text-xs text-gray-400 col-span-full text-center py-4">No hay estudios cargados aún.</p>';
+                    return;
+                }
+
+                let html = '';
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const fecha = data.fechaCreacion && data.fechaCreacion.toDate ? data.fechaCreacion.toDate().toLocaleDateString() : '';
+                    const isPDF = data.nombre.toLowerCase().endsWith('.pdf');
+                    
+                    if (isPDF) {
+                        html += `
+                        <div class="relative group rounded-lg overflow-hidden border border-gray-200 bg-red-50 flex items-center justify-center p-2 cursor-pointer hover:bg-red-100" onclick="window.open('${data.url}', '_blank')">
+                            <div class="text-center">
+                                <span class="text-2xl block mb-1">📄</span>
+                                <span class="text-[9px] font-bold text-red-800 break-all line-clamp-2">${data.nombre}</span>
+                            </div>
+                        </div>`;
+                    } else {
+                        html += `
+                        <div class="relative group rounded-lg overflow-hidden border border-gray-200 bg-gray-100 cursor-pointer" onclick="window.open('${data.url}', '_blank')">
+                            <img src="${data.url}" class="w-full h-24 object-cover hover:scale-110 transition-transform">
+                            <div class="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
+                                <p class="text-[9px] text-white font-bold truncate text-center">${fecha}</p>
+                            </div>
+                        </div>`;
+                    }
+                });
+                gallery.innerHTML = html;
+
+            } catch (e) {
+                gallery.innerHTML = '<p class="text-xs text-red-500 col-span-full text-center">Error al cargar imágenes.</p>';
+            }
         }
 
         // ==========================================
@@ -1167,7 +1313,7 @@
                     method:'POST', 
                     headers: ngrokHeaders, 
                     body:JSON.stringify({ 
-                        doctorId: currentUser.uid, 
+                        doctorId: parentDoctorId, 
                         phoneNumber: p.telefonoWhatsApp, 
                         patientName: p.nombre, 
                         diagnostico: diag, 
@@ -1217,7 +1363,6 @@
             const iva = document.getElementById('billingIva').checked; 
             const tot = iva ? sub * 1.15 : sub;
             
-            // EL MENSAJE PREMIUM COMPLETO
             const msg = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Consultorio Médico'}\n\n👤 Paciente: ${p.nombre}\n💵 Total cancelado: $${tot.toFixed(2)}\n\n¡Gracias por su confianza!`;
             
             const btn = document.getElementById('btnFinalizarCobro');
@@ -1229,7 +1374,7 @@
                     method: 'POST', 
                     headers: ngrokHeaders, 
                     body: JSON.stringify({ 
-                        doctorId: currentUser.uid, 
+                        doctorId: parentDoctorId, 
                         phoneNumber: p.telefonoWhatsApp, 
                         message: msg 
                     }) 
@@ -1273,7 +1418,7 @@
                     method: 'POST', 
                     headers: ngrokHeaders, 
                     body: JSON.stringify({ 
-                        doctorId: currentUser.uid,
+                        doctorId: parentDoctorId,
                         frontendUrl: window.location.origin
                     }) 
                 }); 
@@ -1288,7 +1433,7 @@
 
         async function checkWhatsAppStatus() {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${currentUser.uid}`, {
+                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${parentDoctorId}`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 }); 
                 const data = await res.json(); 
@@ -1319,7 +1464,7 @@
                     method:'POST', 
                     headers: ngrokHeaders, 
                     body:JSON.stringify({ 
-                        doctorId: currentUser.uid, 
+                        doctorId: parentDoctorId, 
                         phoneNumber:p.telefonoWhatsApp, 
                         patientName:p.nombre, 
                         appointmentDate:a.fecha, 
@@ -1391,6 +1536,7 @@
             if(clinicDataGlobal) { 
                 document.getElementById('clinicSpecialty').value = clinicDataGlobal.especialidad || 'medicina'; 
                 document.getElementById('clinicName').value = clinicDataGlobal.nombre || ''; 
+                document.getElementById('clinicColor').value = clinicDataGlobal.color || '#2563eb'; 
                 document.getElementById('clinicRuc').value = clinicDataGlobal.ruc || ''; 
                 document.getElementById('clinicAddress').value = clinicDataGlobal.direccion || ''; 
                 document.getElementById('clinicPhone').value = clinicDataGlobal.telefono || ''; 
@@ -1408,6 +1554,7 @@
                 document.getElementById('scheduleStart').value = '08:00'; 
                 document.getElementById('scheduleEnd').value = '17:00'; 
                 document.getElementById('scheduleDuration').value = '30'; 
+                document.getElementById('clinicColor').value = '#2563eb';
                 globalBlockedDates = []; 
             } 
             renderBlockedDates(); 
@@ -1423,6 +1570,7 @@
             const info = { 
                 especialidad: document.getElementById('clinicSpecialty').value, 
                 nombre: document.getElementById('clinicName').value, 
+                color: document.getElementById('clinicColor').value,
                 ruc: document.getElementById('clinicRuc').value, 
                 direccion: document.getElementById('clinicAddress').value, 
                 telefono: document.getElementById('clinicPhone').value, 
@@ -1433,8 +1581,9 @@
                 diasBloqueados: globalBlockedDates 
             }; 
             try { 
-                await db.collection('users').doc(currentUser.uid).update({ clinicInfo: info }); 
+                await db.collection('users').doc(parentDoctorId).update({ clinicInfo: info }); 
                 clinicDataGlobal = info; 
+                aplicarMarcaBlanca(info);
                 adaptarUI(); 
                 closeSettingsModal(); 
                 mostrarMensaje('Configuración de la clínica guardada', 'success'); 
@@ -1447,7 +1596,7 @@
             if(!currentUser) return;
             const currentPath = window.location.href.split('?')[0]; 
             const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            const miLink = `${basePath}/agendar.html?doc=${currentUser.uid}`;
+            const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
             navigator.clipboard.writeText(miLink).then(() => mostrarMensaje('¡Enlace copiado al portapapeles!', 'success')).catch(err => alert("Copia manualmente tu link: " + miLink));
         }
 
