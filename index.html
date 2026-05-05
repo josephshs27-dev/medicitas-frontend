@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediCitas Pro - Sistema Médico SaaS</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
     <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -534,9 +535,12 @@
         const API_BASE_URL = "http://129.159.171.104:3000"; 
         
         const apiHeaders = {
-             'Content-Type': 'application/json'
+             'Content-Type': 'application/json'      
+             
         };
-
+// Mantenemos esta por compatibilidad con tus funciones de abajo
+        const ngrokHeaders = apiHeaders;
+            
         const firebaseConfig = {
             apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc", 
             authDomain: "medicitas-app.firebaseapp.com",
@@ -1223,7 +1227,7 @@
             try { 
                 const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, { 
                     method:'POST', 
-                    headers: ngrokHeaders, 
+                    headers: apiHeaders, 
                     body:JSON.stringify({ 
                         notasBorrador: borrador,
                         especialidad: esp,
@@ -1310,7 +1314,7 @@
 
                 await fetch(`${API_BASE_URL}/send-prescription`, { 
                     method:'POST', 
-                    headers: ngrokHeaders, 
+                    headers: apiHeaders, 
                     body:JSON.stringify({ 
                         doctorId: parentDoctorId, 
                         phoneNumber: p.telefonoWhatsApp, 
@@ -1371,7 +1375,7 @@
             try {
                 const resMsg = await fetch(`${API_BASE_URL}/send-message`, { 
                     method: 'POST', 
-                    headers: ngrokHeaders, 
+                    headers: apiHeaders, 
                     body: JSON.stringify({ 
                         doctorId: parentDoctorId, 
                         phoneNumber: p.telefonoWhatsApp, 
@@ -1415,7 +1419,7 @@
             try { 
                 await fetch(`${API_BASE_URL}/api/whatsapp/start`, { 
                     method: 'POST', 
-                    headers: ngrokHeaders, 
+                    headers: apiHeaders, 
                     body: JSON.stringify({ 
                         doctorId: parentDoctorId,
                         frontendUrl: window.location.origin
@@ -1432,9 +1436,8 @@
 
         async function checkWhatsAppStatus() {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${parentDoctorId}`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                }); 
+                // Quitamos el header de ngrok-skip porque ya no es necesario en Oracle
+                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${parentDoctorId}`); 
                 const data = await res.json(); 
                 const statusText = document.getElementById('qrStatusText');
                 
@@ -1452,8 +1455,10 @@
                     document.getElementById('qrCodeDisplay').innerHTML = '<div class="spinner mx-auto"></div>'; 
                     statusText.textContent = 'Generando QR... (Puede tardar 30s)'; 
                 }
-            } catch(e) {}
-        }
+            } catch(e) {
+                console.error("Error consultando estado:", e);
+            }
+}
 
         async function sendWhatsAppReminder(id) { 
             const a = appointments.find(x => x.id === id); 
@@ -1461,7 +1466,7 @@
             try {
                 await fetch(`${API_BASE_URL}/send-reminder`, { 
                     method:'POST', 
-                    headers: ngrokHeaders, 
+                    headers: apiHeaders, 
                     body:JSON.stringify({ 
                         doctorId: parentDoctorId, 
                         phoneNumber:p.telefonoWhatsApp, 
