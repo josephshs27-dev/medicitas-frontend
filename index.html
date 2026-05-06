@@ -107,7 +107,7 @@
                     
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 mb-6">
                         <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
-                        <p class="text-4xl font-black text-green-400">$<span id="suspendedPrice">0.00</span></p>
+                        <p class="text-4xl font-black text-green-400">$<span id="suspendedPrice">20.00</span></p>
                     </div>
 
                     <button onclick="window.location.href='pagos.html'" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg border border-blue-400">💳 Ir al Portal de Pagos</button>
@@ -531,8 +531,8 @@
     </div>
 
     <script>
-// CONFIGURACIÓN (Actualiza el Ngrok si ha cambiado)
-        const API_BASE_URL = "https://juice-dennis-pack-acting.trycloudflare.com";
+// CONFIGURACIÓN (Actualizada)
+        const API_BASE_URL = "https://api.asistencitas.com";
 
         const apiHeaders = { 'Content-Type': 'application/json' };
         const ngrokHeaders = apiHeaders;
@@ -549,11 +549,11 @@
         const app = firebase.initializeApp(firebaseConfig); 
         const auth = firebase.auth(); 
         const db = firebase.firestore();
-        const storage = firebase.storage(); // 🛑 STORAGE INICIALIZADO
+        const storage = firebase.storage(); 
         
         let currentUser = null; 
         let userRole = 'doctor';
-        let parentDoctorId = null; // 🛑 CLAVE PARA LA SECRETARIA (Guarda el ID del doctor dueño)
+        let parentDoctorId = null; 
         let currentPatientIdForImages = null; 
 
         let patients = []; 
@@ -566,7 +566,6 @@
         // 1. NAVEGACIÓN Y TABS
         // ==========================================
         function switchTab(tabId) {
-            // Si es secretaria, bloqueamos el Dashboard
             if(userRole === 'secretaria' && tabId === 'dashboard') {
                 return mostrarMensaje('Acceso restringido para el rol Secretaria', 'error');
             }
@@ -644,7 +643,7 @@
                         email: user.email, 
                         rol: 'doctor', 
                         estadoSuscripcion: 'activo', 
-                        precioSuscripcion: 15, 
+                        precioSuscripcion: 20, 
                         fechaRegistro: new Date() 
                     }); 
                     parentDoctorId = user.uid;
@@ -652,31 +651,32 @@
                     const data = userDoc.data();
                     userRole = data.rol || 'doctor';
                     
-                    // 🛑 RESTRICCIÓN DE ROLES: SECRETARIA
                     if(userRole === 'secretaria') {
-                        parentDoctorId = data.doctorId; // Lee de la BD quién es su jefe
-                        // Ocultamos botones sensibles
+                        parentDoctorId = data.doctorId; 
                         document.getElementById('btnNavSuscripcion').style.display = 'none';
                         document.getElementById('btnNavConfig').style.display = 'none';
                         document.getElementById('tabBtnDashboard').style.display = 'none';
-                        // La llevamos directo a la agenda
                         switchTab('agenda');
                     } else {
                         parentDoctorId = user.uid;
                     }
                     
-                    // ESCUDO: Comprobar fecha de vencimiento (Solo aplica para el doctor dueño)
-                    if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro && userRole !== 'secretaria') {
-                        let lastDate = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
-                        let nextPaymentDate = new Date(lastDate);
-                        nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); 
+                    // ESCUDO: Comprobar fecha de vencimiento
+                    if (data.estadoSuscripcion === 'activo' && userRole !== 'secretaria') {
+                        let baseDateRaw = data.fechaUltimoCobro || data.fechaRegistro; 
                         
-                        if(new Date() > nextPaymentDate) {
-                            await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
-                            data.estadoSuscripcion = 'suspendido';
-                        } else {
-                            const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
-                            document.getElementById('nextPaymentDateDisplay').textContent = nextPaymentDate.toLocaleDateString('es-ES', opciones);
+                        if (baseDateRaw) {
+                            let lastDate = baseDateRaw.toDate ? baseDateRaw.toDate() : new Date(baseDateRaw);
+                            let nextPaymentDate = new Date(lastDate);
+                            nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); 
+                            
+                            if(new Date() > nextPaymentDate) {
+                                await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
+                                data.estadoSuscripcion = 'suspendido';
+                            } else {
+                                const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+                                document.getElementById('nextPaymentDateDisplay').textContent = nextPaymentDate.toLocaleDateString('es-ES', opciones);
+                            }
                         }
                     }
 
@@ -684,16 +684,14 @@
                         document.getElementById('dashboardView').classList.add('hidden');
                         document.getElementById('navButtons').style.display = 'none';
                         document.getElementById('suspendedView').classList.remove('hidden');
-                        document.getElementById('suspendedPrice').textContent = (data.precioSuscripcion || 15).toFixed(2);
+                        document.getElementById('suspendedPrice').textContent = (data.precioSuscripcion || 20).toFixed(2);
                         return; 
                     }
 
-                    // 🛑 MARCA BLANCA: Aplicamos colores y logos
                     if(data.clinicInfo) { 
                         clinicDataGlobal = data.clinicInfo; 
                         aplicarMarcaBlanca(clinicDataGlobal);
                     } else if (userRole === 'secretaria') {
-                        // Si es secretaria, leemos la info del doctor jefe para la marca blanca
                         const docInfo = await db.collection('users').doc(parentDoctorId).get();
                         if(docInfo.exists && docInfo.data().clinicInfo) {
                             clinicDataGlobal = docInfo.data().clinicInfo;
@@ -721,7 +719,6 @@
             }
         });
 
-        // 🛑 FUNCIÓN DE MARCA BLANCA
         function aplicarMarcaBlanca(info) {
             if(!info) return;
             if(info.color) { document.getElementById('navBar').style.backgroundColor = info.color; }
@@ -764,7 +761,7 @@
                     telefonoWhatsApp: phone, 
                     rol: 'doctor', 
                     estadoSuscripcion: 'activo',
-                    precioSuscripcion: 15,
+                    precioSuscripcion: 20,
                     fechaRegistro: new Date() 
                 }); 
             } catch (error) { 
@@ -777,7 +774,6 @@
         // ==========================================
         async function loadPatients() { 
             try { 
-                // 🛑 Ahora consultamos usando parentDoctorId (soporta secretarias)
                 const snapshot = await db.collection('patients').where('doctorId', '==', parentDoctorId).get(); 
                 patients = []; 
                 snapshot.forEach(doc => patients.push({ id: doc.id, ...doc.data() })); 
@@ -879,7 +875,6 @@
                 vitalsSnapshot.forEach(doc => batchVitals.delete(doc.ref)); 
                 await batchVitals.commit();
 
-                // Eliminar imágenes de Firestore (Los archivos en Storage quedarán huérfanos por ahora, se puede programar un Cloud Function para limpiarlos)
                 const imagesSnapshot = await db.collection('patients').doc(patientId).collection('images').get();
                 const batchImages = db.batch(); 
                 imagesSnapshot.forEach(doc => batchImages.delete(doc.ref)); 
@@ -991,14 +986,13 @@
         // ==========================================
         async function openHistoryModal(patientId) { 
             if(!patientId || patientId === 'undefined') return alert('No se pudo encontrar el paciente.');
-            currentPatientIdForImages = patientId; // Guardamos globalmente
+            currentPatientIdForImages = patientId; 
             
             document.getElementById('historyModal').classList.remove('hidden'); 
             
             const pat = patients.find(p => p.id === patientId);
             document.getElementById('historyPatientInfo').innerHTML = `👤 ${pat.nombre} &nbsp;|&nbsp; 🆔 CI/RUC: <span class="font-bold">${pat.cedula || 'N/A'}</span> &nbsp;|&nbsp; 📱 Tel: ${pat.telefonoWhatsApp}`;
             
-            // Cargar Cronología y Gráficos
             try {
                 const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'asc').get(); 
                 
@@ -1086,7 +1080,6 @@
                 document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center font-bold">Error cargando el expediente.</p>';
             }
 
-            // 🛑 Cargar Galería de Imágenes
             loadPatientImages(patientId);
         }
         
@@ -1095,7 +1088,6 @@
             if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
         }
 
-        // 🛑 NUEVAS FUNCIONES DE IMAGENOLOGÍA
         async function uploadPatientImage(inputElement) {
             const file = inputElement.files[0];
             if(!file || !currentPatientIdForImages) return;
@@ -1105,12 +1097,10 @@
             btn.disabled = true;
 
             try {
-                // Sube a Firebase Storage en una carpeta exclusiva del doctor y paciente
                 const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
                 await storageRef.put(file);
                 const downloadURL = await storageRef.getDownloadURL();
 
-                // Guarda la referencia en Firestore
                 await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({
                     url: downloadURL,
                     nombre: file.name,
@@ -1118,14 +1108,14 @@
                 });
 
                 mostrarMensaje('Imagen subida y encriptada con éxito.', 'success');
-                loadPatientImages(currentPatientIdForImages); // Recarga la galería
+                loadPatientImages(currentPatientIdForImages); 
 
             } catch (error) {
                 mostrarMensaje('Error al subir archivo: ' + error.message, 'error');
             } finally {
                 btn.textContent = '📁 Subir Archivo';
                 btn.disabled = false;
-                inputElement.value = ''; // Reset input
+                inputElement.value = ''; 
             }
         }
 
@@ -1388,7 +1378,7 @@
                 await loadAppointments(); 
                 mostrarMensaje('Cobro registrado y comprobante enviado al paciente', 'success');
             } catch (err) {
-                alert('Hubo un error enviando el comprobante por WhatsApp. Verifica que Ngrok y el servidor estén activos.');
+                alert('Hubo un error enviando el comprobante por WhatsApp. Verifica que el servidor de la API esté activo.');
             } finally {
                 btn.innerHTML = 'Finalizar y Enviar 📲';
                 btn.disabled = false;
@@ -1422,7 +1412,7 @@
                     }) 
                 }); 
             } catch(e) { 
-                document.getElementById('qrStatusText').textContent = 'Error: Servidor apagado o sin Ngrok'; 
+                document.getElementById('qrStatusText').textContent = 'Error de conexión con la API'; 
                 return; 
             }
             if(qrInterval) clearInterval(qrInterval); 
@@ -1432,7 +1422,6 @@
 
         async function checkWhatsAppStatus() {
             try {
-                // Quitamos el header de ngrok-skip porque ya no es necesario en Oracle
                 const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${parentDoctorId}`); 
                 const data = await res.json(); 
                 const statusText = document.getElementById('qrStatusText');
@@ -1454,7 +1443,7 @@
             } catch(e) {
                 console.error("Error consultando estado:", e);
             }
-}
+        }
 
         async function sendWhatsAppReminder(id) { 
             const a = appointments.find(x => x.id === id); 
@@ -1473,7 +1462,7 @@
                 }); 
                 mostrarMensaje('Recordatorio de WhatsApp enviado correctamente', 'success'); 
             } catch(e) {
-                mostrarMensaje('Error de conexión con el servidor Node', 'error');
+                mostrarMensaje('Error de conexión con el servidor', 'error');
             }
         }
 
