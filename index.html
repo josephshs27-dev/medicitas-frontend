@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgendaCitas - Sistema Médico SaaS</title>
+    <title>AsistenCitas - Sistema Médico SaaS</title>
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
     <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,8 +29,8 @@
         <nav id="navBar" class="bg-blue-600 text-white shadow-md z-10 relative transition-colors duration-500">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <img id="navLogoImg" src="img/logo.png" alt="AgendaCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
-                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">AgendaCitas</h1>
+                    <img id="navLogoImg" src="img/logo.png" alt="AsistenCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
+                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">AsistenCitas</h1>
                 </div>
                 <div class="flex gap-2" id="navButtons" style="display:none;">
                     <button id="btnNavSuscripcion" onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
@@ -48,7 +48,7 @@
             <div id="loginView" class="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-full items-center py-8">
                 <div class="hidden md:block">
                     <div class="bg-blue-100 rounded-lg p-8 text-center flex flex-col items-center justify-center h-full">
-                        <img src="img/logo.png" alt="AgendaCitas" class="w-48 h-auto mx-auto mb-6 drop-shadow-md">
+                        <img src="img/logo.png" alt="AsitenCitas" class="w-48 h-auto mx-auto mb-6 drop-shadow-md">
                         <h2 class="text-3xl font-bold text-blue-900 mb-4">Plataforma SaaS Multiclínica</h2>
                         <p class="text-blue-700 text-lg">Gestiona tu consultorio con IA y WhatsApp integrado.</p>
                     </div>
@@ -102,7 +102,7 @@
                 <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
                     <span class="text-6xl block mb-4">⛔</span>
                     <h2 class="text-3xl font-black text-white mb-2">Acceso Suspendido</h2>
-                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción de AgendaCitas ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción de AsistenCitas ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
                     
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 mb-6">
                         <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
@@ -444,7 +444,7 @@
         </div>
 
         <div id="newPatientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 animate-slideIn">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 animate-slideIn shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Registrar Paciente</h3>
                 <div class="space-y-3">
                     <div>
@@ -469,8 +469,41 @@
                     </div>
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="document.getElementById('newPatientModal').classList.add('hidden')" class="flex-1 bg-gray-200 hover:bg-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
-                    <button type="button" id="saveNewPatientBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg shadow-md">Guardar</button>
+                    <button type="button" onclick="document.getElementById('newPatientModal').classList.add('hidden')" class="flex-1 bg-gray-200 hover:bg-gray-300 font-bold py-2 rounded-lg transition-colors">Cancelar</button>
+                    <button type="button" id="saveNewPatientBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg shadow-md transition-colors">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="editPatientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[55] flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 animate-slideIn shadow-2xl">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">✏️ Editar Paciente</h3>
+                <div class="space-y-3">
+                    <input type="hidden" id="editPatientId">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Cédula / RUC *</label>
+                        <input type="text" id="editPatientCedula" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div id="divEditPatOwner" class="hidden">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Nombre del Dueño *</label>
+                        <input type="text" id="editPatientOwner" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Nombre Completo *</label>
+                        <input type="text" id="editPatientName" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono WhatsApp *</label>
+                        <input type="tel" id="editPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="+593...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Email (Opcional)</label>
+                        <input type="email" id="editPatientEmail" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="document.getElementById('editPatientModal').classList.add('hidden')" class="flex-1 bg-gray-200 hover:bg-gray-300 font-bold py-2 rounded-lg transition-colors">Cancelar</button>
+                    <button type="button" id="saveEditPatientBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg shadow-md transition-colors">Actualizar</button>
                 </div>
             </div>
         </div>
@@ -607,12 +640,19 @@
                     <button onclick="closePromotionsModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
                 </div>
                 <div class="p-6 space-y-4">
-                    <p class="text-sm text-gray-600">Escribe el mensaje de tu promoción. La IA lo enviará masivamente por WhatsApp a todos tus pacientes registrados.</p>
-                    <textarea id="promoMessage" rows="4" class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm bg-orange-50/50 outline-none" placeholder="Ej: ¡Descuento del 20% en tu profilaxis si agendas esta semana!"></textarea>
+                    <p class="text-sm text-gray-600">Configura tu campaña masiva. La IA analizará tus parámetros y enviará el mensaje por WhatsApp a los pacientes correctos.</p>
+                    <div>
+                        <label class="block text-sm font-bold text-orange-900 mb-1">¿A quién va dirigida? (Segmentación IA)</label>
+                        <input type="text" id="promoTargeting" class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm bg-white outline-none" placeholder="Ej: Solo a los últimos 50 pacientes, o a todos">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-orange-900 mb-1">Mensaje o Promoción</label>
+                        <textarea id="promoMessage" rows="4" class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm bg-white outline-none" placeholder="Ej: ¡Descuento del 20% en profilaxis si agendas hoy!"></textarea>
+                    </div>
                 </div>
                 <div class="px-6 py-4 border-t flex gap-3 bg-gray-50 rounded-b-xl">
                     <button onclick="closePromotionsModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg transition-colors hover:bg-gray-100">Cancelar</button>
-                    <button id="btnSendPromo" onclick="sendPromotion()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-lg shadow-md transition-all active:scale-95">Enviar Masivo 🚀</button>
+                    <button id="btnSendPromo" onclick="sendPromotion()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-lg shadow-md transition-all active:scale-95">Enviar Inteligente 🚀</button>
                 </div>
             </div>
         </div>
@@ -887,8 +927,9 @@
                 const ownerTxt = (esp === 'veterinaria' && p.dueno) ? `<p class="text-xs text-gray-600 mt-1">👤 Dueño: <span class="font-semibold">${p.dueno}</span></p>` : '';
                 return `
                 <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md hover:border-indigo-200 transition relative">
+                    <button onclick="editPatient('${p.id}')" class="absolute top-2 right-10 text-indigo-300 hover:text-indigo-600 font-bold text-lg" title="Editar paciente">✏️</button>
                     <button onclick="deletePatientCompletely('${p.id}')" class="absolute top-2 right-2 text-red-300 hover:text-red-600 font-bold text-lg" title="Eliminar permanentemente">🗑️</button>
-                    <h4 class="font-bold text-gray-900 text-lg truncate pr-6">${p.nombre}</h4>
+                    <h4 class="font-bold text-gray-900 text-lg truncate pr-14">${p.nombre}</h4>
                     ${ownerTxt}
                     <p class="text-xs text-gray-500 mt-1">🆔 CI/RUC: <span class="font-semibold">${p.cedula || 'N/A'}</span></p>
                     <p class="text-xs text-indigo-600 font-bold mt-1">📱 ${p.telefonoWhatsApp || 'N/A'}</p>
@@ -953,6 +994,65 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = 'Guardar';
+            }
+        });
+
+        // Lógica para Edición de Pacientes
+        let currentEditPatientId = null;
+        function editPatient(id) {
+            const pat = patients.find(p => p.id === id);
+            if(!pat) return;
+            
+            currentEditPatientId = id;
+            document.getElementById('editPatientId').value = id;
+            document.getElementById('editPatientCedula').value = pat.cedula || '';
+            document.getElementById('editPatientName').value = pat.nombre || '';
+            document.getElementById('editPatientPhone').value = pat.telefonoWhatsApp || '';
+            document.getElementById('editPatientEmail').value = pat.email || '';
+            
+            const ownerEl = document.getElementById('editPatientOwner');
+            if(ownerEl) ownerEl.value = pat.dueno || '';
+
+            const esp = clinicDataGlobal?.especialidad || 'medicina';
+            if (esp === 'veterinaria') {
+                document.getElementById('divEditPatOwner').classList.remove('hidden');
+            } else {
+                document.getElementById('divEditPatOwner').classList.add('hidden');
+            }
+
+            document.getElementById('editPatientModal').classList.remove('hidden');
+        }
+
+        document.getElementById('saveEditPatientBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('saveEditPatientBtn');
+            const name = document.getElementById('editPatientName').value.trim();
+            const cedula = document.getElementById('editPatientCedula').value.trim();
+            const phone = document.getElementById('editPatientPhone').value.trim();
+            const email = document.getElementById('editPatientEmail').value.trim();
+            const ownerEl = document.getElementById('editPatientOwner');
+            const owner = ownerEl ? ownerEl.value.trim() : '';
+
+            if(!name || !phone || !cedula) return alert("⚠️ Nombre, Teléfono y Cédula son obligatorios.");
+
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Actualizando...';
+
+            try {
+                await db.collection('patients').doc(currentEditPatientId).update({
+                    nombre: name,
+                    cedula: cedula,
+                    telefonoWhatsApp: phone,
+                    email: email,
+                    dueno: owner
+                });
+                document.getElementById('editPatientModal').classList.add('hidden');
+                await loadPatients(); 
+                mostrarMensaje('✅ Paciente actualizado correctamente', 'success');
+            } catch (error) {
+                alert('❌ Error al actualizar el paciente: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Actualizar';
             }
         });
 
@@ -1144,6 +1244,7 @@
                         const dateStr = new Date(rawDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
 
                         let vitalsStr = '';
+                        if(d.edad) vitalsStr += `Edad: ${d.edad} | `;
                         if(d.peso) vitalsStr += `Peso: ${d.peso}kg | `;
                         if(d.presion) vitalsStr += `Presión: ${d.presion} | `;
                         if(d.ritmo) vitalsStr += `FC: ${d.ritmo}bpm | `;
@@ -1580,7 +1681,7 @@
 
         async function checkMetaStatus() {
             try {
-                // Verificamos con el servidor el estatus de la clínica (Para la API oficial, si está activo, está conectado)
+                // Verificamos con el servidor el estatus de la clínica
                 const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${parentDoctorId}`); 
                 const data = await res.json(); 
                 
@@ -1612,6 +1713,7 @@
         // ==========================================
         function openPromotionsModal() {
             document.getElementById('promoMessage').value = '';
+            document.getElementById('promoTargeting').value = '';
             document.getElementById('promotionsModal').classList.remove('hidden');
         }
 
@@ -1621,12 +1723,14 @@
 
         async function sendPromotion() {
             const msg = document.getElementById('promoMessage').value.trim();
+            const targeting = document.getElementById('promoTargeting').value.trim() || 'A todos los pacientes';
+            
             if(!msg) return alert("Escribe un mensaje para la promoción.");
             
-            if(!confirm("⚠️ ¿Seguro que deseas enviar este mensaje a TODOS tus pacientes registrados en AgendaCitas?")) return;
+            if(!confirm("⚠️ ¿Seguro que deseas iniciar esta campaña inteligente? La IA evaluará tus parámetros de envío.")) return;
 
             const btn = document.getElementById('btnSendPromo');
-            btn.innerHTML = '⏳ Enviando masivo...';
+            btn.innerHTML = '⏳ Evaluando y Enviando...';
             btn.disabled = true;
 
             try {
@@ -1635,14 +1739,15 @@
                     headers: apiHeaders,
                     body: JSON.stringify({
                         doctorId: parentDoctorId,
-                        mensajePromocion: msg
+                        mensajePromocion: msg,
+                        instruccionesIA: targeting
                     })
                 });
                 
                 const data = await res.json();
                 
                 if (res.ok && data.success) {
-                    mostrarMensaje(`¡Promoción enviada exitosamente a ${data.enviados} pacientes!`, 'success');
+                    mostrarMensaje(`¡Campaña finalizada! Mensaje enviado a ${data.enviados} pacientes según la segmentación.`, 'success');
                     closePromotionsModal();
                 } else {
                     throw new Error(data.error || "Fallo en el servidor");
@@ -1650,7 +1755,7 @@
             } catch(e) {
                 mostrarMensaje('Error al enviar la promoción: ' + e.message, 'error');
             } finally {
-                btn.innerHTML = 'Enviar Masivo 🚀';
+                btn.innerHTML = 'Enviar Inteligente 🚀';
                 btn.disabled = false;
             }
         }
@@ -1673,29 +1778,40 @@
             
             const container = document.getElementById('dynamicVitalsContainer');
             let html = '';
+            
             if (esp === 'odontologia') {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Pieza Dental</label><input type="text" id="rxPieza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Alergias</label><input type="text" id="rxAlergias" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Pieza Dental</label><input type="text" id="rxPieza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div class="col-span-2 md:col-span-4"><label class="block text-xs font-semibold text-gray-600 mb-1">Alergias</label><input type="text" id="rxAlergias" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
             } else if (esp === 'fisioterapia') {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Nivel Dolor (1-10)</label><input type="number" id="rxDolor" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Nivel Dolor (1-10)</label><input type="number" id="rxDolor" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">Zona Afectada</label><input type="text" id="rxZona" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">Movilidad</label><input type="text" id="rxMov" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
             } else if (esp === 'nutricion') {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso Inicial (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">% Grasa</label><input type="number" id="rxGrasa" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">IMC</label><input type="number" id="rxImc" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
             } else if (esp === 'veterinaria') {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad Mascota</label><input type="text" id="rxEdad" placeholder="Ej: 2 años" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">Temp (°C)</label><input type="number" id="rxTemp" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">F. Cardíaca</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Especie/Raza</label><input type="text" id="rxRaza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
+                        <div class="col-span-2 md:col-span-4"><label class="block text-xs font-semibold text-gray-600 mb-1">Especie/Raza</label><input type="text" id="rxRaza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
             } else {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Presión Arterial</label><input type="text" id="rxPresion" placeholder="120/80" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Presión Arterial</label><input type="text" id="rxPresion" placeholder="120/80" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">FC (bpm)</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
             }
+            
             if(container) container.innerHTML = html;
 
             const triContainer = document.getElementById('triageVitalsContainer');
