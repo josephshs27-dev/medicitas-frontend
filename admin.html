@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SúperAdmin - AgendaCitas</title>
+    <title>SúperAdmin - Agendacitas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
@@ -19,7 +19,7 @@
     <div id="loginAdminView" class="flex-1 flex items-center justify-center">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-full max-w-md">
             <div class="text-center mb-6">
-                <span class="text-5xl">👑</span>
+                <img src="img/logo.png" alt="Agendacitas" class="h-16 w-auto mx-auto mb-4 object-contain" onerror="this.outerHTML='<span class=\\'text-5xl\\'>👑</span>'">
                 <h2 class="text-2xl font-bold text-white mt-4">Búnker del CEO</h2>
                 <p class="text-slate-400 text-sm">Acceso restringido a la administración SaaS.</p>
             </div>
@@ -41,9 +41,9 @@
     <div id="dashboardAdminView" class="hidden flex-1 flex flex-col">
         <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md">
             <div class="flex items-center gap-3">
-                <span class="text-3xl">👑</span>
+                <img src="img/logo.png" alt="Agendacitas" class="h-10 w-auto object-contain bg-white rounded p-1" onerror="this.outerHTML='<span class=\\'text-3xl\\'>👑</span>'">
                 <div>
-                    <h1 class="text-xl font-black text-white leading-tight">AgendaCitas</h1>
+                    <h1 class="text-xl font-black text-white leading-tight">Agendacitas</h1>
                     <p class="text-xs text-blue-400 font-bold uppercase tracking-widest">SaaS Control Center</p>
                 </div>
             </div>
@@ -52,24 +52,43 @@
 
         <div class="p-6 flex-1 overflow-hidden flex flex-col max-w-7xl mx-auto w-full">
             
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg">
-                    <p class="text-slate-400 text-xs font-semibold uppercase">Clínicas Totales</p>
-                    <p class="text-3xl font-black text-white mt-1" id="kpiTotalClinics">0</p>
+            <h2 class="text-lg font-bold text-slate-300 mb-3 uppercase tracking-widest">Resumen Financiero (Mensual)</h2>
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-md">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold">Ingreso Bruto</p>
+                    <p class="text-xl font-black text-white mt-1" id="kpiBruto">$0.00</p>
                 </div>
-                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg">
-                    <p class="text-slate-400 text-xs font-semibold uppercase">Clínicas Activas</p>
-                    <p class="text-3xl font-black text-green-400 mt-1" id="kpiActiveClinics">0</p>
+                <div class="bg-slate-800 p-4 rounded-xl border border-orange-900/50 shadow-md">
+                    <p class="text-[10px] text-orange-400 uppercase font-bold">Reserva IVA (15%)</p>
+                    <p class="text-xl font-black text-orange-400 mt-1" id="kpiIva">$0.00</p>
                 </div>
-                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg relative overflow-hidden">
-                    <p class="text-slate-400 text-xs font-semibold uppercase z-10 relative">Fuerza de Ventas</p>
-                    <p class="text-3xl font-black text-indigo-400 mt-1 z-10 relative" id="kpiTotalVendedores">0</p>
-                    <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">👥</div>
+                <div class="bg-slate-800 p-4 rounded-xl border border-red-900/50 shadow-md">
+                    <p class="text-[10px] text-red-400 uppercase font-bold">PayPhone (6%)</p>
+                    <p class="text-xl font-black text-red-400 mt-1" id="kpiPayphone">$0.00</p>
                 </div>
-                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-lg relative overflow-hidden">
-                    <p class="text-slate-400 text-xs font-semibold uppercase z-10 relative">Ingreso (MRR)</p>
-                    <p class="text-3xl font-black text-blue-400 mt-1 z-10 relative" id="kpiRevenue">$0</p>
-                    <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">💰</div>
+                <div class="bg-slate-800 p-4 rounded-xl border border-indigo-900/50 shadow-md">
+                    <p class="text-[10px] text-indigo-400 uppercase font-bold">Socio ($3/u)</p>
+                    <p class="text-xl font-black text-indigo-400 mt-1" id="kpiSocio">$0.00</p>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-xl border border-blue-900/50 shadow-md">
+                    <p class="text-[10px] text-blue-400 uppercase font-bold">Vendedores ($3/u)</p>
+                    <p class="text-xl font-black text-blue-400 mt-1" id="kpiVendedores">$0.00</p>
+                </div>
+                <div class="bg-gradient-to-br from-green-600 to-emerald-500 p-4 rounded-xl border border-green-400 shadow-lg relative overflow-hidden">
+                    <p class="text-[10px] text-green-100 uppercase font-bold relative z-10">Ganancia Neta (CEO)</p>
+                    <p class="text-2xl font-black text-white mt-1 relative z-10" id="kpiNeto">$0.00</p>
+                    <div class="absolute -right-4 -bottom-4 text-5xl opacity-20">📈</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-slate-800 border border-slate-700 px-4 py-3 rounded-xl flex items-center justify-between">
+                    <span class="text-slate-400 text-xs font-semibold uppercase">Clínicas Activas / Totales</span>
+                    <span class="text-xl font-black text-white"><span class="text-green-400" id="kpiActiveClinics">0</span> / <span id="kpiTotalClinics">0</span></span>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 px-4 py-3 rounded-xl flex items-center justify-between">
+                    <span class="text-slate-400 text-xs font-semibold uppercase">Fuerza de Ventas</span>
+                    <span class="text-xl font-black text-indigo-400" id="kpiTotalVendedores">0</span>
                 </div>
             </div>
 
@@ -92,8 +111,8 @@
                             <tr class="text-xs uppercase text-slate-400 border-b border-slate-700">
                                 <th class="pb-3 pr-4 font-semibold">Dr. / Administrador</th>
                                 <th class="pb-3 px-4 font-semibold">Clínica & Especialidad</th>
-                                <th class="pb-3 px-4 font-semibold text-center">Estado (Bot)</th>
-                                <th class="pb-3 px-4 font-semibold text-center">Plan de Suscripción</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Estado</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Plan de Suscripción (Escalable)</th>
                                 <th class="pb-3 pl-4 font-semibold text-right">Acción Maestra</th>
                             </tr>
                         </thead>
@@ -105,7 +124,7 @@
 
             <div id="viewVendedores" class="hidden bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">👥 Fuerza de Ventas y Comisiones</h2>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">👥 Fuerza de Ventas y Referidos</h2>
                     <div class="flex gap-2">
                         <button onclick="openNewVendedorModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Nuevo Vendedor</button>
                         <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
@@ -150,19 +169,17 @@
                     <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña Temporal</label>
                     <input type="text" id="newC_Pass" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Teléfono (WhatsApp)</label>
-                        <input type="text" id="newC_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Plan de Suscripción</label>
-                        <select id="newC_Plan" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
-                            <option value="15">Básico ($15.00/mes)</option>
-                            <option value="25">Consultorio ($25.00/mes)</option>
-                            <option value="35">Centro Médico ($35.00/mes)</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Teléfono (WhatsApp)</label>
+                    <input type="text" id="newC_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Plan Base (Crecimiento Automático)</label>
+                    <select id="newC_Plan" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                        <option value="20">Básico ($20.00/mes) - Hasta 100 pac.</option>
+                        <option value="30">Consultorio ($30.00/mes) - Hasta 200 pac.</option>
+                        <option value="40">Centro Médico ($40.00/mes) - Hasta 300 pac.</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">Especialidad Principal</label>
@@ -175,10 +192,10 @@
                     </select>
                 </div>
                 <div class="p-3 bg-indigo-900/30 border border-indigo-500/50 rounded-lg">
-                    <label class="block text-sm font-bold text-indigo-300 mb-1">Asignar a un Vendedor (Comisión)</label>
+                    <label class="block text-sm font-bold text-indigo-300 mb-1">Asignar a un Vendedor (Comisión $3.00)</label>
                     <select id="newC_Vendedor" class="w-full px-3 py-2 bg-slate-900 border border-indigo-500/50 rounded text-white focus:ring-1 focus:ring-indigo-500">
-                        <option value="">-- Venta Directa (Sin comisión) --</option>
-                        </select>
+                        <option value="">-- Venta Directa (Sin comisión vendedor) --</option>
+                    </select>
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-700 flex justify-end gap-3">
@@ -220,8 +237,8 @@
     </div>
 
     <script>
-        // 🛑 TU ENLACE DE NGROK ACTUAL (Backend) 🛑
-        const API_BASE_URL = "https://strength-emptier-debtless.ngrok-free.dev";
+        // 🛑 DOMINIO DE LA API (CONTABO) 🛑
+        const API_BASE_URL = "https://api.agendacitas.com"; // Asegúrate de que esto apunte a tu servidor Node real
         
         const firebaseConfig = {
             apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc", 
@@ -287,15 +304,15 @@
         }
 
         // ==========================================
-        // CARGA DE DATOS (CLÍNICAS Y VENDEDORES)
+        // CARGA DE DATOS Y MATEMÁTICA FINANCIERA (CEO)
         // ==========================================
         async function loadGlobalData() {
-            // 1. Cargar Vendedores primero para tener el mapa de nombres
+            // 1. Cargar Vendedores primero
             try {
                 const vendSnap = await db.collection('users').where('rol', '==', 'vendedor').get();
                 mapaVendedores = {};
                 let vendHtml = '';
-                let selectOptions = '<option value="">-- Venta Directa (Sin comisión) --</option>';
+                let selectOptions = '<option value="">-- Venta Directa (Sin comisión vendedor) --</option>';
                 
                 if (vendSnap.empty) {
                     vendHtml = '<tr><td colspan="4" class="text-center py-6 text-slate-500">No hay vendedores registrados.</td></tr>';
@@ -323,7 +340,7 @@
 
             } catch (e) { console.error("Error cargando vendedores", e); }
 
-            // 2. Cargar Clínicas
+            // 2. Cargar Clínicas y Lógica Financiera
             const tbody = document.getElementById('clinicsTableBody');
             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-500">Cargando base de datos global...</td></tr>';
             
@@ -332,7 +349,11 @@
                 let html = '';
                 let activas = 0;
                 let totales = snapshot.size;
+                
+                // Variables Financieras
                 let ingresosTotalesMensuales = 0;
+                let comisionVendedoresMensual = 0;
+                let comisionSocioMensual = 0;
 
                 if (totales === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-500">Aún no hay clínicas registradas en el sistema.</td></tr>';
@@ -341,12 +362,17 @@
                         const data = doc.data();
                         const info = data.clinicInfo || {};
                         const estado = data.estadoSuscripcion || 'activo'; 
-                        const precioSuscripcion = data.precioSuscripcion || 15; 
+                        const precioSuscripcion = data.precioSuscripcion || 20; // Plan base
                         const vendName = data.vendedorId ? (mapaVendedores[data.vendedorId] || 'Vendedor Borrado') : 'Venta Directa';
                         
                         if(estado === 'activo') {
                             activas++;
                             ingresosTotalesMensuales += parseFloat(precioSuscripcion);
+                            comisionSocioMensual += 3.00; // El Socio gana $3 fijos por cada activa
+                            
+                            if (data.vendedorId) {
+                                comisionVendedoresMensual += 3.00; // El vendedor gana $3 fijos si fue referido
+                            }
                         }
 
                         const statusBadge = estado === 'activo' 
@@ -377,9 +403,9 @@
                             <td class="py-4 px-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <select id="plan_${doc.id}" class="w-32 bg-slate-900 border border-slate-600 text-white px-2 py-1 rounded text-center focus:ring-1 focus:ring-blue-500 outline-none text-sm">
-                                        <option value="15" ${precioSuscripcion == 15 ? 'selected' : ''}>Básico ($15)</option>
-                                        <option value="25" ${precioSuscripcion == 25 ? 'selected' : ''}>Consultorio ($25)</option>
-                                        <option value="35" ${precioSuscripcion == 35 ? 'selected' : ''}>Centro Médico ($35)</option>
+                                        <option value="20" ${precioSuscripcion == 20 ? 'selected' : ''}>$20.00 (Base)</option>
+                                        <option value="30" ${precioSuscripcion == 30 ? 'selected' : ''}>$30.00 (+100)</option>
+                                        <option value="40" ${precioSuscripcion == 40 ? 'selected' : ''}>$40.00 (+200)</option>
                                     </select>
                                     <button onclick="actualizarPlan('${doc.id}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold transition" title="Guardar Plan">💾</button>
                                 </div>
@@ -392,9 +418,20 @@
                     tbody.innerHTML = html;
                 }
                 
+                // ACTUALIZACIÓN DEL TABLERO FINANCIERO DEL CEO
+                const ivaReserva = ingresosTotalesMensuales * 0.15;
+                const pasarela = ingresosTotalesMensuales * 0.06;
+                const gananciaLiquida = ingresosTotalesMensuales - ivaReserva - pasarela - comisionVendedoresMensual - comisionSocioMensual;
+
                 document.getElementById('kpiTotalClinics').textContent = totales;
                 document.getElementById('kpiActiveClinics').textContent = activas;
-                document.getElementById('kpiRevenue').textContent = '$' + ingresosTotalesMensuales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                document.getElementById('kpiBruto').textContent = '$' + ingresosTotalesMensuales.toFixed(2);
+                document.getElementById('kpiIva').textContent = '$' + ivaReserva.toFixed(2);
+                document.getElementById('kpiPayphone').textContent = '$' + pasarela.toFixed(2);
+                document.getElementById('kpiVendedores').textContent = '$' + comisionVendedoresMensual.toFixed(2);
+                document.getElementById('kpiSocio').textContent = '$' + comisionSocioMensual.toFixed(2);
+                document.getElementById('kpiNeto').textContent = '$' + gananciaLiquida.toFixed(2);
 
             } catch (error) {
                 console.error(error);
@@ -426,7 +463,6 @@
         // CREACIÓN DE CLÍNICAS Y VENDEDORES (APIs)
         // ==========================================
         
-        // --- MODAL CLÍNICA ---
         function openNewClinicModal() { document.getElementById('newClinicModal').classList.remove('hidden'); }
         function closeNewClinicModal() { document.getElementById('newClinicModal').classList.add('hidden'); }
 
@@ -438,7 +474,7 @@
             const tel = document.getElementById('newC_Tel').value.trim();
             const esp = document.getElementById('newC_Esp').value;
             const precio = document.getElementById('newC_Plan').value;
-            const vendId = document.getElementById('newC_Vendedor').value; // ID del vendedor
+            const vendId = document.getElementById('newC_Vendedor').value;
 
             if(!email || !pass || !nombre) return alert("Llena Nombre, Email y Contraseña.");
 
@@ -454,10 +490,9 @@
 
                 const res = await req.json();
                 if(res.success) {
-                    alert(`✅ Clínica Creada con Éxito.\n\nCredenciales para entregar al cliente:\nUser: ${email}\nPass: ${pass}`);
+                    alert(`✅ Clínica Creada con Éxito.\n\nCredenciales para el cliente:\nUser: ${email}\nPass: ${pass}`);
                     closeNewClinicModal();
                     loadGlobalData();
-                    // Limpiar
                     document.getElementById('newC_Email').value = '';
                     document.getElementById('newC_Pass').value = '';
                     document.getElementById('newC_Nombre').value = '';
@@ -469,7 +504,6 @@
             finally { btn.disabled = false; btn.innerHTML = "Generar Clínica"; }
         }
 
-        // --- MODAL VENDEDOR ---
         function openNewVendedorModal() { document.getElementById('newVendedorModal').classList.remove('hidden'); }
         function closeNewVendedorModal() { document.getElementById('newVendedorModal').classList.add('hidden'); }
 
@@ -496,8 +530,7 @@
                 if(res.success) {
                     alert(`✅ Vendedor Creado con Éxito.`);
                     closeNewVendedorModal();
-                    loadGlobalData(); // Recarga listas
-                    // Limpiar
+                    loadGlobalData(); 
                     document.getElementById('newV_Email').value = '';
                     document.getElementById('newV_Pass').value = '';
                     document.getElementById('newV_Nombre').value = '';

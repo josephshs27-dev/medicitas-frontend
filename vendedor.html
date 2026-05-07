@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Ventas - AgendaCitas</title>
+    <title>Portal de Ventas - Agendacitas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
@@ -18,7 +18,7 @@
     <div id="loginView" class="flex-1 flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 w-full max-w-md animate-slideIn">
             <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">💼</div>
+                <img src="img/logo.png" alt="Agendacitas" class="h-16 w-auto mx-auto mb-4 object-contain" onerror="this.outerHTML='<div class=\\'w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl\\'>💼</div>'">
                 <h2 class="text-2xl font-black text-slate-900">Portal de Partners</h2>
                 <p class="text-slate-500 text-sm mt-1">Ingresa para gestionar tus comisiones.</p>
             </div>
@@ -43,8 +43,8 @@
         
         <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
             <div class="flex items-center gap-3">
-                <span class="text-2xl">💼</span>
-                <h1 class="text-xl font-black text-slate-800">AgendaCitas <span class="text-indigo-600">Partners</span></h1>
+                <img src="img/logo.png" alt="Agendacitas" class="h-8 w-auto object-contain" onerror="this.outerHTML='<span class=\\'text-2xl\\'>💼</span>'">
+                <h1 class="text-xl font-black text-slate-800">Agendacitas <span class="text-indigo-600">Partners</span></h1>
             </div>
             <button onclick="logout()" class="text-slate-500 hover:text-red-500 font-bold text-sm transition-colors">Cerrar Sesión</button>
         </nav>
@@ -130,7 +130,6 @@
 
         auth.onAuthStateChanged(async (user) => {
             if(user) {
-                // Verificar que el usuario que intenta entrar SÍ sea un vendedor
                 try {
                     const userDoc = await db.collection('users').doc(user.uid).get();
                     if(userDoc.exists && userDoc.data().rol === 'vendedor') {
@@ -142,14 +141,11 @@
                         
                         loadMyStats(user.uid);
                     } else {
-                        // Si es un doctor o el admin intentando entrar aquí, lo echamos
                         auth.signOut();
                         document.getElementById('authError').textContent = "Acceso denegado: Esta cuenta no pertenece a un vendedor.";
                         document.getElementById('authError').classList.remove('hidden');
                     }
-                } catch(e) {
-                    console.error("Error validando rol:", e);
-                }
+                } catch(e) { console.error("Error validando rol:", e); }
             } else {
                 currentVendedorId = null;
                 document.getElementById('loginView').classList.remove('hidden');
@@ -163,19 +159,16 @@
         // 3. LÓGICA DE CÁLCULO DE COMISIONES B2B
         // ============================================
         
-        // REGLA DE NEGOCIO:
-        // Suscripción >= $20 -> Comisión de $4
-        // Suscripción < $20 -> Comisión de $3
-        function calculateComm(price, status) {
-            if(status !== 'activo') return 0; // Si la clínica está suspendida/no paga, la comisión es $0
-            return (price >= 20) ? 4 : 3;
+        // REGLA DE NEGOCIO: Comisión FIJA de $3.00 por Clínica Activa
+        function calculateComm(status) {
+            if(status !== 'activo') return 0; 
+            return 3.00; 
         }
 
         async function loadMyStats(vendedorId) {
             const container = document.getElementById('myClinicsList');
             
             try {
-                // Buscar todas las clínicas asignadas a este vendedor específico
                 const snap = await db.collection('users')
                     .where('rol', '==', 'doctor')
                     .where('vendedorId', '==', vendedorId)
@@ -199,15 +192,14 @@
                 snap.forEach(doc => {
                     const d = doc.data();
                     const info = d.clinicInfo || {};
-                    const precioSuscripcion = d.precioSuscripcion || 15;
+                    const precioSuscripcion = d.precioSuscripcion || 20;
                     const estado = d.estadoSuscripcion || 'activo';
                     
-                    const comm = calculateComm(precioSuscripcion, estado);
+                    const comm = calculateComm(estado);
                     totalMensual += comm;
                     
                     if(estado === 'activo') clinicasActivas++;
 
-                    // Etiquetas visuales para el estado de la clínica
                     const statusBadge = estado === 'activo' 
                         ? `<span class="bg-green-100 text-green-700 font-black text-[10px] px-2 py-0.5 rounded uppercase tracking-wider">Activo (Pagando)</span>`
                         : `<span class="bg-red-100 text-red-700 font-black text-[10px] px-2 py-0.5 rounded uppercase tracking-wider">Suspendido (Impago)</span>`;
@@ -223,13 +215,12 @@
                             <p class="text-xs text-slate-400 mt-1">Registrado el: ${d.fechaRegistro ? d.fechaRegistro.toDate().toLocaleDateString() : 'N/A'}</p>
                         </div>
                         <div class="sm:text-right bg-white p-3 rounded-xl border border-slate-100 shadow-sm min-w-[120px]">
-                            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Tu Comisión</p>
+                            <p class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Tu Comisión Fija</p>
                             <p class="text-2xl font-black ${comm > 0 ? 'text-indigo-600' : 'text-slate-300'}">+$${comm.toFixed(2)}</p>
                         </div>
                     </div>`;
                 });
                 
-                // Actualizar la interfaz
                 container.innerHTML = html;
                 document.getElementById('totalCommissions').textContent = '$' + totalMensual.toFixed(2);
                 document.getElementById('activeClinics').textContent = clinicasActivas;
