@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediCitas Pro - Sistema Médico SaaS</title>
+    <title>AgendaCitas - Sistema Médico SaaS</title>
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
     <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,9 +30,8 @@
         <nav id="navBar" class="bg-blue-600 text-white shadow-md z-10 relative transition-colors duration-500">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <img id="navLogoImg" src="" alt="Logo" class="hidden h-10 w-10 object-contain bg-white rounded-full p-0.5 shadow-sm">
-                    <svg id="navLogoSvg" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">MediCitas Pro</h1>
+                    <img id="navLogoImg" src="img/logo.png" alt="AgendaCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
+                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">AgendaCitas</h1>
                 </div>
                 <div class="flex gap-2" id="navButtons" style="display:none;">
                     <button id="btnNavSuscripcion" onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
@@ -48,8 +47,8 @@
             
             <div id="loginView" class="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-full items-center py-8">
                 <div class="hidden md:block">
-                    <div class="bg-blue-100 rounded-lg p-8 text-center">
-                        <svg class="w-32 h-32 mx-auto text-blue-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div class="bg-blue-100 rounded-lg p-8 text-center flex flex-col items-center justify-center h-full">
+                        <img src="img/logo.png" alt="AgendaCitas" class="w-48 h-auto mx-auto mb-6 drop-shadow-md">
                         <h2 class="text-3xl font-bold text-blue-900 mb-4">Plataforma SaaS Multiclínica</h2>
                         <p class="text-blue-700 text-lg">Gestiona tu consultorio con IA y WhatsApp integrado.</p>
                     </div>
@@ -103,7 +102,7 @@
                 <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
                     <span class="text-6xl block mb-4">⛔</span>
                     <h2 class="text-3xl font-black text-white mb-2">Acceso Suspendido</h2>
-                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción a MediCitas Pro ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción de AgendaCitas ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
                     
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 mb-6">
                         <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
@@ -261,6 +260,26 @@
             </div>
         </div>
 
+        <div id="triageModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[65] flex items-center justify-center py-4">
+            <div class="bg-white rounded-xl w-full max-w-lg mx-4 flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-teal-50 rounded-t-xl">
+                    <h3 class="text-xl font-bold text-teal-900 flex items-center gap-2">🌡️ Ingreso de Triaje</h3>
+                    <button onclick="closeTriageModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-gray-600 mb-4">Ingresa los signos vitales. Estos datos se cargarán automáticamente cuando el doctor inicie la atención con IA.</p>
+                    <input type="hidden" id="triageAppointmentId">
+                    
+                    <div class="grid grid-cols-2 gap-4" id="triageVitalsContainer">
+                        </div>
+                </div>
+                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50 rounded-b-xl">
+                    <button onclick="closeTriageModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
+                    <button onclick="saveTriage()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-lg shadow-md">Guardar Triaje</button>
+                </div>
+            </div>
+        </div>
+
         <div id="whatsappModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[60] flex items-center justify-center py-4">
             <div class="bg-white rounded-xl w-full max-w-sm mx-4 flex flex-col animate-slideIn shadow-2xl text-center p-6">
                 <h3 class="text-2xl font-black text-green-700 mb-2">Conecta tu Clínica</h3>
@@ -363,6 +382,17 @@
                             <div id="blockedDatesList" class="flex flex-wrap gap-2 mt-2"></div>
                         </div>
                     </div>
+
+                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100 mt-4">
+                        <h4 class="font-bold text-indigo-900 mb-2 border-b border-indigo-200 pb-1">📅 Sincronización Google Calendar</h4>
+                        <p class="text-sm text-gray-700 mb-3">Conecta tu cuenta de Google para bloquear automáticamente tu agenda personal en el celular cuando se confirme un turno.</p>
+                        <button type="button" onclick="syncGoogleCalendar()" class="bg-white border border-gray-300 shadow-sm text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                            Sincronizar mi Google Calendar
+                        </button>
+                        <input type="text" id="clinicGCalendarToken" placeholder="[Token encriptado de Google Calendar]" class="w-full px-3 py-2 border rounded-lg bg-white mt-3 text-xs text-gray-400 font-mono hidden" readonly>
+                    </div>
+
                 </div>
                 <div class="px-6 py-4 border-t flex justify-end gap-3 bg-gray-50 rounded-b-lg">
                     <button onclick="closeSettingsModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition">Cancelar</button>
@@ -531,7 +561,7 @@
     </div>
 
     <script>
-// CONFIGURACIÓN (Actualizada)
+        // CONFIGURACIÓN (Actualizada)
         const API_BASE_URL = "https://api.asistencitas.com";
 
         const apiHeaders = { 'Content-Type': 'application/json' };
@@ -727,7 +757,7 @@
                 const img = document.getElementById('navLogoImg');
                 img.src = info.logo;
                 img.classList.remove('hidden');
-                document.getElementById('navLogoSvg').classList.add('hidden');
+                document.getElementById('navLogoSvg')?.classList.add('hidden');
             }
         }
 
@@ -890,7 +920,7 @@
         }
 
         // ==========================================
-        // 5. CITAS Y AGENDA
+        // 5. CITAS, AGENDA Y GOOGLE CALENDAR
         // ==========================================
         async function loadAppointments() { 
             try { 
@@ -927,6 +957,9 @@
                 const [y, m, d] = apt.fecha.split('-'); 
                 const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
                 
+                // Botones Condicionales
+                let btnConfirm = apt.estado === 'pendiente' ? `<button onclick="confirmAppointmentManually('${apt.id}')" class="bg-green-50 hover:bg-green-100 text-green-700 text-xs py-2 rounded-lg font-bold transition border border-green-100">✅ CONFIRMAR</button>` : '';
+
                 return `
                 <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-blue-300 transition bg-white mb-4">
                     <div class="flex justify-between items-start mb-3">
@@ -941,10 +974,11 @@
                         <div><p class="text-slate-400 text-[10px] uppercase font-bold">Monto Cobrado</p><p class="font-black text-green-600">$${(apt.monto || 0).toFixed(2)}</p></div>
                         <div class="col-span-2 md:col-span-1"><p class="text-slate-400 text-[10px] uppercase font-bold">Motivo</p><p class="font-medium text-slate-600 truncate" title="${apt.motivo}">${apt.motivo}</p></div>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-                        <button onclick="sendWhatsAppReminder('${apt.id}')" class="bg-green-50 hover:bg-green-100 text-green-700 text-xs py-2 rounded-lg font-bold transition border border-green-100">💬 RECORDAR</button>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-3">
+                        ${btnConfirm}
+                        <button onclick="openTriageModal('${apt.id}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs py-2 rounded-lg font-bold transition border border-teal-100">🌡️ TRIAJE</button>
                         <button onclick="openPrescriptionModal('${apt.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2 rounded-lg font-black shadow-sm transition">⚕️ ATENDER</button>
-                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs py-2 rounded-lg font-bold transition border border-blue-100">📖 HISTORIAL</button>
+                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs py-2 rounded-lg font-bold transition border border-blue-100">📖 HIST</button>
                         <button onclick="deleteAppointment('${apt.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs py-2 rounded-lg font-bold transition border border-red-100">🗑️ BORRAR</button>
                     </div>
                 </div>`; 
@@ -973,6 +1007,37 @@
                 mostrarMensaje('Error al agendar: ' + error.message, 'error');
             }
         });
+
+        async function confirmAppointmentManually(id) {
+            if(!confirm("¿Deseas confirmar este turno manualmente?")) return;
+            try {
+                const apt = appointments.find(a => a.id === id);
+                const pat = patients.find(p => p.id === apt.patientId);
+                
+                await db.collection('appointments').doc(id).update({estado: 'confirmada'});
+                
+                // DISPARAR GOOGLE CALENDAR
+                if(clinicDataGlobal && clinicDataGlobal.gCalendarToken) {
+                    await fetch(`${API_BASE_URL}/api/calendar/create-event`, {
+                        method: 'POST',
+                        headers: apiHeaders,
+                        body: JSON.stringify({
+                            doctorId: parentDoctorId,
+                            pacienteNombre: pat.nombre,
+                            fecha: apt.fecha,
+                            hora: apt.hora,
+                            motivo: apt.motivo,
+                            tokenGCalendar: clinicDataGlobal.gCalendarToken
+                        })
+                    });
+                }
+                
+                mostrarMensaje('Turno confirmado.', 'success');
+                await loadAppointments();
+            } catch(e) {
+                mostrarMensaje("Error al confirmar: " + e.message, "error");
+            }
+        }
 
         async function deleteAppointment(id) { 
             if(confirm('¿Seguro que deseas eliminar esta cita de tu agenda?')) { 
@@ -1162,16 +1227,68 @@
         }
 
         // ==========================================
-        // 7. IA COPILOT Y RECETAS
+        // 7. TRIAJE PRE-CONSULTA (NUEVO)
+        // ==========================================
+        function openTriageModal(id) {
+            document.getElementById('triageAppointmentId').value = id;
+            const apt = appointments.find(x => x.id === id);
+            
+            document.querySelectorAll('.vital-input-tri').forEach(input => {
+                input.value = '';
+                if(apt && apt.triage) {
+                    let key = input.id.replace('tri', '').toLowerCase();
+                    if(apt.triage[key]) input.value = apt.triage[key];
+                }
+            });
+
+            document.getElementById('triageModal').classList.remove('hidden');
+        }
+
+        function closeTriageModal() {
+            document.getElementById('triageModal').classList.add('hidden');
+        }
+
+        async function saveTriage() {
+            const id = document.getElementById('triageAppointmentId').value;
+            let triageObj = {};
+            
+            document.querySelectorAll('.vital-input-tri').forEach(input => {
+                if(input.value) {
+                    let key = input.id.replace('tri', '').toLowerCase();
+                    triageObj[key] = input.value;
+                }
+            });
+
+            try {
+                await db.collection('appointments').doc(id).update({ triage: triageObj });
+                closeTriageModal();
+                mostrarMensaje('Triaje guardado exitosamente. Listo para atención médica.', 'success');
+                await loadAppointments();
+            } catch(e) {
+                mostrarMensaje('Error al guardar triaje', 'error');
+            }
+        }
+
+
+        // ==========================================
+        // 8. IA COPILOT Y RECETAS
         // ==========================================
         function openPrescriptionModal(id) { 
+            const apt = appointments.find(x => x.id === id);
             document.getElementById('rxAppointmentId').value = id; 
             document.getElementById('prescriptionModal').classList.remove('hidden'); 
             document.getElementById('rxBorrador').value = '';
             document.getElementById('rxDiagnostico').value = '';
             document.getElementById('rxRecomendaciones').value = '';
             
-            document.querySelectorAll('.vital-input').forEach(input => input.value = '');
+            // Cargar triaje automáticamente si la enfermera lo llenó antes
+            document.querySelectorAll('.vital-input').forEach(input => {
+                input.value = '';
+                if(apt && apt.triage) {
+                    let key = input.id.replace('rx', '').toLowerCase();
+                    if(apt.triage[key]) input.value = apt.triage[key];
+                }
+            });
             
             document.getElementById('medicinesContainer').innerHTML = ''; 
             addMedicineRow(); 
@@ -1264,10 +1381,8 @@
             document.querySelectorAll('.vital-input').forEach(input => {
                 if(input.value) {
                     customVitalsStr.push(`${input.previousElementSibling.textContent}: ${input.value}`);
-                    if(input.id === 'rxPresion') vitalsObj.presion = input.value;
-                    if(input.id === 'rxPeso') vitalsObj.peso = input.value;
-                    if(input.id === 'rxRitmo') vitalsObj.ritmo = input.value;
-                    if(input.id === 'rxAltura') vitalsObj.altura = input.value;
+                    let key = input.id.replace('rx', '').toLowerCase();
+                    vitalsObj[key] = input.value;
                 }
             });
 
@@ -1324,7 +1439,7 @@
         }
 
         // ==========================================
-        // 8. COBROS Y COMPROBANTE
+        // 9. COBROS Y COMPROBANTE
         // ==========================================
         function openBillingModal(id, name) { 
             document.getElementById('billingAptId').value = id; 
@@ -1386,7 +1501,7 @@
         }
 
         // ==========================================
-        // 9. WHATSAPP (CONEXIÓN Y RECORDATORIOS)
+        // 10. WHATSAPP (CONEXIÓN Y RECORDATORIOS)
         // ==========================================
         function openWhatsAppModal() { 
             document.getElementById('whatsappModal').classList.remove('hidden'); 
@@ -1467,7 +1582,7 @@
         }
 
         // ==========================================
-        // 10. CONFIGURACIÓN Y UTILIDADES
+        // 11. CONFIGURACIÓN Y UTILIDADES
         // ==========================================
         function adaptarUI() {
             const esp = clinicDataGlobal?.especialidad || 'medicina';
@@ -1508,6 +1623,14 @@
                         <div><label class="block text-xs font-semibold text-gray-600 mb-1">FC (bpm)</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
             }
             if(container) container.innerHTML = html;
+
+            // También generar los campos dinámicos para el Triaje
+            const triContainer = document.getElementById('triageVitalsContainer');
+            if(triContainer) {
+                // Reemplazamos 'rx' por 'tri' para que los IDs no choquen, pero mantenemos la estructura
+                let triHtml = html.replace(/id="rx/g, 'id="tri').replace(/vital-input/g, 'vital-input-tri');
+                triContainer.innerHTML = triHtml;
+            }
         }
 
         function encodeImageFileAsURL(element) { 
@@ -1529,6 +1652,8 @@
                 document.getElementById('clinicRuc').value = clinicDataGlobal.ruc || ''; 
                 document.getElementById('clinicAddress').value = clinicDataGlobal.direccion || ''; 
                 document.getElementById('clinicPhone').value = clinicDataGlobal.telefono || ''; 
+                document.getElementById('clinicGCalendarToken').value = clinicDataGlobal.gCalendarToken || '';
+                
                 if(clinicDataGlobal.logo) { 
                     document.getElementById('clinicLogoBase64').value = clinicDataGlobal.logo; 
                     document.getElementById('logoPreview').src = clinicDataGlobal.logo; 
@@ -1544,6 +1669,7 @@
                 document.getElementById('scheduleEnd').value = '17:00'; 
                 document.getElementById('scheduleDuration').value = '30'; 
                 document.getElementById('clinicColor').value = '#2563eb';
+                document.getElementById('clinicGCalendarToken').value = '';
                 globalBlockedDates = []; 
             } 
             renderBlockedDates(); 
@@ -1567,6 +1693,7 @@
                 horarioInicio: document.getElementById('scheduleStart').value, 
                 horarioFin: document.getElementById('scheduleEnd').value, 
                 duracionCita: document.getElementById('scheduleDuration').value, 
+                gCalendarToken: document.getElementById('clinicGCalendarToken').value,
                 diasBloqueados: globalBlockedDates 
             }; 
             try { 
@@ -1579,6 +1706,20 @@
             } catch (error) { 
                 mostrarMensaje('Error al guardar: ' + error.message, 'error'); 
             } 
+        }
+
+        async function syncGoogleCalendar() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl`);
+                const data = await res.json();
+                window.open(data.url, '_blank');
+                // Al volver de Google se obtendrá un Token que debes pegar en la casilla (o se automatizará por base de datos).
+                document.getElementById('clinicGCalendarToken').classList.remove('hidden');
+                document.getElementById('clinicGCalendarToken').readOnly = false;
+                alert("Se abrirá una ventana para que inicies sesión en Google. Luego, tu token se vinculará a la clínica.");
+            } catch(e) {
+                alert("Error obteniendo URL de Google Calendar. Revisa la conexión al servidor Node.js.");
+            }
         }
 
         function copiarMiLink() {
