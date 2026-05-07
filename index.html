@@ -248,7 +248,10 @@
                                 </div>
                                 <div class="flex gap-2 w-full md:w-auto">
                                     <input type="text" id="searchPatientInput" placeholder="🔍 Buscar nombre o cédula..." class="flex-1 md:w-64 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm bg-gray-50 outline-none">
-                                    <button onclick="document.getElementById('newPatientModal').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm whitespace-nowrap">➕ Nuevo Paciente</button>
+                                    
+                                    <button onclick="openPromotionsModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-lg shadow-sm whitespace-nowrap transition-colors">📢 Promoción</button>
+
+                                    <button onclick="document.getElementById('newPatientModal').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm whitespace-nowrap transition-colors">➕ Nuevo Paciente</button>
                                 </div>
                             </div>
                             <div id="patientsDirectoryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -558,10 +561,27 @@
             </div>
         </div>
 
+        <div id="promotionsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[80] flex items-center justify-center py-4">
+            <div class="bg-white rounded-xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-orange-50 rounded-t-xl">
+                    <h3 class="text-xl font-bold text-orange-900 flex items-center gap-2">📢 Campaña de Marketing</h3>
+                    <button onclick="closePromotionsModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-sm text-gray-600">Escribe el mensaje de tu promoción. La IA lo enviará masivamente por WhatsApp a todos tus pacientes registrados.</p>
+                    <textarea id="promoMessage" rows="4" class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm bg-orange-50/50 outline-none" placeholder="Ej: ¡Descuento del 20% en tu profilaxis si agendas esta semana!"></textarea>
+                </div>
+                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50 rounded-b-xl">
+                    <button onclick="closePromotionsModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg transition-colors hover:bg-gray-100">Cancelar</button>
+                    <button id="btnSendPromo" onclick="sendPromotion()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-lg shadow-md transition-all active:scale-95">Enviar Masivo 🚀</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // CONFIGURACIÓN (Actualizada)
+        // CONFIGURACIÓN
         const API_BASE_URL = "https://api.asistencitas.com";
 
         const apiHeaders = { 'Content-Type': 'application/json' };
@@ -1360,7 +1380,7 @@
                 document.getElementById('rxBorrador').value = ''; 
                 mostrarMensaje('Notas procesadas con Inteligencia Artificial', 'success');
             } catch(e){
-                alert("Hubo un error con la Inteligencia Artificial. Revisa que tu servidor Node y Ngrok estén corriendo.");
+                alert("Hubo un error con la Inteligencia Artificial. Revisa que tu servidor de API esté corriendo.");
             } finally { 
                 btn.innerHTML='🪄 Estructurar Automáticamente'; 
                 btn.disabled = false;
@@ -1582,7 +1602,55 @@
         }
 
         // ==========================================
-        // 11. CONFIGURACIÓN Y UTILIDADES
+        // 11. MÓDULO DE PROMOCIONES MASIVAS
+        // ==========================================
+        function openPromotionsModal() {
+            document.getElementById('promoMessage').value = '';
+            document.getElementById('promotionsModal').classList.remove('hidden');
+        }
+
+        function closePromotionsModal() {
+            document.getElementById('promotionsModal').classList.add('hidden');
+        }
+
+        async function sendPromotion() {
+            const msg = document.getElementById('promoMessage').value.trim();
+            if(!msg) return alert("Escribe un mensaje para la promoción.");
+            
+            if(!confirm("⚠️ ¿Seguro que deseas enviar este mensaje a TODOS tus pacientes registrados en AgendaCitas?")) return;
+
+            const btn = document.getElementById('btnSendPromo');
+            btn.innerHTML = '⏳ Enviando masivo...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
+                    method: 'POST',
+                    headers: apiHeaders,
+                    body: JSON.stringify({
+                        doctorId: parentDoctorId,
+                        mensajePromocion: msg
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && data.success) {
+                    mostrarMensaje(`¡Promoción enviada exitosamente a ${data.enviados} pacientes!`, 'success');
+                    closePromotionsModal();
+                } else {
+                    throw new Error(data.error || "Fallo en el servidor");
+                }
+            } catch(e) {
+                mostrarMensaje('Error al enviar la promoción: ' + e.message, 'error');
+            } finally {
+                btn.innerHTML = 'Enviar Masivo 🚀';
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 12. CONFIGURACIÓN Y UTILIDADES
         // ==========================================
         function adaptarUI() {
             const esp = clinicDataGlobal?.especialidad || 'medicina';
@@ -1624,10 +1692,8 @@
             }
             if(container) container.innerHTML = html;
 
-            // También generar los campos dinámicos para el Triaje
             const triContainer = document.getElementById('triageVitalsContainer');
             if(triContainer) {
-                // Reemplazamos 'rx' por 'tri' para que los IDs no choquen, pero mantenemos la estructura
                 let triHtml = html.replace(/id="rx/g, 'id="tri').replace(/vital-input/g, 'vital-input-tri');
                 triContainer.innerHTML = triHtml;
             }
@@ -1713,7 +1779,6 @@
                 const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl`);
                 const data = await res.json();
                 window.open(data.url, '_blank');
-                // Al volver de Google se obtendrá un Token que debes pegar en la casilla (o se automatizará por base de datos).
                 document.getElementById('clinicGCalendarToken').classList.remove('hidden');
                 document.getElementById('clinicGCalendarToken').readOnly = false;
                 alert("Se abrirá una ventana para que inicies sesión en Google. Luego, tu token se vinculará a la clínica.");
