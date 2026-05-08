@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediCitas Pro — SaaS de Gestión Médica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#7C3AED;
+  --pink:#EC4899;
+  --orange:#F97316;
+  --dark:#0F0A1E;
+  --card:#1A1230;
+  --glass:rgba(255,255,255,0.07);
+  --glassborder:rgba(255,255,255,0.12);
+  --text:#F8F4FF;
+  --muted:#A89BC0;
+  --grad:linear-gradient(135deg,#7C3AED 0%,#EC4899 50%,#F97316 100%);
+  --gradsoft:linear-gradient(135deg,rgba(124,58,237,0.3),rgba(236,72,153,0.2),rgba(249,115,22,0.2));
+}
+html,body{height:100%;overflow:hidden;background:var(--dark);font-family:'Outfit',sans-serif;color:var(--text)}
+
+/* ── SLIDE ENGINE ── */
+#deck{position:relative;width:100vw;height:100vh;overflow:hidden}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 60px;
+  opacity:0;transform:translateX(60px);
+  pointer-events:none;transition:opacity .5s ease,transform .5s ease;
+  overflow:hidden;
+}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:all}
+.slide.exit{opacity:0;transform:translateX(-60px)}
+
+/* ── BACKGROUND ORBS ── */
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+.orb1{width:500px;height:500px;background:rgba(124,58,237,.25);top:-100px;right:-100px}
+.orb2{width:400px;height:400px;background:rgba(236,72,153,.2);bottom:-80px;left:-80px}
+.orb3{width:300px;height:300px;background:rgba(249,115,22,.15);top:50%;left:40%}
+
+/* ── GRID BACKGROUNDS ── */
+.grid-bg{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+
+/* ── GRADIENT TEXT ── */
+.gtext{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ── GLASS CARD ── */
+.glass{
+  background:var(--glass);
+  border:1px solid var(--glassborder);
+  border-radius:20px;
+  backdrop-filter:blur(20px);
+}
+
+/* ── NAV ── */
+#nav{
+  position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:20px;
+  background:rgba(15,10,30,.85);
+  border:1px solid var(--glassborder);
+  border-radius:60px;padding:12px 24px;
+  backdrop-filter:blur(20px);z-index:100;
+}
+.navbtn{
+  background:var(--glass);border:1px solid var(--glassborder);
+  color:var(--text);border-radius:50px;
+  padding:8px 20px;font-size:13px;font-weight:600;
+  cursor:pointer;font-family:'Outfit',sans-serif;
+  transition:all .2s;letter-spacing:.5px;
+}
+.navbtn:hover{background:rgba(124,58,237,.4);border-color:var(--purple)}
+.navbtn:active{transform:scale(.96)}
+.navbtn.primary{background:var(--grad);border:none;padding:9px 28px}
+#dots{display:flex;gap:8px;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--glassborder);cursor:pointer;transition:all .3s}
+.dot.active{background:var(--pink);width:20px;border-radius:10px}
+#slide-counter{font-size:12px;color:var(--muted);min-width:40px;text-align:center;font-variant-numeric:tabular-nums}
+
+/* ── TOP BAR ── */
+#topbar{
+  position:fixed;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 36px;z-index:100;
+}
+.logo-mark{
+  display:flex;align-items:center;gap:10px;
+}
+.logo-icon{
+  width:36px;height:36px;
+  background:var(--grad);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.logo-text{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.logo-text span{color:var(--orange)}
+.tagline-top{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:1px;text-transform:uppercase}
+
+/* ── SLIDE 1: COVER ── */
+#s1 .hero-title{
+  font-size:clamp(52px,8vw,92px);
+  font-weight:900;line-height:.95;
+  letter-spacing:-3px;text-align:center;
+  margin-bottom:24px;
+}
+#s1 .hero-sub{font-size:clamp(16px,2vw,22px);color:var(--muted);text-align:center;font-weight:300;max-width:600px;line-height:1.6;margin-bottom:48px}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:100px;padding:8px 20px;
+  font-size:13px;font-weight:600;color:var(--muted);
+}
+.pill-dot{width:7px;height:7px;border-radius:50%;background:var(--purple);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.6)}50%{box-shadow:0 0 0 8px rgba(124,58,237,0)}}
+
+/* ── SLIDE 2: PROBLEMA ── */
+.problem-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:900px}
+.prob-card{
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:20px;padding:28px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.prob-icon{font-size:36px}
+.prob-title{font-size:17px;font-weight:700;line-height:1.2}
+.prob-desc{font-size:14px;color:var(--muted);line-height:1.6;font-weight:300}
+.prob-cost{
+  display:inline-block;
+  background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);
+  color:#F87171;border-radius:8px;padding:4px 12px;
+  font-size:12px;font-weight:700;letter-spacing:.5px;align-self:flex-start;
+}
+
+/* ── SLIDE 3: SOLUTION ── */
+.sol-visual{
+  display:flex;align-items:center;gap:0;margin:32px 0;
+}
+.sol-step{
+  display:flex;flex-direction:column;align-items:center;text-align:center;width:180px;
+}
+.sol-bubble{
+  width:72px;height:72px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  margin-bottom:12px;
+}
+.sol-label{font-size:13px;font-weight:600;line-height:1.4}
+.sol-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.sol-arrow{
+  flex:1;height:2px;
+  background:linear-gradient(90deg,var(--purple),var(--pink));
+  position:relative;margin:0 -8px;margin-bottom:46px;
+}
+.sol-arrow::after{
+  content:'';position:absolute;right:-6px;top:-4px;
+  border-top:5px solid transparent;border-bottom:5px solid transparent;
+  border-left:10px solid var(--pink);
+}
+.feature-pills{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:800px}
+.fpill{
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:100px;padding:8px 18px;
+  font-size:13px;font-weight:600;color:var(--text);
+}
+
+/* ── SLIDE 4: FEATURES ── */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:1000px}
+.feat-card{
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:18px;padding:24px 20px;
+  transition:border-color .3s,transform .3s;
+  cursor:default;
+}
+.feat-card:hover{border-color:rgba(236,72,153,.4);transform:translateY(-4px)}
+.feat-emoji{font-size:28px;margin-bottom:10px}
+.feat-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.feat-desc{font-size:12.5px;color:var(--muted);line-height:1.6;font-weight:300}
+.feat-badge{
+  display:inline-block;margin-top:10px;
+  font-size:10px;font-weight:700;letter-spacing:.8px;
+  padding:3px 10px;border-radius:6px;
+}
+.badge-ai{background:rgba(124,58,237,.2);color:#C084FC;border:1px solid rgba(124,58,237,.3)}
+.badge-auto{background:rgba(34,197,94,.12);color:#4ADE80;border:1px solid rgba(34,197,94,.25)}
+.badge-real{background:rgba(249,115,22,.15);color:#FB923C;border:1px solid rgba(249,115,22,.3)}
+.badge-cloud{background:rgba(59,130,246,.15);color:#60A5FA;border:1px solid rgba(59,130,246,.3)}
+
+/* ── SLIDE 5: ESPECIALIDADES ── */
+.spec-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;width:100%;max-width:900px;margin-top:16px}
+.spec-card{
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:16px;padding:20px 12px;text-align:center;
+  transition:all .3s;cursor:default;
+}
+.spec-card:hover{transform:translateY(-6px);border-color:rgba(124,58,237,.4)}
+.spec-emoji{font-size:36px;margin-bottom:10px;display:block}
+.spec-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.spec-desc{font-size:11px;color:var(--muted)}
+.how-list{display:flex;flex-direction:column;gap:12px;width:100%;max-width:720px;margin-top:20px}
+.how-item{
+  display:flex;align-items:flex-start;gap:16px;
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:14px;padding:16px 20px;
+}
+.how-num{
+  min-width:36px;height:36px;border-radius:50%;
+  background:var(--grad);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;flex-shrink:0;
+}
+.how-text{flex:1}
+.how-title{font-size:14px;font-weight:700;margin-bottom:3px}
+.how-desc{font-size:12.5px;color:var(--muted);font-weight:300}
+
+/* ── SLIDE 6: WHATSAPP ── */
+.wa-demo{
+  display:flex;gap:32px;align-items:flex-start;width:100%;max-width:960px;
+}
+.wa-phone{
+  width:260px;flex-shrink:0;
+  background:#111;border-radius:40px;
+  border:6px solid #333;padding:16px 10px;
+  overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6);
+}
+.wa-header{
+  background:#075E54;border-radius:12px 12px 0 0;
+  padding:10px 14px;display:flex;align-items:center;gap:10px;
+  margin:-16px -10px 0;padding-bottom:10px;
+}
+.wa-av{width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:14px}
+.wa-name{font-size:13px;font-weight:700}
+.wa-status{font-size:10px;color:rgba(255,255,255,.7)}
+.wa-msgs{padding:12px 6px;display:flex;flex-direction:column;gap:6px}
+.wa-msg{
+  max-width:85%;padding:7px 11px;border-radius:10px;font-size:11px;line-height:1.5;
+  position:relative;
+}
+.wa-msg.recv{background:#262D31;align-self:flex-start;border-bottom-left-radius:2px}
+.wa-msg.sent{background:#005C4B;align-self:flex-end;border-bottom-right-radius:2px}
+.wa-msg .wa-time{font-size:9px;color:rgba(255,255,255,.45);text-align:right;margin-top:3px}
+.wa-typing{background:#262D31;align-self:flex-start;padding:10px 14px;border-radius:10px;font-size:11px;color:rgba(255,255,255,.5)}
+.typing-dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4);margin:0 1px;animation:bounce .9s infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.wa-features{flex:1;display:flex;flex-direction:column;gap:12px}
+.wa-feat{
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:16px;padding:18px 20px;
+  display:flex;align-items:flex-start;gap:14px;
+}
+.wa-feat-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.wa-feat-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.wa-feat-desc{font-size:12.5px;color:var(--muted);line-height:1.5;font-weight:300}
+
+/* ── SLIDE 7: DASHBOARD ── */
+.dash-mock{
+  background:#0D1117;border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;overflow:hidden;width:100%;max-width:840px;
+}
+.dash-topbar{
+  background:#161B22;border-bottom:1px solid rgba(255,255,255,.08);
+  padding:10px 20px;display:flex;align-items:center;gap:8px;
+}
+.dash-dot{width:10px;height:10px;border-radius:50%}
+.dash-body{display:grid;grid-template-columns:220px 1fr;height:320px}
+.dash-sidebar{background:#0D1117;border-right:1px solid rgba(255,255,255,.07);padding:16px}
+.dash-nav-item{
+  padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;
+  cursor:default;margin-bottom:4px;display:flex;align-items:center;gap:8px;
+}
+.dash-nav-item.active{background:rgba(124,58,237,.2);color:#C084FC}
+.dash-nav-item.inactive{color:rgba(255,255,255,.35)}
+.dash-main{padding:16px;overflow:hidden}
+.dash-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.dash-kpi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px}
+.dash-kpi-val{font-size:22px;font-weight:800;margin-bottom:2px}
+.dash-kpi-label{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px}
+.dash-table-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;padding:6px 8px;font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px}
+.dash-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px;padding:7px 8px;border-radius:8px;font-size:11.5px;align-items:center;margin-bottom:4px}
+.dash-row:hover{background:rgba(255,255,255,.04)}
+.status-tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.tag-conf{background:rgba(34,197,94,.15);color:#4ADE80}
+.tag-pend{background:rgba(249,115,22,.15);color:#FB923C}
+.tag-canc{background:rgba(239,68,68,.15);color:#F87171}
+
+/* ── SLIDE 8: PRICING ── */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:900px}
+.price-card{
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:24px;padding:32px 24px;
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+}
+.price-card.featured{border-color:var(--pink);border-width:1.5px}
+.price-card.featured::before{
+  content:'★ MÁS POPULAR';
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  background:var(--grad);
+  font-size:9px;font-weight:800;letter-spacing:1px;
+  padding:4px 20px;border-radius:0 0 12px 12px;
+  color:white;
+}
+.plan-name{font-size:14px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.plan-price{font-size:48px;font-weight:900;letter-spacing:-2px;line-height:1}
+.plan-price sup{font-size:22px;font-weight:700;vertical-align:top;margin-top:10px;margin-right:2px}
+.plan-period{font-size:13px;color:var(--muted);margin-bottom:20px}
+.plan-divider{height:1px;background:var(--glassborder);margin:16px 0}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:9px;flex:1}
+.plan-features li{font-size:13px;display:flex;align-items:flex-start;gap:8px;color:var(--muted)}
+.plan-features li span{color:var(--text)}
+.check{color:#4ADE80;font-size:14px;flex-shrink:0;margin-top:1px}
+.plan-cta{
+  margin-top:20px;padding:12px;border-radius:12px;
+  font-size:14px;font-weight:700;text-align:center;
+  border:none;cursor:pointer;font-family:'Outfit',sans-serif;
+  background:var(--glass);border:1px solid var(--glassborder);
+  color:var(--text);transition:all .2s;
+}
+.plan-cta.hot{background:var(--grad);border:none;color:#fff}
+.plan-cta:hover{transform:scale(1.02)}
+
+/* ── SLIDE 10: CTA ── */
+#s10{text-align:center}
+.cta-title{font-size:clamp(38px,6vw,72px);font-weight:900;line-height:1;letter-spacing:-2px;margin-bottom:20px}
+.cta-sub{font-size:18px;color:var(--muted);font-weight:300;max-width:560px;margin:0 auto 40px;line-height:1.6}
+.cta-cards{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.cta-card{
+  background:var(--glass);border:1px solid var(--glassborder);
+  border-radius:20px;padding:24px 28px;text-align:center;min-width:200px;
+}
+.cta-card-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.cta-card-val{font-size:18px;font-weight:700}
+.cta-card-val a{color:var(--text);text-decoration:none}
+.guarantee{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);
+  border-radius:100px;padding:10px 24px;
+  font-size:13px;font-weight:600;color:#4ADE80;
+  margin-top:32px;
+}
+
+/* ── SECTION LABELS ── */
+.slide-label{
+  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:12px;text-align:center;
+}
+.slide-title{
+  font-size:clamp(28px,4vw,44px);font-weight:900;
+  letter-spacing:-1.5px;text-align:center;
+  margin-bottom:8px;line-height:1.1;
+}
+.slide-desc{
+  font-size:16px;color:var(--muted);text-align:center;
+  font-weight:300;max-width:600px;line-height:1.6;margin-bottom:28px;
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="logo-mark">
+    <div class="logo-icon">📅</div>
+    <div>
+      <div class="logo-text">MediCitas <span>Pro</span></div>
+      <div class="tagline-top">Más citas, menos preocupaciones.</div>
+    </div>
+  </div>
+  <div id="slide-counter">1 / 9</div>
+</div>
+
+<div id="deck">
+
+  <div class="slide active" id="s1">
+    <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+    <div class="grid-bg"></div>
+    <div class="pill" style="margin-bottom:32px">
+      <span class="pill-dot"></span>
+      Sistema SaaS de Gestión Médica Integral
+    </div>
+    <h1 class="hero-title">
+      <span class="gtext">Más citas.</span><br>
+      <span style="color:var(--text)">Menos caos.</span>
+    </h1>
+    <p class="hero-sub">
+      MediCitas Pro es el sistema inteligente que automatiza los turnos de tu clínica, con un copiloto de Inteligencia Artificial disponible 24 horas y sincronización omnicanal.
+    </p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <div class="pill">🌐 Meta Omnicanal (WhatsApp/FB/IG)</div>
+      <div class="pill">📄 Recetas Médicas en PDF</div>
+      <div class="pill">💳 Integración PayPhone</div>
+      <div class="pill">☁️ 100% en la nube</div>
+    </div>
+  </div>
+
+  <div class="slide" id="s2">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="grid-bg"></div>
+    <p class="slide-label">El Problema</p>
+    <h2 class="slide-title">¿Cuánto pierde tu clínica<br>por no automatizar?</h2>
+    <p class="slide-desc">Cada día sin un sistema inteligente es dinero y pacientes que se van a la competencia.</p>
+    <div class="problem-grid">
+      <div class="prob-card">
+        <span class="prob-icon">📞</span>
+        <div class="prob-title">Llamadas perdidas = pacientes perdidos</div>
+        <div class="prob-desc">El 63% de los pacientes escriben fuera del horario de atención. Si nadie responde, buscan otro médico.</div>
+        <span class="prob-cost">💸 Costo: pacientes perdidos</span>
+      </div>
+      <div class="prob-card">
+        <span class="prob-icon">🪑</span>
+        <div class="prob-title">Citas que no se presentan (No-shows)</div>
+        <div class="prob-desc">Sin recordatorios automáticos, entre el 20% y 30% de los pacientes simplemente no aparecen.</div>
+        <span class="prob-cost">💸 Costo: horas vacías</span>
+      </div>
+      <div class="prob-card">
+        <span class="prob-icon">📋</span>
+        <div class="prob-title">Agenda manual = errores y dobles turnos</div>
+        <div class="prob-desc">Los cuadernos y hojas de cálculo generan choques de horario, desorganización y mala experiencia.</div>
+        <span class="prob-cost">💸 Costo: imagen y conflictos</span>
+      </div>
+      <div class="prob-card">
+        <span class="prob-icon">🕐</span>
+        <div class="prob-title">Secretaria que no puede estar 24/7</div>
+        <div class="prob-desc">El personal humano necesita descansar. Pero los pacientes exigen inmediatez digital.</div>
+        <span class="prob-cost">💸 Costo: personal y tiempo</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s3">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="grid-bg"></div>
+    <p class="slide-label">La Solución</p>
+    <h2 class="slide-title">MediCitas Pro automatiza todo<br><span class="gtext">desde Meta Cloud API</span></h2>
+    <p class="slide-desc">Un sistema robusto que trabaja y factura por ti mientras tu equipo descansa.</p>
+    <div class="sol-visual">
+      <div class="sol-step">
+        <div class="sol-bubble" style="background:rgba(124,58,237,.2);border:2px solid rgba(124,58,237,.4)">📱</div>
+        <div class="sol-label">Paciente escribe<br>al WhatsApp/FB/IG</div>
+        <div class="sol-sub">Conexión Oficial Meta</div>
+      </div>
+      <div class="sol-arrow"></div>
+      <div class="sol-step">
+        <div class="sol-bubble" style="background:rgba(236,72,153,.2);border:2px solid rgba(236,72,153,.4)">🤖</div>
+        <div class="sol-label">Copiloto IA<br>agencia el turno</div>
+        <div class="sol-sub">Llama 3 en acción</div>
+      </div>
+      <div class="sol-arrow"></div>
+      <div class="sol-step">
+        <div class="sol-bubble" style="background:rgba(249,115,22,.2);border:2px solid rgba(249,115,22,.4)">📄</div>
+        <div class="sol-label">Generación de<br>Receta en PDF</div>
+        <div class="sol-sub">Automático al finalizar</div>
+      </div>
+      <div class="sol-arrow"></div>
+      <div class="sol-step">
+        <div class="sol-bubble" style="background:rgba(34,197,94,.2);border:2px solid rgba(34,197,94,.4)">💳</div>
+        <div class="sol-label">Cobro Integrado<br>y Facturación</div>
+        <div class="sol-sub">Vía PayPhone Seguro</div>
+      </div>
+    </div>
+    <div class="feature-pills">
+      <span class="fpill">🔔 Recordatorio inteligente 1h antes</span>
+      <span class="fpill">📢 Promociones de Marketing Segmentadas</span>
+      <span class="fpill">📁 Historial clínico digital e imágenes</span>
+      <span class="fpill">🗓️ Sincronización Google Calendar real</span>
+    </div>
+  </div>
+
+  <div class="slide" id="s4">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="grid-bg"></div>
+    <p class="slide-label">Funcionalidades</p>
+    <h2 class="slide-title">Todo lo que necesita<br>una clínica moderna</h2>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-emoji">🤖</div>
+        <div class="feat-title">Asistente IA (Llama 3)</div>
+        <div class="feat-desc">La IA atiende el chat, estructura tus notas médicas sueltas y redacta la historia clínica de forma profesional.</div>
+        <span class="feat-badge badge-ai">IA · LLAMA 3.3</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-emoji">💳</div>
+        <div class="feat-title">Facturación PayPhone</div>
+        <div class="feat-desc">Cobros recurrentes seguros y registro de pagos generados en caja. Olvídate de los cobros manuales a tu tarjeta.</div>
+        <span class="feat-badge badge-auto">PAGOS ONLINE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-emoji">📢</div>
+        <div class="feat-title">Marketing IA Segmentado</div>
+        <div class="feat-desc">Dile a la IA: "Envía una promo del 20% a los últimos 50 pacientes" y ella redacta y dispara los mensajes por WhatsApp.</div>
+        <span class="feat-badge badge-ai">MARKETING B2C</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-emoji">📄</div>
+        <div class="feat-title">Recetas PDF Automáticas</div>
+        <div class="feat-desc">El sistema genera un PDF con tu logo, marca de agua y firma digital, y se lo envía al WhatsApp del paciente al terminar la consulta.</div>
+        <span class="feat-badge badge-real">DIGITALIZACIÓN</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-emoji">🌐</div>
+        <div class="feat-title">Meta Omnicanal</div>
+        <div class="feat-desc">Vinculación por API oficial a WhatsApp Business, Instagram Direct y Messenger. Un solo cerebro para todas tus redes.</div>
+        <span class="feat-badge badge-cloud">META CLOUD</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-emoji">🗓️</div>
+        <div class="feat-title">Google Calendar Sync</div>
+        <div class="feat-desc">Cada vez que la secretaria o la IA confirman un turno, se bloquea tu calendario personal en tu teléfono automáticamente.</div>
+        <span class="feat-badge badge-cloud">SINC Y CONTROL</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s5">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="grid-bg"></div>
+    <p class="slide-label">Multi-Especialidad</p>
+    <h2 class="slide-title">Un sistema que <span class="gtext">muta y se adapta</span></h2>
+    <p class="slide-desc">Desde el triaje hasta la Inteligencia Artificial: todo cambia según la especialidad de tu clínica.</p>
+    <div class="spec-grid">
+      <div class="spec-card">
+        <span class="spec-emoji">🏥</span>
+        <div class="spec-name">Medicina General</div>
+        <div class="spec-desc">Triaje de presión, FC, recetas exactas.</div>
+      </div>
+      <div class="spec-card">
+        <span class="spec-emoji">🦷</span>
+        <div class="spec-name">Odontología</div>
+        <div class="spec-desc">Nomenclatura FDI, piezas dentales.</div>
+      </div>
+      <div class="spec-card">
+        <span class="spec-emoji">🐾</span>
+        <div class="spec-name">Veterinaria</div>
+        <div class="spec-desc">Registro de dueños, especies y razas.</div>
+      </div>
+      <div class="spec-card">
+        <span class="spec-emoji">💪</span>
+        <div class="spec-name">Fisioterapia</div>
+        <div class="spec-desc">Nivel de dolor, movilidad y zona.</div>
+      </div>
+      <div class="spec-card">
+        <span class="spec-emoji">🥗</span>
+        <div class="spec-name">Nutrición</div>
+        <div class="spec-desc">IMC, porcentaje de grasa, peso.</div>
+      </div>
+    </div>
+    <div style="margin-top:24px;max-width:720px;width:100%">
+      <div class="how-item">
+        <div class="how-num">IA</div>
+        <div class="how-text">
+          <div class="how-title">Tus notas desordenadas hechas ciencia</div>
+          <div class="how-desc">En la consulta, escribe notas rápidas ("le duele la muela 4, dale paracetamol 3 días"). Pulsa un botón y la IA lo transforma en una receta estructurada y un diagnóstico formal perfecto para el PDF, usando los términos de tu especialidad.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s6">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="grid-bg"></div>
+    <p class="slide-label">Conexión Meta Oficial</p>
+    <h2 class="slide-title">Tu secretaria virtual,<br><span class="gtext">activa 24 horas</span></h2>
+    <div class="wa-demo">
+      <div class="wa-phone">
+        <div class="wa-header">
+          <div class="wa-av">🏥</div>
+          <div>
+            <div class="wa-name">Consultorio Dr. García</div>
+            <div class="wa-status">en línea</div>
+          </div>
+        </div>
+        <div class="wa-msgs">
+          <div class="wa-msg recv">
+            Buenas noches, quisiera agendar una cita para mi hijo
+            <div class="wa-time">21:34</div>
+          </div>
+          <div class="wa-msg sent">
+            ¡Hola! 👋 Para ver los horarios disponibles de la clínica y agendar tu cita, haz clic en nuestro enlace oficial:<br><br>🔗 <span style="color:#60A5FA">medicitas.app/agendar</span><br><br>Selecciona el día y hora que prefieras 📅
+            <div class="wa-time">21:34</div>
+          </div>
+          <div class="wa-msg recv">
+            Hola, soy María y acabo de agendar mi cita. [Token: #4829]
+            <div class="wa-time">21:38</div>
+          </div>
+          <div class="wa-msg sent">
+            ¡Perfecto, María! 🎉 He vinculado tu cuenta a tu historial clínico seguro. Recibirás tu receta PDF aquí al finalizar la consulta.
+            <div class="wa-time">21:38</div>
+          </div>
+          <div class="wa-msg recv">
+            Sí
+            <div class="wa-time">Jueves 09:00</div>
+          </div>
+          <div class="wa-msg sent">
+            ✅ ¡Excelente! Hemos confirmado tu asistencia para en 1 hora. ¡Te esperamos!
+            <div class="wa-time">Jueves 09:00</div>
+          </div>
+        </div>
+      </div>
+      <div class="wa-features">
+        <div class="wa-feat">
+          <span class="wa-feat-icon">⚡</span>
+          <div>
+            <div class="wa-feat-title">Respuesta instantánea, siempre</div>
+            <div class="wa-feat-desc">Sin necesidad de tener un teléfono prendido escaneando un código QR. Usamos la API Oficial de Meta Cloud.</div>
+          </div>
+        </div>
+        <div class="wa-feat">
+          <span class="wa-feat-icon">📄</span>
+          <div>
+            <div class="wa-feat-title">Entrega de Recetas y Comprobantes</div>
+            <div class="wa-feat-desc">Una vez terminada la cita en el Dashboard, la IA sube el documento final y se lo entrega en mano al paciente.</div>
+          </div>
+        </div>
+        <div class="wa-feat">
+          <span class="wa-feat-icon">✅</span>
+          <div>
+            <div class="wa-feat-title">Confirmación de citas automatizada</div>
+            <div class="wa-feat-desc">El recordatorio llega solo. El paciente responde "SÍ" y la cita se pinta de verde en el panel del doctor, enviándose a Google Calendar.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s7">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="grid-bg"></div>
+    <p class="slide-label">Panel del Doctor</p>
+    <h2 class="slide-title" style="margin-bottom:20px">Control Financiero y Médico<br><span class="gtext">desde cualquier dispositivo</span></h2>
+    <div class="dash-mock">
+      <div class="dash-topbar">
+        <div class="dash-dot" style="background:#FF5F56"></div>
+        <div class="dash-dot" style="background:#FFBD2E"></div>
+        <div class="dash-dot" style="background:#27C93F"></div>
+        <span style="font-size:11px;color:rgba(255,255,255,.3);margin-left:12px">medicitas.app/index.html · Panel Dr. García</span>
+      </div>
+      <div class="dash-body">
+        <div class="dash-sidebar">
+          <div style="font-size:11px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Menú</div>
+          <div class="dash-nav-item inactive">📊 <span>Resumen Financiero</span></div>
+          <div class="dash-nav-item active">📅 <span>Agenda Médica</span></div>
+          <div class="dash-nav-item inactive">👥 <span>Directorio Pacientes</span></div>
+          <div class="dash-nav-item inactive">⚙️ <span>Configuración</span></div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);margin-top:80px">
+            <div style="font-size:11px;color:rgba(255,255,255,.25)">Suscripción PayPhone</div>
+            <div style="font-size:10px;color:#4ADE80;font-weight:bold">Activa ✅</div>
+          </div>
+        </div>
+        <div class="dash-main">
+          <div class="dash-kpis">
+            <div class="dash-kpi">
+              <div class="dash-kpi-val" style="color:#C084FC">24</div>
+              <div class="dash-kpi-label">Citas del mes</div>
+            </div>
+            <div class="dash-kpi">
+              <div class="dash-kpi-val" style="color:#4ADE80">$480.00</div>
+              <div class="dash-kpi-label">Ingresos Reales</div>
+            </div>
+            <div class="dash-kpi">
+              <div class="dash-kpi-val" style="color:#FB923C">3</div>
+              <div class="dash-kpi-label">Citas Hoy</div>
+            </div>
+          </div>
+          <div class="dash-table-head">
+            <span>Paciente / Contacto</span><span>Hora</span><span>Estado</span><span>Acciones Médicas</span>
+          </div>
+          <div class="dash-row">
+            <span>María Fernández</span><span>09:00</span><span><span class="status-tag tag-conf">Confirmada</span></span><span style="color:rgba(255,255,255,.9);font-size:11px">🌡️ Triaje | ⚕️ Atender</span>
+          </div>
+          <div class="dash-row">
+            <span>Jorge Peñaloza</span><span>09:30</span><span><span class="status-tag tag-conf">Confirmada</span></span><span style="color:rgba(255,255,255,.9);font-size:11px">🌡️ Triaje | ⚕️ Atender</span>
+          </div>
+          <div class="dash-row" style="background:rgba(255,255,255,.04)">
+            <span>Ana Torres</span><span>10:00</span><span><span class="status-tag tag-pend">Pendiente</span></span><span style="color:rgba(255,255,255,.9);font-size:11px">✅ Confirmar Turno</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;justify-content:center">
+      <span class="fpill">📈 Gráficas de evolución (peso/vitales)</span>
+      <span class="fpill">🖼️ Galería de Imagenología y PDF en nube</span>
+      <span class="fpill">👩‍💻 Acceso diferenciado para secretaria</span>
+    </div>
+  </div>
+
+  <div class="slide" id="s8">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="grid-bg"></div>
+    <p class="slide-label">Inversión Justa</p>
+    <h2 class="slide-title">Un solo plan.<br><span class="gtext">Todo incluido.</span></h2>
+    <p class="slide-desc">Sin trucos. Tu cuota base se adapta dinámicamente solo si superas los 100 pacientes atendidos en el mes (+10 USD por bloque extra).</p>
+    <div style="display:flex;gap:32px;align-items:flex-start;justify-content:center;width:100%;max-width:900px">
+
+      <div class="price-card featured" style="max-width:340px;width:100%">
+        <div style="text-align:center;padding-top:12px">
+          <div class="plan-name" style="text-align:center;margin-top:18px">Plan MediCitas Pro</div>
+          <div class="plan-price" style="text-align:center;font-size:88px"><sup>$</sup>20</div>
+          <div class="plan-period" style="text-align:center">Base hasta 100 citas/mes</div>
+        </div>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span><span>Copiloto Médico IA (Groq Llama 3)</span></li>
+          <li><span class="check">✓</span><span>Generador Automático de Recetas PDF</span></li>
+          <li><span class="check">✓</span><span>Envíos por Meta API (WhatsApp/FB)</span></li>
+          <li><span class="check">✓</span><span>Módulo de Marketing IA Segmentado</span></li>
+          <li><span class="check">✓</span><span>Historial Clínico + Imágenes en Nube</span></li>
+          <li><span class="check">✓</span><span>Sincronización con Google Calendar</span></li>
+          <li><span class="check">✓</span><span>Débito Seguro con PayPhone</span></li>
+        </ul>
+        <button class="plan-cta hot" style="margin-top:24px" onclick="window.location.href='index.html'">Crear Cuenta B2B →</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;flex:1;max-width:420px;padding-top:8px">
+        <div class="glass" style="padding:22px 24px">
+          <div style="font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">💡 Retorno de inversión garantizado</div>
+          <div style="font-size:15px;font-weight:300;color:var(--text);line-height:1.7">
+            Una sola cita recuperada gracias al recordatorio automatizado por IA <strong style="color:var(--text)">cubre el costo mensual de la plataforma</strong>.
+          </div>
+        </div>
+        <div class="glass" style="padding:22px 24px">
+          <div style="font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">✅ Sistema Escalable y Seguro</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="color:#4ADE80">✓</span> Adaptación visual (Marca Blanca)</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="color:#4ADE80">✓</span> Servidores Serverless de Alta Disponibilidad</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="color:#4ADE80">✓</span> Roles de seguridad (Doctor vs Secretaria)</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:14px;padding:14px 18px">
+          <span style="font-size:22px">🔒</span>
+          <div style="font-size:13px;color:#4ADE80;font-weight:600;line-height:1.5">Manejo de Pagos Encriptado PCI-DSS<br>mediante ecosistema PayPhone.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="s9">
+    <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+    <div class="grid-bg"></div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px">
+      <div style="width:64px;height:64px;background:var(--grad);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0">🚀</div>
+      <div style="text-align:left">
+        <div style="font-size:22px;font-weight:900;letter-spacing:-.5px">MediCitas Pro</div>
+        <div style="font-size:13px;color:var(--muted)">Más citas, menos preocupaciones.</div>
+      </div>
+    </div>
+    <h2 class="cta-title">¿Listo para<br><span class="gtext">evolucionar hoy?</span></h2>
+    <p class="cta-sub">Selecciona a tu Asesor de Ventas al registrarte, conecta tus credenciales de Meta y comienza a gestionar pacientes de forma inteligente.</p>
+    <div class="cta-cards">
+      <div class="cta-card">
+        <div class="cta-card-label">🚀 Activación Inmediata</div>
+        <div class="cta-card-val"><a href="index.html">Crear Cuenta →</a></div>
+      </div>
+      <div class="cta-card">
+        <div class="cta-card-label">🔒 Ingreso a Plataforma</div>
+        <div class="cta-card-val"><a href="index.html">Login Clínicas →</a></div>
+      </div>
+      <div class="cta-card">
+        <div class="cta-card-label">👥 Portal de Partners</div>
+        <div class="cta-card-val"><a href="vendedor.html">Acceso B2B →</a></div>
+      </div>
+    </div>
+    <div class="guarantee">
+      <span>🛡️</span>
+      <span>Conexión Meta Oficial · IA Copilot Médico · Pago 100% Seguro</span>
+    </div>
+  </div>
+
+</div><div id="nav">
+  <button class="navbtn" onclick="prev()">← Anterior</button>
+  <div id="dots"></div>
+  <button class="navbtn primary" onclick="next()">Siguiente →</button>
+</div>
+
+<script>
+const TOTAL = 9;
+let cur = 0;
+
+// Build dots
+const dotsEl = document.getElementById('dots');
+for(let i=0;i<TOTAL;i++){
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0?' active':'');
+  d.onclick = ()=>goTo(i);
+  dotsEl.appendChild(d);
+}
+
+function goTo(idx){
+  const slides = document.querySelectorAll('.slide');
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(()=>slides[cur].classList.remove('exit'),500);
+  cur = (idx+TOTAL)%TOTAL;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  document.getElementById('slide-counter').textContent=(cur+1)+' / '+TOTAL;
+}
+
+function next(){goTo(cur+1)}
+function prev(){goTo(cur-1)}
+
+// Keyboard nav
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')next();
+  if(e.key==='ArrowLeft')prev();
+});
+
+// Touch/swipe
+let tx=0;
+document.getElementById('deck').addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.getElementById('deck').addEventListener('touchend',e=>{
+  const diff=tx-e.changedTouches[0].clientX;
+  if(Math.abs(diff)>50){diff>0?next():prev();}
+},{passive:true});
+</script>
+</body>
+</html>
