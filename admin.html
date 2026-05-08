@@ -111,7 +111,7 @@
                             <tr class="text-xs uppercase text-slate-400 border-b border-slate-700">
                                 <th class="pb-3 pr-4 font-semibold">Dr. / Administrador</th>
                                 <th class="pb-3 px-4 font-semibold">Clínica & Especialidad</th>
-                                <th class="pb-3 px-4 font-semibold text-center">Estado y Meta ID</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Conexión Meta (Omnicanal)</th>
                                 <th class="pb-3 px-4 font-semibold text-center">Plan de Suscripción</th>
                                 <th class="pb-3 pl-4 font-semibold text-right">Acción Maestra</th>
                             </tr>
@@ -150,7 +150,7 @@
     </div>
 
     <div id="newClinicModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center py-4">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-md mx-4 shadow-2xl">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg mx-4 shadow-2xl">
             <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
                 <h3 class="text-lg font-bold text-white">🏢 Registrar Clínica B2B</h3>
                 <button onclick="closeNewClinicModal()" class="text-slate-400 hover:text-red-500 font-bold text-2xl">&times;</button>
@@ -161,24 +161,41 @@
                     <label class="block text-sm font-medium text-slate-300 mb-1">Nombre del Doctor/Clínica</label>
                     <input type="text" id="newC_Nombre" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico (Login)</label>
-                    <input type="email" id="newC_Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña Temporal</label>
-                    <input type="text" id="newC_Pass" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
-                </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Teléfono Público</label>
-                        <input type="text" id="newC_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                        <input type="email" id="newC_Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-green-400 mb-1">Meta Phone ID</label>
-                        <input type="text" id="newC_MetaID" placeholder="Ej: 116155092..." class="w-full px-3 py-2 bg-slate-900 border border-green-500/50 rounded text-white focus:ring-1 focus:ring-green-500 outline-none">
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                        <input type="text" id="newC_Pass" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                     </div>
                 </div>
+
+                <div class="p-3 bg-slate-900 border border-slate-700 rounded-lg space-y-3">
+                    <h4 class="text-sm font-bold text-white mb-2">🌐 Conexión Meta (Omnicanal)</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold text-green-400 mb-1">WhatsApp Phone ID</label>
+                            <input type="text" id="newC_MetaID" placeholder="Ej: 116155092..." class="w-full px-3 py-2 bg-slate-800 border border-green-500/50 rounded text-white focus:ring-1 focus:ring-green-500 outline-none text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-blue-400 mb-1">Facebook Page ID</label>
+                            <input type="text" id="newC_FbID" placeholder="Ej: 1042345..." class="w-full px-3 py-2 bg-slate-800 border border-blue-500/50 rounded text-white focus:ring-1 focus:ring-blue-500 outline-none text-xs">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-bold text-pink-400 mb-1">Instagram Account ID</label>
+                            <input type="text" id="newC_IgID" placeholder="Ej: 178414..." class="w-full px-3 py-2 bg-slate-800 border border-pink-500/50 rounded text-white focus:ring-1 focus:ring-pink-500 outline-none text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-purple-400 mb-1">Token de Página Meta</label>
+                            <input type="text" id="newC_FbToken" placeholder="EAAjPPZ..." class="w-full px-3 py-2 bg-slate-800 border border-purple-500/50 rounded text-white focus:ring-1 focus:ring-purple-500 outline-none text-xs">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-sm font-medium text-slate-300 mb-1">Plan Base</label>
@@ -342,6 +359,9 @@
                     const info = data.clinicInfo || {};
                     const estado = data.estadoSuscripcion || 'activo'; 
                     const metaId = data.metaPhoneId || '';
+                    const fbId = data.fbPageId || '';
+                    const igId = data.igAccountId || '';
+                    const fbToken = data.fbPageToken || '';
                     const vendName = data.vendedorId ? (mapaVendedores[data.vendedorId] || 'Borrado') : 'Venta Directa';
                     const precioStr = data.precioSuscripcion || 20;
 
@@ -368,16 +388,18 @@
                             <span class="text-[9px] text-slate-500">Ref: ${vendName}</span>
                         </td>
                         <td class="py-4 px-4 text-center">
-                            ${statusBadge}
-                            <div class="mt-2 flex items-center justify-center gap-1">
-                                <span class="text-[10px] text-slate-400">Meta ID:</span>
-                                <input type="text" id="meta_${doc.id}" value="${metaId}" placeholder="Sin Asignar" class="w-24 bg-slate-900 border border-slate-600 text-[10px] text-center text-green-400 rounded outline-none py-1 focus:border-green-500">
-                                <button onclick="updateMetaId('${doc.id}')" class="text-slate-400 hover:text-white" title="Guardar Meta ID">💾</button>
+                            <div class="grid grid-cols-2 gap-1 mb-1">
+                                <input type="text" id="meta_${doc.id}" value="${metaId}" placeholder="WA ID" class="w-full bg-slate-900 border border-slate-600 text-[10px] text-center text-green-400 rounded outline-none py-1 focus:border-green-500" title="WhatsApp Phone ID">
+                                <input type="text" id="fb_${doc.id}" value="${fbId}" placeholder="FB Page ID" class="w-full bg-slate-900 border border-slate-600 text-[10px] text-center text-blue-400 rounded outline-none py-1 focus:border-blue-500" title="Facebook Page ID">
+                                <input type="text" id="ig_${doc.id}" value="${igId}" placeholder="IG ID" class="w-full bg-slate-900 border border-slate-600 text-[10px] text-center text-pink-400 rounded outline-none py-1 focus:border-pink-500" title="Instagram Account ID">
+                                <input type="text" id="token_${doc.id}" value="${fbToken}" placeholder="Token FB/IG" class="w-full bg-slate-900 border border-slate-600 text-[10px] text-center text-purple-400 rounded outline-none py-1 focus:border-purple-500" title="Token de Página de Meta">
                             </div>
+                            <button onclick="updateSocials('${doc.id}')" class="text-[10px] bg-slate-700 hover:bg-slate-600 text-white w-full py-1 rounded shadow transition">💾 Guardar Redes</button>
                         </td>
                         <td class="py-4 px-4 text-center">
-                            <div class="flex justify-center items-center gap-1">
-                                <select id="plan_${doc.id}" class="w-28 bg-slate-900 border border-slate-600 text-white px-1 py-1 rounded text-xs outline-none">
+                            ${statusBadge}
+                            <div class="mt-2 flex justify-center items-center gap-1">
+                                <select id="plan_${doc.id}" class="w-24 bg-slate-900 border border-slate-600 text-white px-1 py-1 rounded text-xs outline-none">
                                     <option value="20" ${precioStr == 20 ? 'selected' : ''}>$20.00 Base</option>
                                     <option value="30" ${precioStr == 30 ? 'selected' : ''}>$30.00 (+100)</option>
                                     <option value="40" ${precioStr == 40 ? 'selected' : ''}>$40.00 (+200)</option>
@@ -421,10 +443,20 @@
             alert("Plan actualizado"); loadGlobalData();
         }
 
-        async function updateMetaId(id) {
-            const val = document.getElementById(`meta_${id}`).value.trim();
-            await db.collection('users').doc(id).update({ metaPhoneId: val });
-            alert("✅ Meta ID guardado. El servidor enrutará WhatsApp a este número.");
+        // 🔥 FUNCIÓN PARA GUARDAR REDES SOCIALES 🔥
+        async function updateSocials(id) {
+            const metaId = document.getElementById(`meta_${id}`).value.trim();
+            const fbId = document.getElementById(`fb_${id}`).value.trim();
+            const igId = document.getElementById(`ig_${id}`).value.trim();
+            const token = document.getElementById(`token_${id}`).value.trim();
+
+            await db.collection('users').doc(id).update({ 
+                metaPhoneId: metaId,
+                fbPageId: fbId,
+                igAccountId: igId,
+                fbPageToken: token
+            });
+            alert("✅ Redes Sociales y Tokens actualizados. El servidor enrutará WA/FB/IG según esta configuración.");
         }
 
         async function toggleSuscripcion(id, estado) {
@@ -434,11 +466,9 @@
             }
         }
 
-        // 🔥 FUNCIÓN PARA ELIMINAR CLÍNICAS 🔥
         async function deleteClinic(id, nombre) {
             if(confirm(`⚠️ ALERTA DE PELIGRO ⚠️\n\n¿Estás absolutamente seguro de que deseas ELIMINAR PERMANENTEMENTE la clínica de ${nombre}?\n\nEsta acción revocará su acceso al sistema de inmediato.`)) {
                 try {
-                    // Borrar el documento revoca el acceso al Dashboard
                     await db.collection('users').doc(id).delete();
                     alert("✅ Clínica eliminada del sistema exitosamente.");
                     loadGlobalData();
@@ -457,11 +487,16 @@
             const email = document.getElementById('newC_Email').value.trim();
             const pass = document.getElementById('newC_Pass').value.trim();
             const nombre = document.getElementById('newC_Nombre').value.trim();
-            const tel = document.getElementById('newC_Tel').value.trim();
-            const metaId = document.getElementById('newC_MetaID').value.trim();
+            const tel = document.getElementById('newC_Tel').value.trim(); // Teléfono normal opcional
             const esp = document.getElementById('newC_Esp').value;
             const precio = document.getElementById('newC_Plan').value;
             const vendId = document.getElementById('newC_Vendedor').value;
+
+            // Datos Sociales
+            const metaId = document.getElementById('newC_MetaID').value.trim();
+            const fbId = document.getElementById('newC_FbID').value.trim();
+            const igId = document.getElementById('newC_IgID').value.trim();
+            const fbToken = document.getElementById('newC_FbToken').value.trim();
 
             if(!email || !pass || !nombre) return alert("Llena Nombre, Email y Contraseña.");
 
@@ -469,11 +504,14 @@
             btn.innerHTML = "Generando...";
 
             try {
-                // Notar que enviamos metaPhoneId al servidor
+                // Notar que enviamos toda la info social al servidor
                 const req = await fetch(`${API_BASE_URL}/api/admin/create-clinic`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-                    body: JSON.stringify({ email, password: pass, nombre, telefono: tel, especialidad: esp, precio, vendedorId: vendId, metaPhoneId: metaId })
+                    body: JSON.stringify({ 
+                        email, password: pass, nombre, telefono: tel, especialidad: esp, precio, vendedorId: vendId, 
+                        metaPhoneId: metaId, fbPageId: fbId, igAccountId: igId, fbPageToken: fbToken 
+                    })
                 });
 
                 const res = await req.json();
@@ -484,8 +522,10 @@
                     document.getElementById('newC_Email').value = '';
                     document.getElementById('newC_Pass').value = '';
                     document.getElementById('newC_Nombre').value = '';
-                    document.getElementById('newC_Tel').value = '';
                     document.getElementById('newC_MetaID').value = '';
+                    document.getElementById('newC_FbID').value = '';
+                    document.getElementById('newC_IgID').value = '';
+                    document.getElementById('newC_FbToken').value = '';
                 } else {
                     alert("Error: " + res.error);
                 }
