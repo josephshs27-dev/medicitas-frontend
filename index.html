@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AsistenCitas - Sistema Médico SaaS</title>
+    <title>AgendaCitas - Sistema Médico SaaS</title>
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
     <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,8 +29,8 @@
         <nav id="navBar" class="bg-blue-600 text-white shadow-md z-10 relative transition-colors duration-500">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <img id="navLogoImg" src="img/logo.png" alt="AsistenCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
-                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">AsistenCitas</h1>
+                    <img id="navLogoImg" src="img/logo.png" alt="AgendaCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
+                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">AgendaCitas</h1>
                 </div>
                 <div class="flex gap-2" id="navButtons" style="display:none;">
                     <button id="btnNavSuscripcion" onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
@@ -48,7 +48,7 @@
             <div id="loginView" class="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-full items-center py-8">
                 <div class="hidden md:block">
                     <div class="bg-blue-100 rounded-lg p-8 text-center flex flex-col items-center justify-center h-full">
-                        <img src="img/logo.png" alt="AsitenCitas" class="w-48 h-auto mx-auto mb-6 drop-shadow-md">
+                        <img src="img/logo.png" alt="AgendaCitas" class="w-48 h-auto mx-auto mb-6 drop-shadow-md">
                         <h2 class="text-3xl font-bold text-blue-900 mb-4">Plataforma SaaS Multiclínica</h2>
                         <p class="text-blue-700 text-lg">Gestiona tu consultorio con IA y WhatsApp integrado.</p>
                     </div>
@@ -89,6 +89,14 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono WhatsApp</label>
                             <input type="tel" id="signupPhone" required class="w-full px-3 py-2 border rounded-lg" placeholder="+593...">
                         </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">¿Te refirió un Asesor/Vendedor? (Opcional)</label>
+                            <select id="signupVendedor" class="w-full px-3 py-2 border border-indigo-200 rounded-lg bg-indigo-50 focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-indigo-900">
+                                <option value="">No, compra directa en web</option>
+                            </select>
+                        </div>
+
                         <div class="flex gap-2 mt-4">
                             <button type="button" id="toggleBackBtn" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-bold py-2 rounded-lg">Cancelar</button>
                             <button type="button" id="submitSignupBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg">Registrarme</button>
@@ -102,7 +110,7 @@
                 <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
                     <span class="text-6xl block mb-4">⛔</span>
                     <h2 class="text-3xl font-black text-white mb-2">Acceso Suspendido</h2>
-                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción de AsistenCitas ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción de AgendaCitas ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
                     
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 mb-6">
                         <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
@@ -869,18 +877,45 @@
 
         document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
 
-        document.getElementById('toggleSignupBtn').addEventListener('click', () => { document.getElementById('signupForm').classList.remove('hidden'); document.getElementById('toggleSignupBtn').classList.add('hidden'); });
-        document.getElementById('toggleBackBtn').addEventListener('click', () => { document.getElementById('signupForm').classList.add('hidden'); document.getElementById('toggleSignupBtn').classList.remove('hidden'); });
+        // 🔥 FUNCION PARA CARGAR VENDEDORES EN EL REGISTRO 🔥
+        async function loadSellersForSignup() {
+            try {
+                const vendSnap = await db.collection('users').where('rol', '==', 'vendedor').get();
+                let html = '<option value="">No, compra directa en web</option>';
+                vendSnap.forEach(doc => {
+                    html += `<option value="${doc.id}">${doc.data().nombre}</option>`;
+                });
+                document.getElementById('signupVendedor').innerHTML = html;
+            } catch (e) { console.log("No se pudieron cargar los vendedores: ", e); }
+        }
+
+        document.getElementById('toggleSignupBtn').addEventListener('click', () => { 
+            document.getElementById('signupForm').classList.remove('hidden'); 
+            document.getElementById('toggleSignupBtn').classList.add('hidden'); 
+            loadSellersForSignup(); // Carga la lista
+        });
+
+        document.getElementById('toggleBackBtn').addEventListener('click', () => { 
+            document.getElementById('signupForm').classList.add('hidden'); 
+            document.getElementById('toggleSignupBtn').classList.remove('hidden'); 
+        });
 
         document.getElementById('submitSignupBtn').addEventListener('click', async () => {
             const name = document.getElementById('signupName').value; 
             const email = document.getElementById('signupEmail').value; 
             const password = document.getElementById('signupPassword').value; 
             const phone = document.getElementById('signupPhone').value;
+            const vendedorId = document.getElementById('signupVendedor').value; // Capturamos el Vendedor
             
             if (!name || !email || !password || !phone) return mostrarError('Completa todos los campos obligatorios');
+            
+            document.getElementById('submitSignupBtn').disabled = true;
+            document.getElementById('submitSignupBtn').innerHTML = 'Registrando...';
+
             try { 
                 const cred = await auth.createUserWithEmailAndPassword(email, password); 
+                
+                // Guardamos con vendedorId y clinicInfo base
                 await db.collection('users').doc(cred.user.uid).set({ 
                     userId: cred.user.uid, 
                     nombre: name, 
@@ -889,10 +924,18 @@
                     rol: 'doctor', 
                     estadoSuscripcion: 'activo',
                     precioSuscripcion: 20,
-                    fechaRegistro: new Date() 
+                    fechaRegistro: new Date(),
+                    vendedorId: vendedorId || null,
+                    clinicInfo: { 
+                        nombre: name, 
+                        telefono: phone, 
+                        especialidad: 'medicina' 
+                    }
                 }); 
             } catch (error) { 
                 mostrarError(error.message); 
+                document.getElementById('submitSignupBtn').disabled = false;
+                document.getElementById('submitSignupBtn').innerHTML = 'Registrarme';
             }
         });
 
