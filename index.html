@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta name="google-site-verification" content="hBdTlATs33WoHrJVVm_nwtH0o4gP1uADY6rFTn1Zg2E" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AsistenCitas - Sistema Médico SaaS</title>
+    <title>AgendaCitas - Sistema Médico SaaS</title>
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
     <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,8 +29,8 @@
         <nav id="navBar" class="bg-blue-600 text-white shadow-md z-10 relative transition-colors duration-500">
             <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <img id="navLogoImg" src="img/logo.png" alt="AsistenCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
-                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">AsistenCitas</h1>
+                    <img id="navLogoImg" src="img/logo.png" alt="AgendaCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
+                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">AgendaCitas</h1>
                 </div>
                 <div class="flex gap-2" id="navButtons" style="display:none;">
                     <button id="btnNavSuscripcion" onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
@@ -49,7 +48,7 @@
             <div id="loginView" class="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-full items-center py-8">
                 <div class="hidden md:block">
                     <div class="bg-blue-100 rounded-lg p-8 text-center flex flex-col items-center justify-center h-full">
-                        <img src="img/logo.png" alt="AsistenCitas" class="w-48 h-auto mx-auto mb-6 drop-shadow-md">
+                        <img src="img/logo.png" alt="AgendaCitas" class="w-48 h-auto mx-auto mb-6 drop-shadow-md">
                         <h2 class="text-3xl font-bold text-blue-900 mb-4">Plataforma SaaS Multiclínica</h2>
                         <p class="text-blue-700 text-lg">Gestiona tu consultorio con IA y WhatsApp integrado.</p>
                     </div>
@@ -104,12 +103,13 @@
                         </div>
                     </div>
                     <div id="authError" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden text-sm font-semibold"></div>
-                </div>
-                <div class="mt-8 text-center w-full col-span-1 md:col-span-2">
-                    <p class="text-xs text-gray-500 mb-1">Al iniciar sesión o registrarte, aceptas nuestras políticas.</p>
-                    <a href="privacidad.html" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-bold underline transition-colors">
-                    Política de Privacidad y Términos de Servicio
-                    </a>
+                
+                    <div class="mt-8 text-center w-full col-span-1 md:col-span-2">
+                        <p class="text-xs text-gray-500 mb-1">Al iniciar sesión o registrarte, aceptas nuestras políticas.</p>
+                        <a href="privacidad.html" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-bold underline transition-colors">
+                            Política de Privacidad y Términos de Servicio
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -117,7 +117,7 @@
                 <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
                     <span class="text-6xl block mb-4">⛔</span>
                     <h2 class="text-3xl font-black text-white mb-2">Acceso Suspendido</h2>
-                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción de AsistenCitas ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción de AgendaCitas ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
                     
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 mb-6">
                         <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
@@ -393,7 +393,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
-                                    <input type="text" id="clinicPhone" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <input type="text" id="clinicPhone" placeholder="099..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                                 </div>
                             </div>
                             <div>
@@ -447,7 +447,8 @@
                             <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                             Sincronizar mi Google Calendar
                         </button>
-                        <input type="text" id="clinicGCalendarToken" placeholder="[Token encriptado de Google Calendar]" class="w-full px-3 py-2 border rounded-lg bg-white mt-3 text-xs text-gray-400 font-mono hidden" readonly>
+                        
+                        <textarea id="clinicGCalendarToken" placeholder="[Pega aquí tu Token de Google Calendar]" class="w-full px-3 py-2 border rounded-lg bg-white mt-3 text-xs text-gray-400 font-mono hidden custom-scroll" rows="3" autocomplete="off" spellcheck="false" readonly></textarea>
                     </div>
 
                 </div>
@@ -476,7 +477,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono WhatsApp *</label>
-                        <input type="tel" id="newPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="+593...">
+                        <input type="tel" id="newPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="099...">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Email (Opcional)</label>
@@ -509,7 +510,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono WhatsApp *</label>
-                        <input type="tel" id="editPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="+593...">
+                        <input type="tel" id="editPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="099...">
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Email (Opcional)</label>
@@ -703,6 +704,16 @@
         let appointments = []; 
         let clinicDataGlobal = null; 
         let globalBlockedDates = []; 
+
+        // 🔥 FUNCIÓN PARA UNIFICAR FORMATO DE NÚMEROS A 593 🔥
+        function normalizarTelefono(phone) {
+            if (!phone) return '';
+            let cleaned = String(phone).replace(/\D/g, ''); 
+            if (cleaned.startsWith('593')) return cleaned;
+            if (cleaned.startsWith('09') && cleaned.length === 10) return '593' + cleaned.substring(1);
+            if (cleaned.startsWith('9') && cleaned.length === 9) return '593' + cleaned;
+            return cleaned; 
+        }
 
         // ==========================================
         // 1. NAVEGACIÓN Y TABS
@@ -899,7 +910,7 @@
         document.getElementById('toggleSignupBtn').addEventListener('click', () => { 
             document.getElementById('signupForm').classList.remove('hidden'); 
             document.getElementById('toggleSignupBtn').classList.add('hidden'); 
-            loadSellersForSignup(); // Carga la lista
+            loadSellersForSignup(); 
         });
 
         document.getElementById('toggleBackBtn').addEventListener('click', () => { 
@@ -911,8 +922,8 @@
             const name = document.getElementById('signupName').value; 
             const email = document.getElementById('signupEmail').value; 
             const password = document.getElementById('signupPassword').value; 
-            const phone = document.getElementById('signupPhone').value;
-            const vendedorId = document.getElementById('signupVendedor').value; // Capturamos el Vendedor
+            const phone = normalizarTelefono(document.getElementById('signupPhone').value); // 🔥 APLICANDO FILTRO 593
+            const vendedorId = document.getElementById('signupVendedor').value; 
             
             if (!name || !email || !password || !phone) return mostrarError('Completa todos los campos obligatorios');
             
@@ -922,14 +933,14 @@
             try { 
                 const cred = await auth.createUserWithEmailAndPassword(email, password); 
                 
-                // Guardamos con vendedorId y clinicInfo base
                 await db.collection('users').doc(cred.user.uid).set({ 
                     userId: cred.user.uid, 
                     nombre: name, 
                     email: email, 
                     telefonoWhatsApp: phone, 
                     rol: 'doctor', 
-                    estadoSuscripcion: 'activo',
+                    estadoSuscripcion: 'suspendido',
+                    suscripcionPayphone: false,
                     precioSuscripcion: 20,
                     fechaRegistro: new Date(),
                     vendedorId: vendedorId || null,
@@ -939,6 +950,9 @@
                         especialidad: 'medicina' 
                     }
                 }); 
+                
+                window.location.href = 'pagos.html';
+
             } catch (error) { 
                 mostrarError(error.message); 
                 document.getElementById('submitSignupBtn').disabled = false;
@@ -997,7 +1011,7 @@
             const btn = document.getElementById('saveNewPatientBtn');
             const name = document.getElementById('newPatientName').value.trim(); 
             const cedula = document.getElementById('newPatientCedula').value.trim(); 
-            const phone = document.getElementById('newPatientPhone').value.trim(); 
+            const phone = normalizarTelefono(document.getElementById('newPatientPhone').value.trim()); // 🔥 APLICANDO FILTRO 593
             const email = document.getElementById('newPatientEmail').value.trim();
             const ownerEl = document.getElementById('newPatientOwner');
             const owner = ownerEl ? ownerEl.value.trim() : '';
@@ -1077,7 +1091,7 @@
             const btn = document.getElementById('saveEditPatientBtn');
             const name = document.getElementById('editPatientName').value.trim();
             const cedula = document.getElementById('editPatientCedula').value.trim();
-            const phone = document.getElementById('editPatientPhone').value.trim();
+            const phone = normalizarTelefono(document.getElementById('editPatientPhone').value.trim()); // 🔥 APLICANDO FILTRO 593
             const email = document.getElementById('editPatientEmail').value.trim();
             const ownerEl = document.getElementById('editPatientOwner');
             const owner = ownerEl ? ownerEl.value.trim() : '';
@@ -1926,7 +1940,7 @@
                 color: document.getElementById('clinicColor').value,
                 ruc: document.getElementById('clinicRuc').value, 
                 direccion: document.getElementById('clinicAddress').value, 
-                telefono: document.getElementById('clinicPhone').value, 
+                telefono: normalizarTelefono(document.getElementById('clinicPhone').value), // 🔥 APLICANDO FILTRO 593
                 logo: document.getElementById('clinicLogoBase64').value, 
                 horarioInicio: document.getElementById('scheduleStart').value, 
                 horarioFin: document.getElementById('scheduleEnd').value, 
