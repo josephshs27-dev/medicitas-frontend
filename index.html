@@ -1953,7 +1953,7 @@
                 window.open(data.url, '_blank');
                 document.getElementById('clinicGCalendarToken').classList.remove('hidden');
                 document.getElementById('clinicGCalendarToken').readOnly = false;
-                alert("Se abrirá una ventana para que inicies sesión en Google. Luego, tu token se vinculará a la clínica.");
+                alert("Sigue estos pasos:\n\n1. Inicia sesión con Google en la ventana que se abrió.\n2. Copia TODO el código que te aparezca (incluyendo las llaves {}).\n3. Pégalo en el campo que acaba de aparecer aquí.\n4. PRESIONA 'Guardar Configuración' al final del formulario.");
             } catch(e) {
                 alert("Error obteniendo URL de Google Calendar. Revisa la conexión al servidor Node.js.");
             }
