@@ -730,14 +730,39 @@
                     body:JSON.stringify({ notasBorrador: borrador, especialidad: 'fisioterapia', contextoClinico }) 
                 }); 
                 const data = await res.json(); 
+                
+                // 🔥 PROTECCIÓN: Si el servidor devuelve un error, detenemos todo y NO borramos las notas 🔥
+                if (!res.ok || data.error) {
+                    throw new Error(data.error || "Fallo en la comunicación con la IA del servidor.");
+                }
+
                 document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
-                document.getElementById('rxRecomendaciones').value = data.recomendaciones ? data.recomendaciones.join('\n') : '';
+                
+                // Validación para unir arreglos de recomendaciones de manera segura
+                if(Array.isArray(data.recomendaciones)) {
+                    document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
+                } else {
+                    document.getElementById('rxRecomendaciones').value = data.recomendaciones || '';
+                }
+
                 document.getElementById('medicinesContainer').innerHTML = ''; 
-                if(data.receta && data.receta.length > 0) data.receta.forEach(m => addMedicineRow(m)); 
-                else addMedicineRow();
+                if(data.receta && data.receta.length > 0) {
+                    data.receta.forEach(m => addMedicineRow(m)); 
+                } else {
+                    addMedicineRow();
+                }
+
+                // 🛡️ SOLO borramos el borrador si todo el proceso fue un éxito
                 document.getElementById('rxBorrador').value = ''; 
-            } catch(e){ alert("Error con IA Groq."); } 
-            finally { btn.innerHTML='🪄 Estructurar Automáticamente'; btn.disabled = false; } 
+                mostrarMensaje('Notas estructuradas con IA de Fisioterapia.', 'success');
+
+            } catch(e){ 
+                console.error("Fallo IA:", e);
+                alert("Alerta del Servidor: " + e.message); 
+            } 
+            finally { 
+                btn.innerHTML='🪄 Estructurar Automáticamente'; btn.disabled = false; 
+            } 
         }
 
         async function submitPrescription() { 
