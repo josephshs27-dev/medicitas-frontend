@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCitas Pro - Clínica Odontológica</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slideIn { animation: slideIn 0.3s ease-out; }
+        .spinner { border: 4px solid #e5e7eb; border-top: 4px solid #0891b2; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col overflow-hidden">
+
+    <div id="authCheckOverlay" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center">
+        <div class="spinner mb-4"></div>
+        <p class="text-white font-bold animate-pulse">Cargando Consultorio Odontológico...</p>
+    </div>
+
+    <div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
+        
+        <nav id="navBar" class="bg-cyan-700 text-white shadow-md z-10 relative transition-colors duration-500">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <img id="navLogoImg" src="img/logo.png" alt="MediCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
+                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">MediCitas Odontología</h1>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btnNavSuscripcion" onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
+                    <button onclick="openMetaModal()" class="bg-gradient-to-r from-cyan-600 to-blue-600 border border-blue-400 hover:from-cyan-700 hover:to-blue-700 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm">🌐 Meta Omnicanal</button>
+                    <button onclick="copiarMiLink()" class="bg-cyan-500 hover:bg-cyan-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm hidden md:flex">🔗 Mi Link</button>
+                    <button id="btnNavConfig" onclick="openSettingsModal()" class="bg-black/20 hover:bg-black/40 px-3 py-2 rounded-lg transition font-semibold flex items-center gap-2 text-sm">⚙️ Configuración</button>
+                    <button id="logoutBtn" onclick="auth.signOut()" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg transition font-bold text-sm shadow-sm">Salir</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-4 w-full flex-1 overflow-y-auto custom-scroll">
+            
+            <div id="suspendedView" class="hidden min-h-[70vh] flex flex-col items-center justify-center text-center px-4 animate-slideIn">
+                <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
+                    <span class="text-6xl block mb-4">⛔</span>
+                    <h2 class="text-3xl font-black text-white mb-2">Acceso Suspendido</h2>
+                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción ha finalizado. Para reactivar tu agenda y el asistente IA, por favor regulariza tu pago.</p>
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 mb-6">
+                        <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
+                        <p class="text-4xl font-black text-green-400">$<span id="suspendedPrice">20.00</span></p>
+                    </div>
+                    <button onclick="window.location.href='pagos.html'" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg border border-cyan-400">💳 Ir al Portal de Pagos</button>
+                </div>
+            </div>
+
+            <div id="dashboardView" class="hidden py-6 flex flex-col h-full">
+                <div id="formMessage" class="mb-4 hidden text-center"></div>
+
+                <div class="flex flex-wrap gap-2 md:gap-4 mb-6 border-b border-gray-200 pb-4">
+                    <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-cyan-100 text-cyan-800 border-2 border-cyan-600 transition-all">📊 Resumen Financiero</button>
+                    <button onclick="switchTab('agenda')" id="tabBtnAgenda" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 transition-all">📅 Agenda Dental</button>
+                    <button onclick="switchTab('pacientes')" id="tabBtnPacientes" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 transition-all">👥 Pacientes</button>
+                </div>
+
+                <div class="flex-1 overflow-hidden relative">
+
+                    <div id="tabContentDashboard" class="h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
+                        <div class="bg-cyan-50 border border-cyan-200 text-cyan-900 p-4 rounded-xl mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🗓️</span>
+                                <div>
+                                    <p class="text-xs uppercase font-black text-cyan-600 tracking-wider">Próximo Pago</p>
+                                    <p class="font-bold text-sm">Fecha programada: <strong id="nextPaymentDateDisplay" class="text-cyan-700 bg-white px-2 py-1 rounded shadow-sm border border-cyan-100">--/--/----</strong></p>
+                                </div>
+                            </div>
+                            <button onclick="window.location.href='pagos.html'" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow-sm">Administrar Pago</button>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+                            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                                <h2 class="text-2xl font-black text-gray-800">Métricas de la Clínica</h2>
+                                <select id="financeFilter" onchange="updateDashboardStats()" class="bg-cyan-50 border border-cyan-200 text-cyan-800 font-bold px-4 py-2 rounded-lg outline-none">
+                                    <option value="hoy">Hoy</option>
+                                    <option value="mes" selected>Este Mes</option>
+                                    <option value="todo">Histórico</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div class="bg-gradient-to-br from-cyan-500 to-cyan-700 text-white rounded-xl shadow p-6">
+                                    <p class="text-cyan-100 text-sm font-semibold uppercase tracking-wider">Citas Totales</p>
+                                    <p class="text-5xl font-black mt-2" id="kpiCitas">0</p>
+                                </div>
+                                <div class="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl shadow p-6">
+                                    <p class="text-green-100 text-sm font-semibold uppercase tracking-wider">Ingresos Reales</p>
+                                    <p class="text-5xl font-black mt-2" id="kpiIngresos">$0.00</p>
+                                </div>
+                                <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl shadow p-6">
+                                    <p class="text-blue-100 text-sm font-semibold uppercase tracking-wider">Total Pacientes</p>
+                                    <p class="text-5xl font-black mt-2" id="kpiPacientes">0</p>
+                                </div>
+                                <div class="bg-gradient-to-br from-orange-500 to-orange-700 text-white rounded-xl shadow p-6">
+                                    <p class="text-orange-100 text-sm font-semibold uppercase tracking-wider">Citas Pendientes</p>
+                                    <p class="text-5xl font-black mt-2" id="kpiPendientes">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tabContentAgenda" class="hidden h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+                            <div class="lg:col-span-1">
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-0">
+                                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">📅 Nueva Cita</h2>
+                                    <form id="appointmentForm" class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-bold text-gray-700 mb-1">Paciente</label>
+                                            <select id="patientSelect" required class="w-full px-3 py-2 border rounded-lg bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-cyan-500">
+                                                <option value="">-- Seleccionar Paciente --</option>
+                                            </select>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="date" id="appointmentDate" required class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                                            <input type="time" id="appointmentTime" required class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                                        </div>
+                                        <input type="text" id="appointmentReason" required placeholder="Motivo (Ej. Limpieza)" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                                        <select id="appointmentStatus" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                                            <option value="pendiente">Pendiente</option>
+                                            <option value="confirmada">Confirmada</option>
+                                        </select>
+                                        <textarea id="appointmentNotes" rows="2" placeholder="Notas internas" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+                                        <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-black py-3 rounded-lg shadow-md mt-4 transition-all active:scale-95">Agendar Cita 🚀</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="lg:col-span-2">
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-full">
+                                    <div class="flex justify-between items-center mb-6 border-b pb-4">
+                                        <h2 class="text-xl font-bold text-gray-900">Vista de Agenda</h2>
+                                        <select id="filterAppointmentStatus" onchange="renderAppointments()" class="px-4 py-2 border rounded-lg text-sm font-bold text-gray-700 bg-white outline-none focus:ring-2 focus:ring-cyan-500">
+                                            <option value="activas" selected>Citas Activas</option>
+                                            <option value="hoy">Hoy</option>
+                                            <option value="todas">Histórico</option>
+                                            <option value="completada">Completadas</option>
+                                        </select>
+                                    </div>
+                                    <div id="appointmentsList" class="space-y-4 flex-1 overflow-y-auto custom-scroll pr-2">
+                                        <div class="flex justify-center py-8"><div class="spinner"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tabContentPacientes" class="hidden h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b pb-4">
+                                <div>
+                                    <h2 class="text-2xl font-black text-gray-900">Directorio de Pacientes</h2>
+                                    <p class="text-sm text-gray-500">Historiales clínicos dentales y datos.</p>
+                                </div>
+                                <div class="flex gap-2 w-full md:w-auto">
+                                    <input type="text" id="searchPatientInput" placeholder="🔍 Buscar nombre o cédula..." class="flex-1 md:w-64 px-4 py-2 border rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                                    <button onclick="openPromotionsModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-lg shadow-sm">📢 Promoción</button>
+                                    <button onclick="document.getElementById('newPatientModal').classList.remove('hidden')" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm">➕ Nuevo Paciente</button>
+                                </div>
+                            </div>
+                            <div id="patientsDirectoryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="triageModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[65] flex items-center justify-center py-4">
+            <div class="bg-white rounded-xl w-full max-w-lg mx-4 animate-slideIn shadow-2xl overflow-hidden">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-cyan-50">
+                    <h3 class="text-xl font-bold text-cyan-900">🦷 Datos Odontológicos Previos</h3>
+                    <button onclick="closeTriageModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+                </div>
+                <div class="p-6">
+                    <input type="hidden" id="triageAppointmentId">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-bold text-gray-600 mb-1">Edad</label><input type="number" id="triEdad" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                        <div><label class="block text-xs font-bold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="triPeso" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                        <div><label class="block text-xs font-bold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="triAltura" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                        <div><label class="block text-xs font-bold text-gray-600 mb-1">Pieza Dental</label><input type="text" id="triPieza" placeholder="Ej: 46, 38..." class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                        <div class="col-span-2"><label class="block text-xs font-bold text-gray-600 mb-1">Alergias Conocidas</label><input type="text" id="triAlergias" placeholder="Ej: Penicilina, Látex..." class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50">
+                    <button onclick="closeTriageModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
+                    <button onclick="saveTriage()" class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 rounded-lg shadow-md">Guardar Datos</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="metaModal" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center py-4">
+            <div class="bg-white rounded-2xl w-full max-w-md mx-4 animate-slideIn shadow-2xl overflow-hidden">
+                <div class="bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-5 text-white flex justify-between items-center">
+                    <div><h3 class="text-xl font-black">🌐 Meta Omnicanal</h3><p class="text-xs text-blue-100 font-medium">IA en todas tus redes</p></div>
+                    <button onclick="closeMetaModal()" class="text-white/70 hover:text-white font-bold text-2xl transition-colors">&times;</button>
+                </div>
+                <div class="p-6 space-y-4 bg-slate-50">
+                    <div class="bg-white p-4 rounded-xl border border-green-200 shadow-sm flex items-center justify-between">
+                        <div class="flex items-center gap-3">📱 <p class="font-bold text-slate-800 text-sm">WhatsApp Business</p></div>
+                        <span class="bg-green-100 text-green-700 text-[10px] font-black px-3 py-1 rounded-full border border-green-200" id="statusWA">Conectado ✅</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-blue-200 shadow-sm flex items-center justify-between">
+                        <div class="flex items-center gap-3">💬 <p class="font-bold text-slate-800 text-sm">Facebook Messenger</p></div>
+                        <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full border border-blue-200" id="statusFB">Conectado ✅</span>
+                    </div>
+                </div>
+                <div class="px-6 py-4 bg-white border-t border-slate-100">
+                    <button onclick="mostrarMensaje('Canales sincronizados.', 'success')" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-xl shadow-md transition-all active:scale-95 text-sm">🔄 Sincronizar Canales</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="prescriptionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center py-4">
+            <div class="bg-white rounded-xl w-full max-w-3xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-cyan-50">
+                    <h3 class="text-xl font-bold text-cyan-900">🦷 Evolución y Receta Odontológica</h3>
+                    <button onclick="closePrescriptionModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+                </div>
+                <div class="p-6 overflow-y-auto custom-scroll flex-1 space-y-6">
+                    <input type="hidden" id="rxAppointmentId">
+                    <div class="bg-cyan-100 border-l-4 border-cyan-500 p-3 rounded mb-4">
+                        <p class="text-xs text-cyan-700 font-bold uppercase">Atendiendo a:</p>
+                        <p class="font-bold text-lg text-cyan-900" id="rxPatientName"></p>
+                    </div>
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-cyan-200 shadow-sm">
+                        <h4 class="font-bold text-cyan-900 mb-2 flex items-center gap-2">✨ Copiloto Odontológico (IA)</h4>
+                        <textarea id="rxBorrador" rows="2" placeholder="Escribe notas rápidas (ej. profilaxis lista, caries en 46, amoxicilina 500mg)..." class="w-full text-sm px-3 py-2 border rounded shadow-inner outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+                        <button onclick="procesarConIA()" id="btnCopiloto" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 rounded-lg mt-2 shadow-md">🪄 Estructurar Automáticamente</button>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">🩺 Procedimiento / Evolución</h4>
+                        <textarea id="rxDiagnostico" rows="3" class="w-full text-sm px-3 py-2 border rounded outline-none focus:ring-2 focus:ring-cyan-500"></textarea>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">📊 Datos Clínicos</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="dynamicVitalsContainer">
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Pieza Dental</label><input type="text" id="rxPieza" class="w-full text-sm px-3 py-2 border rounded vital-input outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                            <div class="col-span-2 md:col-span-4"><label class="block text-xs font-semibold text-gray-600 mb-1">Alergias Conocidas</label><input type="text" id="rxAlergias" class="w-full text-sm px-3 py-2 border rounded vital-input outline-none focus:ring-2 focus:ring-cyan-500"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2 border-b pb-1">
+                            <h4 class="font-bold text-gray-800">💊 Receta de Medicación</h4>
+                            <button onclick="addMedicineRow()" class="text-xs bg-cyan-200 text-cyan-800 font-bold px-3 py-1 rounded hover:bg-cyan-300">+ Manual</button>
+                        </div>
+                        <div id="medicinesContainer" class="space-y-3"></div>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">💡 Recomendaciones Generadas</h4>
+                        <textarea id="rxRecomendaciones" rows="3" class="w-full text-sm px-3 py-2 border border-orange-200 bg-orange-50 rounded outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50">
+                    <button onclick="closePrescriptionModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
+                    <button id="btnSubmitPrescription" onclick="submitPrescription()" class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 rounded-lg shadow-md">Siguiente: Cobro ➡️</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="newPatientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 animate-slideIn shadow-2xl">
+                <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Registrar Paciente</h3>
+                <div class="space-y-3">
+                    <input type="text" id="newPatientCedula" placeholder="Cédula / RUC *" class="w-full px-3 py-2 border rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                    <input type="text" id="newPatientName" placeholder="Nombre Completo *" class="w-full px-3 py-2 border rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                    <input type="tel" id="newPatientPhone" placeholder="WhatsApp (593...) *" class="w-full px-3 py-2 border rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                    <input type="email" id="newPatientEmail" placeholder="Email (Opcional)" class="w-full px-3 py-2 border rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="document.getElementById('newPatientModal').classList.add('hidden')" class="flex-1 bg-gray-200 font-bold py-2 rounded-lg hover:bg-gray-300">Cancelar</button>
+                    <button id="saveNewPatientBtn" onclick="submitNewPatient()" class="flex-1 bg-cyan-600 text-white font-bold py-2 rounded-lg shadow-md hover:bg-cyan-700">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center py-4">
+            <div class="bg-white rounded-lg w-full max-w-2xl mx-4 flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+                    <h3 class="text-xl font-bold text-gray-900">⚙️ Configuración Clínica</h3>
+                    <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
+                </div>
+                <div class="p-6 space-y-6 overflow-y-auto custom-scroll" style="max-height: 70vh;">
+                    <div>
+                        <h4 class="font-bold text-cyan-900 mb-2 border-b pb-1">📄 Datos Institucionales</h4>
+                        <div class="space-y-3">
+                            <input type="text" id="clinicName" placeholder="Nombre de la Clínica" class="w-full px-3 py-2 border rounded-lg bg-slate-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                            <div class="grid grid-cols-2 gap-3">
+                                <input type="text" id="clinicRuc" placeholder="RUC" class="w-full px-3 py-2 border rounded-lg bg-slate-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                                <input type="tel" id="clinicPhone" placeholder="Teléfono Público (099...)" class="w-full px-3 py-2 border rounded-lg bg-slate-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                            </div>
+                            <input type="text" id="clinicAddress" placeholder="Dirección Física" class="w-full px-3 py-2 border rounded-lg bg-slate-50 outline-none focus:ring-2 focus:ring-cyan-500">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Color Corporativo</label>
+                                <input type="color" id="clinicColor" class="w-full h-10 px-1 py-1 border rounded-lg cursor-pointer" value="#0e7490">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-cyan-50 p-4 rounded-lg border border-cyan-100">
+                        <h4 class="font-bold text-cyan-900 mb-2 border-b border-cyan-200 pb-1">📅 Google Calendar</h4>
+                        <button type="button" onclick="syncGoogleCalendar()" class="bg-white border border-gray-300 shadow-sm text-gray-700 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-gray-50 transition">
+                            Sincronizar mi Google Calendar
+                        </button>
+                        <textarea id="clinicGCalendarToken" placeholder="[Pega el código de autorización aquí]" class="w-full px-3 py-2 border rounded-lg bg-white mt-3 text-xs text-gray-400 font-mono hidden custom-scroll outline-none focus:ring-2 focus:ring-cyan-500" rows="3" autocomplete="off" spellcheck="false" readonly></textarea>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t flex justify-end gap-3 bg-gray-50">
+                    <button onclick="closeSettingsModal()" class="bg-gray-200 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancelar</button>
+                    <button onclick="saveClinicSettings()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-6 rounded-lg transition-all active:scale-95">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="billingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[70] flex items-center justify-center py-4">
+            <div class="bg-white rounded-xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-green-50 rounded-t-xl"><h3 class="text-xl font-bold text-green-900">💵 Registrar Cobro</h3><button onclick="closeBillingModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button></div>
+                <div class="p-6 space-y-4">
+                    <input type="hidden" id="billingAptId">
+                    <p class="text-sm text-gray-600 mb-4">Valor a cobrar a <strong id="billingPatName"></strong>.</p>
+                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Subtotal ($)</label><input type="number" id="billingSubtotal" step="0.01" min="0" class="w-full px-4 py-3 border-2 rounded-xl font-bold text-xl text-center bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none" oninput="calculateTotal()"></div>
+                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border mt-2"><input type="checkbox" id="billingIva" class="w-5 h-5 text-green-600" onchange="calculateTotal()"><label for="billingIva" class="font-semibold text-gray-700 w-full cursor-pointer">Añadir IVA (15%)</label></div>
+                    <div class="mt-4 p-4 bg-green-100 rounded-xl text-center border border-green-200"><p class="text-green-800 font-bold text-sm">TOTAL</p><p class="text-5xl font-black text-green-900 mt-1" id="billingTotalDisplay">$0.00</p></div>
+                </div>
+                <div class="px-6 py-4 border-t bg-gray-50 rounded-b-xl"><button id="btnFinalizarCobro" onclick="submitBilling()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg">Finalizar y Enviar 📲</button></div>
+            </div>
+        </div>
+
+        <div id="promotionsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[80] flex items-center justify-center py-4">
+            <div class="bg-white rounded-xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-orange-50"><h3 class="text-xl font-bold text-orange-900">📢 Campaña Marketing</h3><button onclick="closePromotionsModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl">&times;</button></div>
+                <div class="p-6 space-y-4">
+                    <input type="text" id="promoTargeting" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-orange-500 text-sm" placeholder="Ej: A los últimos 50 pacientes">
+                    <textarea id="promoMessage" rows="4" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-orange-500 text-sm" placeholder="Ej: ¡Descuento del 20% en profilaxis este mes!"></textarea>
+                </div>
+                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50">
+                    <button onclick="closePromotionsModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
+                    <button id="btnSendPromo" onclick="sendPromotion()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-lg">Enviar Inteligente 🚀</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center py-4">
+            <div class="bg-white rounded-xl w-full max-w-6xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-gradient-to-r from-cyan-50 to-blue-50 rounded-t-xl">
+                    <div>
+                        <h3 class="text-2xl font-bold text-cyan-900 flex items-center gap-2">📖 Expediente Odontológico</h3>
+                        <p class="text-sm font-semibold text-cyan-700 mt-1" id="historyPatientInfo">Cargando...</p>
+                    </div>
+                    <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-50 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-6">
+                        <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                <h4 class="font-bold text-gray-800">🩻 Radiografías e Imágenes</h4>
+                                <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
+                                <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm transition">📁 Subir Archivo</button>
+                            </div>
+                            <div id="patientImagesGallery" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-48 overflow-y-auto custom-scroll p-1"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
+                        <h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Cronología de Consultas</h4>
+                        <div id="historyTimeline" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scroll"></div>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t flex justify-end bg-white rounded-b-xl">
+                    <button onclick="closeHistoryModal()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-6 rounded-lg">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API_BASE_URL = "https://api.asistencitas.com";
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc", 
+            authDomain: "medicitas-app.firebaseapp.com",
+            projectId: "medicitas-app", 
+            storageBucket: "medicitas-app.firebasestorage.app",
+            messagingSenderId: "310910036460", 
+            appId: "1:310910036460:web:1a979471880251173838c9"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        let parentDoctorId = null;
+        let clinicDataGlobal = null;
+        let patients = [];
+        let appointments = [];
+        let currentPatientIdForImages = null;
+
+        // FILTRO DE NÚMEROS A FORMATO 593
+        function normalizarTelefono(phone) {
+            if (!phone) return '';
+            let cleaned = String(phone).replace(/\D/g, ''); 
+            if (cleaned.startsWith('593')) return cleaned;
+            if (cleaned.startsWith('09') && cleaned.length === 10) return '593' + cleaned.substring(1);
+            if (cleaned.startsWith('9') && cleaned.length === 9) return '593' + cleaned;
+            return cleaned; 
+        }
+
+        // VERIFICACIÓN DE ESPECIALIDAD ODONTOLOGÍA
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const data = userDoc.data();
+                const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'odontologia';
+                
+                // BLINDAJE
+                if (esp !== 'odontologia' && data.rol !== 'vendedor') {
+                    window.location.href = `dashboard-${esp}.html`;
+                    return;
+                }
+
+                parentDoctorId = user.uid;
+                clinicDataGlobal = data.clinicInfo || { especialidad: 'odontologia' };
+                
+                if (data.estadoSuscripcion === 'suspendido') {
+                    document.getElementById('dashboardView').classList.add('hidden');
+                    document.getElementById('suspendedView').classList.remove('hidden');
+                    document.getElementById('suspendedPrice').textContent = (data.precioSuscripcion || 20).toFixed(2);
+                } else {
+                    document.getElementById('dashboardView').classList.remove('hidden');
+                    document.getElementById('suspendedView').classList.add('hidden');
+                    
+                    // Aplicar personalización visual
+                    if(clinicDataGlobal.color) {
+                        document.getElementById('navBar').style.backgroundColor = clinicDataGlobal.color;
+                    }
+                    if(clinicDataGlobal.nombre) document.getElementById('navTitle').textContent = clinicDataGlobal.nombre;
+                    if(clinicDataGlobal.logo) {
+                        document.getElementById('navLogoImg').src = clinicDataGlobal.logo;
+                        document.getElementById('navLogoImg').classList.remove('hidden');
+                    }
+
+                    await loadPatients();
+                    await loadAppointments();
+                }
+                document.getElementById('authCheckOverlay').classList.add('hidden');
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ----------------------------------------------------
+        // LÓGICA DE TABS Y DATOS BÁSICOS
+        // ----------------------------------------------------
+        function switchTab(tabId) {
+            ['dashboard', 'agenda', 'pacientes'].forEach(t => {
+                document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('hidden', t !== tabId);
+                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                btn.className = (t === tabId) ? "flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-cyan-100 text-cyan-800 border-2 border-cyan-600 transition-all" : "flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 transition-all";
+            });
+            if(tabId === 'dashboard') updateDashboardStats();
+        }
+
+        async function loadPatients() {
+            const snap = await db.collection('patients').where('doctorId', '==', parentDoctorId).get();
+            patients = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
+            document.getElementById('patientSelect').innerHTML = '<option value="">-- Seleccionar Paciente --</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+            renderPatientsDirectory(patients);
+        }
+
+        async function loadAppointments() {
+            const snap = await db.collection('appointments').where('doctorId', '==', parentDoctorId).orderBy('fecha', 'desc').orderBy('hora', 'desc').get();
+            appointments = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderAppointments();
+            updateDashboardStats();
+        }
+
+        function updateDashboardStats() {
+            if(!appointments) return;
+            const filterValue = document.getElementById('financeFilter').value;
+            let filtered = appointments;
+            
+            const startOfDay = new Date(new Date().setHours(0,0,0,0));
+            const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+            filtered = appointments.filter(a => {
+                if(filterValue === 'todo') return true;
+                const [y, m, d] = a.fecha.split('-');
+                const aptDate = new Date(y, m - 1, d);
+                if(filterValue === 'hoy') return aptDate >= startOfDay;
+                if(filterValue === 'mes') return aptDate >= startOfMonth;
+                return true;
+            });
+
+            const ingresos = filtered.filter(a => a.estado === 'completada').reduce((sum, a) => sum + (parseFloat(a.monto) || 0), 0);
+            const pendientes = filtered.filter(a => a.estado === 'pendiente' || a.estado === 'confirmada').length;
+
+            document.getElementById('kpiCitas').textContent = filtered.length;
+            document.getElementById('kpiIngresos').textContent = `$${ingresos.toFixed(2)}`;
+            document.getElementById('kpiPacientes').textContent = patients.length; 
+            document.getElementById('kpiPendientes').textContent = pendientes;
+        }
+
+        // ----------------------------------------------------
+        // RENDERIZADO DE VISTAS
+        // ----------------------------------------------------
+        function renderAppointments() {
+            const container = document.getElementById('appointmentsList');
+            const sFilter = document.getElementById('filterAppointmentStatus').value;
+            let filtered = appointments;
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            if(sFilter === 'activas') filtered = appointments.filter(a => a.estado !== 'completada' && a.estado !== 'cancelada');
+            else if(sFilter === 'hoy') filtered = appointments.filter(a => a.fecha === todayStr);
+            else if(sFilter === 'completada') filtered = appointments.filter(a => a.estado === 'completada');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8 font-bold">No hay citas para mostrar en esta vista.</p>';
+                return;
+            }
+
+            const statusColors = { 'pendiente': 'bg-yellow-100 text-yellow-800', 'confirmada': 'bg-cyan-100 text-cyan-800', 'completada': 'bg-green-100 text-green-800' };
+
+            container.innerHTML = filtered.map(apt => {
+                const p = patients.find(pat => pat.id === apt.patientId);
+                const isPend = apt.estado === 'pendiente';
+                let btnConfirm = isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" class="bg-green-50 text-green-700 text-xs py-2 rounded-lg font-bold border border-green-200 hover:bg-green-100">✅ CONFIRMAR</button>` : '';
+
+                return `<div class="border rounded-xl p-4 bg-white shadow-sm border-cyan-100 mb-3 hover:shadow-md transition">
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <h3 class="font-black text-slate-800">${p?.nombre || 'Desconocido'}</h3>
+                            <p class="text-xs text-slate-500">Motivo: ${apt.motivo}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${statusColors[apt.estado] || 'bg-slate-100'}">${apt.estado}</span>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1">${apt.fecha} | ${apt.hora}</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                        ${btnConfirm}
+                        <button onclick="openTriageModal('${apt.id}')" class="bg-teal-50 text-teal-700 text-xs py-2 rounded-lg font-bold border border-teal-100 hover:bg-teal-100">🌡️ DATOS</button>
+                        <button onclick="openPrescriptionModal('${apt.id}')" class="bg-cyan-600 text-white text-xs py-2 rounded-lg font-black shadow-sm hover:bg-cyan-700">⚕️ ATENDER</button>
+                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 text-blue-700 text-xs py-2 rounded-lg font-bold border border-blue-100 hover:bg-blue-100">📖 HIST</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderPatientsDirectory(list) {
+            document.getElementById('patientsDirectoryList').innerHTML = list.map(p => `
+                <div class="border p-4 rounded-xl bg-white shadow-sm hover:shadow-md transition border-slate-200">
+                    <h4 class="font-bold text-slate-900">${p.nombre}</h4>
+                    <p class="text-xs text-slate-500 mt-1">🆔 CI/RUC: <span class="font-semibold">${p.cedula || 'N/A'}</span></p>
+                    <p class="text-xs text-cyan-600 font-bold mt-1">📱 ${p.telefonoWhatsApp}</p>
+                    <button onclick="openHistoryModal('${p.id}')" class="mt-3 w-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-black py-2 rounded-lg border">📖 VER EXPEDIENTE</button>
+                </div>`).join('');
+        }
+
+        document.getElementById('searchPatientInput').addEventListener('input', (e) => { 
+            const term = e.target.value.toLowerCase(); 
+            renderPatientsDirectory(patients.filter(p => p.nombre.toLowerCase().includes(term) || (p.cedula && p.cedula.includes(term)))); 
+        });
+
+        // ----------------------------------------------------
+        // AGENDAR, CONFIRMAR Y REGISTRAR PACIENTE
+        // ----------------------------------------------------
+        async function submitNewPatient() {
+            const btn = document.getElementById('saveNewPatientBtn');
+            const cedula = document.getElementById('newPatientCedula').value.trim();
+            const nombre = document.getElementById('newPatientName').value.trim();
+            const phone = normalizarTelefono(document.getElementById('newPatientPhone').value.trim());
+            const email = document.getElementById('newPatientEmail').value.trim();
+
+            if (!nombre || !cedula || !phone) return alert("Llena los campos obligatorios.");
+
+            btn.disabled = true; btn.innerHTML = "Guardando...";
+            try {
+                const exist = await db.collection('patients').where('doctorId', '==', parentDoctorId).where('cedula', '==', cedula).get();
+                if(!exist.empty) return alert("El paciente ya existe.");
+
+                await db.collection('patients').add({
+                    doctorId: parentDoctorId, nombre, cedula, telefonoWhatsApp: phone, email, fechaRegistro: new Date(), activo: true
+                });
+                document.getElementById('newPatientModal').classList.add('hidden');
+                document.getElementById('newPatientCedula').value = '';
+                document.getElementById('newPatientName').value = '';
+                document.getElementById('newPatientPhone').value = '';
+                document.getElementById('newPatientEmail').value = '';
+                mostrarMensaje("Paciente registrado exitosamente.", "success");
+                await loadPatients();
+            } catch(e) { alert("Error al guardar."); }
+            finally { btn.disabled = false; btn.innerHTML = "Guardar"; }
+        }
+
+        document.getElementById('appointmentForm').addEventListener('submit', async (e) => { 
+            e.preventDefault(); 
+            try {
+                await db.collection('appointments').add({ 
+                    patientId: document.getElementById('patientSelect').value, 
+                    doctorId: parentDoctorId, 
+                    fecha: document.getElementById('appointmentDate').value, 
+                    hora: document.getElementById('appointmentTime').value, 
+                    motivo: document.getElementById('appointmentReason').value, 
+                    monto: 0, 
+                    estado: document.getElementById('appointmentStatus').value, 
+                    notas: document.getElementById('appointmentNotes').value,
+                    recordatorioEnviado: false, fechaCreacion: new Date()
+                }); 
+                document.getElementById('appointmentForm').reset();
+                mostrarMensaje('Cita agendada correctamente.', 'success'); 
+                await loadAppointments(); 
+            } catch (error) { mostrarMensaje('Error al agendar.', 'error'); }
+        });
+
+        async function confirmAppointmentManually(id) {
+            if(!confirm("¿Deseas confirmar este turno?")) return;
+            await db.collection('appointments').doc(id).update({estado: 'confirmada'});
+            
+            if(clinicDataGlobal.gCalendarToken) {
+                const a = appointments.find(x => x.id === id);
+                const p = patients.find(x => x.id === a.patientId);
+                fetch(`${API_BASE_URL}/api/calendar/create-event`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: a.fecha, hora: a.hora, motivo: a.motivo, tokenGCalendar: clinicDataGlobal.gCalendarToken })
+                });
+            }
+            mostrarMensaje('Turno confirmado exitosamente.', 'success');
+            await loadAppointments();
+        }
+
+        // ----------------------------------------------------
+        // TRIAJE Y EVALUACIÓN
+        // ----------------------------------------------------
+        function openTriageModal(id) {
+            document.getElementById('triageAppointmentId').value = id;
+            const apt = appointments.find(x => x.id === id);
+            document.querySelectorAll('.vital-input-tri').forEach(input => {
+                input.value = '';
+                if(apt && apt.triage) {
+                    let key = input.id.replace('tri', '').toLowerCase();
+                    if(apt.triage[key]) input.value = apt.triage[key];
+                }
+            });
+            document.getElementById('triageModal').classList.remove('hidden');
+        }
+        function closeTriageModal() { document.getElementById('triageModal').classList.add('hidden'); }
+        
+        async function saveTriage() {
+            const id = document.getElementById('triageAppointmentId').value;
+            let triageObj = {};
+            document.querySelectorAll('.vital-input-tri').forEach(input => {
+                if(input.value) triageObj[input.id.replace('tri', '').toLowerCase()] = input.value;
+            });
+            await db.collection('appointments').doc(id).update({ triage: triageObj });
+            closeTriageModal(); 
+            mostrarMensaje('Datos de triaje guardados.', 'success'); 
+            await loadAppointments();
+        }
+
+        // ----------------------------------------------------
+        // INTELIGENCIA ARTIFICIAL ODONTOLÓGICA
+        // ----------------------------------------------------
+        function openPrescriptionModal(id) { 
+            const apt = appointments.find(x => x.id === id);
+            const p = patients.find(pat => pat.id === apt.patientId);
+            document.getElementById('rxAppointmentId').value = id;
+            document.getElementById('rxPatientName').textContent = p.nombre;
+            document.getElementById('prescriptionModal').classList.remove('hidden'); 
+            
+            document.getElementById('rxBorrador').value = '';
+            document.getElementById('rxDiagnostico').value = '';
+            document.getElementById('rxRecomendaciones').value = '';
+            
+            document.querySelectorAll('.vital-input').forEach(input => {
+                input.value = '';
+                if(apt && apt.triage) {
+                    let key = input.id.replace('rx', '').toLowerCase();
+                    if(apt.triage[key]) input.value = apt.triage[key];
+                }
+            });
+            
+            document.getElementById('medicinesContainer').innerHTML = ''; 
+            addMedicineRow(); 
+        }
+        function closePrescriptionModal() { document.getElementById('prescriptionModal').classList.add('hidden'); }
+
+        function addMedicineRow(med=null) { 
+            const id = 'med_' + Date.now() + Math.floor(Math.random() * 1000); 
+            document.getElementById('medicinesContainer').insertAdjacentHTML('beforeend', `
+            <div id="${id}" class="flex gap-2 mb-2 relative bg-white p-3 border border-gray-200 rounded-xl shadow-sm animate-slideIn">
+                <input class="border border-gray-300 p-2 w-full text-sm rounded-lg med-name outline-none focus:ring-2 focus:ring-cyan-500" value="${med?.medicamento||''}" placeholder="Medicina (Ej. Amoxicilina 500mg)">
+                <input class="border border-gray-300 p-2 w-1/2 text-sm rounded-lg med-dose outline-none focus:ring-2 focus:ring-cyan-500" value="${med?.dosis||''}" placeholder="Dosis / Frecuencia">
+                <button onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600 font-bold">✖</button>
+            </div>`); 
+        }
+
+        async function procesarConIA() { 
+            const btn = document.getElementById('btnCopiloto'); 
+            const borrador = document.getElementById('rxBorrador').value;
+            
+            if(!borrador.trim()) return alert("Escribe notas rápidas para que la IA pueda estructurar tu receta.");
+
+            let datosExtras = [];
+            document.querySelectorAll('.vital-input').forEach(input => {
+                if(input.value) datosExtras.push(`${input.previousElementSibling.textContent}: ${input.value}`);
+            });
+            const contextoClinico = datosExtras.length > 0 ? "Datos medidos: " + datosExtras.join(', ') : "";
+
+            btn.innerHTML='⏳ Analizando...'; btn.disabled = true;
+            try { 
+                const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, { 
+                    method:'POST', headers: {'Content-Type': 'application/json'}, 
+                    // 🔥 SE ENVÍA ESPECIALIDAD ODONTOLOGÍA AL SERVIDOR
+                    body:JSON.stringify({ notasBorrador: borrador, especialidad: 'odontologia', contextoClinico: contextoClinico }) 
+                }); 
+                const data = await res.json(); 
+                
+                document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
+                document.getElementById('rxRecomendaciones').value = data.recomendaciones ? data.recomendaciones.join('\n') : '';
+                document.getElementById('medicinesContainer').innerHTML = ''; 
+                
+                if(data.receta && data.receta.length > 0) {
+                    data.receta.forEach(m => addMedicineRow(m)); 
+                } else {
+                    addMedicineRow();
+                }
+                document.getElementById('rxBorrador').value = ''; 
+                mostrarMensaje('Estructurado por Inteligencia Artificial Odontológica', 'success');
+            } catch(e){ 
+                alert("Hubo un error con la IA Groq. Revisa la conexión del servidor."); 
+            } finally { 
+                btn.innerHTML='🪄 Estructurar Automáticamente'; btn.disabled = false; 
+            } 
+        }
+
+        async function submitPrescription() { 
+            const id = document.getElementById('rxAppointmentId').value; 
+            const a = appointments.find(x=>x.id===id); 
+            const p = patients.find(x=>x.id===a.patientId); 
+            
+            let diag = document.getElementById('rxDiagnostico').value; 
+            let customVitalsStr = []; 
+            let vitalsObj = {};
+            
+            document.querySelectorAll('.vital-input').forEach(input => {
+                if(input.value) {
+                    customVitalsStr.push(`${input.previousElementSibling.textContent}: ${input.value}`);
+                    vitalsObj[input.id.replace('rx', '').toLowerCase()] = input.value;
+                }
+            });
+
+            if (customVitalsStr.length > 0) {
+                diag = `[Datos Clínicos: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
+            }
+
+            const meds = []; 
+            Array.from(document.getElementById('medicinesContainer').children).forEach(r => { 
+                const n = r.querySelector('.med-name').value; 
+                if(n) meds.push({ medicamento:n, dosis:r.querySelector('.med-dose').value }); 
+            }); 
+            
+            const recText = document.getElementById('rxRecomendaciones').value;
+            const recList = recText ? recText.split('\n').filter(r => r.trim() !== '') : [];
+
+            const btn = document.getElementById('btnSubmitPrescription');
+            btn.innerHTML = '⏳ Generando PDF y Enviando...'; btn.disabled = true;
+            try {
+                if(diag || meds.length > 0 || customVitalsStr.length > 0) {
+                    await db.collection('patients').doc(p.id).collection('vitals').add({ 
+                        fecha: new Date(), diagnostico: diag, recomendaciones: recList, ...vitalsObj 
+                    }); 
+                }
+                
+                await fetch(`${API_BASE_URL}/send-prescription`, { 
+                    method:'POST', headers: {'Content-Type': 'application/json'}, 
+                    body:JSON.stringify({ 
+                        doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre, 
+                        diagnostico: diag, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal 
+                    }) 
+                }); 
+                
+                closePrescriptionModal(); 
+                openBillingModal(id, p.nombre); 
+            } catch (err) { 
+                mostrarMensaje("Error al procesar la receta en el servidor.", "error"); 
+            } finally { 
+                btn.innerHTML = 'Siguiente: Cobro ➡️'; btn.disabled = false; 
+            }
+        }
+
+        // ----------------------------------------------------
+        // COBROS PAYPHONE (Fase 3)
+        // ----------------------------------------------------
+        function openBillingModal(id, name) { 
+            document.getElementById('billingAptId').value = id; 
+            document.getElementById('billingPatName').textContent = name; 
+            document.getElementById('billingSubtotal').value = '';
+            document.getElementById('billingIva').checked = false;
+            document.getElementById('billingTotalDisplay').textContent = '$0.00';
+            document.getElementById('billingModal').classList.remove('hidden'); 
+        }
+        function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
+        
+        function calculateTotal() { 
+            const s = parseFloat(document.getElementById('billingSubtotal').value) || 0; 
+            document.getElementById('billingTotalDisplay').textContent = '$' + (document.getElementById('billingIva').checked ? s*1.15 : s).toFixed(2); 
+        }
+        
+        async function submitBilling() { 
+            const id = document.getElementById('billingAptId').value; 
+            const a = appointments.find(x => x.id === id); 
+            const p = patients.find(x => x.id === a.patientId);
+            const sub = parseFloat(document.getElementById('billingSubtotal').value) || 0; 
+            const tot = document.getElementById('billingIva').checked ? sub * 1.15 : sub;
+            
+            const btn = document.getElementById('btnFinalizarCobro'); btn.disabled = true; btn.innerHTML = '⏳ Enviando...';
+            try {
+                await fetch(`${API_BASE_URL}/send-message`, { 
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre}\n\n👤 Paciente: ${p.nombre}\n💵 Total: $${tot.toFixed(2)}` }) 
+                });
+                await db.collection('appointments').doc(id).update({ estado: 'completada', monto: tot });
+                closeBillingModal(); 
+                await loadAppointments(); 
+                mostrarMensaje('Cobro registrado exitosamente.', 'success');
+            } catch (err) { 
+                alert('Error enviando comprobante. Revisa el servidor.'); 
+            } finally { 
+                btn.disabled = false; btn.innerHTML = 'Finalizar y Enviar 📲'; 
+            }
+        }
+
+        // ----------------------------------------------------
+        // GOOGLE CALENDAR Y CONFIGURACIÓN
+        // ----------------------------------------------------
+        async function syncGoogleCalendar() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl`);
+                const data = await res.json();
+                window.open(data.url, '_blank');
+                const t = document.getElementById('clinicGCalendarToken'); 
+                t.classList.remove('hidden'); t.readOnly = false;
+                alert("Instrucciones:\n1. Autoriza en Google.\n2. Copia todo el código JSON.\n3. Pégalo aquí abajo y pulsa Guardar Cambios.");
+            } catch(e) { alert("Error conectando con API de Google Calendar."); }
+        }
+
+        async function saveClinicSettings() {
+            const info = { ...clinicDataGlobal, especialidad: 'odontologia',
+                nombre: document.getElementById('clinicName').value,
+                ruc: document.getElementById('clinicRuc').value,
+                telefono: normalizarTelefono(document.getElementById('clinicPhone').value),
+                direccion: document.getElementById('clinicAddress').value,
+                color: document.getElementById('clinicColor').value,
+                gCalendarToken: document.getElementById('clinicGCalendarToken').value
+            };
+            try {
+                await db.collection('users').doc(parentDoctorId).update({ clinicInfo: info });
+                clinicDataGlobal = info; 
+                mostrarMensaje('Configuración general guardada.', 'success'); 
+                closeSettingsModal();
+                if(info.color) document.getElementById('navBar').style.backgroundColor = info.color;
+                if(info.nombre) document.getElementById('navTitle').textContent = info.nombre;
+            } catch(e) { mostrarMensaje('Error al guardar la configuración.', 'error'); }
+        }
+
+        function openSettingsModal() { 
+            if(clinicDataGlobal) {
+                document.getElementById('clinicName').value = clinicDataGlobal.nombre || '';
+                document.getElementById('clinicRuc').value = clinicDataGlobal.ruc || '';
+                document.getElementById('clinicPhone').value = clinicDataGlobal.telefono || '';
+                document.getElementById('clinicAddress').value = clinicDataGlobal.direccion || '';
+                document.getElementById('clinicColor').value = clinicDataGlobal.color || '#0e7490';
+                document.getElementById('clinicGCalendarToken').value = clinicDataGlobal.gCalendarToken || '';
+            }
+            document.getElementById('settingsModal').classList.remove('hidden'); 
+        }
+        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+
+        // ----------------------------------------------------
+        // OMNICANALIDAD Y PROMOCIONES IA
+        // ----------------------------------------------------
+        function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
+        function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
+        function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
+        function closePromotionsModal() { document.getElementById('promotionsModal').classList.add('hidden'); }
+
+        async function sendPromotion() {
+            const msg = document.getElementById('promoMessage').value.trim();
+            const target = document.getElementById('promoTargeting').value.trim() || 'A todos';
+            if(!msg) return alert("Escribe un mensaje publicitario.");
+            
+            if(!confirm("¿Seguro que deseas lanzar la campaña? La IA evaluará tu mensaje antes de enviarlo.")) return;
+
+            const btn = document.getElementById('btnSendPromo'); btn.disabled = true; btn.innerHTML = '⏳ Enviando...';
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ doctorId: parentDoctorId, mensajePromocion: msg, instruccionesIA: target })
+                });
+                const data = await res.json();
+                if(data.success) { 
+                    mostrarMensaje(`Campaña enviada a ${data.enviados} pacientes exitosamente.`, 'success'); 
+                    closePromotionsModal(); 
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch(e) { 
+                alert("Error al enviar la campaña promocional."); 
+            } finally { 
+                btn.disabled = false; btn.innerHTML = 'Enviar Inteligente 🚀'; 
+            }
+        }
+
+        // ----------------------------------------------------
+        // EXPEDIENTE CLÍNICO Y GALERÍA
+        // ----------------------------------------------------
+        async function openHistoryModal(patientId) { 
+            currentPatientIdForImages = patientId; 
+            document.getElementById('historyModal').classList.remove('hidden'); 
+            const pat = patients.find(p => p.id === patientId);
+            document.getElementById('historyPatientInfo').innerHTML = `👤 ${pat.nombre} | 📱 Tel: ${pat.telefonoWhatsApp}`;
+            
+            try {
+                const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'asc').get(); 
+                if(snap.empty) {
+                    document.getElementById('historyTimeline').innerHTML = '<p class="text-center text-gray-500 mt-10">Sin Historial Clínico registrado.</p>';
+                } else {
+                    const docs = snap.docs; 
+                    let timelineHtml = '';
+
+                    for(let i = docs.length - 1; i >= 0; i--) {
+                        const d = docs[i].data();
+                        const dateObj = d.fecha.toDate ? d.fecha.toDate() : new Date(d.fecha);
+                        const dateStr = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                        
+                        let vStr = '';
+                        if(d.pieza) vStr += `Pieza: ${d.pieza} | `;
+                        if(d.alergias) vStr += `Alergias: ${d.alergias}`;
+
+                        let recsHtml = '';
+                        if(d.recomendaciones && d.recomendaciones.length > 0) {
+                            recsHtml = `<div class="bg-orange-50 p-2 rounded mt-2 border border-orange-100"><p class="text-xs font-bold text-orange-800">💡 Recomendaciones:</p><ul class="text-xs text-orange-900">${d.recomendaciones.map(r=>`<li>• ${r}</li>`).join('')}</ul></div>`;
+                        }
+
+                        timelineHtml += `
+                        <div class="bg-white p-5 border-l-4 border-cyan-500 rounded-r-2xl shadow-sm mb-4">
+                            <span class="text-sm font-black text-cyan-900">📅 ${dateStr}</span>
+                            <p class="text-sm text-gray-700 mt-2 font-medium">${d.diagnostico || 'Sin diagnóstico.'}</p>
+                            ${vStr ? `<p class="text-xs text-slate-500 font-bold mt-2">📊 ${vStr}</p>` : ''}
+                            ${recsHtml}
+                        </div>`;
+                    }
+                    document.getElementById('historyTimeline').innerHTML = timelineHtml;
+                }
+            } catch(e) { document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center">Error cargando historial.</p>'; }
+            
+            loadPatientImages(patientId);
+        }
+        function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); }
+
+        async function uploadPatientImage(input) {
+            const file = input.files[0]; if(!file || !currentPatientIdForImages) return;
+            const btn = document.getElementById('btnUploadImg'); btn.textContent = '⏳ Subiendo...'; btn.disabled = true;
+            try {
+                const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({ url: url, nombre: file.name, fechaCreacion: new Date() });
+                loadPatientImages(currentPatientIdForImages); 
+            } catch (e) { alert('Error subiendo archivo'); } finally { btn.textContent = '📁 Subir Archivo'; btn.disabled = false; input.value = ''; }
+        }
+
+        async function loadPatientImages(pid) {
+            const gal = document.getElementById('patientImagesGallery'); gal.innerHTML = '<div class="spinner mx-auto col-span-full"></div>';
+            try {
+                const snap = await db.collection('patients').doc(pid).collection('images').orderBy('fechaCreacion', 'desc').get();
+                if(snap.empty) return gal.innerHTML = '<p class="text-xs text-gray-400 col-span-full text-center">No hay radiografías ni imágenes anexadas.</p>';
+                gal.innerHTML = snap.docs.map(doc => {
+                    const data = doc.data(); const isPDF = data.nombre.toLowerCase().endsWith('.pdf');
+                    return isPDF ? `<div class="bg-red-50 p-2 text-center cursor-pointer border rounded" onclick="window.open('${data.url}')"><span class="text-2xl">📄</span><p class="text-[9px] text-red-800 truncate">${data.nombre}</p></div>` 
+                                 : `<div class="cursor-pointer" onclick="window.open('${data.url}')"><img src="${data.url}" class="w-full h-24 object-cover rounded border hover:scale-105 transition-transform"></div>`;
+                }).join('');
+            } catch (e) { gal.innerHTML = '<p class="text-xs text-red-500">Error al cargar imágenes.</p>'; }
+        }
+
+        function copiarMiLink() {
+            const currentPath = window.location.href.split('?')[0]; 
+            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
+            navigator.clipboard.writeText(miLink).then(() => mostrarMensaje('¡Enlace copiado al portapapeles!', 'success')).catch(err => alert("Copia manualmente tu link: " + miLink));
+        }
+        function mostrarError(msg) { mostrarMensaje(msg, 'error'); }
+        function mostrarMensaje(msg, type='success') {
+            const d = document.getElementById('formMessage');
+            d.textContent = msg;
+            d.className = `p-4 rounded-lg mt-4 font-bold shadow-md border ${type==='success'?'bg-green-100 text-green-800 border-green-300':'bg-red-100 text-red-800 border-red-300'}`;
+            d.classList.remove('hidden');
+            setTimeout(()=>d.classList.add('hidden'), 3500);
+        }
+    </script>
+</body>
+</html>
