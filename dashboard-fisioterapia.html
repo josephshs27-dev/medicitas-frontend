@@ -418,6 +418,10 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        
+        // 🔥 PARCHE ANTIBLOQUEOS FIREBASE (EVITA EL ERROR 400 BAD REQUEST) 🔥
+        db.settings({ experimentalForceLongPolling: true });
+        
         const storage = firebase.storage();
 
         let parentDoctorId = null;
@@ -575,7 +579,7 @@
                 </div>`).join('');
         }
 
-        // REGISTRO DE PACIENTE
+        // 🔥 REGISTRO DE PACIENTE MEJORADO (SOLUCIÓN A ERROR 400) 🔥
         async function submitNewPatient() {
             const btn = document.getElementById('saveNewPatientBtn');
             const cedula = document.getElementById('newPatientCedula').value.trim();
@@ -583,23 +587,34 @@
             const phone = normalizarTelefono(document.getElementById('newPatientPhone').value.trim());
             const email = document.getElementById('newPatientEmail').value.trim();
 
+            if (!parentDoctorId) return alert("Error: No se pudo identificar tu sesión. Recarga la página.");
             if (!nombre || !cedula || !phone) return alert("Llena los campos obligatorios.");
 
             btn.disabled = true; btn.innerHTML = "Guardando...";
+            
             try {
                 const exist = await db.collection('patients').where('doctorId', '==', parentDoctorId).where('cedula', '==', cedula).get();
-                if(!exist.empty) return alert("El paciente ya existe.");
+                if(!exist.empty) {
+                    btn.disabled = false; btn.innerHTML = "Guardar";
+                    return alert("El paciente con esta cédula ya existe.");
+                }
 
                 await db.collection('patients').add({
                     doctorId: parentDoctorId, nombre, cedula, telefonoWhatsApp: phone, email, fechaRegistro: new Date(), activo: true
                 });
+                
                 document.getElementById('newPatientModal').classList.add('hidden');
                 document.getElementById('newPatientCedula').value = '';
                 document.getElementById('newPatientName').value = '';
                 document.getElementById('newPatientPhone').value = '';
-                mostrarMensaje("Paciente guardado.", "success");
+                document.getElementById('newPatientEmail').value = '';
+                
+                mostrarMensaje("Paciente guardado con éxito.", "success");
                 await loadPatients();
-            } catch(e) { alert("Error al guardar."); }
+            } catch(e) { 
+                console.error("Detalle técnico del error:", e);
+                alert("Fallo en la base de datos: " + e.message); 
+            }
             finally { btn.disabled = false; btn.innerHTML = "Guardar"; }
         }
 
@@ -924,7 +939,13 @@
             const link = window.location.href.split('?')[0].replace('dashboard-fisioterapia.html', `agendar.html?doc=${parentDoctorId}`);
             navigator.clipboard.writeText(link).then(() => mostrarMensaje('¡Copiado!', 'success'));
         }
-        function mostrarError(msg) { mostrarMensaje(msg, 'error'); }
+        function mostrarMensaje(msg, type='success') { 
+            const d = document.getElementById('formMessage'); 
+            d.textContent = msg; 
+            d.className = `p-4 rounded-lg mt-4 font-bold shadow-md border ${type==='success'?'bg-green-100 text-green-800 border-green-300':'bg-red-100 text-red-800 border-red-300'}`; 
+            d.classList.remove('hidden'); 
+            setTimeout(()=>d.classList.add('hidden'), 3500); 
+        }
     </script>
 </body>
 </html>
