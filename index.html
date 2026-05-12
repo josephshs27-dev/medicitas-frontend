@@ -152,7 +152,7 @@
 
                         const urlDestino = rutasPermitidas[especialidad] || 'dashboard-medicina.html';
 
-                        // Redirigir
+                        // Redirigir (Con un pequeño timeout estético para que se lea el mensaje)
                         setTimeout(() => { window.location.href = urlDestino; }, 800);
 
                     } else {
@@ -179,7 +179,7 @@
 
             try {
                 await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
-                // Si es exitoso, el onAuthStateChanged toma el control y redirige
+                // Si es exitoso, el onAuthStateChanged toma el control y redirige automáticamente
             } catch (error) { 
                 btn.innerHTML = 'Ingresar al Sistema';
                 btn.disabled = false;
@@ -209,7 +209,7 @@
                 let html = '<option value="">Compra directa en web (Sin vendedor)</option>';
                 vendSnap.forEach(doc => { html += `<option value="${doc.id}">Referido por: ${doc.data().nombre}</option>`; });
                 document.getElementById('signupVendedor').innerHTML = html;
-            } catch(e) { console.log("Error cargando vendedores"); }
+            } catch(e) { console.log("Error cargando vendedores", e); }
         }
 
         document.getElementById('submitSignupBtn').onclick = async () => {
@@ -223,7 +223,7 @@
             const especialidad = document.getElementById('signupSpecialty').value; 
             const vendedorId = document.getElementById('signupVendedor').value;
 
-            if (!name || !email || !pass || !phone) return mostrarError("Por favor, completa todos los campos.");
+            if (!name || !email || !pass || !phone) return mostrarError("Por favor, completa todos los campos requeridos.");
             
             btn.innerHTML = '⏳ Registrando...';
             btn.disabled = true;
@@ -253,7 +253,7 @@
                     clinicInfo: { 
                         nombre: name, 
                         telefono: phone, 
-                        especialidad: especialidad, // 🔥 AQUI SE GUARDA LA ESPECIALIDAD
+                        especialidad: especialidad, // 🔥 AQUÍ SE GUARDA LA ESPECIALIDAD QUE LO ENRUTARÁ DE POR VIDA
                         color: colorBase
                     }
                 });
