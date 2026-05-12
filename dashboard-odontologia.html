@@ -731,24 +731,38 @@
             try { 
                 const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, { 
                     method:'POST', headers: {'Content-Type': 'application/json'}, 
-                    // 🔥 SE ENVÍA ESPECIALIDAD ODONTOLOGÍA AL SERVIDOR
                     body:JSON.stringify({ notasBorrador: borrador, especialidad: 'odontologia', contextoClinico: contextoClinico }) 
                 }); 
                 const data = await res.json(); 
                 
+                // 🔥 PROTECCIÓN: Si el servidor devuelve un error, detenemos todo y NO borramos las notas 🔥
+                if (!res.ok || data.error) {
+                    throw new Error(data.error || "Fallo en la comunicación con la IA del servidor.");
+                }
+
                 document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
-                document.getElementById('rxRecomendaciones').value = data.recomendaciones ? data.recomendaciones.join('\n') : '';
-                document.getElementById('medicinesContainer').innerHTML = ''; 
                 
+                // Validación segura para las recomendaciones
+                if(Array.isArray(data.recomendaciones)) {
+                    document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
+                } else {
+                    document.getElementById('rxRecomendaciones').value = data.recomendaciones || '';
+                }
+
+                document.getElementById('medicinesContainer').innerHTML = ''; 
                 if(data.receta && data.receta.length > 0) {
                     data.receta.forEach(m => addMedicineRow(m)); 
                 } else {
                     addMedicineRow();
                 }
+                
+                // SOLO borramos el borrador si todo fue un éxito
                 document.getElementById('rxBorrador').value = ''; 
                 mostrarMensaje('Estructurado por Inteligencia Artificial Odontológica', 'success');
+
             } catch(e){ 
-                alert("Hubo un error con la IA Groq. Revisa la conexión del servidor."); 
+                console.error("Fallo IA:", e);
+                alert("Alerta del Servidor: " + e.message); 
             } finally { 
                 btn.innerHTML='🪄 Estructurar Automáticamente'; btn.disabled = false; 
             } 
