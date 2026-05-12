@@ -3,684 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgendaCitas - Sistema Médico SaaS</title>
+    <title>MediCitas Pro - Portal de Acceso</title>
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
-    <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slideIn { animation: slideIn 0.3s ease-out; }
-        .spinner { border: 4px solid #e5e7eb; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
-<body class="bg-gray-50 h-screen flex flex-col">
-    <div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
+<body class="bg-slate-900 h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
+
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center">
+        <div class="spinner mb-4"></div>
+        <p class="text-white font-bold text-xl animate-pulse">Iniciando sesión...</p>
+        <p class="text-slate-400 text-sm mt-2" id="redirectMsg">Verificando tu especialidad médica</p>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md animate-slideIn">
         
-        <nav id="navBar" class="bg-blue-600 text-white shadow-md z-10 relative transition-colors duration-500">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <img id="navLogoImg" src="img/logo.png" alt="AgendaCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
-                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">AgendaCitas</h1>
-                </div>
-                <div class="flex gap-2" id="navButtons" style="display:none;">
-                    <button id="btnNavSuscripcion" onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
-                    <button onclick="openMetaModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 border border-indigo-400 hover:from-blue-700 hover:to-indigo-700 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm">🌐 Meta Omnicanal</button>
-                    
-                    <button onclick="copiarMiLink()" class="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm hidden md:flex">🔗 Mi Link</button>
-                    <button id="btnNavConfig" onclick="openSettingsModal()" class="bg-black/20 hover:bg-black/40 px-3 py-2 rounded-lg transition font-semibold flex items-center gap-2 text-sm">⚙️ Configuración</button>
-                    <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg transition font-bold text-sm shadow-sm">Salir</button>
-                </div>
-            </div>
-        </nav>
+        <div class="text-center mb-8">
+            <span class="text-6xl mb-4 block">🏥</span>
+            <h2 class="text-3xl font-black text-slate-800 tracking-tight">MediCitas Pro</h2>
+            <p class="text-slate-500 font-medium mt-1">Gestión Médica con Inteligencia Artificial</p>
+        </div>
 
-        <div class="max-w-7xl mx-auto px-4 w-full flex-1 overflow-y-auto custom-scroll">
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Email Profesional</label>
+                <input type="email" id="loginEmail" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-slate-50">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Contraseña</label>
+                <input type="password" id="loginPassword" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-slate-50">
+            </div>
+            <button type="submit" id="btnSubmitLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-all shadow-lg active:scale-95 text-lg mt-2">Ingresar al Sistema</button>
+        </form>
+
+        <div class="mt-6 pt-6 border-t border-slate-100" id="boxToggleSignup">
+            <button id="toggleSignupBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors">Crear Nueva Cuenta Clínica</button>
+        </div>
+
+        <div id="signupForm" class="hidden mt-6 space-y-4 pt-6 border-t border-slate-100">
+            <h3 class="text-xl font-black text-slate-800 mb-2">Registro de Especialidad</h3>
             
-            <div id="loginView" class="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-full items-center py-8">
-                <div class="hidden md:block">
-                    <div class="bg-blue-100 rounded-lg p-8 text-center flex flex-col items-center justify-center h-full">
-                        <img src="img/logo.png" alt="AgendaCitas" class="w-48 h-auto mx-auto mb-6 drop-shadow-md">
-                        <h2 class="text-3xl font-bold text-blue-900 mb-4">Plataforma SaaS Multiclínica</h2>
-                        <p class="text-blue-700 text-lg">Gestiona tu consultorio con IA y WhatsApp integrado.</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-xl p-8 animate-slideIn">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Inicia Sesión</h2>
-                    <form id="loginForm" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                            <input type="email" id="loginEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
-                            <input type="password" id="loginPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">Ingresar</button>
-                    </form>
-                    <div class="mt-6 pt-6 border-t border-gray-200">
-                        <button id="toggleSignupBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 font-bold py-2 px-4 rounded-lg transition">Crear Nueva Cuenta</button>
-                    </div>
-
-                    <div id="signupForm" class="hidden mt-6 space-y-4 pt-6 border-t border-gray-200">
-                        <h3 class="text-xl font-bold text-gray-900">Registro Médico</h3>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-                            <input type="text" id="signupName" required class="w-full px-3 py-2 border rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" id="signupEmail" required class="w-full px-3 py-2 border rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                            <input type="password" id="signupPassword" required class="w-full px-3 py-2 border rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono WhatsApp</label>
-                            <input type="tel" id="signupPhone" required class="w-full px-3 py-2 border rounded-lg" placeholder="+593...">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">¿Te refirió un Asesor/Vendedor? (Opcional)</label>
-                            <select id="signupVendedor" class="w-full px-3 py-2 border border-indigo-200 rounded-lg bg-indigo-50 focus:ring-2 focus:ring-indigo-500 outline-none text-sm text-indigo-900">
-                                <option value="">No, compra directa en web</option>
-                            </select>
-                        </div>
-
-                        <div class="flex gap-2 mt-4">
-                            <button type="button" id="toggleBackBtn" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-bold py-2 rounded-lg">Cancelar</button>
-                            <button type="button" id="submitSignupBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg">Registrarme</button>
-                        </div>
-                    </div>
-                    <div id="authError" class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg hidden text-sm font-semibold"></div>
-                
-                    <div class="mt-8 text-center w-full col-span-1 md:col-span-2">
-                        <p class="text-xs text-gray-500 mb-1">Al iniciar sesión o registrarte, aceptas nuestras políticas.</p>
-                        <a href="privacidad.html" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-bold underline transition-colors">
-                            Política de Privacidad y Términos de Servicio
-                        </a>
-                    </div>
-                </div>
+            <input type="text" id="signupName" placeholder="Nombre del Doctor o Clínica" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="email" id="signupEmail" placeholder="Email Profesional" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="password" id="signupPassword" placeholder="Crea una contraseña segura" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="tel" id="signupPhone" placeholder="Teléfono / WhatsApp (099...)" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+            
+            <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                <label class="block text-xs font-bold text-indigo-800 mb-1 ml-1">Selecciona tu Especialidad Base</label>
+                <select id="signupSpecialty" class="w-full px-3 py-2 border border-indigo-200 rounded-lg bg-white font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm">
+                    <option value="medicina">Medicina General / Especialidades</option>
+                    <option value="odontologia">Clínica Odontológica</option>
+                    <option value="veterinaria">Centro Veterinario</option>
+                    <option value="fisioterapia">Fisioterapia y Rehabilitación</option>
+                    <option value="nutricion">Nutrición y Dietética</option>
+                </select>
             </div>
 
-            <div id="suspendedView" class="hidden min-h-[70vh] flex flex-col items-center justify-center text-center px-4 animate-slideIn">
-                <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
-                    <span class="text-6xl block mb-4">⛔</span>
-                    <h2 class="text-3xl font-black text-white mb-2">Acceso Suspendido</h2>
-                    <p class="text-slate-300 mb-6 leading-relaxed">Tu suscripción de AgendaCitas ha finalizado. Para reactivar tu agenda, expedientes médicos y tu asistente de Inteligencia Artificial, por favor regulariza tu pago.</p>
-                    
-                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-600 mb-6">
-                        <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
-                        <p class="text-4xl font-black text-green-400">$<span id="suspendedPrice">20.00</span></p>
-                    </div>
-
-                    <button onclick="window.location.href='pagos.html'" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg border border-blue-400">💳 Ir al Portal de Pagos</button>
-                    <button onclick="auth.signOut()" class="mt-4 text-slate-400 hover:text-white underline text-sm font-bold">Cerrar Sesión</button>
-                </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">Vendedor / Referido (Opcional)</label>
+                <select id="signupVendedor" class="w-full px-4 py-3 border rounded-xl bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Compra directa en web</option>
+                </select>
             </div>
 
-            <div id="dashboardView" class="hidden py-6 flex flex-col h-full">
-                <div id="formMessage" class="mb-4 hidden text-center"></div>
-
-                <div class="flex flex-wrap gap-2 md:gap-4 mb-6 border-b border-gray-200 pb-4">
-                    <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-blue-100 text-blue-800 border-2 border-blue-600 transition-all">📊 Resumen Financiero</button>
-                    <button onclick="switchTab('agenda')" id="tabBtnAgenda" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 transition-all">📅 Agenda Médica</button>
-                    <button onclick="switchTab('pacientes')" id="tabBtnPacientes" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 transition-all">👥 Pacientes</button>
-                </div>
-
-                <div class="flex-1 overflow-hidden relative">
-
-                    <div id="tabContentDashboard" class="h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
-                        
-                        <div class="bg-indigo-50 border border-indigo-200 text-indigo-900 p-4 rounded-xl mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">🗓️</span>
-                                <div>
-                                    <p class="text-xs uppercase font-black text-indigo-500 tracking-wider">Estado de Suscripción</p>
-                                    <p class="font-bold text-sm">Tu próximo débito automático está programado para el: <strong id="nextPaymentDateDisplay" class="text-indigo-700 bg-white px-2 py-1 rounded shadow-sm border border-indigo-100">--/--/----</strong></p>
-                                </div>
-                            </div>
-                            <button onclick="window.location.href='pagos.html'" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors whitespace-nowrap shadow-sm">Administrar Pago</button>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
-                            <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 border-b border-gray-100 pb-4">
-                                <div>
-                                    <h2 class="text-2xl font-black text-gray-800">Rendimiento de la Clínica</h2>
-                                    <p class="text-sm text-gray-500">Métricas basadas en las citas confirmadas y cobradas.</p>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <label class="text-sm font-bold text-gray-600">Filtrar por:</label>
-                                    <select id="financeFilter" onchange="updateDashboardStats()" class="bg-blue-50 border border-blue-200 text-blue-800 font-bold px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                        <option value="hoy">Hoy</option>
-                                        <option value="semana">Esta Semana</option>
-                                        <option value="mes" selected>Este Mes</option>
-                                        <option value="anio">Este Año</option>
-                                        <option value="todo">Todo el Histórico</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-blue-100 text-sm font-semibold uppercase tracking-wider">Citas Agendadas</p>
-                                    <p class="text-5xl font-black mt-2" id="kpiCitas">0</p>
-                                </div>
-                                <div class="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-green-100 text-sm font-semibold uppercase tracking-wider">Ingresos Reales</p>
-                                    <p class="text-5xl font-black mt-2 text-green-50" id="kpiIngresos">$0.00</p>
-                                </div>
-                                <div class="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-purple-100 text-sm font-semibold uppercase tracking-wider">Total Pacientes</p>
-                                    <p class="text-5xl font-black mt-2" id="kpiPacientes">0</p>
-                                </div>
-                                <div class="bg-gradient-to-br from-orange-500 to-orange-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-orange-100 text-sm font-semibold uppercase tracking-wider">Citas Pendientes</p>
-                                    <p class="text-5xl font-black mt-2" id="kpiPendientes">0</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="tabContentAgenda" class="hidden h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-                            <div class="lg:col-span-1">
-                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-0">
-                                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">📅 Nueva Cita</h2>
-                                    <form id="appointmentForm" class="space-y-4">
-                                        <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-1">Paciente</label>
-                                            <select id="patientSelect" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm bg-gray-50">
-                                                <option value="">-- Seleccionar Paciente --</option>
-                                            </select>
-                                            <p class="text-xs text-gray-500 mt-1">Si es nuevo, regístralo primero en la pestaña "Pacientes".</p>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <div>
-                                                <label class="block text-sm font-bold text-gray-700 mb-1">Fecha</label>
-                                                <input type="date" id="appointmentDate" required class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-bold text-gray-700 mb-1">Hora</label>
-                                                <input type="time" id="appointmentTime" required class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-1">Motivo de Consulta</label>
-                                            <input type="text" id="appointmentReason" required class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-1">Estado</label>
-                                            <select id="appointmentStatus" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-                                                <option value="pendiente">Pendiente de Atención</option>
-                                                <option value="confirmada">Confirmada</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-1">Notas Internas</label>
-                                            <textarea id="appointmentNotes" rows="2" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50"></textarea>
-                                        </div>
-                                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-lg transition mt-4 shadow-md">Agendar Cita 🚀</button>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="lg:col-span-2">
-                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full flex flex-col">
-                                    <div class="flex justify-between items-center mb-6 border-b pb-4">
-                                        <h2 class="text-xl font-bold text-gray-900">Vista de Agenda</h2>
-                                        <select id="filterAppointmentStatus" onchange="renderAppointments()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white font-bold text-gray-700 focus:ring-2 focus:ring-blue-500">
-                                            <option value="activas" selected>Citas Activas (Pendientes/Confirmadas)</option>
-                                            <option value="hoy">Solo Citas de Hoy</option>
-                                            <option value="todas">Histórico Completo</option>
-                                            <option value="completada">Citas Completadas/Cobradas</option>
-                                        </select>
-                                    </div>
-                                    <div id="appointmentsList" class="space-y-4 flex-1 overflow-y-auto custom-scroll pr-2">
-                                        <div class="flex justify-center py-8"><div class="spinner"></div></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="tabContentPacientes" class="hidden h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b pb-4 border-gray-100">
-                                <div>
-                                    <h2 class="text-2xl font-black text-gray-900">Directorio de Pacientes</h2>
-                                    <p class="text-sm text-gray-500">Busca, gestiona o revisa historias clínicas.</p>
-                                </div>
-                                <div class="flex gap-2 w-full md:w-auto">
-                                    <input type="text" id="searchPatientInput" placeholder="🔍 Buscar nombre o cédula..." class="flex-1 md:w-64 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm bg-gray-50 outline-none">
-                                    
-                                    <button onclick="openPromotionsModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-lg shadow-sm whitespace-nowrap transition-colors">📢 Promoción</button>
-
-                                    <button onclick="document.getElementById('newPatientModal').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm whitespace-nowrap transition-colors">➕ Nuevo Paciente</button>
-                                </div>
-                            </div>
-                            <div id="patientsDirectoryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                </div>
-                        </div>
-                    </div>
-
-                </div>
+            <div class="flex gap-3 mt-4">
+                <button type="button" id="toggleBackBtn" class="w-1/3 bg-slate-200 text-slate-700 hover:bg-slate-300 font-bold py-3 rounded-xl transition-colors">Volver</button>
+                <button type="button" id="submitSignupBtn" class="w-2/3 bg-green-600 text-white hover:bg-green-700 font-bold py-3 rounded-xl shadow-md transition-all active:scale-95">Completar Registro</button>
             </div>
         </div>
 
-        <div id="triageModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[65] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-lg mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-teal-50 rounded-t-xl">
-                    <h3 class="text-xl font-bold text-teal-900 flex items-center gap-2">🌡️ Ingreso de Triaje</h3>
-                    <button onclick="closeTriageModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
-                </div>
-                <div class="p-6">
-                    <p class="text-sm text-gray-600 mb-4">Ingresa los signos vitales. Estos datos se cargarán automáticamente cuando el doctor inicie la atención con IA.</p>
-                    <input type="hidden" id="triageAppointmentId">
-                    
-                    <div class="grid grid-cols-2 gap-4" id="triageVitalsContainer">
-                        </div>
-                </div>
-                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50 rounded-b-xl">
-                    <button onclick="closeTriageModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
-                    <button onclick="saveTriage()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-lg shadow-md">Guardar Triaje</button>
-                </div>
-            </div>
+        <div id="authError" class="mt-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl hidden text-sm font-bold text-center"></div>
+        
+        <div class="mt-8 text-center border-t border-slate-100 pt-6">
+            <p class="text-xs text-slate-400 mb-2">Al iniciar sesión o registrarte, aceptas nuestras políticas.</p>
+            <a href="privacidad.html" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-bold underline transition-colors">Política de Privacidad y Términos</a>
         </div>
-
-        <div id="metaModal" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center py-4">
-            <div class="bg-white rounded-2xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-5 text-white flex justify-between items-center">
-                    <div>
-                        <h3 class="text-xl font-black flex items-center gap-2">🌐 Meta Omnicanal</h3>
-                        <p class="text-xs text-blue-100 mt-1 font-medium">Asistente de IA en todas tus redes</p>
-                    </div>
-                    <button onclick="closeMetaModal()" class="text-white/70 hover:text-white font-bold text-2xl transition-colors">&times;</button>
-                </div>
-                
-                <div class="p-6 space-y-4 bg-slate-50">
-                    <p class="text-sm text-slate-600 text-center mb-6">Tu clínica está conectada a la nube oficial de Meta. La Inteligencia Artificial responderá automáticamente en los canales activos.</p>
-                    
-                    <div class="bg-white p-4 rounded-xl border border-green-200 shadow-sm flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl">📱</div>
-                            <div>
-                                <p class="font-bold text-slate-800 text-sm">WhatsApp Business</p>
-                                <p class="text-xs text-slate-500">API Oficial en la Nube</p>
-                            </div>
-                        </div>
-                        <span class="bg-green-100 text-green-700 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-green-200" id="statusWA">Verificando...</span>
-                    </div>
-
-                    <div class="bg-white p-4 rounded-xl border border-blue-200 shadow-sm flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl">💬</div>
-                            <div>
-                                <p class="font-bold text-slate-800 text-sm">Facebook Messenger</p>
-                                <p class="text-xs text-slate-500">Página de la Clínica</p>
-                            </div>
-                        </div>
-                        <span class="bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-blue-200" id="statusFB">Verificando...</span>
-                    </div>
-
-                    <div class="bg-white p-4 rounded-xl border border-pink-200 shadow-sm flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-xl">📸</div>
-                            <div>
-                                <p class="font-bold text-slate-800 text-sm">Instagram Direct</p>
-                                <p class="text-xs text-slate-500">Cuenta Profesional</p>
-                            </div>
-                        </div>
-                        <span class="bg-pink-100 text-pink-700 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-pink-200" id="statusIG">Verificando...</span>
-                    </div>
-
-                </div>
-                
-                <div class="px-6 py-4 bg-white border-t border-slate-100 flex flex-col gap-2">
-                    <button onclick="requestMetaSync()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition-all active:scale-95 text-sm">🔄 Sincronizar Canales</button>
-                    <p class="text-[10px] text-center text-slate-400 mt-2">¿Quieres agregar otro número o página? Contacta al Súper Administrador.</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center py-4">
-            <div class="bg-white rounded-lg w-full max-w-2xl mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-lg">
-                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">⚙️ Configuración del Consultorio</h3>
-                    <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
-                </div>
-                <div class="p-6 space-y-6 overflow-y-auto custom-scroll" style="max-height: 70vh;">
-                    
-                    <div>
-                        <h4 class="font-bold text-indigo-900 mb-2 border-b pb-1">📄 Datos y Marca Blanca</h4>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-bold text-indigo-700 mb-1">Especialidad de la Clínica (Muta el Sistema)</label>
-                                <select id="clinicSpecialty" class="w-full px-3 py-2 border border-indigo-200 bg-indigo-50 rounded-lg focus:ring-2 focus:ring-indigo-500 font-semibold mb-2">
-                                    <option value="medicina">Medicina General / Especialidades Médicas</option>
-                                    <option value="odontologia">Odontología</option>
-                                    <option value="fisioterapia">Fisioterapia y Rehabilitación</option>
-                                    <option value="nutricion">Nutrición y Dietética</option>
-                                    <option value="veterinaria">Clínica Veterinaria</option>
-                                </select>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de la Clínica / Doctor</label>
-                                    <input type="text" id="clinicName" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Color Corporativo (Barra Superior)</label>
-                                    <input type="color" id="clinicColor" class="w-full h-10 px-1 py-1 border rounded-lg cursor-pointer" value="#2563eb">
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">RUC</label>
-                                    <input type="text" id="clinicRuc" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
-                                    <input type="text" id="clinicPhone" placeholder="099..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Dirección del Consultorio</label>
-                                <input type="text" id="clinicAddress" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Logotipo de la Clínica</label>
-                                <input type="file" id="clinicLogoUpload" accept="image/png, image/jpeg" class="block w-full text-sm text-gray-500" onchange="encodeImageFileAsURL(this)">
-                                <input type="hidden" id="clinicLogoBase64">
-                                <img id="logoPreview" src="" class="hidden h-16 object-contain border rounded p-1 shadow-sm mt-2">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                        <h4 class="font-bold text-blue-900 mb-2 border-b border-blue-200 pb-1">🗓️ Horarios y Agendamiento Online</h4>
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Hora Inicio</label>
-                                <input type="time" id="scheduleStart" class="w-full px-3 py-2 border rounded-lg bg-white">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Hora Fin</label>
-                                <input type="time" id="scheduleEnd" class="w-full px-3 py-2 border rounded-lg bg-white">
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Duración Consulta</label>
-                            <select id="scheduleDuration" class="w-full px-3 py-2 border rounded-lg bg-white">
-                                <option value="15">15 minutos</option>
-                                <option value="30" selected>30 minutos</option>
-                                <option value="45">45 minutos</option>
-                                <option value="60">60 minutos</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Días Feriados / Vacaciones</label>
-                            <div class="flex gap-2 mb-2">
-                                <input type="date" id="scheduleBlockDate" class="flex-1 px-3 py-2 border rounded-lg text-sm bg-white">
-                                <button type="button" onclick="addBlockedDate()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm">Añadir</button>
-                            </div>
-                            <div id="blockedDatesList" class="flex flex-wrap gap-2 mt-2"></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100 mt-4">
-                        <h4 class="font-bold text-indigo-900 mb-2 border-b border-indigo-200 pb-1">📅 Sincronización Google Calendar</h4>
-                        <p class="text-sm text-gray-700 mb-3">Conecta tu cuenta de Google para bloquear automáticamente tu agenda personal en el celular cuando se confirme un turno.</p>
-                        <button type="button" onclick="syncGoogleCalendar()" class="bg-white border border-gray-300 shadow-sm text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                            Sincronizar mi Google Calendar
-                        </button>
-                        
-                        <textarea id="clinicGCalendarToken" placeholder="[Pega aquí tu Token de Google Calendar]" class="w-full px-3 py-2 border rounded-lg bg-white mt-3 text-xs text-gray-400 font-mono hidden custom-scroll" rows="3" autocomplete="off" spellcheck="false" readonly></textarea>
-                    </div>
-
-                </div>
-                <div class="px-6 py-4 border-t flex justify-end gap-3 bg-gray-50 rounded-b-lg">
-                    <button onclick="closeSettingsModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition">Cancelar</button>
-                    <button onclick="saveClinicSettings()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition">Guardar Configuración</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="newPatientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 animate-slideIn shadow-2xl">
-                <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Registrar Paciente</h3>
-                <div class="space-y-3">
-                    <div>
-                        <label id="lblPatCedula" class="block text-sm font-bold text-gray-700 mb-1">Cédula / RUC *</label>
-                        <input type="text" id="newPatientCedula" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div id="divPatOwner" class="hidden">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Nombre del Dueño *</label>
-                        <input type="text" id="newPatientOwner" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label id="lblPatName" class="block text-sm font-bold text-gray-700 mb-1">Nombre Completo *</label>
-                        <input type="text" id="newPatientName" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono WhatsApp *</label>
-                        <input type="tel" id="newPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="099...">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Email (Opcional)</label>
-                        <input type="email" id="newPatientEmail" class="w-full px-3 py-2 border rounded-lg bg-gray-50">
-                    </div>
-                </div>
-                <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="document.getElementById('newPatientModal').classList.add('hidden')" class="flex-1 bg-gray-200 hover:bg-gray-300 font-bold py-2 rounded-lg transition-colors">Cancelar</button>
-                    <button type="button" id="saveNewPatientBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg shadow-md transition-colors">Guardar</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="editPatientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[55] flex items-center justify-center">
-            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 animate-slideIn shadow-2xl">
-                <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">✏️ Editar Paciente</h3>
-                <div class="space-y-3">
-                    <input type="hidden" id="editPatientId">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Cédula / RUC *</label>
-                        <input type="text" id="editPatientCedula" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div id="divEditPatOwner" class="hidden">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Nombre del Dueño *</label>
-                        <input type="text" id="editPatientOwner" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Nombre Completo *</label>
-                        <input type="text" id="editPatientName" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Teléfono WhatsApp *</label>
-                        <input type="tel" id="editPatientPhone" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500" placeholder="099...">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Email (Opcional)</label>
-                        <input type="email" id="editPatientEmail" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="document.getElementById('editPatientModal').classList.add('hidden')" class="flex-1 bg-gray-200 hover:bg-gray-300 font-bold py-2 rounded-lg transition-colors">Cancelar</button>
-                    <button type="button" id="saveEditPatientBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg shadow-md transition-colors">Actualizar</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-6xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-xl">
-                    <div>
-                        <h3 class="text-2xl font-bold text-blue-900 flex items-center gap-2">📖 Expediente Clínico</h3>
-                        <p class="text-sm font-semibold text-blue-700 mt-1" id="historyPatientInfo">Cargando...</p>
-                    </div>
-                    <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
-                </div>
-                
-                <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-50 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <div class="space-y-6">
-                        <div id="chartContainer" class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm hidden h-64">
-                            <canvas id="vitalsChartCanvas"></canvas>
-                        </div>
-                        
-                        <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
-                            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                <h4 class="font-bold text-gray-800 flex items-center gap-2">🩻 Estudios e Imagenología</h4>
-                                <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
-                                <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm transition">📁 Subir Archivo</button>
-                            </div>
-                            <div id="patientImagesGallery" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-48 overflow-y-auto custom-scroll p-1">
-                                <p class="text-xs text-gray-400 col-span-full text-center py-4">No hay estudios cargados aún.</p>
-                            </div>
-                        </div>
-
-                        <div class="bg-indigo-50 p-4 border border-indigo-100 rounded-lg shadow-sm">
-                            <h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">🧠 Inteligencia Clínica</h4>
-                            <p class="text-sm text-gray-700 leading-relaxed">Este expediente se construye y actualiza automáticamente con cada consulta procesada por la Inteligencia Artificial.</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Cronología de Atenciones</h4>
-                        <div id="historyTimeline" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scroll">
-                        </div>
-                    </div>
-                </div>
-                <div class="px-6 py-4 border-t flex justify-end bg-white rounded-b-xl">
-                    <button onclick="closeHistoryModal()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-6 rounded-lg">Cerrar</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="prescriptionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-3xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-indigo-50 rounded-t-xl">
-                    <h3 class="text-xl font-bold text-indigo-900">⚕️ Evolución y Receta</h3>
-                    <button onclick="closePrescriptionModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
-                </div>
-                <div class="p-6 overflow-y-auto custom-scroll flex-1 space-y-6">
-                    <input type="hidden" id="rxAppointmentId">
-                    <div class="bg-indigo-100 border-l-4 border-indigo-500 p-3 rounded mb-4">
-                        <p class="text-xs text-indigo-700 font-bold uppercase">Atendiendo a:</p>
-                        <p class="font-bold text-lg text-indigo-900" id="rxPatientName"></p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200 shadow-sm mb-6">
-                        <h4 class="font-bold text-purple-900 mb-2 flex items-center gap-2">✨ Copiloto Médico (IA)</h4>
-                        <textarea id="rxBorrador" rows="2" placeholder="Escribe tus notas rápidas aquí..." class="w-full text-sm px-3 py-2 border rounded mb-2 shadow-inner focus:ring-2 focus:ring-purple-500"></textarea>
-                        <button type="button" onclick="procesarConIA()" id="btnCopiloto" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg shadow-md">🪄 Estructurar Automáticamente</button>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">🩺 Diagnóstico / Evolución</h4>
-                        <textarea id="rxDiagnostico" rows="3" class="w-full text-sm px-3 py-2 border rounded focus:ring-2 focus:ring-indigo-500"></textarea>
-                    </div>
-                    
-                    <div>
-                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">📊 Control Clínico</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="dynamicVitalsContainer"></div>
-                    </div>
-                    
-                    <div>
-                        <div class="flex justify-between items-center mb-2 border-b pb-1">
-                            <h4 class="font-bold text-gray-800">💊 Medicación</h4>
-                            <button onclick="addMedicineRow()" class="text-xs bg-indigo-200 text-indigo-800 font-bold px-3 py-1 rounded">+ Agregar Manual</button>
-                        </div>
-                        <div id="medicinesContainer" class="space-y-3"></div>
-                    </div>
-
-                    <div class="mt-4">
-                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">💡 Recomendaciones Generadas</h4>
-                        <textarea id="rxRecomendaciones" rows="3" class="w-full text-sm px-3 py-2 border border-orange-200 bg-orange-50 rounded focus:ring-2 focus:ring-orange-500"></textarea>
-                    </div>
-
-                </div>
-                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50 rounded-b-xl">
-                    <button onclick="closePrescriptionModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
-                    <button id="btnSubmitPrescription" onclick="submitPrescription()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg shadow-md">Siguiente: Cobro ➡️</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="billingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[70] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-green-50 rounded-t-xl">
-                    <h3 class="text-xl font-bold text-green-900">💵 Registrar Cobro</h3>
-                    <button onclick="closeBillingModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
-                </div>
-                <div class="p-6 space-y-4">
-                    <input type="hidden" id="billingAptId">
-                    <p class="text-sm text-gray-600 mb-4">Valor a cobrar a <strong id="billingPatName" class="text-gray-900"></strong>.</p>
-                    
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Subtotal ($)</label>
-                        <input type="number" id="billingSubtotal" step="0.01" min="0" class="w-full px-4 py-3 border-2 rounded-xl font-bold text-xl text-center bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none" oninput="calculateTotal()">
-                    </div>
-                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border mt-2">
-                        <input type="checkbox" id="billingIva" class="w-5 h-5 text-green-600" onchange="calculateTotal()">
-                        <label for="billingIva" class="font-semibold text-gray-700 w-full cursor-pointer">Añadir IVA (15%)</label>
-                    </div>
-                    <div class="mt-4 p-4 bg-green-100 rounded-xl text-center border border-green-200">
-                        <p class="text-green-800 font-bold text-sm">TOTAL</p>
-                        <p class="text-5xl font-black text-green-900 mt-1" id="billingTotalDisplay">$0.00</p>
-                    </div>
-                </div>
-                <div class="px-6 py-4 border-t bg-gray-50 rounded-b-xl">
-                    <button id="btnFinalizarCobro" onclick="submitBilling()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg">Finalizar y Enviar 📲</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="promotionsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[80] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-orange-50 rounded-t-xl">
-                    <h3 class="text-xl font-bold text-orange-900 flex items-center gap-2">📢 Campaña de Marketing</h3>
-                    <button onclick="closePromotionsModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
-                </div>
-                <div class="p-6 space-y-4">
-                    <p class="text-sm text-gray-600">Configura tu campaña masiva. La IA analizará tus parámetros y enviará el mensaje por WhatsApp a los pacientes correctos.</p>
-                    <div>
-                        <label class="block text-sm font-bold text-orange-900 mb-1">¿A quién va dirigida? (Segmentación IA)</label>
-                        <input type="text" id="promoTargeting" class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm bg-white outline-none" placeholder="Ej: Solo a los últimos 50 pacientes, o a todos">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-orange-900 mb-1">Mensaje o Promoción</label>
-                        <textarea id="promoMessage" rows="4" class="w-full px-3 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm bg-white outline-none" placeholder="Ej: ¡Descuento del 20% en profilaxis si agendas hoy!"></textarea>
-                    </div>
-                </div>
-                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50 rounded-b-xl">
-                    <button onclick="closePromotionsModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg transition-colors hover:bg-gray-100">Cancelar</button>
-                    <button id="btnSendPromo" onclick="sendPromotion()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-lg shadow-md transition-all active:scale-95">Enviar Inteligente 🚀</button>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <script>
-        // CONFIGURACIÓN
-        const API_BASE_URL = "https://api.asistencitas.com";
-
-        const apiHeaders = { 'Content-Type': 'application/json' };
-            
         const firebaseConfig = {
             apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc", 
             authDomain: "medicitas-app.firebaseapp.com",
@@ -689,23 +97,12 @@
             messagingSenderId: "310910036460", 
             appId: "1:310910036460:web:1a979471880251173838c9"
         };
-
-        const app = firebase.initializeApp(firebaseConfig); 
-        const auth = firebase.auth(); 
-        const db = firebase.firestore();
-        const storage = firebase.storage(); 
         
-        let currentUser = null; 
-        let userRole = 'doctor';
-        let parentDoctorId = null; 
-        let currentPatientIdForImages = null; 
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        let patients = []; 
-        let appointments = []; 
-        let clinicDataGlobal = null; 
-        let globalBlockedDates = []; 
-
-        // 🔥 FUNCIÓN PARA UNIFICAR FORMATO DE NÚMEROS A 593 🔥
+        // Normalizar teléfonos a formato internacional (593)
         function normalizarTelefono(phone) {
             if (!phone) return '';
             let cleaned = String(phone).replace(/\D/g, ''); 
@@ -715,1285 +112,167 @@
             return cleaned; 
         }
 
-        // ==========================================
-        // 1. NAVEGACIÓN Y TABS
-        // ==========================================
-        function switchTab(tabId) {
-            if(userRole === 'secretaria' && tabId === 'dashboard') {
-                return mostrarMensaje('Acceso restringido para el rol Secretaria', 'error');
-            }
-
-            const tabs = ['dashboard', 'agenda', 'pacientes'];
-            
-            tabs.forEach(t => {
-                const content = document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
-                const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
-                
-                if (t === tabId) {
-                    content.classList.remove('hidden');
-                    btn.className = "flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-blue-100 text-blue-800 border-2 border-blue-600 transition-all";
-                } else {
-                    content.classList.add('hidden');
-                    btn.className = "flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 transition-all";
-                }
-            });
-
-            if(tabId === 'dashboard') {
-                updateDashboardStats();
-            }
-        }
-
-        // ==========================================
-        // 2. DASHBOARD Y FILTRO FINANCIERO
-        // ==========================================
-        function updateDashboardStats() {
-            if(!appointments || userRole === 'secretaria') return;
-            
-            const filterValue = document.getElementById('financeFilter').value;
-            const now = new Date();
-            let filteredApts = [];
-
-            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-            filteredApts = appointments.filter(a => {
-                if(filterValue === 'todo') return true;
-                
-                const [y, m, d] = a.fecha.split('-');
-                const aptDate = new Date(y, m - 1, d);
-
-                if(filterValue === 'hoy') return aptDate >= startOfDay;
-                if(filterValue === 'semana') return aptDate >= startOfWeek;
-                if(filterValue === 'mes') return aptDate >= startOfMonth;
-                if(filterValue === 'anio') return aptDate >= startOfYear;
-                
-                return true;
-            });
-
-            const ingresos = filteredApts.filter(a => a.estado === 'completada').reduce((sum, a) => sum + (parseFloat(a.monto) || 0), 0);
-            const pendientes = filteredApts.filter(a => a.estado === 'pendiente' || a.estado === 'confirmada').length;
-
-            document.getElementById('kpiCitas').textContent = filteredApts.length;
-            document.getElementById('kpiIngresos').textContent = `$${ingresos.toFixed(2)}`;
-            document.getElementById('kpiPacientes').textContent = patients.length; 
-            document.getElementById('kpiPendientes').textContent = pendientes;
-        }
-
-        // ==========================================
-        // 3. AUTENTICACIÓN, ROLES Y MARCA BLANCA
-        // ==========================================
+        // ====================================================
+        // 🔥 ENRUTADOR INTELIGENTE (LA MAGIA DE REDIRECCIÓN) 🔥
+        // ====================================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                currentUser = user; 
-                document.getElementById('loginView').classList.add('hidden'); 
+                // Prender pantalla de carga
+                document.getElementById('loadingOverlay').classList.remove('hidden');
                 
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if(!userDoc.exists) { 
-                    await db.collection('users').doc(user.uid).set({ 
-                        userId: user.uid, 
-                        email: user.email, 
-                        rol: 'doctor', 
-                        estadoSuscripcion: 'activo', 
-                        precioSuscripcion: 20, 
-                        fechaRegistro: new Date() 
-                    }); 
-                    parentDoctorId = user.uid;
-                } else {
-                    const data = userDoc.data();
-                    userRole = data.rol || 'doctor';
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
                     
-                    if(userRole === 'secretaria') {
-                        parentDoctorId = data.doctorId; 
-                        document.getElementById('btnNavSuscripcion').style.display = 'none';
-                        document.getElementById('btnNavConfig').style.display = 'none';
-                        document.getElementById('tabBtnDashboard').style.display = 'none';
-                        switchTab('agenda');
-                    } else {
-                        parentDoctorId = user.uid;
-                    }
-                    
-                    // ESCUDO: Comprobar fecha de vencimiento
-                    if (data.estadoSuscripcion === 'activo' && userRole !== 'secretaria') {
-                        let baseDateRaw = data.fechaUltimoCobro || data.fechaRegistro; 
+                    if (userDoc.exists) {
+                        const data = userDoc.data();
                         
-                        if (baseDateRaw) {
-                            let lastDate = baseDateRaw.toDate ? baseDateRaw.toDate() : new Date(baseDateRaw);
-                            let nextPaymentDate = new Date(lastDate);
-                            nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); 
-                            
-                            if(new Date() > nextPaymentDate) {
-                                await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
-                                data.estadoSuscripcion = 'suspendido';
-                            } else {
-                                const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
-                                document.getElementById('nextPaymentDateDisplay').textContent = nextPaymentDate.toLocaleDateString('es-ES', opciones);
-                            }
+                        // Si es VENDEDOR
+                        if (data.rol === 'vendedor') { 
+                            window.location.href = 'vendedor.html'; 
+                            return; 
                         }
-                    }
 
-                    if(data.estadoSuscripcion === 'suspendido') {
-                        document.getElementById('dashboardView').classList.add('hidden');
-                        document.getElementById('navButtons').style.display = 'none';
-                        document.getElementById('suspendedView').classList.remove('hidden');
-                        document.getElementById('suspendedPrice').textContent = (data.precioSuscripcion || 20).toFixed(2);
-                        return; 
-                    }
-
-                    if(data.clinicInfo) { 
-                        clinicDataGlobal = data.clinicInfo; 
-                        aplicarMarcaBlanca(clinicDataGlobal);
-                    } else if (userRole === 'secretaria') {
-                        const docInfo = await db.collection('users').doc(parentDoctorId).get();
-                        if(docInfo.exists && docInfo.data().clinicInfo) {
-                            clinicDataGlobal = docInfo.data().clinicInfo;
-                            aplicarMarcaBlanca(clinicDataGlobal);
+                        // Si es DOCTOR, buscamos su especialidad
+                        let especialidad = 'medicina'; // Default de seguridad
+                        if (data.clinicInfo && data.clinicInfo.especialidad) {
+                            especialidad = data.clinicInfo.especialidad;
                         }
+
+                        // Informar al usuario a dónde va
+                        document.getElementById('redirectMsg').textContent = `Abriendo módulo especializado de ${especialidad.toUpperCase()}...`;
+
+                        // Mapeo seguro de URLs
+                        const rutasPermitidas = {
+                            'medicina': 'dashboard-medicina.html',
+                            'odontologia': 'dashboard-odontologia.html',
+                            'veterinaria': 'dashboard-veterinaria.html',
+                            'fisioterapia': 'dashboard-fisioterapia.html',
+                            'nutricion': 'dashboard-nutricion.html'
+                        };
+
+                        const urlDestino = rutasPermitidas[especialidad] || 'dashboard-medicina.html';
+
+                        // Redirigir
+                        setTimeout(() => { window.location.href = urlDestino; }, 800);
+
+                    } else {
+                        // Error si no tiene documento en la base de datos
+                        auth.signOut();
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                        mostrarError("Error: Perfil no encontrado en la base de datos.");
                     }
+                } catch (e) {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    mostrarError("Fallo de conexión con el servidor.");
                 }
-                
-                document.getElementById('suspendedView').classList.add('hidden');
-                document.getElementById('dashboardView').classList.remove('hidden'); 
-                document.getElementById('navButtons').style.display = 'flex';
-
-                adaptarUI(); 
-                await loadPatients(); 
-                await loadAppointments();
-                if(userRole !== 'secretaria') updateDashboardStats();
-            } else {
-                currentUser = null; 
-                parentDoctorId = null;
-                clinicDataGlobal = null; 
-                document.getElementById('loginView').classList.remove('hidden'); 
-                document.getElementById('dashboardView').classList.add('hidden'); 
-                document.getElementById('suspendedView').classList.add('hidden');
-                document.getElementById('navButtons').style.display = 'none';
             }
         });
 
-        function aplicarMarcaBlanca(info) {
-            if(!info) return;
-            if(info.color) { document.getElementById('navBar').style.backgroundColor = info.color; }
-            if(info.nombre) { document.getElementById('navTitle').textContent = info.nombre; }
-            if(info.logo) {
-                const img = document.getElementById('navLogoImg');
-                img.src = info.logo;
-                img.classList.remove('hidden');
-                document.getElementById('navLogoSvg')?.classList.add('hidden');
-            }
-        }
+        // ====================================================
+        // LÓGICA DE INICIO DE SESIÓN
+        // ====================================================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitLogin');
+            btn.innerHTML = '<div class="spinner w-6 h-6 border-2 mx-auto"></div>';
+            btn.disabled = true;
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => { 
-            e.preventDefault(); 
-            try { 
-                await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); 
+            try {
+                await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
+                // Si es exitoso, el onAuthStateChanged toma el control y redirige
             } catch (error) { 
-                mostrarError(error.message); 
-            } 
+                btn.innerHTML = 'Ingresar al Sistema';
+                btn.disabled = false;
+                mostrarError("Correo o contraseña incorrectos."); 
+            }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+        // ====================================================
+        // LÓGICA DE REGISTRO
+        // ====================================================
+        document.getElementById('toggleSignupBtn').onclick = () => {
+            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('boxToggleSignup').classList.add('hidden');
+            loadSellers();
+        };
 
-        // 🔥 FUNCION PARA CARGAR VENDEDORES EN EL REGISTRO 🔥
-        async function loadSellersForSignup() {
+        document.getElementById('toggleBackBtn').onclick = () => {
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('boxToggleSignup').classList.remove('hidden');
+        };
+
+        async function loadSellers() {
             try {
                 const vendSnap = await db.collection('users').where('rol', '==', 'vendedor').get();
-                let html = '<option value="">No, compra directa en web</option>';
-                vendSnap.forEach(doc => {
-                    html += `<option value="${doc.id}">${doc.data().nombre}</option>`;
-                });
+                let html = '<option value="">Compra directa en web (Sin vendedor)</option>';
+                vendSnap.forEach(doc => { html += `<option value="${doc.id}">Referido por: ${doc.data().nombre}</option>`; });
                 document.getElementById('signupVendedor').innerHTML = html;
-            } catch (e) { console.log("No se pudieron cargar los vendedores: ", e); }
+            } catch(e) { console.log("Error cargando vendedores"); }
         }
 
-        document.getElementById('toggleSignupBtn').addEventListener('click', () => { 
-            document.getElementById('signupForm').classList.remove('hidden'); 
-            document.getElementById('toggleSignupBtn').classList.add('hidden'); 
-            loadSellersForSignup(); 
-        });
-
-        document.getElementById('toggleBackBtn').addEventListener('click', () => { 
-            document.getElementById('signupForm').classList.add('hidden'); 
-            document.getElementById('toggleSignupBtn').classList.remove('hidden'); 
-        });
-
-        document.getElementById('submitSignupBtn').addEventListener('click', async () => {
-            const name = document.getElementById('signupName').value; 
-            const email = document.getElementById('signupEmail').value; 
-            const password = document.getElementById('signupPassword').value; 
-            const phone = normalizarTelefono(document.getElementById('signupPhone').value); // 🔥 APLICANDO FILTRO 593
-            const vendedorId = document.getElementById('signupVendedor').value; 
+        document.getElementById('submitSignupBtn').onclick = async () => {
+            const btn = document.getElementById('submitSignupBtn');
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const pass = document.getElementById('signupPassword').value.trim();
+            const phone = normalizarTelefono(document.getElementById('signupPhone').value.trim());
             
-            if (!name || !email || !password || !phone) return mostrarError('Completa todos los campos obligatorios');
-            
-            document.getElementById('submitSignupBtn').disabled = true;
-            document.getElementById('submitSignupBtn').innerHTML = 'Registrando...';
+            // Capturar la especialidad seleccionada
+            const especialidad = document.getElementById('signupSpecialty').value; 
+            const vendedorId = document.getElementById('signupVendedor').value;
 
-            try { 
-                const cred = await auth.createUserWithEmailAndPassword(email, password); 
+            if (!name || !email || !pass || !phone) return mostrarError("Por favor, completa todos los campos.");
+            
+            btn.innerHTML = '⏳ Registrando...';
+            btn.disabled = true;
+
+            try {
+                // 1. Crear el usuario en Firebase Authentication
+                const cred = await auth.createUserWithEmailAndPassword(email, pass);
                 
-                await db.collection('users').doc(cred.user.uid).set({ 
+                // Asignar colores por defecto según la especialidad para mantener la estética
+                let colorBase = '#2563eb'; // Medicina
+                if(especialidad === 'odontologia') colorBase = '#0e7490';
+                if(especialidad === 'veterinaria') colorBase = '#4338ca';
+                if(especialidad === 'fisioterapia') colorBase = '#0f766e';
+                if(especialidad === 'nutricion') colorBase = '#047857';
+
+                // 2. Crear su perfil en Firestore con la especialidad correcta
+                await db.collection('users').doc(cred.user.uid).set({
                     userId: cred.user.uid, 
                     nombre: name, 
                     email: email, 
-                    telefonoWhatsApp: phone, 
+                    telefonoWhatsApp: phone,
                     rol: 'doctor', 
-                    estadoSuscripcion: 'suspendido',
-                    suscripcionPayphone: false,
-                    precioSuscripcion: 20,
+                    estadoSuscripcion: 'suspendido', // Nace suspendido hasta que pague
+                    precioSuscripcion: 20, 
                     fechaRegistro: new Date(),
                     vendedorId: vendedorId || null,
                     clinicInfo: { 
                         nombre: name, 
                         telefono: phone, 
-                        especialidad: 'medicina' 
+                        especialidad: especialidad, // 🔥 AQUI SE GUARDA LA ESPECIALIDAD
+                        color: colorBase
                     }
-                }); 
+                });
                 
+                // 3. Forzar redirección al portal de pagos
                 window.location.href = 'pagos.html';
 
-            } catch (error) { 
-                mostrarError(error.message); 
-                document.getElementById('submitSignupBtn').disabled = false;
-                document.getElementById('submitSignupBtn').innerHTML = 'Registrarme';
+            } catch (e) { 
+                mostrarError("Error en el registro: " + e.message); 
+                btn.innerHTML = 'Completar Registro';
+                btn.disabled = false; 
             }
-        });
+        };
 
-        // ==========================================
-        // 4. PACIENTES
-        // ==========================================
-        async function loadPatients() { 
-            try { 
-                const snapshot = await db.collection('patients').where('doctorId', '==', parentDoctorId).get(); 
-                patients = []; 
-                snapshot.forEach(doc => patients.push({ id: doc.id, ...doc.data() })); 
-                patients.sort((a, b) => a.nombre.localeCompare(b.nombre)); 
-                
-                document.getElementById('patientSelect').innerHTML = '<option value="">-- Seleccionar Paciente --</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join(''); 
-                renderPatientsDirectory(patients); 
-                if(userRole !== 'secretaria') updateDashboardStats();
-            } catch (error) {
-                console.error("Error al cargar pacientes:", error);
-            } 
-        }
-
-        function renderPatientsDirectory(listToRender) { 
-            const container = document.getElementById('patientsDirectoryList');
-            if (listToRender.length === 0) { 
-                container.innerHTML = '<p class="text-gray-500 text-sm col-span-full text-center py-6">No se encontraron pacientes registrados.</p>'; 
-                return; 
-            }
-
-            const esp = clinicDataGlobal?.especialidad || 'medicina';
-            
-            container.innerHTML = listToRender.map(p => {
-                const ownerTxt = (esp === 'veterinaria' && p.dueno) ? `<p class="text-xs text-gray-600 mt-1">👤 Dueño: <span class="font-semibold">${p.dueno}</span></p>` : '';
-                return `
-                <div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm hover:shadow-md hover:border-indigo-200 transition relative">
-                    <button onclick="editPatient('${p.id}')" class="absolute top-2 right-10 text-indigo-300 hover:text-indigo-600 font-bold text-lg" title="Editar paciente">✏️</button>
-                    <button onclick="deletePatientCompletely('${p.id}')" class="absolute top-2 right-2 text-red-300 hover:text-red-600 font-bold text-lg" title="Eliminar permanentemente">🗑️</button>
-                    <h4 class="font-bold text-gray-900 text-lg truncate pr-14">${p.nombre}</h4>
-                    ${ownerTxt}
-                    <p class="text-xs text-gray-500 mt-1">🆔 CI/RUC: <span class="font-semibold">${p.cedula || 'N/A'}</span></p>
-                    <p class="text-xs text-indigo-600 font-bold mt-1">📱 ${p.telefonoWhatsApp || 'N/A'}</p>
-                    <button onclick="openHistoryModal('${p.id}')" class="mt-3 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-black text-xs py-2 rounded-lg transition border border-indigo-100">📖 VER EXPEDIENTE</button>
-                </div>`;
-            }).join(''); 
-        }
-        
-        document.getElementById('searchPatientInput').addEventListener('input', (e) => { 
-            const term = e.target.value.toLowerCase(); 
-            renderPatientsDirectory(patients.filter(p => p.nombre.toLowerCase().includes(term) || (p.cedula && p.cedula.includes(term)))); 
-        });
-
-        document.getElementById('saveNewPatientBtn').addEventListener('click', async () => { 
-            const btn = document.getElementById('saveNewPatientBtn');
-            const name = document.getElementById('newPatientName').value.trim(); 
-            const cedula = document.getElementById('newPatientCedula').value.trim(); 
-            const phone = normalizarTelefono(document.getElementById('newPatientPhone').value.trim()); // 🔥 APLICANDO FILTRO 593
-            const email = document.getElementById('newPatientEmail').value.trim();
-            const ownerEl = document.getElementById('newPatientOwner');
-            const owner = ownerEl ? ownerEl.value.trim() : '';
-
-            if(!name || !phone || !cedula) return alert("⚠️ Nombre, Teléfono y Cédula son obligatorios.");
-
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Guardando...';
-
-            try { 
-                const existing = await db.collection('patients')
-                    .where('doctorId', '==', parentDoctorId)
-                    .where('cedula', '==', cedula)
-                    .get();
-
-                if(!existing.empty) {
-                    btn.disabled = false;
-                    btn.innerHTML = 'Guardar';
-                    return alert(`⚠️ Error: Ya existe un paciente registrado con la Cédula/RUC: ${cedula}.`);
-                }
-
-                await db.collection('patients').add({ 
-                    nombre: name, 
-                    cedula: cedula, 
-                    telefonoWhatsApp: phone, 
-                    email: email, 
-                    dueno: owner, 
-                    doctorId: parentDoctorId, 
-                    fechaRegistro: new Date(), 
-                    activo: true 
-                }); 
-                
-                document.getElementById('newPatientName').value = ''; 
-                document.getElementById('newPatientCedula').value = ''; 
-                document.getElementById('newPatientPhone').value = ''; 
-                document.getElementById('newPatientEmail').value = ''; 
-                if(ownerEl) ownerEl.value = ''; 
-                
-                document.getElementById('newPatientModal').classList.add('hidden'); 
-                await loadPatients(); 
-                alert('✅ Paciente registrado correctamente'); 
-            } catch (error) {
-                alert('❌ Error al guardar el paciente: ' + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Guardar';
-            }
-        });
-
-        // Lógica para Edición de Pacientes
-        let currentEditPatientId = null;
-        function editPatient(id) {
-            const pat = patients.find(p => p.id === id);
-            if(!pat) return;
-            
-            currentEditPatientId = id;
-            document.getElementById('editPatientId').value = id;
-            document.getElementById('editPatientCedula').value = pat.cedula || '';
-            document.getElementById('editPatientName').value = pat.nombre || '';
-            document.getElementById('editPatientPhone').value = pat.telefonoWhatsApp || '';
-            document.getElementById('editPatientEmail').value = pat.email || '';
-            
-            const ownerEl = document.getElementById('editPatientOwner');
-            if(ownerEl) ownerEl.value = pat.dueno || '';
-
-            const esp = clinicDataGlobal?.especialidad || 'medicina';
-            if (esp === 'veterinaria') {
-                document.getElementById('divEditPatOwner').classList.remove('hidden');
-            } else {
-                document.getElementById('divEditPatOwner').classList.add('hidden');
-            }
-
-            document.getElementById('editPatientModal').classList.remove('hidden');
-        }
-
-        document.getElementById('saveEditPatientBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('saveEditPatientBtn');
-            const name = document.getElementById('editPatientName').value.trim();
-            const cedula = document.getElementById('editPatientCedula').value.trim();
-            const phone = normalizarTelefono(document.getElementById('editPatientPhone').value.trim()); // 🔥 APLICANDO FILTRO 593
-            const email = document.getElementById('editPatientEmail').value.trim();
-            const ownerEl = document.getElementById('editPatientOwner');
-            const owner = ownerEl ? ownerEl.value.trim() : '';
-
-            if(!name || !phone || !cedula) return alert("⚠️ Nombre, Teléfono y Cédula son obligatorios.");
-
-            btn.disabled = true;
-            btn.innerHTML = '⏳ Actualizando...';
-
-            try {
-                await db.collection('patients').doc(currentEditPatientId).update({
-                    nombre: name,
-                    cedula: cedula,
-                    telefonoWhatsApp: phone,
-                    email: email,
-                    dueno: owner
-                });
-                document.getElementById('editPatientModal').classList.add('hidden');
-                await loadPatients(); 
-                mostrarMensaje('✅ Paciente actualizado correctamente', 'success');
-            } catch (error) {
-                alert('❌ Error al actualizar el paciente: ' + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Actualizar';
-            }
-        });
-
-        async function deletePatientCompletely(patientId) { 
-            const pat = patients.find(p => p.id === patientId);
-            if(!confirm(`⚠️ ATENCIÓN ⚠️\n¿Seguro que deseas eliminar permanentemente a ${pat.nombre}?\nSe borrarán también todas sus citas e historial médico.`)) return;
-            
-            try {
-                const citasSnapshot = await db.collection('appointments').where('patientId', '==', patientId).get();
-                const batchCitas = db.batch(); 
-                citasSnapshot.forEach(doc => batchCitas.delete(doc.ref)); 
-                await batchCitas.commit();
-
-                const vitalsSnapshot = await db.collection('patients').doc(patientId).collection('vitals').get();
-                const batchVitals = db.batch(); 
-                vitalsSnapshot.forEach(doc => batchVitals.delete(doc.ref)); 
-                await batchVitals.commit();
-
-                const imagesSnapshot = await db.collection('patients').doc(patientId).collection('images').get();
-                const batchImages = db.batch(); 
-                imagesSnapshot.forEach(doc => batchImages.delete(doc.ref)); 
-                await batchImages.commit();
-
-                await db.collection('patients').doc(patientId).delete(); 
-                mostrarMensaje('Paciente eliminado permanentemente', 'success');
-                await loadPatients(); 
-                await loadAppointments();
-            } catch(error) {
-                mostrarMensaje('Error al eliminar: ' + error.message, 'error');
-            }
-        }
-
-        // ==========================================
-        // 5. CITAS, AGENDA Y GOOGLE CALENDAR
-        // ==========================================
-        async function loadAppointments() { 
-            try { 
-                const snapshot = await db.collection('appointments').where('doctorId', '==', parentDoctorId).orderBy('fecha', 'desc').orderBy('hora', 'desc').get(); 
-                appointments = []; 
-                snapshot.forEach(doc => appointments.push({ id: doc.id, ...doc.data() })); 
-                renderAppointments(); 
-                if(userRole !== 'secretaria') updateDashboardStats(); 
-            } catch (error) {
-                console.error("Firebase Error en Citas:", error);
-            } 
-        }
-
-        function renderAppointments() { 
-            const container = document.getElementById('appointmentsList');
-            const sFilter = document.getElementById('filterAppointmentStatus').value; 
-            const todayStr = new Date().toISOString().split('T')[0];
-            
-            let filtered = [];
-            if (sFilter === 'activas') filtered = appointments.filter(a => a.estado !== 'completada' && a.estado !== 'cancelada');
-            else if (sFilter === 'hoy') filtered = appointments.filter(a => a.fecha === todayStr);
-            else if (sFilter === 'todas') filtered = appointments;
-            else filtered = appointments.filter(a => a.estado === sFilter);
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-8 font-bold bg-gray-50 rounded-xl border border-dashed border-gray-200">No hay citas para mostrar en esta vista.</p>';
-                return;
-            }
-
-            const statusColors = { 'pendiente': 'bg-yellow-100 text-yellow-800 border-yellow-200', 'confirmada': 'bg-blue-100 text-blue-800 border-blue-200', 'completada': 'bg-green-100 text-green-800 border-green-200' };
-
-            container.innerHTML = filtered.map(apt => { 
-                const p = patients.find(pat => pat.id === apt.patientId); 
-                const [y, m, d] = apt.fecha.split('-'); 
-                const dateStr = new Date(y, m - 1, d).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
-                
-                // Botones Condicionales
-                let btnConfirm = apt.estado === 'pendiente' ? `<button onclick="confirmAppointmentManually('${apt.id}')" class="bg-green-50 hover:bg-green-100 text-green-700 text-xs py-2 rounded-lg font-bold transition border border-green-100">✅ CONFIRMAR</button>` : '';
-
-                return `
-                <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-blue-300 transition bg-white mb-4">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h3 class="font-black text-lg text-gray-800">${p?.nombre || 'Paciente Eliminado'}</h3>
-                            <p class="text-xs text-gray-500 font-semibold mt-1">📱 ${p?.telefonoWhatsApp || 'S/N'}</p>
-                        </div>
-                        <span class="px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${statusColors[apt.estado] || 'bg-gray-100'}">${apt.estado}</span>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4 text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <div><p class="text-slate-400 text-[10px] uppercase font-bold">Fecha / Hora</p><p class="font-bold text-slate-700">${dateStr} | ${apt.hora}</p></div>
-                        <div><p class="text-slate-400 text-[10px] uppercase font-bold">Monto Cobrado</p><p class="font-black text-green-600">$${(apt.monto || 0).toFixed(2)}</p></div>
-                        <div class="col-span-2 md:col-span-1"><p class="text-slate-400 text-[10px] uppercase font-bold">Motivo</p><p class="font-medium text-slate-600 truncate" title="${apt.motivo}">${apt.motivo}</p></div>
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mt-3">
-                        ${btnConfirm}
-                        <button onclick="openTriageModal('${apt.id}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs py-2 rounded-lg font-bold transition border border-teal-100">🌡️ TRIAJE</button>
-                        <button onclick="openPrescriptionModal('${apt.id}')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2 rounded-lg font-black shadow-sm transition">⚕️ ATENDER</button>
-                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs py-2 rounded-lg font-bold transition border border-blue-100">📖 HIST</button>
-                        <button onclick="deleteAppointment('${apt.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs py-2 rounded-lg font-bold transition border border-red-100">🗑️ BORRAR</button>
-                    </div>
-                </div>`; 
-            }).join(''); 
-        }
-        
-        document.getElementById('appointmentForm').addEventListener('submit', async (e) => { 
-            e.preventDefault(); 
-            try {
-                await db.collection('appointments').add({ 
-                    patientId: document.getElementById('patientSelect').value, 
-                    doctorId: parentDoctorId, 
-                    fecha: document.getElementById('appointmentDate').value, 
-                    hora: document.getElementById('appointmentTime').value, 
-                    motivo: document.getElementById('appointmentReason').value, 
-                    monto: 0, 
-                    estado: document.getElementById('appointmentStatus').value, 
-                    notas: document.getElementById('appointmentNotes').value,
-                    recordatorioEnviado: false,
-                    fechaCreacion: new Date()
-                }); 
-                document.getElementById('appointmentForm').reset();
-                await loadAppointments(); 
-                mostrarMensaje('Cita agendada correctamente', 'success'); 
-            } catch (error) {
-                mostrarMensaje('Error al agendar: ' + error.message, 'error');
-            }
-        });
-
-        async function confirmAppointmentManually(id) {
-            if(!confirm("¿Deseas confirmar este turno manualmente?")) return;
-            try {
-                const apt = appointments.find(a => a.id === id);
-                const pat = patients.find(p => p.id === apt.patientId);
-                
-                await db.collection('appointments').doc(id).update({estado: 'confirmada'});
-                
-                // DISPARAR GOOGLE CALENDAR
-                if(clinicDataGlobal && clinicDataGlobal.gCalendarToken) {
-                    await fetch(`${API_BASE_URL}/api/calendar/create-event`, {
-                        method: 'POST',
-                        headers: apiHeaders,
-                        body: JSON.stringify({
-                            doctorId: parentDoctorId,
-                            pacienteNombre: pat.nombre,
-                            fecha: apt.fecha,
-                            hora: apt.hora,
-                            motivo: apt.motivo,
-                            tokenGCalendar: clinicDataGlobal.gCalendarToken
-                        })
-                    });
-                }
-                
-                mostrarMensaje('Turno confirmado.', 'success');
-                await loadAppointments();
-            } catch(e) {
-                mostrarMensaje("Error al confirmar: " + e.message, "error");
-            }
-        }
-
-        async function deleteAppointment(id) { 
-            if(confirm('¿Seguro que deseas eliminar esta cita de tu agenda?')) { 
-                await db.collection('appointments').doc(id).delete(); 
-                await loadAppointments(); 
-            } 
-        }
-
-        // ==========================================
-        // 6. HISTORIAL CLÍNICO E IMAGENOLOGÍA
-        // ==========================================
-        async function openHistoryModal(patientId) { 
-            if(!patientId || patientId === 'undefined') return alert('No se pudo encontrar el paciente.');
-            currentPatientIdForImages = patientId; 
-            
-            document.getElementById('historyModal').classList.remove('hidden'); 
-            
-            const pat = patients.find(p => p.id === patientId);
-            document.getElementById('historyPatientInfo').innerHTML = `👤 ${pat.nombre} &nbsp;|&nbsp; 🆔 CI/RUC: <span class="font-bold">${pat.cedula || 'N/A'}</span> &nbsp;|&nbsp; 📱 Tel: ${pat.telefonoWhatsApp}`;
-            
-            try {
-                const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'asc').get(); 
-                
-                if(snap.empty) {
-                    document.getElementById('historyTimeline').innerHTML = '<p class="text-center text-gray-500 mt-10 font-bold">Sin Historial Clínico registrado.</p>';
-                    document.getElementById('chartContainer').classList.add('hidden');
-                    if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
-                } else {
-                    const docs = snap.docs;
-                    const labels = [];
-                    const dataPeso = [];
-
-                    let timelineHtml = '';
-                    
-                    for(let i = docs.length - 1; i >= 0; i--) {
-                        const d = docs[i].data();
-                        const rawDate = d.fecha.toDate ? d.fecha.toDate() : d.fecha;
-                        const dateStr = new Date(rawDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-
-                        let vitalsStr = '';
-                        if(d.edad) vitalsStr += `Edad: ${d.edad} | `;
-                        if(d.peso) vitalsStr += `Peso: ${d.peso}kg | `;
-                        if(d.presion) vitalsStr += `Presión: ${d.presion} | `;
-                        if(d.ritmo) vitalsStr += `FC: ${d.ritmo}bpm | `;
-                        if(d.altura) vitalsStr += `Altura: ${d.altura}cm`;
-
-                        let recsHtml = '';
-                        if(d.recomendaciones && d.recomendaciones.length > 0) {
-                            recsHtml = `
-                            <div class="bg-orange-50 p-3 rounded-xl border border-orange-100 mt-2">
-                                <p class="text-xs font-bold text-orange-800 mb-1">💡 RECOMENDACIONES:</p>
-                                <ul class="text-xs text-orange-900 space-y-1">
-                                    ${d.recomendaciones.map(r => `<li>• ${r}</li>`).join('')}
-                                </ul>
-                            </div>`;
-                        }
-
-                        timelineHtml += `
-                        <div class="bg-white p-5 border-l-4 border-blue-500 rounded-r-2xl shadow-sm border border-gray-100 mb-4">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="text-sm font-black text-blue-900">📅 ${dateStr}</span>
-                                <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded font-bold uppercase tracking-wider">Atención IA</span>
-                            </div>
-                            <p class="text-sm text-gray-700 font-medium mb-2">
-                                <span class="font-black text-gray-900 uppercase text-[10px] tracking-widest">Evolución:</span><br>
-                                ${d.diagnostico || 'Sin diagnóstico registrado.'}
-                            </p>
-                            ${vitalsStr ? `<p class="text-xs text-slate-500 font-bold mb-2">📊 ${vitalsStr}</p>` : ''}
-                            ${recsHtml}
-                        </div>`;
-
-                        labels.unshift(dateStr); 
-                        if(d.peso) dataPeso.unshift(parseFloat(d.peso));
-                    }
-                    
-                    document.getElementById('historyTimeline').innerHTML = timelineHtml;
-
-                    const ctx = document.getElementById('vitalsChartCanvas');
-                    if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
-
-                    if (dataPeso.length > 0) {
-                        document.getElementById('chartContainer').classList.remove('hidden');
-                        window.vitalsChartInstance = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: 'Evolución de Peso (kg)',
-                                    data: dataPeso,
-                                    borderColor: '#2563eb',
-                                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                                    fill: true,
-                                    tension: 0.4,
-                                    pointBackgroundColor: '#2563eb',
-                                    pointRadius: 4,
-                                    pointHoverRadius: 6
-                                }]
-                            },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: false } } }
-                        });
-                    } else {
-                        document.getElementById('chartContainer').classList.add('hidden');
-                    }
-                }
-            } catch(e) {
-                document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center font-bold">Error cargando el expediente.</p>';
-            }
-
-            loadPatientImages(patientId);
-        }
-        
-        function closeHistoryModal() { 
-            document.getElementById('historyModal').classList.add('hidden'); 
-            if(window.vitalsChartInstance) window.vitalsChartInstance.destroy();
-        }
-
-        async function uploadPatientImage(inputElement) {
-            const file = inputElement.files[0];
-            if(!file || !currentPatientIdForImages) return;
-
-            const btn = document.getElementById('btnUploadImg');
-            btn.textContent = '⏳ Subiendo...';
-            btn.disabled = true;
-
-            try {
-                const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
-                await storageRef.put(file);
-                const downloadURL = await storageRef.getDownloadURL();
-
-                await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({
-                    url: downloadURL,
-                    nombre: file.name,
-                    fechaCreacion: new Date()
-                });
-
-                mostrarMensaje('Imagen subida y encriptada con éxito.', 'success');
-                loadPatientImages(currentPatientIdForImages); 
-
-            } catch (error) {
-                mostrarMensaje('Error al subir archivo: ' + error.message, 'error');
-            } finally {
-                btn.textContent = '📁 Subir Archivo';
-                btn.disabled = false;
-                inputElement.value = ''; 
-            }
-        }
-
-        async function loadPatientImages(patientId) {
-            const gallery = document.getElementById('patientImagesGallery');
-            gallery.innerHTML = '<div class="spinner mx-auto col-span-full"></div>';
-
-            try {
-                const snap = await db.collection('patients').doc(patientId).collection('images').orderBy('fechaCreacion', 'desc').get();
-                if(snap.empty) {
-                    gallery.innerHTML = '<p class="text-xs text-gray-400 col-span-full text-center py-4">No hay estudios cargados aún.</p>';
-                    return;
-                }
-
-                let html = '';
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    const fecha = data.fechaCreacion && data.fechaCreacion.toDate ? data.fechaCreacion.toDate().toLocaleDateString() : '';
-                    const isPDF = data.nombre.toLowerCase().endsWith('.pdf');
-                    
-                    if (isPDF) {
-                        html += `
-                        <div class="relative group rounded-lg overflow-hidden border border-gray-200 bg-red-50 flex items-center justify-center p-2 cursor-pointer hover:bg-red-100" onclick="window.open('${data.url}', '_blank')">
-                            <div class="text-center">
-                                <span class="text-2xl block mb-1">📄</span>
-                                <span class="text-[9px] font-bold text-red-800 break-all line-clamp-2">${data.nombre}</span>
-                            </div>
-                        </div>`;
-                    } else {
-                        html += `
-                        <div class="relative group rounded-lg overflow-hidden border border-gray-200 bg-gray-100 cursor-pointer" onclick="window.open('${data.url}', '_blank')">
-                            <img src="${data.url}" class="w-full h-24 object-cover hover:scale-110 transition-transform">
-                            <div class="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
-                                <p class="text-[9px] text-white font-bold truncate text-center">${fecha}</p>
-                            </div>
-                        </div>`;
-                    }
-                });
-                gallery.innerHTML = html;
-
-            } catch (e) {
-                gallery.innerHTML = '<p class="text-xs text-red-500 col-span-full text-center">Error al cargar imágenes.</p>';
-            }
-        }
-
-        // ==========================================
-        // 7. TRIAJE PRE-CONSULTA
-        // ==========================================
-        function openTriageModal(id) {
-            document.getElementById('triageAppointmentId').value = id;
-            const apt = appointments.find(x => x.id === id);
-            
-            document.querySelectorAll('.vital-input-tri').forEach(input => {
-                input.value = '';
-                if(apt && apt.triage) {
-                    let key = input.id.replace('tri', '').toLowerCase();
-                    if(apt.triage[key]) input.value = apt.triage[key];
-                }
-            });
-
-            document.getElementById('triageModal').classList.remove('hidden');
-        }
-
-        function closeTriageModal() {
-            document.getElementById('triageModal').classList.add('hidden');
-        }
-
-        async function saveTriage() {
-            const id = document.getElementById('triageAppointmentId').value;
-            let triageObj = {};
-            
-            document.querySelectorAll('.vital-input-tri').forEach(input => {
-                if(input.value) {
-                    let key = input.id.replace('tri', '').toLowerCase();
-                    triageObj[key] = input.value;
-                }
-            });
-
-            try {
-                await db.collection('appointments').doc(id).update({ triage: triageObj });
-                closeTriageModal();
-                mostrarMensaje('Triaje guardado exitosamente. Listo para atención médica.', 'success');
-                await loadAppointments();
-            } catch(e) {
-                mostrarMensaje('Error al guardar triaje', 'error');
-            }
-        }
-
-
-        // ==========================================
-        // 8. IA COPILOT Y RECETAS
-        // ==========================================
-        function openPrescriptionModal(id) { 
-            const apt = appointments.find(x => x.id === id);
-            document.getElementById('rxAppointmentId').value = id; 
-            document.getElementById('prescriptionModal').classList.remove('hidden'); 
-            document.getElementById('rxBorrador').value = '';
-            document.getElementById('rxDiagnostico').value = '';
-            document.getElementById('rxRecomendaciones').value = '';
-            
-            // Cargar triaje automáticamente si la enfermera lo llenó antes
-            document.querySelectorAll('.vital-input').forEach(input => {
-                input.value = '';
-                if(apt && apt.triage) {
-                    let key = input.id.replace('rx', '').toLowerCase();
-                    if(apt.triage[key]) input.value = apt.triage[key];
-                }
-            });
-            
-            document.getElementById('medicinesContainer').innerHTML = ''; 
-            addMedicineRow(); 
-        }
-
-        function closePrescriptionModal() { document.getElementById('prescriptionModal').classList.add('hidden'); }
-
-        function addMedicineRow(med=null) { 
-            const id = 'med_' + Date.now() + Math.floor(Math.random() * 1000); 
-            document.getElementById('medicinesContainer').insertAdjacentHTML('beforeend', `
-            <div id="${id}" class="flex gap-2 mb-2 relative bg-white p-3 border border-gray-200 rounded-xl shadow-sm animate-slideIn">
-                <input class="border border-gray-300 p-2 w-full text-sm rounded-lg med-name focus:ring-2 focus:ring-indigo-500" value="${med?.medicamento||''}" placeholder="Medicina (Ej. Paracetamol)">
-                <input class="border border-gray-300 p-2 w-1/2 text-sm rounded-lg med-dose focus:ring-2 focus:ring-indigo-500" value="${med?.dosis||''}" placeholder="Dosis / Frecuencia">
-                <button onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600 font-bold text-lg" title="Quitar medicina">✖</button>
-            </div>`); 
-        }
-
-        async function procesarConIA() { 
-            const btn = document.getElementById('btnCopiloto'); 
-            const borrador = document.getElementById('rxBorrador').value;
-            const esp = clinicDataGlobal?.especialidad || 'medicina';
-            
-            if(!borrador.trim()) {
-                alert("Escribe algunas notas primero para que la IA pueda trabajar.");
-                return;
-            }
-
-            let datosExtras = [];
-            document.querySelectorAll('.vital-input').forEach(input => {
-                if(input.value) {
-                    datosExtras.push(`${input.previousElementSibling.textContent}: ${input.value}`);
-                }
-            });
-            const contextoClinico = datosExtras.length > 0 ? "Datos medidos en consulta: " + datosExtras.join(', ') : "";
-
-            btn.innerHTML='⏳ Pensando...'; 
-            btn.disabled = true;
-
-            try { 
-                const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, { 
-                    method:'POST', 
-                    headers: apiHeaders, 
-                    body:JSON.stringify({ 
-                        notasBorrador: borrador,
-                        especialidad: esp,
-                        contextoClinico: contextoClinico 
-                    }) 
-                }); 
-                
-                if(!res.ok) throw new Error("Fallo en el servidor de IA");
-
-                const data = await res.json(); 
-                document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
-                
-                if (data.recomendaciones && data.recomendaciones.length > 0) {
-                    document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
-                } else {
-                    document.getElementById('rxRecomendaciones').value = '';
-                }
-
-                document.getElementById('medicinesContainer').innerHTML = ''; 
-                
-                if(data.receta && data.receta.length > 0) {
-                    data.receta.forEach(m => addMedicineRow(m)); 
-                } else {
-                    addMedicineRow();
-                }
-
-                document.getElementById('rxBorrador').value = ''; 
-                mostrarMensaje('Notas procesadas con Inteligencia Artificial', 'success');
-            } catch(e){
-                alert("Hubo un error con la Inteligencia Artificial. Revisa que tu servidor de API esté corriendo.");
-            } finally { 
-                btn.innerHTML='🪄 Estructurar Automáticamente'; 
-                btn.disabled = false;
-            } 
-        }
-
-        async function submitPrescription() { 
-            const id = document.getElementById('rxAppointmentId').value; 
-            const a = appointments.find(x=>x.id===id); 
-            const p = patients.find(x=>x.id===a.patientId); 
-            
-            let diag = document.getElementById('rxDiagnostico').value; 
-            
-            const esp = clinicDataGlobal?.especialidad || 'medicina';
-            let customVitalsStr = [];
-            let vitalsObj = {};
-            
-            document.querySelectorAll('.vital-input').forEach(input => {
-                if(input.value) {
-                    customVitalsStr.push(`${input.previousElementSibling.textContent}: ${input.value}`);
-                    let key = input.id.replace('rx', '').toLowerCase();
-                    vitalsObj[key] = input.value;
-                }
-            });
-
-            if(esp !== 'medicina' && customVitalsStr.length > 0) {
-                diag = `[Datos Clínicos: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
-            }
-
-            const meds = []; 
-            Array.from(document.getElementById('medicinesContainer').children).forEach(r => { 
-                const n = r.querySelector('.med-name').value; 
-                if(n) meds.push({ medicamento:n, dosis:r.querySelector('.med-dose').value }); 
-            }); 
-            
-            const recText = document.getElementById('rxRecomendaciones').value;
-            const recomendacionesList = recText ? recText.split('\n').filter(r => r.trim() !== '') : [];
-
-            const btn = document.getElementById('btnSubmitPrescription');
-            btn.innerHTML = '⏳ Guardando y generando PDF...';
-            btn.disabled = true;
-
-            try {
-                if(diag || customVitalsStr.length > 0 || meds.length > 0 || recomendacionesList.length > 0) {
-                    await db.collection('patients').doc(p.id).collection('vitals').add({ 
-                        fecha: new Date(), 
-                        diagnostico: diag, 
-                        recomendaciones: recomendacionesList,
-                        ...vitalsObj 
-                    }); 
-                }
-
-                await fetch(`${API_BASE_URL}/send-prescription`, { 
-                    method:'POST', 
-                    headers: apiHeaders, 
-                    body:JSON.stringify({ 
-                        doctorId: parentDoctorId, 
-                        phoneNumber: p.telefonoWhatsApp, 
-                        patientName: p.nombre, 
-                        diagnostico: diag, 
-                        vitals: vitalsObj, 
-                        prescription: meds, 
-                        recomendaciones: recomendacionesList,
-                        clinicInfo: clinicDataGlobal 
-                    }) 
-                }); 
-                
-                closePrescriptionModal(); 
-                openBillingModal(id, p.nombre); 
-            } catch (err) {
-                mostrarMensaje("Error al guardar y enviar la receta al servidor", "error");
-            } finally {
-                btn.innerHTML = 'Siguiente: Generar Cobro ➡️';
-                btn.disabled = false;
-            }
-        }
-
-        // ==========================================
-        // 9. COBROS Y COMPROBANTE
-        // ==========================================
-        function openBillingModal(id, name) { 
-            document.getElementById('billingAptId').value = id; 
-            document.getElementById('billingPatName').textContent = name; 
-            document.getElementById('billingSubtotal').value = '';
-            document.getElementById('billingIva').checked = false;
-            document.getElementById('billingTotalDisplay').textContent = '$0.00';
-            document.getElementById('billingModal').classList.remove('hidden'); 
-        }
-
-        function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
-        
-        function calculateTotal() { 
-            const s = parseFloat(document.getElementById('billingSubtotal').value) || 0; 
-            const t = document.getElementById('billingIva').checked ? s*1.15 : s; 
-            document.getElementById('billingTotalDisplay').textContent = '$' + t.toFixed(2); 
-        }
-
-        async function submitBilling() { 
-            const id = document.getElementById('billingAptId').value; 
-            const a = appointments.find(x => x.id === id); 
-            const p = patients.find(x => x.id === a.patientId);
-            
-            const sub = parseFloat(document.getElementById('billingSubtotal').value) || 0; 
-            const iva = document.getElementById('billingIva').checked; 
-            const tot = iva ? sub * 1.15 : sub;
-            
-            const msg = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Consultorio Médico'}\n\n👤 Paciente: ${p.nombre}\n💵 Total cancelado: $${tot.toFixed(2)}\n\n¡Gracias por su confianza!`;
-            
-            const btn = document.getElementById('btnFinalizarCobro');
-            btn.innerHTML = '⏳ Registrando y Enviando...';
-            btn.disabled = true;
-
-            try {
-                const resMsg = await fetch(`${API_BASE_URL}/send-message`, { 
-                    method: 'POST', 
-                    headers: apiHeaders, 
-                    body: JSON.stringify({ 
-                        doctorId: parentDoctorId, 
-                        phoneNumber: p.telefonoWhatsApp, 
-                        message: msg 
-                    }) 
-                });
-
-                const dataMsg = await resMsg.json();
-                if (!resMsg.ok || !dataMsg.success) throw new Error(dataMsg.error || "Fallo en la red");
-
-                await db.collection('appointments').doc(id).update({ estado: 'completada', monto: tot });
-                closeBillingModal(); 
-                
-                await loadAppointments(); 
-                mostrarMensaje('Cobro registrado y comprobante enviado al paciente', 'success');
-            } catch (err) {
-                alert('Hubo un error enviando el comprobante por WhatsApp. Verifica que el servidor de la API esté activo.');
-            } finally {
-                btn.innerHTML = 'Finalizar y Enviar 📲';
-                btn.disabled = false;
-            }
-        }
-
-        // ==========================================
-        // 10. OMNICANALIDAD (REEMPLAZO DE WHATSAPP QR)
-        // ==========================================
-        function openMetaModal() { 
-            document.getElementById('metaModal').classList.remove('hidden'); 
-            checkMetaStatus(); 
-        }
-        
-        function closeMetaModal() { 
-            document.getElementById('metaModal').classList.add('hidden'); 
-        }
-
-        async function checkMetaStatus() {
-            try {
-                // Verificamos con el servidor el estatus de la clínica
-                const res = await fetch(`${API_BASE_URL}/api/whatsapp/status/${parentDoctorId}`); 
-                const data = await res.json(); 
-                
-                if(data.status === 'connected') { 
-                    document.getElementById('statusWA').textContent = "Conectado ✅";
-                    document.getElementById('statusWA').className = "bg-green-100 text-green-700 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-green-200";
-
-                    document.getElementById('statusFB').textContent = "Conectado ✅";
-                    document.getElementById('statusFB').className = "bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-blue-200";
-
-                    document.getElementById('statusIG').textContent = "Conectado ✅";
-                    document.getElementById('statusIG').className = "bg-pink-100 text-pink-700 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-pink-200";
-                } else { 
-                    document.getElementById('statusWA').textContent = "Inactivo ⚠️";
-                    document.getElementById('statusWA').className = "bg-red-100 text-red-700 text-[10px] font-black uppercase px-3 py-1 rounded-full border border-red-200";
-                }
-            } catch(e) {
-                console.error("Error consultando estado:", e);
-            }
-        }
-
-        function requestMetaSync() {
-            mostrarMensaje("Canales sincronizados correctamente con Meta Cloud API.", "success");
-            checkMetaStatus();
-        }
-
-        // ==========================================
-        // 11. MÓDULO DE PROMOCIONES MASIVAS
-        // ==========================================
-        function openPromotionsModal() {
-            document.getElementById('promoMessage').value = '';
-            document.getElementById('promoTargeting').value = '';
-            document.getElementById('promotionsModal').classList.remove('hidden');
-        }
-
-        function closePromotionsModal() {
-            document.getElementById('promotionsModal').classList.add('hidden');
-        }
-
-        async function sendPromotion() {
-            const msg = document.getElementById('promoMessage').value.trim();
-            const targeting = document.getElementById('promoTargeting').value.trim() || 'A todos los pacientes';
-            
-            if(!msg) return alert("Escribe un mensaje para la promoción.");
-            
-            if(!confirm("⚠️ ¿Seguro que deseas iniciar esta campaña inteligente? La IA evaluará tus parámetros de envío.")) return;
-
-            const btn = document.getElementById('btnSendPromo');
-            btn.innerHTML = '⏳ Evaluando y Enviando...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
-                    method: 'POST',
-                    headers: apiHeaders,
-                    body: JSON.stringify({
-                        doctorId: parentDoctorId,
-                        mensajePromocion: msg,
-                        instruccionesIA: targeting
-                    })
-                });
-                
-                const data = await res.json();
-                
-                if (res.ok && data.success) {
-                    mostrarMensaje(`¡Campaña finalizada! Mensaje enviado a ${data.enviados} pacientes según la segmentación.`, 'success');
-                    closePromotionsModal();
-                } else {
-                    throw new Error(data.error || "Fallo en el servidor");
-                }
-            } catch(e) {
-                mostrarMensaje('Error al enviar la promoción: ' + e.message, 'error');
-            } finally {
-                btn.innerHTML = 'Enviar Inteligente 🚀';
-                btn.disabled = false;
-            }
-        }
-
-        // ==========================================
-        // 12. CONFIGURACIÓN Y UTILIDADES
-        // ==========================================
-        function adaptarUI() {
-            const esp = clinicDataGlobal?.especialidad || 'medicina';
-            
-            if (esp === 'veterinaria') {
-                document.getElementById('lblPatCedula').textContent = 'Cédula del Dueño *';
-                document.getElementById('lblPatName').textContent = 'Nombre de la Mascota *';
-                document.getElementById('divPatOwner').classList.remove('hidden');
-            } else {
-                document.getElementById('lblPatCedula').textContent = 'Cédula / RUC *';
-                document.getElementById('lblPatName').textContent = 'Nombre Completo *';
-                document.getElementById('divPatOwner').classList.add('hidden');
-            }
-            
-            const container = document.getElementById('dynamicVitalsContainer');
-            let html = '';
-            
-            if (esp === 'odontologia') {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Pieza Dental</label><input type="text" id="rxPieza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div class="col-span-2 md:col-span-4"><label class="block text-xs font-semibold text-gray-600 mb-1">Alergias</label><input type="text" id="rxAlergias" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            } else if (esp === 'fisioterapia') {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Nivel Dolor (1-10)</label><input type="number" id="rxDolor" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Zona Afectada</label><input type="text" id="rxZona" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Movilidad</label><input type="text" id="rxMov" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            } else if (esp === 'nutricion') {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">% Grasa</label><input type="number" id="rxGrasa" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">IMC</label><input type="number" id="rxImc" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            } else if (esp === 'veterinaria') {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad Mascota</label><input type="text" id="rxEdad" placeholder="Ej: 2 años" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Temp (°C)</label><input type="number" id="rxTemp" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">F. Cardíaca</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div class="col-span-2 md:col-span-4"><label class="block text-xs font-semibold text-gray-600 mb-1">Especie/Raza</label><input type="text" id="rxRaza" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            } else {
-                html = `<div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">Presión Arterial</label><input type="text" id="rxPresion" placeholder="120/80" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600 mb-1">FC (bpm)</label><input type="number" id="rxRitmo" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>`;
-            }
-            
-            if(container) container.innerHTML = html;
-
-            const triContainer = document.getElementById('triageVitalsContainer');
-            if(triContainer) {
-                let triHtml = html.replace(/id="rx/g, 'id="tri').replace(/vital-input/g, 'vital-input-tri');
-                triContainer.innerHTML = triHtml;
-            }
-        }
-
-        function encodeImageFileAsURL(element) { 
-            let file = element.files[0]; 
-            let reader = new FileReader(); 
-            reader.onloadend = function() { 
-                document.getElementById('clinicLogoBase64').value = reader.result; 
-                document.getElementById('logoPreview').src = reader.result; 
-                document.getElementById('logoPreview').classList.remove('hidden'); 
-            }; 
-            if(file) reader.readAsDataURL(file); 
-        }
-        
-        function openSettingsModal() { 
-            if(clinicDataGlobal) { 
-                document.getElementById('clinicSpecialty').value = clinicDataGlobal.especialidad || 'medicina'; 
-                document.getElementById('clinicName').value = clinicDataGlobal.nombre || ''; 
-                document.getElementById('clinicColor').value = clinicDataGlobal.color || '#2563eb'; 
-                document.getElementById('clinicRuc').value = clinicDataGlobal.ruc || ''; 
-                document.getElementById('clinicAddress').value = clinicDataGlobal.direccion || ''; 
-                document.getElementById('clinicPhone').value = clinicDataGlobal.telefono || ''; 
-                document.getElementById('clinicGCalendarToken').value = clinicDataGlobal.gCalendarToken || '';
-                
-                if(clinicDataGlobal.logo) { 
-                    document.getElementById('clinicLogoBase64').value = clinicDataGlobal.logo; 
-                    document.getElementById('logoPreview').src = clinicDataGlobal.logo; 
-                    document.getElementById('logoPreview').classList.remove('hidden'); 
-                } 
-                document.getElementById('scheduleStart').value = clinicDataGlobal.horarioInicio || '08:00'; 
-                document.getElementById('scheduleEnd').value = clinicDataGlobal.horarioFin || '17:00'; 
-                document.getElementById('scheduleDuration').value = clinicDataGlobal.duracionCita || '30'; 
-                globalBlockedDates = clinicDataGlobal.diasBloqueados || []; 
-            } else { 
-                document.getElementById('clinicSpecialty').value = 'medicina'; 
-                document.getElementById('scheduleStart').value = '08:00'; 
-                document.getElementById('scheduleEnd').value = '17:00'; 
-                document.getElementById('scheduleDuration').value = '30'; 
-                document.getElementById('clinicColor').value = '#2563eb';
-                document.getElementById('clinicGCalendarToken').value = '';
-                globalBlockedDates = []; 
-            } 
-            renderBlockedDates(); 
-            document.getElementById('settingsModal').classList.remove('hidden'); 
-        }
-        
-        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-        function addBlockedDate() { const input = document.getElementById('scheduleBlockDate'); const date = input.value; if(date && !globalBlockedDates.includes(date)) { globalBlockedDates.push(date); input.value = ''; renderBlockedDates(); } }
-        function removeBlockedDate(d) { globalBlockedDates = globalBlockedDates.filter(x => x !== d); renderBlockedDates(); }
-        function renderBlockedDates() { document.getElementById('blockedDatesList').innerHTML = globalBlockedDates.map(date => `<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded flex items-center">${date} <button type="button" onclick="removeBlockedDate('${date}')" class="text-red-500 font-bold ml-1 hover:text-red-700">&times;</button></span>`).join(''); }
-        
-        async function saveClinicSettings() { 
-            const info = { 
-                especialidad: document.getElementById('clinicSpecialty').value, 
-                nombre: document.getElementById('clinicName').value, 
-                color: document.getElementById('clinicColor').value,
-                ruc: document.getElementById('clinicRuc').value, 
-                direccion: document.getElementById('clinicAddress').value, 
-                telefono: normalizarTelefono(document.getElementById('clinicPhone').value), // 🔥 APLICANDO FILTRO 593
-                logo: document.getElementById('clinicLogoBase64').value, 
-                horarioInicio: document.getElementById('scheduleStart').value, 
-                horarioFin: document.getElementById('scheduleEnd').value, 
-                duracionCita: document.getElementById('scheduleDuration').value, 
-                gCalendarToken: document.getElementById('clinicGCalendarToken').value,
-                diasBloqueados: globalBlockedDates 
-            }; 
-            try { 
-                await db.collection('users').doc(parentDoctorId).update({ clinicInfo: info }); 
-                clinicDataGlobal = info; 
-                aplicarMarcaBlanca(info);
-                adaptarUI(); 
-                closeSettingsModal(); 
-                mostrarMensaje('Configuración de la clínica guardada', 'success'); 
-            } catch (error) { 
-                mostrarMensaje('Error al guardar: ' + error.message, 'error'); 
-            } 
-        }
-
-        async function syncGoogleCalendar() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl`);
-                const data = await res.json();
-                window.open(data.url, '_blank');
-                document.getElementById('clinicGCalendarToken').classList.remove('hidden');
-                document.getElementById('clinicGCalendarToken').readOnly = false;
-                alert("Sigue estos pasos:\n\n1. Inicia sesión con Google en la ventana que se abrió.\n2. Copia TODO el código que te aparezca (incluyendo las llaves {}).\n3. Pégalo en el campo que acaba de aparecer aquí.\n4. PRESIONA 'Guardar Configuración' al final del formulario.");
-            } catch(e) {
-                alert("Error obteniendo URL de Google Calendar. Revisa la conexión al servidor Node.js.");
-            }
-        }
-
-        function copiarMiLink() {
-            if(!currentUser) return;
-            const currentPath = window.location.href.split('?')[0]; 
-            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
-            navigator.clipboard.writeText(miLink).then(() => mostrarMensaje('¡Enlace copiado al portapapeles!', 'success')).catch(err => alert("Copia manualmente tu link: " + miLink));
-        }
-
-        function mostrarError(msg) { 
-            const d = document.getElementById('authError'); 
+        function mostrarError(msg) {
+            const d = document.getElementById('authError');
             d.textContent = msg; 
-            d.classList.remove('hidden'); 
-            setTimeout(()=>d.classList.add('hidden'), 5000); 
-        }
-        
-        function mostrarMensaje(msg, type='success') { 
-            const d = document.getElementById('formMessage'); 
-            d.textContent = msg; 
-            d.className = `p-4 rounded-lg mt-4 font-bold shadow-md border ${type==='success'?'bg-green-100 text-green-800 border-green-300':'bg-red-100 text-red-800 border-red-300'}`; 
-            d.classList.remove('hidden'); 
-            setTimeout(()=>d.classList.add('hidden'), 3500); 
+            d.classList.remove('hidden');
+            setTimeout(() => d.classList.add('hidden'), 5000);
         }
     </script>
 </body>
