@@ -677,6 +677,35 @@
                 loadInsumos();
             } catch(e) {}
         }
+        // ----------------------------------------------------
+        // CUMPLEAÑOS Y REGALOS
+        // ----------------------------------------------------
+        function checkBirthdays() {
+            const today = new Date().toISOString().slice(5, 10);
+            const bdays = patients.filter(p => p.fechaNacimiento && p.fechaNacimiento.slice(5, 10) === today);
+            const container = document.getElementById('birthdayList');
+            if(container) {
+                if(bdays.length > 0) {
+                    container.innerHTML = bdays.map(p => `<div class="text-pink-600 mb-1 leading-tight text-sm">🎁 ${p.nombre}</div>`).join('');
+                } else {
+                    container.innerHTML = "<span class='text-slate-400 font-normal'>Ninguno hoy</span>";
+                }
+            }
+        }
+
+        function openBirthdayConfig() {
+            document.getElementById('bdayGiftText').value = clinicDataGlobal.bdayGift || '';
+            document.getElementById('birthdayModal').classList.remove('hidden');
+        }
+
+        async function saveBdayConfig() {
+            const gift = document.getElementById('bdayGiftText').value;
+            await db.collection('users').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift });
+            clinicDataGlobal.bdayGift = gift;
+            mostrarMensaje("Regalo de cumpleaños configurado.", "success");
+            document.getElementById('birthdayModal').classList.add('hidden');
+        }
+        
         async function syncGoogleCalendar() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl?doctorId=${parentDoctorId}`);
