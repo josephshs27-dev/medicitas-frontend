@@ -627,7 +627,56 @@
                 }
             }
         }
+        // ----------------------------------------------------
+        // INVENTARIO DE INSUMOS
+        // ----------------------------------------------------
+        async function loadInsumos() {
+            const snap = await db.collection('insumos').where('doctorId', '==', parentDoctorId).get();
+            insumos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderInsumos();
+        }
 
+        function renderInsumos() {
+            const body = document.getElementById('insumosTableBody');
+            if(!body) return;
+            body.innerHTML = insumos.map(i => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                    <td class="p-4">${i.nombre}</td>
+                    <td class="p-4"><span class="${i.stock < 10 ? 'text-red-600 font-black' : 'text-slate-800'}">${i.stock}</span></td>
+                    <td class="p-4">
+                        <button onclick="updateStock('${i.id}', 1)" class="bg-green-100 text-green-700 px-3 py-1 rounded-lg font-black mr-1 hover:bg-green-200 transition">+</button>
+                        <button onclick="updateStock('${i.id}', -1)" class="bg-red-100 text-red-700 px-3 py-1 rounded-lg font-black hover:bg-red-200 transition">-</button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function openAddInsumoModal() { document.getElementById('addInsumoModal').classList.remove('hidden'); }
+        
+        async function submitNewInsumo() {
+            const name = document.getElementById('insumoName').value.trim();
+            const qty = parseInt(document.getElementById('insumoQty').value) || 0;
+            const cat = document.getElementById('insumoCat').value;
+            if(!name) return alert("Ingresa el nombre.");
+            try {
+                await db.collection('insumos').add({ doctorId: parentDoctorId, nombre: name, stock: qty, categoria: cat });
+                document.getElementById('addInsumoModal').classList.add('hidden');
+                document.getElementById('insumoName').value = '';
+                document.getElementById('insumoQty').value = '';
+                mostrarMensaje("Insumo agregado.", "success");
+                loadInsumos();
+            } catch(e) { alert("Error al guardar insumo."); }
+        }
+
+        async function updateStock(id, diff) {
+            const insumo = insumos.find(i => i.id === id);
+            if(!insumo) return;
+            let newStock = insumo.stock + diff;
+            if(newStock < 0) newStock = 0;
+            try {
+                await db.collection('insumos').doc(id).update({ stock: newStock });
+                loadInsumos();
+            } catch(e) {}
+        }
         async function syncGoogleCalendar() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl?doctorId=${parentDoctorId}`);
