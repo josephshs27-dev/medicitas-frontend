@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediCitas Pro - Fisioterapia y Rehabilitación</title>
+    <title>Asistencitas Pro - Fisioterapia</title>
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
     <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,7 +15,7 @@
     <style>
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slideIn { animation: slideIn 0.3s ease-out; }
-        .spinner { border: 4px solid #e5e7eb; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        .spinner { border: 4px solid #e5e7eb; border-top: 4px solid #0f766e; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
@@ -27,28 +27,32 @@
 
     <div id="authCheckOverlay" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center">
         <div class="spinner mb-4"></div>
-        <p class="text-white font-bold animate-pulse">Cargando Centro de Fisioterapia...</p>
+        <p class="text-white font-bold animate-pulse text-lg tracking-widest">Iniciando Asistencitas Fisioterapia...</p>
     </div>
 
     <div id="app" class="flex-1 flex flex-col h-full overflow-hidden">
         
-        <nav id="navBar" class="bg-teal-700 text-white shadow-md z-10 relative transition-colors duration-500">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <img id="navLogoImg" src="img/logo.png" alt="MediCitas" class="h-10 w-auto object-contain bg-white rounded-xl p-0.5 shadow-sm">
-                    <h1 id="navTitle" class="text-2xl font-bold tracking-tight truncate max-w-[200px] md:max-w-xs">MediCitas Fisioterapia</h1>
+        <nav id="navBar" class="bg-teal-700 text-white shadow-lg z-20 relative transition-all duration-500">
+            <div class="max-w-full mx-auto px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="bg-white rounded-2xl p-1 shadow-inner h-12 w-12 flex items-center justify-center overflow-hidden">
+                        <img id="navLogoImg" src="img/logo.png" alt="Logo" class="h-full w-full object-contain">
+                    </div>
+                    <div>
+                        <h1 id="navTitle" class="text-2xl font-black tracking-tight leading-none">Asistencitas</h1>
+                        <p class="text-[10px] uppercase font-bold opacity-80 tracking-widest mt-1">Módulo Fisioterapia</p>
+                    </div>
                 </div>
                 <div class="flex gap-2">
-                    <button id="btnNavSuscripcion" onclick="window.location.href='pagos.html'" class="bg-orange-500 hover:bg-orange-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 text-white shadow-sm text-sm border border-orange-400">💳 Suscripción</button>
-                    <button onclick="openMetaModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 border border-indigo-400 hover:from-blue-700 hover:to-indigo-700 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm">🌐 Meta Omnicanal</button>
-                    <button onclick="copiarMiLink()" class="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-lg transition font-bold flex items-center gap-2 shadow-sm text-sm hidden md:flex">🔗 Mi Link</button>
-                    <button id="btnNavConfig" onclick="openSettingsModal()" class="bg-black/20 hover:bg-black/40 px-3 py-2 rounded-lg transition font-semibold flex items-center gap-2 text-sm">⚙️ Configuración</button>
-                    <button id="logoutBtn" onclick="auth.signOut()" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg transition font-bold text-sm shadow-sm">Salir</button>
+                    <button onclick="openBirthdayConfig()" class="bg-pink-500 hover:bg-pink-600 px-3 py-2 rounded-xl transition font-bold flex items-center gap-2 shadow-sm text-sm border border-pink-400">🎁 Regalos</button>
+                    <button onclick="copiarMiLink()" class="bg-teal-600 hover:bg-teal-800 px-3 py-2 rounded-xl transition font-bold flex items-center gap-2 text-sm border border-teal-500">🔗 Mi Link</button>
+                    <button onclick="openSettingsModal()" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl transition font-semibold flex items-center gap-2 text-sm">⚙️ Ajustes</button>
+                    <button onclick="auth.signOut()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-xl transition font-black text-sm shadow-md">Salir</button>
                 </div>
             </div>
         </nav>
 
-        <div class="max-w-7xl mx-auto px-4 w-full flex-1 overflow-y-auto custom-scroll">
+        <div class="max-w-full mx-auto px-6 w-full flex-1 overflow-y-auto custom-scroll">
             
             <div id="suspendedView" class="hidden min-h-[70vh] flex flex-col items-center justify-center text-center px-4 animate-slideIn">
                 <div class="bg-slate-900 p-10 rounded-2xl shadow-2xl max-w-lg border border-slate-700">
@@ -59,350 +63,395 @@
                         <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total a pagar</p>
                         <p class="text-4xl font-black text-green-400">$<span id="suspendedPrice">20.00</span></p>
                     </div>
-                    <button onclick="window.location.href='pagos.html'" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg border border-blue-400">💳 Ir al Portal de Pagos</button>
+                    <button onclick="window.location.href='pagos.html'" class="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95 text-lg border border-teal-400">💳 Ir al Portal de Pagos</button>
                 </div>
             </div>
 
-            <div id="dashboardView" class="hidden py-6 flex flex-col h-full">
+            <div id="dashboardView" class="hidden py-8 flex flex-col h-full">
                 <div id="formMessage" class="mb-4 hidden text-center"></div>
 
-                <div class="flex flex-wrap gap-2 md:gap-4 mb-6 border-b border-gray-200 pb-4">
-                    <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-teal-100 text-teal-800 border-2 border-teal-600 transition-all">📊 Resumen Financiero</button>
-                    <button onclick="switchTab('agenda')" id="tabBtnAgenda" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 transition-all">📅 Agenda de Terapias</button>
-                    <button onclick="switchTab('pacientes')" id="tabBtnPacientes" class="flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100 transition-all">👥 Pacientes</button>
+                <div class="flex flex-wrap gap-3 mb-8 border-b border-slate-200 pb-4">
+                    <button onclick="switchTab('dashboard')" id="tabBtnDashboard" class="flex items-center gap-2 px-6 py-3 rounded-2xl font-black bg-teal-100 text-teal-800 border-2 border-teal-600 shadow-sm transition-all">📊 Métricas</button>
+                    <button onclick="switchTab('agenda')" id="tabBtnAgenda" class="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold bg-white text-slate-600 border border-slate-300 hover:bg-slate-100 transition-all shadow-sm">📅 Agenda de Terapias</button>
+                    <button onclick="switchTab('pacientes')" id="tabBtnPacientes" class="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold bg-white text-slate-600 border border-slate-300 hover:bg-slate-100 transition-all shadow-sm">👥 Pacientes</button>
+                    <button onclick="switchTab('insumos')" id="tabBtnInsumos" class="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold bg-white text-slate-600 border border-slate-300 hover:bg-slate-100 transition-all shadow-sm">📦 Insumos</button>
                 </div>
 
                 <div class="flex-1 overflow-hidden relative">
 
                     <div id="tabContentDashboard" class="h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
-                        <div class="bg-indigo-50 border border-indigo-200 text-indigo-900 p-4 rounded-xl mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">🗓️</span>
-                                <div>
-                                    <p class="text-xs uppercase font-black text-indigo-500 tracking-wider">Próximo Pago</p>
-                                    <p class="font-bold text-sm">Fecha programada: <strong id="nextPaymentDateDisplay" class="text-indigo-700 bg-white px-2 py-1 rounded shadow-sm border border-indigo-100">--/--/----</strong></p>
-                                </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div class="bg-gradient-to-br from-teal-600 to-teal-800 p-8 rounded-3xl text-white shadow-xl">
+                                <p class="text-teal-100 text-xs font-black uppercase tracking-widest">Terapias Mes</p>
+                                <p class="text-6xl font-black mt-2" id="kpiCitas">0</p>
                             </div>
-                            <button onclick="window.location.href='pagos.html'" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow-sm">Administrar Pago</button>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
-                            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                                <h2 class="text-2xl font-black text-gray-800">Métricas del Centro</h2>
-                                <select id="financeFilter" onchange="updateDashboardStats()" class="bg-teal-50 border border-teal-200 text-teal-800 font-bold px-4 py-2 rounded-lg">
-                                    <option value="hoy">Hoy</option>
-                                    <option value="mes" selected>Este Mes</option>
-                                    <option value="todo">Histórico</option>
-                                </select>
+                            <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 p-8 rounded-3xl text-white shadow-xl">
+                                <p class="text-emerald-100 text-xs font-black uppercase tracking-widest">Ingresos Reales</p>
+                                <p class="text-4xl font-black mt-4" id="kpiIngresos">$0.00</p>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div class="bg-gradient-to-br from-teal-500 to-teal-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-teal-100 text-sm font-semibold uppercase tracking-wider">Terapias Totales</p>
-                                    <p class="text-5xl font-black mt-2" id="kpiCitas">0</p>
-                                </div>
-                                <div class="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-green-100 text-sm font-semibold uppercase tracking-wider">Ingresos Reales</p>
-                                    <p class="text-5xl font-black mt-2" id="kpiIngresos">$0.00</p>
-                                </div>
-                                <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-blue-100 text-sm font-semibold uppercase tracking-wider">Total Pacientes</p>
-                                    <p class="text-5xl font-black mt-2" id="kpiPacientes">0</p>
-                                </div>
-                                <div class="bg-gradient-to-br from-orange-500 to-orange-700 text-white rounded-xl shadow p-6">
-                                    <p class="text-orange-100 text-sm font-semibold uppercase tracking-wider">Citas Pendientes</p>
-                                    <p class="text-5xl font-black mt-2" id="kpiPendientes">0</p>
-                                </div>
+                            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                                <p class="text-slate-400 text-xs font-black uppercase tracking-widest">Total Pacientes</p>
+                                <p class="text-5xl font-black text-slate-800 mt-2" id="kpiPacientes">0</p>
+                            </div>
+                            <div class="bg-white p-8 rounded-3xl border border-pink-100 shadow-sm relative overflow-hidden">
+                                <span class="absolute top-2 right-2 text-4xl opacity-20">🎂</span>
+                                <p class="text-pink-400 text-xs font-black uppercase tracking-widest text-center">Cumpleañeros Hoy</p>
+                                <div id="birthdayList" class="mt-2 text-center font-bold text-pink-600">Ninguno hoy</div>
                             </div>
                         </div>
                     </div>
 
                     <div id="tabContentAgenda" class="hidden h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-                            <div class="lg:col-span-1">
-                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-0">
-                                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">📅 Nueva Terapia</h2>
-                                    <form id="appointmentForm" class="space-y-4">
-                                        <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-1">Paciente</label>
-                                            <select id="patientSelect" required class="w-full px-3 py-2 border rounded-lg bg-gray-50 text-sm">
-                                                <option value="">-- Seleccionar Paciente --</option>
-                                            </select>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <input type="date" id="appointmentDate" required class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-                                            <input type="time" id="appointmentTime" required class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-                                        </div>
-                                        <input type="text" id="appointmentReason" required placeholder="Motivo de Consulta/Sesión" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-                                        <select id="appointmentStatus" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50">
-                                            <option value="pendiente">Pendiente</option>
-                                            <option value="confirmada">Confirmada</option>
-                                        </select>
-                                        <textarea id="appointmentNotes" rows="2" placeholder="Notas internas" class="w-full px-3 py-2 border rounded-lg text-sm bg-gray-50"></textarea>
-                                        <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-black py-3 rounded-lg shadow-md mt-4 transition-all active:scale-95">Agendar Sesión 🚀</button>
-                                    </form>
-                                </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
+                            <div class="lg:col-span-1 bg-white p-8 rounded-3xl shadow-sm border border-slate-200 h-fit">
+                                <h2 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">🏥 Nueva Sesión</h2>
+                                <form id="appointmentForm" class="space-y-4">
+                                    <select id="patientSelect" required class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                                        <option value="">-- Seleccionar Paciente --</option>
+                                    </select>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <input type="date" id="appointmentDate" required class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                                        <input type="time" id="appointmentTime" required class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                                    </div>
+                                    <input type="text" id="appointmentReason" required placeholder="Motivo (Ej: Terapia Lumbar)" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                                    <select id="appointmentStatus" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                                        <option value="pendiente">Pendiente</option>
+                                        <option value="confirmada">Confirmada</option>
+                                    </select>
+                                    <textarea id="appointmentNotes" rows="2" placeholder="Notas internas" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95">AGENDAR EN ASISTENCITAS 🚀</button>
+                                </form>
                             </div>
-                            <div class="lg:col-span-2">
-                                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-full">
-                                    <div class="flex justify-between items-center mb-6 border-b pb-4">
-                                        <h2 class="text-xl font-bold text-gray-900">Agenda de Fisioterapia</h2>
-                                        <select id="filterAppointmentStatus" onchange="renderAppointments()" class="px-4 py-2 border rounded-lg text-sm font-bold text-gray-700 bg-white">
-                                            <option value="activas" selected>Citas Activas</option>
-                                            <option value="hoy">Hoy</option>
-                                            <option value="todas">Histórico</option>
-                                            <option value="completada">Completadas</option>
-                                        </select>
-                                    </div>
-                                    <div id="appointmentsList" class="space-y-4 flex-1 overflow-y-auto custom-scroll pr-2">
-                                        <div class="flex justify-center py-8"><div class="spinner"></div></div>
-                                    </div>
+                            <div class="lg:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col h-full">
+                                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">Agenda de Fisioterapia</h2>
+                                    <select id="filterAppointmentStatus" onchange="renderAppointments()" class="px-4 py-2 border rounded-xl font-bold bg-slate-50 outline-none focus:ring-2 focus:ring-teal-500">
+                                        <option value="activas" selected>Citas Activas</option>
+                                        <option value="hoy">Hoy</option>
+                                        <option value="completada">Completadas</option>
+                                    </select>
+                                </div>
+                                <div id="appointmentsList" class="space-y-4 flex-1 overflow-y-auto custom-scroll pr-2">
+                                    <div class="flex justify-center py-8"><div class="spinner"></div></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div id="tabContentPacientes" class="hidden h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
                             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b pb-4">
                                 <div>
-                                    <h2 class="text-2xl font-black text-gray-900">Directorio de Pacientes</h2>
-                                    <p class="text-sm text-gray-500">Historiales clínicos de rehabilitación y datos.</p>
+                                    <h2 class="text-2xl font-black text-slate-900">Directorio de Pacientes</h2>
+                                    <p class="text-sm text-slate-500">Historiales de rehabilitación y datos.</p>
                                 </div>
                                 <div class="flex gap-2 w-full md:w-auto">
-                                    <input type="text" id="searchPatientInput" placeholder="🔍 Buscar nombre o cédula..." class="flex-1 md:w-64 px-4 py-2 border rounded-lg bg-gray-50 outline-none focus:ring-2 focus:ring-teal-500">
-                                    <button onclick="openPromotionsModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-lg shadow-sm">📢 Promoción</button>
-                                    <button onclick="document.getElementById('newPatientModal').classList.remove('hidden')" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm">➕ Nuevo Paciente</button>
+                                    <input type="text" id="searchPatientInput" placeholder="🔍 Buscar nombre o cédula..." class="flex-1 md:w-64 px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-teal-500">
+                                    <button onclick="openPromotionsModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-3 rounded-xl shadow-sm">📢 Promoción</button>
+                                    <button onclick="document.getElementById('newPatientModal').classList.remove('hidden')" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-3 rounded-xl shadow-sm">➕ Nuevo</button>
                                 </div>
                             </div>
                             <div id="patientsDirectoryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                         </div>
                     </div>
 
+                    <div id="tabContentInsumos" class="hidden h-full overflow-y-auto custom-scroll pr-2 animate-slideIn">
+                        <div class="bg-white p-8 rounded-3xl border border-slate-200">
+                            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                                <div>
+                                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">📦 Inventario de Insumos</h2>
+                                    <p class="text-sm text-slate-500">Control de stock de materiales de terapia.</p>
+                                </div>
+                                <button onclick="openAddInsumoModal()" class="bg-teal-600 text-white font-black px-6 py-3 rounded-2xl shadow-md hover:bg-teal-700">+ Agregar Insumo</button>
+                            </div>
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-50 text-slate-400 text-xs font-black uppercase tracking-widest">
+                                    <tr>
+                                        <th class="px-6 py-4 border-b">Nombre Insumo</th>
+                                        <th class="px-6 py-4 border-b">Categoría</th>
+                                        <th class="px-6 py-4 border-b">Stock Actual</th>
+                                        <th class="px-6 py-4 border-b">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="insumosTableBody" class="font-bold text-slate-700 text-sm">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
 
-        <div id="triageModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[65] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-lg mx-4 animate-slideIn shadow-2xl overflow-hidden">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-teal-50">
-                    <h3 class="text-xl font-bold text-teal-900">💪 Evaluación Previa (Triaje)</h3>
-                    <button onclick="closeTriageModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
-                </div>
-                <div class="p-6">
-                    <p class="text-sm text-gray-600 mb-4">Ingresa el estado actual del paciente para que la IA estructure el plan.</p>
-                    <input type="hidden" id="triageAppointmentId">
-                    
-                    <div class="grid grid-cols-2 gap-4" id="triageVitalsContainer">
-                        <div><label class="block text-xs font-bold text-gray-600 mb-1">Edad</label><input type="number" id="triEdad" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri"></div>
-                        <div><label class="block text-xs font-bold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="triPeso" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri"></div>
-                        <div><label class="block text-xs font-bold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="triAltura" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri"></div>
-                        <div><label class="block text-xs font-bold text-gray-600 mb-1">Nivel Dolor (1-10)</label><input type="number" id="triDolor" min="1" max="10" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri"></div>
-                        <div class="col-span-2 md:col-span-1"><label class="block text-xs font-bold text-gray-600 mb-1">Zona Afectada</label><input type="text" id="triZona" placeholder="Ej: Rodilla derecha" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri"></div>
-                        <div class="col-span-2 md:col-span-1"><label class="block text-xs font-bold text-gray-600 mb-1">Rango Movilidad</label><input type="text" id="triMov" placeholder="Ej: Limitado al 50%" class="w-full text-sm px-3 py-2 border rounded bg-slate-50 vital-input-tri"></div>
-                    </div>
-                </div>
-                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50">
-                    <button onclick="closeTriageModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
-                    <button onclick="saveTriage()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-lg shadow-md">Guardar Triaje</button>
+    </div>
+
+    <div id="triageModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[65] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-sm mx-4 shadow-2xl overflow-hidden animate-slideIn">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-teal-50">
+                <h3 class="text-lg font-black text-teal-900">💪 Evaluación Física</h3>
+                <button onclick="closeTriageModal()" class="text-slate-400 font-bold text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="triageAppointmentId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1">Edad</label><input type="number" id="triEdad" class="w-full px-3 py-2 border rounded-xl bg-slate-50 font-bold vital-input-tri"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1">Peso (kg)</label><input type="number" id="triPeso" class="w-full px-3 py-2 border rounded-xl bg-slate-50 font-bold vital-input-tri"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1">Altura (cm)</label><input type="number" id="triAltura" class="w-full px-3 py-2 border rounded-xl bg-slate-50 font-bold vital-input-tri"></div>
+                    <div><label class="block text-xs font-bold text-slate-500 mb-1">Nivel Dolor (1-10)</label><input type="number" id="triDolor" min="1" max="10" class="w-full px-3 py-2 border rounded-xl bg-slate-50 font-bold vital-input-tri"></div>
+                    <div class="col-span-2"><label class="block text-xs font-bold text-slate-500 mb-1">Zona Afectada</label><input type="text" id="triZona" placeholder="Ej: Rodilla derecha" class="w-full px-3 py-2 border rounded-xl bg-slate-50 font-bold vital-input-tri"></div>
+                    <div class="col-span-2"><label class="block text-xs font-bold text-slate-500 mb-1">Rango Movilidad</label><input type="text" id="triMov" placeholder="Ej: Limitado 50% a la flexión" class="w-full px-3 py-2 border rounded-xl bg-slate-50 font-bold vital-input-tri"></div>
                 </div>
             </div>
-        </div>
-
-        <div id="metaModal" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center py-4">
-            <div class="bg-white rounded-2xl w-full max-w-md mx-4 animate-slideIn shadow-2xl overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-5 text-white flex justify-between items-center">
-                    <div><h3 class="text-xl font-black">🌐 Meta Omnicanal</h3><p class="text-xs text-blue-100 font-medium">IA en todas tus redes</p></div>
-                    <button onclick="closeMetaModal()" class="text-white/70 hover:text-white font-bold text-2xl transition-colors">&times;</button>
-                </div>
-                <div class="p-6 space-y-4 bg-slate-50">
-                    <div class="bg-white p-4 rounded-xl border border-green-200 shadow-sm flex items-center justify-between">
-                        <div class="flex items-center gap-3">📱 <p class="font-bold text-slate-800 text-sm">WhatsApp Business</p></div>
-                        <span class="bg-green-100 text-green-700 text-[10px] font-black px-3 py-1 rounded-full border border-green-200" id="statusWA">Conectado ✅</span>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-blue-200 shadow-sm flex items-center justify-between">
-                        <div class="flex items-center gap-3">💬 <p class="font-bold text-slate-800 text-sm">Facebook Messenger</p></div>
-                        <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-full border border-blue-200" id="statusFB">Conectado ✅</span>
-                    </div>
-                </div>
-                <div class="px-6 py-4 bg-white border-t border-slate-100">
-                    <button onclick="mostrarMensaje('Canales sincronizados.', 'success')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md transition-all active:scale-95 text-sm">🔄 Sincronizar Canales</button>
-                </div>
+            <div class="px-6 py-4 bg-slate-50 flex gap-3 border-t">
+                <button onclick="closeTriageModal()" class="flex-1 bg-white border font-bold py-3 rounded-xl">Cancelar</button>
+                <button onclick="saveTriage()" class="flex-1 bg-teal-600 text-white font-bold py-3 rounded-xl shadow-md">Guardar Datos</button>
             </div>
         </div>
+    </div>
 
-        <div id="prescriptionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-3xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-teal-50">
-                    <h3 class="text-xl font-bold text-teal-900">⚕️ Evolución y Plan de Terapia</h3>
-                    <button onclick="closePrescriptionModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
+    <div id="prescriptionModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-slideIn">
+            <div class="px-10 py-6 border-b flex justify-between items-center bg-teal-50">
+                <div>
+                    <h3 class="text-3xl font-black text-teal-900 leading-none">💪 Evolución Fisioterapéutica</h3>
+                    <p class="text-teal-600 font-bold mt-1" id="rxPatientName">Paciente</p>
                 </div>
-                <div class="p-6 overflow-y-auto custom-scroll flex-1 space-y-6">
+                <button onclick="closePrescriptionModal()" class="bg-white text-slate-400 hover:text-red-500 font-black h-12 w-12 rounded-full border shadow-sm transition-all text-2xl">&times;</button>
+            </div>
+            
+            <div class="p-10 overflow-y-auto custom-scroll flex-1 grid grid-cols-1 lg:grid-cols-2 gap-10">
+                
+                <div class="space-y-6">
                     <input type="hidden" id="rxAppointmentId">
-                    <div class="bg-teal-100 border-l-4 border-teal-500 p-3 rounded mb-4">
-                        <p class="text-xs text-teal-700 font-bold uppercase">Paciente en terapia:</p>
-                        <p class="font-bold text-lg text-teal-900" id="rxPatientName"></p>
+                    <div class="bg-gradient-to-r from-teal-600 to-emerald-600 p-6 rounded-3xl shadow-lg text-white">
+                        <h4 class="font-black text-lg mb-2 flex items-center gap-2">🪄 Copiloto Asistencitas</h4>
+                        <p class="text-teal-100 text-xs mb-4">Dicta o escribe notas, la IA estructurará la evolución funcional.</p>
+                        <textarea id="rxBorrador" rows="3" placeholder="Ej: Paciente presenta dolor 7/10 en manguito rotador, realizar 10 sesiones de TENS..." class="w-full text-slate-800 p-4 rounded-2xl outline-none focus:ring-4 focus:ring-teal-300 font-bold"></textarea>
+                        <button onclick="procesarConIA()" id="btnCopiloto" class="w-full bg-white text-teal-700 font-black py-4 rounded-2xl mt-4 shadow-md transition-all active:scale-95">ESTRUCTURAR CON IA 🪄</button>
                     </div>
-                    
-                    <div class="bg-gradient-to-r from-teal-50 to-emerald-50 p-4 rounded-lg border border-teal-200 shadow-sm">
-                        <h4 class="font-bold text-teal-900 mb-2 flex items-center gap-2">✨ Copiloto Clínico (IA)</h4>
-                        <textarea id="rxBorrador" rows="2" placeholder="Escribe notas rápidas (ej. contractura lumbar, dolor 8, hacer 10 sesiones magneto)..." class="w-full text-sm px-3 py-2 border rounded shadow-inner outline-none focus:ring-2 focus:ring-teal-500"></textarea>
-                        <button onclick="procesarConIA()" id="btnCopiloto" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-lg mt-2 shadow-md">🪄 Estructurar Automáticamente</button>
-                    </div>
-                    
+
                     <div>
-                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">🩺 Diagnóstico / Evolución Fisioterapéutica</h4>
-                        <textarea id="rxDiagnostico" rows="3" class="w-full text-sm px-3 py-2 border rounded focus:ring-2 focus:ring-teal-500"></textarea>
+                        <h4 class="font-black text-slate-400 text-xs uppercase tracking-widest mb-4">Diagnóstico y Evolución Funcional</h4>
+                        <textarea id="rxDiagnostico" rows="4" class="w-full p-4 border rounded-2xl bg-slate-50 font-bold text-slate-800 border-slate-200 outline-none focus:ring-2 focus:ring-teal-400"></textarea>
                     </div>
-                    
+                </div>
+
+                <div class="space-y-6">
                     <div>
-                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">📊 Control de Rehabilitación</h4>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="dynamicVitalsContainer">
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Edad</label><input type="number" id="rxEdad" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Peso (kg)</label><input type="number" id="rxPeso" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Altura (cm)</label><input type="number" id="rxAltura" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Dolor (1-10)</label><input type="number" id="rxDolor" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Zona Afectada</label><input type="text" id="rxZona" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
-                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Movilidad</label><input type="text" id="rxMov" class="w-full text-sm px-3 py-2 border rounded vital-input"></div>
+                        <h4 class="font-black text-slate-400 text-xs uppercase tracking-widest mb-4">Métricas Físicas</h4>
+                        <div class="grid grid-cols-3 gap-3" id="dynamicVitalsContainer">
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase">Edad</label><input type="number" id="rxEdad" class="w-full px-3 py-2 border rounded-lg bg-slate-50 font-bold vital-input"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase">Peso</label><input type="number" id="rxPeso" class="w-full px-3 py-2 border rounded-lg bg-slate-50 font-bold vital-input"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase">Altura</label><input type="number" id="rxAltura" class="w-full px-3 py-2 border rounded-lg bg-slate-50 font-bold vital-input"></div>
+                            <div><label class="block text-[10px] font-bold text-slate-500 uppercase text-red-500">Dolor</label><input type="number" id="rxDolor" class="w-full px-3 py-2 border rounded-lg bg-slate-50 font-bold text-red-500 vital-input"></div>
+                            <div class="col-span-2"><label class="block text-[10px] font-bold text-slate-500 uppercase">Zona Afectada</label><input type="text" id="rxZona" class="w-full px-3 py-2 border rounded-lg bg-slate-50 font-bold vital-input"></div>
+                            <div class="col-span-3"><label class="block text-[10px] font-bold text-slate-500 uppercase">Rango Movilidad</label><input type="text" id="rxMov" class="w-full px-3 py-2 border rounded-lg bg-slate-50 font-bold vital-input"></div>
                         </div>
                     </div>
-                    
+
                     <div>
-                        <div class="flex justify-between items-center mb-2 border-b pb-1">
-                            <h4 class="font-bold text-gray-800">💪 Plan de Terapia / Ejercicios</h4>
-                            <button onclick="addMedicineRow()" class="text-xs bg-teal-200 text-teal-800 font-bold px-3 py-1 rounded">+ Agregar Manual</button>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-black text-teal-600 text-xs uppercase tracking-widest">💪 Plan de Terapia</h4>
+                            <button onclick="addMedicineRow()" class="bg-teal-100 text-teal-700 text-[10px] font-black px-3 py-1 rounded-full">+ Agregar</button>
                         </div>
-                        <div id="medicinesContainer" class="space-y-3"></div>
+                        <div id="medicinesContainer" class="space-y-2"></div>
                     </div>
 
-                    <div class="mt-4">
-                        <h4 class="font-bold text-gray-800 mb-2 border-b pb-1">💡 Recomendaciones de Cuidados en Casa</h4>
-                        <textarea id="rxRecomendaciones" rows="3" class="w-full text-sm px-3 py-2 border border-orange-200 bg-orange-50 rounded focus:ring-2 focus:ring-orange-500"></textarea>
-                    </div>
-                </div>
-                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50">
-                    <button onclick="closePrescriptionModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
-                    <button id="btnSubmitPrescription" onclick="submitPrescription()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 rounded-lg shadow-md">Siguiente: Cobro ➡️</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="newPatientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 animate-slideIn shadow-2xl">
-                <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Registrar Paciente</h3>
-                <div class="space-y-3">
-                    <input type="text" id="newPatientCedula" placeholder="Cédula / RUC *" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500">
-                    <input type="text" id="newPatientName" placeholder="Nombre Completo *" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500">
-                    <input type="tel" id="newPatientPhone" placeholder="WhatsApp (593...) *" class="w-full px-3 py-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-teal-500">
-                    <input type="email" id="newPatientEmail" placeholder="Email (Opcional)" class="w-full px-3 py-2 border rounded-lg bg-gray-50">
-                </div>
-                <div class="flex gap-3 mt-6">
-                    <button onclick="document.getElementById('newPatientModal').classList.add('hidden')" class="flex-1 bg-gray-200 font-bold py-2 rounded-lg">Cancelar</button>
-                    <button id="saveNewPatientBtn" onclick="submitNewPatient()" class="flex-1 bg-teal-600 text-white font-bold py-2 rounded-lg shadow-md">Guardar</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center py-4">
-            <div class="bg-white rounded-lg w-full max-w-2xl mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
-                    <h3 class="text-xl font-bold text-gray-900">⚙️ Configuración Centro Fisioterapia</h3>
-                    <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
-                </div>
-                <div class="p-6 space-y-6 overflow-y-auto custom-scroll" style="max-height: 70vh;">
                     <div>
-                        <h4 class="font-bold text-teal-900 mb-2 border-b pb-1">📄 Datos Institucionales</h4>
-                        <div class="space-y-3">
-                            <input type="text" id="clinicName" placeholder="Nombre del Centro" class="w-full px-3 py-2 border rounded-lg bg-slate-50">
-                            <div class="grid grid-cols-2 gap-3">
-                                <input type="text" id="clinicRuc" placeholder="RUC" class="w-full px-3 py-2 border rounded-lg bg-slate-50">
-                                <input type="text" id="clinicPhone" placeholder="Teléfono (099...)" class="w-full px-3 py-2 border rounded-lg bg-slate-50">
+                        <h4 class="font-black text-orange-600 text-xs uppercase tracking-widest mb-2">💡 Cuidados en Casa</h4>
+                        <textarea id="rxRecomendaciones" rows="3" class="w-full p-4 border rounded-2xl bg-orange-50 font-bold text-orange-900 border-orange-200 outline-none focus:ring-2 focus:ring-orange-400"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-100 rounded-2xl border flex flex-col justify-center">
+                            <label class="flex items-center gap-3 cursor-pointer mb-2">
+                                <input type="checkbox" id="checkTratamiento" class="w-5 h-5 rounded border-slate-300 text-teal-600" onchange="toggleCuotas()">
+                                <span class="font-black text-slate-700 text-xs uppercase">Paquete / Cuotas</span>
+                            </label>
+                            <div id="divCuotas" class="hidden items-center gap-2">
+                                <span class="text-xs font-bold text-slate-500">Sesiones/Cuotas:</span>
+                                <input type="number" id="numCuotas" value="1" min="1" class="w-16 px-2 py-1 border rounded-lg font-black text-center">
                             </div>
-                            <input type="text" id="clinicAddress" placeholder="Dirección Física" class="w-full px-3 py-2 border rounded-lg bg-slate-50">
+                        </div>
+
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                            <label class="block text-xs font-black text-blue-800 mb-2 uppercase">Próxima Sesión 📅</label>
+                            <input type="date" id="rxNextDate" class="w-full px-3 py-2 border rounded-lg font-bold text-sm outline-none border-blue-200 bg-white">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-10 py-6 border-t bg-slate-50 flex gap-4">
+                <button onclick="closePrescriptionModal()" class="flex-1 bg-white border border-slate-300 text-slate-600 font-black py-4 rounded-2xl shadow-sm">CANCELAR</button>
+                <button id="btnSubmitPrescription" onclick="submitPrescription()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-black py-4 rounded-2xl shadow-xl shadow-teal-200 transition-all active:scale-95">GUARDAR Y COBRAR ➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="newPatientModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-[30px] p-8 max-w-md w-full mx-4 animate-slideIn shadow-2xl">
+            <h3 class="text-2xl font-black text-slate-800 mb-6">Registrar Paciente</h3>
+            <div class="space-y-4">
+                <input type="text" id="newPatientCedula" placeholder="Cédula / RUC *" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                <input type="text" id="newPatientName" placeholder="Nombre Completo *" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                <input type="tel" id="newPatientPhone" placeholder="WhatsApp (593...) *" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                <input type="email" id="newPatientEmail" placeholder="Email (Opcional)" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                <div>
+                    <label class="block text-xs font-black text-slate-400 ml-2 mb-1 uppercase">Fecha de Nacimiento 🎂</label>
+                    <input type="date" id="newPatientDob" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold text-sm outline-none focus:ring-2 focus:ring-teal-500">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="document.getElementById('newPatientModal').classList.add('hidden')" class="flex-1 bg-white border border-slate-200 font-bold py-3 rounded-2xl">Cancelar</button>
+                <button id="saveNewPatientBtn" onclick="submitNewPatient()" class="flex-1 bg-teal-600 text-white font-black py-3 rounded-2xl shadow-lg">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="birthdayModal" class="hidden fixed inset-0 bg-pink-900/60 backdrop-blur z-[80] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] w-full max-w-md mx-4 p-8 shadow-2xl animate-slideIn border-b-8 border-pink-500">
+            <div class="text-center mb-8">
+                <span class="text-5xl">🎂</span>
+                <h3 class="text-2xl font-black text-pink-700 mt-4 tracking-tighter">Regalos Asistencitas</h3>
+                <p class="text-slate-500 font-bold text-sm">Configura lo que la IA regalará por defecto a los pacientes en su cumpleaños.</p>
+            </div>
+            <div class="space-y-4">
+                <textarea id="bdayGiftText" rows="3" placeholder="Ej: ¡Felicidades! Tienes una sesión de masajes de descarga con 50% OFF..." class="w-full p-4 border rounded-3xl bg-pink-50 font-bold text-pink-900 border-pink-100 outline-none focus:ring-4 focus:ring-pink-300"></textarea>
+                <button onclick="saveBdayConfig()" class="w-full bg-pink-600 text-white font-black py-4 rounded-2xl shadow-xl transition-all active:scale-95">GUARDAR REGALO 🎁</button>
+                <button onclick="document.getElementById('birthdayModal').classList.add('hidden')" class="w-full text-slate-400 font-bold py-2 text-sm uppercase">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addInsumoModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur z-[80] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[30px] p-8 max-w-sm w-full mx-4 animate-slideIn shadow-2xl">
+            <h3 class="text-2xl font-black text-slate-800 mb-6">Agregar Insumo</h3>
+            <div class="space-y-4">
+                <input type="text" id="insumoName" placeholder="Nombre (Ej: Electrodos TENS)" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                <input type="number" id="insumoQty" placeholder="Cantidad Inicial" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                <select id="insumoCat" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-teal-500">
+                    <option value="Material Fisioterapia">Material Fisioterapia</option>
+                    <option value="Equipos/Accesorios">Equipos/Accesorios</option>
+                    <option value="Oficina">Oficina</option>
+                </select>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="document.getElementById('addInsumoModal').classList.add('hidden')" class="flex-1 bg-white border font-bold py-3 rounded-2xl">Cancelar</button>
+                <button onclick="submitNewInsumo()" class="flex-1 bg-teal-600 text-white font-black py-3 rounded-2xl shadow-lg">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur z-[70] flex items-center justify-center py-10 overflow-y-auto">
+        <div class="bg-white rounded-[40px] w-full max-w-2xl mx-4 flex flex-col shadow-2xl animate-slideIn">
+            <div class="px-8 py-6 border-b flex justify-between items-center bg-slate-50">
+                <h3 class="text-2xl font-black text-slate-800">⚙️ Configuración Centro</h3>
+                <button onclick="closeSettingsModal()" class="text-slate-300 hover:text-red-500 font-bold text-3xl transition-colors">&times;</button>
+            </div>
+            <div class="p-8 space-y-8 overflow-y-auto custom-scroll" style="max-height: 65vh;">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                    <div class="text-center">
+                        <label class="block text-xs font-black text-slate-400 mb-2 uppercase">Logo Clínico</label>
+                        <div class="h-32 w-32 bg-slate-100 rounded-3xl mx-auto flex items-center justify-center border-2 border-dashed border-slate-300 relative overflow-hidden group cursor-pointer" onclick="document.getElementById('clinicLogoInput').click()">
+                            <img id="clinicLogoPreview" src="img/logo.png" class="h-full w-full object-contain">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all"><span class="text-white text-[10px] font-black">CAMBIAR</span></div>
+                        </div>
+                        <input type="file" id="clinicLogoInput" class="hidden" accept="image/*" onchange="previewLogo(this)">
+                    </div>
+                    <div class="md:col-span-2 space-y-4">
+                        <input type="text" id="clinicName" placeholder="Nombre Comercial" class="w-full px-5 py-3 border rounded-2xl bg-slate-50 font-black outline-none border-slate-200">
+                        <input type="text" id="clinicRuc" placeholder="RUC" class="w-full px-5 py-3 border rounded-2xl bg-slate-50 font-black outline-none border-slate-200">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="tel" id="clinicPhone" placeholder="Teléfono" class="w-full px-5 py-3 border rounded-2xl bg-slate-50 font-black outline-none border-slate-200">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Color Corporativo</label>
-                                <input type="color" id="clinicColor" class="w-full h-10 px-1 py-1 border rounded-lg cursor-pointer" value="#0f766e">
+                                <input type="color" id="clinicColor" class="w-full h-12 p-1 border rounded-2xl cursor-pointer bg-slate-50" value="#0f766e">
+                                <p class="text-[9px] text-center font-bold text-slate-400 mt-1 uppercase">Color Marca</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="bg-teal-50 p-4 rounded-lg border border-teal-100">
-                        <h4 class="font-bold text-teal-900 mb-2 border-b border-teal-200 pb-1">📅 Google Calendar</h4>
-                        <button type="button" onclick="syncGoogleCalendar()" class="bg-white border border-gray-300 shadow-sm text-gray-700 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-gray-50">
-                            Sincronizar mi Google Calendar
-                        </button>
-                        <textarea id="clinicGCalendarToken" placeholder="[Pega el código de autorización aquí]" class="w-full px-3 py-2 border rounded-lg bg-white mt-3 text-xs text-gray-400 font-mono hidden custom-scroll" rows="3" autocomplete="off" spellcheck="false" readonly></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-teal-50 p-6 rounded-3xl border border-teal-100">
+                        <h4 class="font-black text-teal-900 text-sm mb-4 uppercase tracking-wider">⏰ Horario Laboral</h4>
+                        <div class="flex items-center gap-3">
+                            <input type="time" id="hInicio" class="flex-1 px-4 py-2 border rounded-xl font-bold">
+                            <span class="font-black">a</span>
+                            <input type="time" id="hFin" class="flex-1 px-4 py-2 border rounded-xl font-bold">
+                        </div>
                     </div>
-                </div>
-                <div class="px-6 py-4 border-t flex justify-end gap-3 bg-gray-50">
-                    <button onclick="closeSettingsModal()" class="bg-gray-200 font-bold py-2 px-4 rounded-lg">Cancelar</button>
-                    <button onclick="saveClinicSettings()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg transition-all active:scale-95">Guardar Cambios</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="billingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[70] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-green-50 rounded-t-xl"><h3 class="text-xl font-bold text-green-900">💵 Registrar Cobro</h3><button onclick="closeBillingModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button></div>
-                <div class="p-6 space-y-4">
-                    <input type="hidden" id="billingAptId">
-                    <p class="text-sm text-gray-600 mb-4">Valor a cobrar a <strong id="billingPatName"></strong>.</p>
-                    <div><label class="block text-sm font-bold text-gray-700 mb-1">Subtotal ($)</label><input type="number" id="billingSubtotal" step="0.01" min="0" class="w-full px-4 py-3 border-2 rounded-xl font-bold text-xl text-center bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none" oninput="calculateTotal()"></div>
-                    <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border mt-2"><input type="checkbox" id="billingIva" class="w-5 h-5 text-green-600" onchange="calculateTotal()"><label for="billingIva" class="font-semibold text-gray-700 w-full cursor-pointer">Añadir IVA (15%)</label></div>
-                    <div class="mt-4 p-4 bg-green-100 rounded-xl text-center border border-green-200"><p class="text-green-800 font-bold text-sm">TOTAL</p><p class="text-5xl font-black text-green-900 mt-1" id="billingTotalDisplay">$0.00</p></div>
-                </div>
-                <div class="px-6 py-4 border-t bg-gray-50 rounded-b-xl"><button id="btnFinalizarCobro" onclick="submitBilling()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg">Finalizar y Enviar 📲</button></div>
-            </div>
-        </div>
-
-        <div id="promotionsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[80] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-md mx-4 flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-orange-50"><h3 class="text-xl font-bold text-orange-900">📢 Campaña Marketing</h3><button onclick="closePromotionsModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl">&times;</button></div>
-                <div class="p-6 space-y-4">
-                    <input type="text" id="promoTargeting" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 text-sm" placeholder="Ej: A los últimos 50 pacientes">
-                    <textarea id="promoMessage" rows="4" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 text-sm" placeholder="Ej: ¡Descuento en terapia de descarga!"></textarea>
-                </div>
-                <div class="px-6 py-4 border-t flex gap-3 bg-gray-50">
-                    <button onclick="closePromotionsModal()" class="flex-1 bg-white border border-gray-300 font-bold py-2 rounded-lg">Cancelar</button>
-                    <button id="btnSendPromo" onclick="sendPromotion()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-lg">Enviar Inteligente 🚀</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-[70] flex items-center justify-center py-4">
-            <div class="bg-white rounded-xl w-full max-w-6xl mx-4 max-h-full flex flex-col animate-slideIn shadow-2xl">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-gradient-to-r from-teal-50 to-cyan-50 rounded-t-xl">
-                    <div>
-                        <h3 class="text-2xl font-bold text-teal-900 flex items-center gap-2">📖 Expediente Fisioterapéutico</h3>
-                        <p class="text-sm font-semibold text-teal-700 mt-1" id="historyPatientInfo">Cargando...</p>
+                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200">
+                        <h4 class="font-black text-slate-800 text-sm mb-4 uppercase tracking-wider">📅 Días No Laborables</h4>
+                        <input type="text" id="nonWorkingDays" placeholder="Ej: 2026-05-24, 2026-12-25" class="w-full px-4 py-2 border rounded-xl font-bold text-xs">
+                        <p class="text-[9px] text-slate-400 mt-2">Fechas sin atención (YYYY-MM-DD separadas por comas).</p>
                     </div>
-                    <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
                 </div>
                 
-                <div class="p-6 overflow-y-auto custom-scroll flex-1 bg-gray-50 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="space-y-6">
-                        <div id="chartContainer" class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm hidden h-64">
-                            <canvas id="vitalsChartCanvas"></canvas>
-                        </div>
-                        <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
-                            <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                <h4 class="font-bold text-gray-800">🩻 Radiografías / Estudios</h4>
-                                <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
-                                <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm">📁 Subir Archivo</button>
-                            </div>
-                            <div id="patientImagesGallery" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-48 overflow-y-auto custom-scroll p-1"></div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm">
-                        <h4 class="font-bold text-gray-800 mb-4 border-b pb-2">Cronología de Terapias</h4>
-                        <div id="historyTimeline" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scroll"></div>
-                    </div>
+                <input type="text" id="clinicAddress" placeholder="Dirección Física" class="w-full px-5 py-3 border rounded-2xl bg-slate-50 font-black outline-none border-slate-200">
+                
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <h4 class="font-bold text-blue-900 mb-2 border-b border-blue-200 pb-1">📅 Google Calendar</h4>
+                    <button type="button" onclick="syncGoogleCalendar()" class="bg-white border border-gray-300 shadow-sm text-gray-700 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-gray-50 transition">Sincronizar Calendar</button>
+                    <textarea id="clinicGCalendarToken" placeholder="[Pega el código aquí]" class="w-full px-3 py-2 border rounded-lg bg-white mt-3 text-xs text-gray-400 font-mono hidden outline-none" rows="2" readonly></textarea>
                 </div>
-                <div class="px-6 py-4 border-t flex justify-end bg-white rounded-b-xl">
-                    <button onclick="closeHistoryModal()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-6 rounded-lg">Cerrar</button>
-                </div>
+
+            </div>
+            <div class="px-8 py-6 border-t bg-slate-50 flex justify-end gap-4 rounded-b-[40px]">
+                <button onclick="closeSettingsModal()" class="bg-white border border-slate-200 text-slate-500 font-bold px-6 py-3 rounded-2xl">Cancelar</button>
+                <button onclick="saveClinicSettings()" class="bg-teal-600 hover:bg-teal-700 text-white font-black px-10 py-3 rounded-2xl shadow-lg transition-all active:scale-95">Guardar Cambios</button>
             </div>
         </div>
+    </div>
 
+    <div id="billingModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[75] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] w-full max-w-md mx-4 flex flex-col shadow-2xl animate-slideIn">
+            <div class="px-8 py-6 border-b flex justify-between items-center bg-emerald-50 rounded-t-[40px]"><h3 class="text-xl font-black text-emerald-900">💵 Registrar Cobro</h3><button onclick="closeBillingModal()" class="text-slate-400 font-bold text-2xl leading-none">&times;</button></div>
+            <div class="p-8 space-y-4">
+                <input type="hidden" id="billingAptId">
+                <p class="text-sm font-bold text-slate-500 mb-4 uppercase tracking-widest text-center">Cobro a <strong id="billingPatName"></strong></p>
+                <div><label class="block text-xs font-black text-slate-400 mb-1 ml-1 uppercase">Subtotal ($)</label><input type="number" id="billingSubtotal" step="0.01" min="0" class="w-full px-6 py-4 border-2 rounded-3xl font-black text-3xl text-center bg-slate-50 focus:ring-4 focus:ring-emerald-300 outline-none" oninput="calculateTotal()"></div>
+                <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 mt-2"><input type="checkbox" id="billingIva" class="w-6 h-6 text-emerald-600 rounded" onchange="calculateTotal()"><label for="billingIva" class="font-black text-slate-700 w-full cursor-pointer">Añadir IVA (15%)</label></div>
+                <div class="mt-6 p-6 bg-emerald-100 rounded-3xl text-center border-2 border-emerald-200"><p class="text-emerald-800 font-black text-xs uppercase tracking-widest">TOTAL A PAGAR</p><p class="text-6xl font-black text-emerald-900 mt-1" id="billingTotalDisplay">$0.00</p></div>
+            </div>
+            <div class="px-8 py-6 border-t bg-slate-50 rounded-b-[40px]"><button id="btnFinalizarCobro" onclick="submitBilling()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all active:scale-95 text-lg">FINALIZAR Y ENVIAR 📲</button></div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] w-full max-w-6xl max-h-[90vh] flex flex-col shadow-2xl animate-slideIn overflow-hidden">
+            <div class="px-8 py-6 border-b flex justify-between items-center bg-teal-50">
+                <div>
+                    <h3 class="text-2xl font-black text-teal-900 flex items-center gap-2">📖 Expediente Fisioterapéutico</h3>
+                    <p class="text-sm font-bold text-teal-700 mt-1" id="historyPatientInfo">Cargando...</p>
+                </div>
+                <button onclick="closeHistoryModal()" class="text-slate-400 font-bold text-3xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto custom-scroll flex-1 bg-slate-50 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div id="chartContainer" class="bg-white p-6 border border-slate-200 rounded-3xl shadow-sm hidden h-64">
+                        <canvas id="vitalsChartCanvas"></canvas>
+                    </div>
+                    <div class="bg-white p-6 border border-slate-200 rounded-3xl shadow-sm">
+                        <div class="flex justify-between items-center mb-4 border-b pb-4">
+                            <h4 class="font-black text-slate-800 text-sm uppercase">🩻 Exámenes / Imágenes</h4>
+                            <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
+                            <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="bg-slate-800 text-white text-xs font-black py-2 px-4 rounded-xl shadow-md">Subir Archivo</button>
+                        </div>
+                        <div id="patientImagesGallery" class="grid grid-cols-3 gap-4 max-h-48 overflow-y-auto custom-scroll"></div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 border border-slate-200 rounded-3xl shadow-sm">
+                    <h4 class="font-black text-slate-800 text-sm uppercase mb-4 border-b pb-4">Historial de Terapias</h4>
+                    <div id="historyTimeline" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scroll"></div>
+                </div>
+            </div>
+            <div class="px-8 py-4 border-t flex justify-end bg-white">
+                <button onclick="closeHistoryModal()" class="bg-slate-800 text-white font-black py-3 px-8 rounded-2xl">Cerrar</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -418,17 +467,16 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
-        // 🔥 PARCHE ANTIBLOQUEOS FIREBASE (EVITA EL ERROR 400 BAD REQUEST) 🔥
         db.settings({ experimentalForceLongPolling: true });
-        
         const storage = firebase.storage();
 
         let parentDoctorId = null;
         let clinicDataGlobal = null;
         let patients = [];
         let appointments = [];
+        let insumos = [];
         let currentPatientIdForImages = null;
+        let vitalsChartInstance = null;
 
         function normalizarTelefono(phone) {
             if (!phone) return '';
@@ -439,7 +487,6 @@
             return cleaned; 
         }
 
-        // VERIFICACIÓN DE ESPECIALIDAD FISIOTERAPIA
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = 'index.html'; return; }
             
@@ -448,10 +495,8 @@
                 const data = userDoc.data();
                 const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'fisioterapia';
                 
-                // BLINDAJE
                 if (esp !== 'fisioterapia' && data.rol !== 'vendedor') {
-                    window.location.href = `dashboard-${esp}.html`;
-                    return;
+                    window.location.href = `dashboard-${esp}.html`; return;
                 }
 
                 parentDoctorId = user.uid;
@@ -464,29 +509,34 @@
                 } else {
                     document.getElementById('dashboardView').classList.remove('hidden');
                     document.getElementById('suspendedView').classList.add('hidden');
-                    if(clinicDataGlobal.color) {
-                        document.getElementById('navBar').style.backgroundColor = clinicDataGlobal.color;
-                    }
-                    if(clinicDataGlobal.nombre) document.getElementById('navTitle').textContent = clinicDataGlobal.nombre;
-                    if(clinicDataGlobal.logo) {
-                        document.getElementById('navLogoImg').src = clinicDataGlobal.logo;
-                        document.getElementById('navLogoImg').classList.remove('hidden');
-                    }
+                    
+                    applyClinicBranding();
                     await loadPatients();
                     await loadAppointments();
+                    await loadInsumos();
+                    checkBirthdays();
                 }
                 document.getElementById('authCheckOverlay').classList.add('hidden');
-            } else {
-                window.location.href = 'index.html';
-            }
+            } else { window.location.href = 'index.html'; }
         });
 
-        // FUNCIONES DE CARGA Y TABS
+        function applyClinicBranding() {
+            if(clinicDataGlobal.color) document.getElementById('navBar').style.backgroundColor = clinicDataGlobal.color;
+            if(clinicDataGlobal.nombre) document.getElementById('navTitle').textContent = clinicDataGlobal.nombre;
+            if(clinicDataGlobal.logo) document.getElementById('navLogoImg').src = clinicDataGlobal.logo;
+            if(clinicDataGlobal.hInicio) document.getElementById('hInicio').value = clinicDataGlobal.hInicio;
+            if(clinicDataGlobal.hFin) document.getElementById('hFin').value = clinicDataGlobal.hFin;
+            if(clinicDataGlobal.nonWorkingDays) document.getElementById('nonWorkingDays').value = clinicDataGlobal.nonWorkingDays;
+        }
+
         function switchTab(tabId) {
-            ['dashboard', 'agenda', 'pacientes'].forEach(t => {
-                document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('hidden', t !== tabId);
+            ['dashboard', 'agenda', 'pacientes', 'insumos'].forEach(t => {
+                const el = document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if(el) el.classList.toggle('hidden', t !== tabId);
                 const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
-                btn.className = (t === tabId) ? "flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-teal-100 text-teal-800 border-2 border-teal-600" : "flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold bg-white text-gray-600 border border-gray-300 hover:bg-gray-100";
+                if(btn) btn.className = (t === tabId) 
+                    ? "flex items-center gap-2 px-6 py-3 rounded-2xl font-black bg-teal-100 text-teal-800 border-2 border-teal-600 shadow-sm transition-all" 
+                    : "flex items-center gap-2 px-6 py-3 rounded-2xl font-bold bg-white text-slate-600 border border-slate-300 hover:bg-slate-100 transition-all shadow-sm";
             });
             if(tabId === 'dashboard') updateDashboardStats();
         }
@@ -496,6 +546,7 @@
             patients = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
             document.getElementById('patientSelect').innerHTML = '<option value="">-- Seleccionar Paciente --</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
             renderPatientsDirectory(patients);
+            if(document.getElementById('kpiPacientes')) document.getElementById('kpiPacientes').textContent = patients.length;
         }
 
         async function loadAppointments() {
@@ -507,9 +558,8 @@
 
         function updateDashboardStats() {
             if(!appointments) return;
-            const filterValue = document.getElementById('financeFilter').value;
+            const filterValue = document.getElementById('financeFilter') ? document.getElementById('financeFilter').value : 'mes';
             let filtered = appointments;
-            
             const startOfDay = new Date(new Date().setHours(0,0,0,0));
             const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
@@ -523,12 +573,9 @@
             });
 
             const ingresos = filtered.filter(a => a.estado === 'completada').reduce((sum, a) => sum + (parseFloat(a.monto) || 0), 0);
-            const pendientes = filtered.filter(a => a.estado === 'pendiente' || a.estado === 'confirmada').length;
-
-            document.getElementById('kpiCitas').textContent = filtered.length;
-            document.getElementById('kpiIngresos').textContent = `$${ingresos.toFixed(2)}`;
-            document.getElementById('kpiPacientes').textContent = patients.length; 
-            document.getElementById('kpiPendientes').textContent = pendientes;
+            
+            if(document.getElementById('kpiCitas')) document.getElementById('kpiCitas').textContent = filtered.length;
+            if(document.getElementById('kpiIngresos')) document.getElementById('kpiIngresos').textContent = `$${ingresos.toFixed(2)}`;
         }
 
         function renderAppointments() {
@@ -542,28 +589,34 @@
             else if(sFilter === 'completada') filtered = appointments.filter(a => a.estado === 'completada');
 
             if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-8 font-bold">No hay sesiones para mostrar.</p>';
+                container.innerHTML = '<p class="text-slate-400 text-center py-8 font-bold">No hay sesiones en esta vista.</p>';
                 return;
             }
 
+            const statusColors = { 'pendiente': 'bg-yellow-100 text-yellow-800', 'pendiente_confirmacion_paciente': 'bg-purple-100 text-purple-800', 'confirmada': 'bg-teal-100 text-teal-800', 'completada': 'bg-green-100 text-green-800' };
+            const statusNames = { 'pendiente': 'Pendiente', 'pendiente_confirmacion_paciente': 'Propuesta IA', 'confirmada': 'Confirmada', 'completada': 'Completada' };
+
             container.innerHTML = filtered.map(apt => {
                 const p = patients.find(pat => pat.id === apt.patientId);
-                const isPend = apt.estado === 'pendiente';
-                let btnConfirm = isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" class="bg-green-50 text-green-700 text-xs py-2 rounded-lg font-bold border border-green-200">✅ CONFIRMAR</button>` : '';
+                const isPend = (apt.estado === 'pendiente' || apt.estado === 'pendiente_confirmacion_paciente');
+                let btnConfirm = isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" class="bg-green-100 text-green-800 text-xs py-2 px-3 rounded-lg font-black hover:bg-green-200">✅ CONFIRMAR</button>` : '';
 
-                return `<div class="border rounded-xl p-4 bg-white shadow-sm border-teal-100 mb-3 hover:shadow-md transition">
-                    <div class="flex justify-between items-center mb-2">
+                return `<div class="border rounded-2xl p-5 bg-white shadow-sm border-slate-200 mb-3 hover:shadow-md transition">
+                    <div class="flex justify-between items-center mb-3">
                         <div>
-                            <h3 class="font-black text-slate-800">${p?.nombre || 'Desconocido'}</h3>
-                            <p class="text-xs text-slate-500">Motivo: ${apt.motivo}</p>
+                            <h3 class="font-black text-slate-800 text-lg">${p?.nombre || 'Desconocido'}</h3>
+                            <p class="text-xs font-bold text-slate-500">${apt.motivo}</p>
                         </div>
-                        <span class="px-2 py-1 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">${apt.fecha} | ${apt.hora}</span>
+                        <div class="text-right">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${statusColors[apt.estado] || 'bg-slate-100'}">${statusNames[apt.estado] || apt.estado}</span>
+                            <p class="text-xs font-black text-slate-400 mt-2">${apt.fecha} | ${apt.hora}</p>
+                        </div>
                     </div>
-                    <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
                         ${btnConfirm}
-                        <button onclick="openTriageModal('${apt.id}')" class="bg-teal-50 text-teal-700 text-xs py-2 rounded-lg font-bold border border-teal-100">🌡️ EVALUAR</button>
-                        <button onclick="openPrescriptionModal('${apt.id}')" class="bg-teal-600 text-white text-xs py-2 rounded-lg font-black shadow-sm">⚕️ TERAPIA</button>
-                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 text-blue-700 text-xs py-2 rounded-lg font-bold border border-blue-100">📖 HIST</button>
+                        <button onclick="openTriageModal('${apt.id}')" class="bg-slate-100 text-slate-600 text-xs py-2 rounded-lg font-black hover:bg-slate-200">EVALUAR (TRIAJE)</button>
+                        <button onclick="openPrescriptionModal('${apt.id}')" class="bg-teal-600 text-white text-xs py-2 rounded-lg font-black shadow-sm hover:bg-teal-700">⚕️ TERAPIA</button>
+                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 text-blue-700 text-xs py-2 rounded-lg font-black hover:bg-blue-100">📖 HISTORIAL</button>
                     </div>
                 </div>`;
             }).join('');
@@ -571,54 +624,135 @@
 
         function renderPatientsDirectory(list) {
             document.getElementById('patientsDirectoryList').innerHTML = list.map(p => `
-                <div class="border p-4 rounded-xl bg-white shadow-sm hover:shadow-md transition border-slate-200">
-                    <h4 class="font-bold text-slate-900">${p.nombre}</h4>
-                    <p class="text-xs text-slate-500 mt-1">🆔 CI/RUC: <span class="font-semibold">${p.cedula || 'N/A'}</span></p>
-                    <p class="text-xs text-teal-600 font-bold mt-1">📱 ${p.telefonoWhatsApp}</p>
-                    <button onclick="openHistoryModal('${p.id}')" class="mt-3 w-full bg-slate-50 hover:bg-slate-100 text-slate-700 text-[10px] font-black py-2 rounded-lg border">📖 EXPEDIENTE FÍSICO</button>
+                <div class="border p-5 rounded-3xl bg-white shadow-sm hover:shadow-md transition border-slate-200">
+                    <h4 class="font-black text-slate-800 text-lg">${p.nombre}</h4>
+                    <p class="text-xs text-slate-500 font-bold mt-1">CI: <span class="font-black text-slate-700">${p.cedula || 'N/A'}</span></p>
+                    <p class="text-xs text-teal-600 font-black mt-1">📱 ${p.telefonoWhatsApp}</p>
+                    ${p.fechaNacimiento ? `<p class="text-[10px] text-pink-500 font-black mt-2 bg-pink-50 inline-block px-2 py-1 rounded-lg">🎂 ${p.fechaNacimiento}</p>` : ''}
+                    <button onclick="openHistoryModal('${p.id}')" class="mt-4 w-full bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-black py-3 rounded-xl border">EXPEDIENTE DIGITAL</button>
                 </div>`).join('');
         }
 
-        // 🔥 REGISTRO DE PACIENTE MEJORADO (SOLUCIÓN A ERROR 400) 🔥
+        document.getElementById('searchPatientInput').addEventListener('input', (e) => { 
+            const term = e.target.value.toLowerCase(); 
+            renderPatientsDirectory(patients.filter(p => p.nombre.toLowerCase().includes(term) || (p.cedula && p.cedula.includes(term)))); 
+        });
+
+        // ----------------------------------------------------
+        // INVENTARIO DE INSUMOS
+        // ----------------------------------------------------
+        async function loadInsumos() {
+            const snap = await db.collection('insumos').where('doctorId', '==', parentDoctorId).get();
+            insumos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderInsumos();
+        }
+
+        function renderInsumos() {
+            const body = document.getElementById('insumosTableBody');
+            if(!body) return;
+            body.innerHTML = insumos.map(i => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                    <td class="px-6 py-4">${i.nombre}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-slate-200 text-[10px] font-black uppercase text-slate-600">${i.categoria}</span></td>
+                    <td class="px-6 py-4"><span class="${i.stock < 10 ? 'text-red-600 bg-red-50 px-2 py-1 rounded font-black' : 'text-slate-800 font-bold'}">${i.stock}</span></td>
+                    <td class="px-6 py-4">
+                        <button onclick="updateStock('${i.id}', 1)" class="bg-green-100 text-green-700 px-3 py-1 rounded-lg font-black mr-1">+</button>
+                        <button onclick="updateStock('${i.id}', -1)" class="bg-red-100 text-red-700 px-3 py-1 rounded-lg font-black">-</button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function openAddInsumoModal() { document.getElementById('addInsumoModal').classList.remove('hidden'); }
+        
+        async function submitNewInsumo() {
+            const name = document.getElementById('insumoName').value.trim();
+            const qty = parseInt(document.getElementById('insumoQty').value) || 0;
+            const cat = document.getElementById('insumoCat').value;
+            if(!name) return alert("Ingresa el nombre.");
+            try {
+                await db.collection('insumos').add({ doctorId: parentDoctorId, nombre: name, stock: qty, categoria: cat });
+                document.getElementById('addInsumoModal').classList.add('hidden');
+                document.getElementById('insumoName').value = '';
+                document.getElementById('insumoQty').value = '';
+                mostrarMensaje("Insumo agregado.", "success");
+                loadInsumos();
+            } catch(e) { alert("Error al guardar insumo."); }
+        }
+
+        async function updateStock(id, diff) {
+            const insumo = insumos.find(i => i.id === id);
+            if(!insumo) return;
+            let newStock = insumo.stock + diff;
+            if(newStock < 0) newStock = 0;
+            try {
+                await db.collection('insumos').doc(id).update({ stock: newStock });
+                loadInsumos();
+            } catch(e) {}
+        }
+
+        // ----------------------------------------------------
+        // CUMPLEAÑOS
+        // ----------------------------------------------------
+        function checkBirthdays() {
+            const today = new Date().toISOString().slice(5, 10);
+            const bdays = patients.filter(p => p.fechaNacimiento && p.fechaNacimiento.slice(5, 10) === today);
+            const container = document.getElementById('birthdayList');
+            if(container) {
+                if(bdays.length > 0) {
+                    container.innerHTML = bdays.map(p => `<div class="text-pink-600 mb-1">🎁 ${p.nombre}</div>`).join('');
+                } else {
+                    container.innerHTML = "<span class='text-slate-400 font-normal'>Ninguno hoy</span>";
+                }
+            }
+        }
+
+        function openBirthdayConfig() {
+            document.getElementById('bdayGiftText').value = clinicDataGlobal.bdayGift || '';
+            document.getElementById('birthdayModal').classList.remove('hidden');
+        }
+
+        async function saveBdayConfig() {
+            const gift = document.getElementById('bdayGiftText').value;
+            await db.collection('users').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift });
+            clinicDataGlobal.bdayGift = gift;
+            mostrarMensaje("Regalo de cumpleaños configurado.", "success");
+            document.getElementById('birthdayModal').classList.add('hidden');
+        }
+
+        // ----------------------------------------------------
+        // AGENDAR, CONFIRMAR Y REGISTRAR PACIENTE
+        // ----------------------------------------------------
         async function submitNewPatient() {
             const btn = document.getElementById('saveNewPatientBtn');
             const cedula = document.getElementById('newPatientCedula').value.trim();
             const nombre = document.getElementById('newPatientName').value.trim();
             const phone = normalizarTelefono(document.getElementById('newPatientPhone').value.trim());
             const email = document.getElementById('newPatientEmail').value.trim();
+            const dob = document.getElementById('newPatientDob').value;
 
-            if (!parentDoctorId) return alert("Error: No se pudo identificar tu sesión. Recarga la página.");
             if (!nombre || !cedula || !phone) return alert("Llena los campos obligatorios.");
 
             btn.disabled = true; btn.innerHTML = "Guardando...";
-            
             try {
                 const exist = await db.collection('patients').where('doctorId', '==', parentDoctorId).where('cedula', '==', cedula).get();
-                if(!exist.empty) {
-                    btn.disabled = false; btn.innerHTML = "Guardar";
-                    return alert("El paciente con esta cédula ya existe.");
-                }
+                if(!exist.empty) return alert("El paciente ya existe.");
 
                 await db.collection('patients').add({
-                    doctorId: parentDoctorId, nombre, cedula, telefonoWhatsApp: phone, email, fechaRegistro: new Date(), activo: true
+                    doctorId: parentDoctorId, nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob, fechaRegistro: new Date(), activo: true
                 });
-                
                 document.getElementById('newPatientModal').classList.add('hidden');
                 document.getElementById('newPatientCedula').value = '';
                 document.getElementById('newPatientName').value = '';
                 document.getElementById('newPatientPhone').value = '';
                 document.getElementById('newPatientEmail').value = '';
-                
-                mostrarMensaje("Paciente guardado con éxito.", "success");
+                document.getElementById('newPatientDob').value = '';
+                mostrarMensaje("Paciente registrado exitosamente.", "success");
                 await loadPatients();
-            } catch(e) { 
-                console.error("Detalle técnico del error:", e);
-                alert("Fallo en la base de datos: " + e.message); 
-            }
+                checkBirthdays();
+            } catch(e) { alert("Error al guardar."); }
             finally { btn.disabled = false; btn.innerHTML = "Guardar"; }
         }
 
-        // AGENDAR CITA
         document.getElementById('appointmentForm').addEventListener('submit', async (e) => { 
             e.preventDefault(); 
             try {
@@ -642,7 +776,6 @@
         async function confirmAppointmentManually(id) {
             if(!confirm("¿Deseas confirmar este turno?")) return;
             await db.collection('appointments').doc(id).update({estado: 'confirmada'});
-            // Configurar GCalendar
             if(clinicDataGlobal.gCalendarToken) {
                 const a = appointments.find(x => x.id === id);
                 const p = patients.find(x => x.id === a.patientId);
@@ -651,11 +784,13 @@
                     body: JSON.stringify({ doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: a.fecha, hora: a.hora, motivo: a.motivo, tokenGCalendar: clinicDataGlobal.gCalendarToken })
                 });
             }
-            mostrarMensaje('Confirmado.', 'success');
+            mostrarMensaje('Turno confirmado exitosamente.', 'success');
             await loadAppointments();
         }
 
-        // TRIAJE / EVALUACIÓN
+        // ----------------------------------------------------
+        // TRIAJE Y EVALUACIÓN FÍSICA
+        // ----------------------------------------------------
         function openTriageModal(id) {
             document.getElementById('triageAppointmentId').value = id;
             const apt = appointments.find(x => x.id === id);
@@ -669,6 +804,7 @@
             document.getElementById('triageModal').classList.remove('hidden');
         }
         function closeTriageModal() { document.getElementById('triageModal').classList.add('hidden'); }
+        
         async function saveTriage() {
             const id = document.getElementById('triageAppointmentId').value;
             let triageObj = {};
@@ -676,20 +812,31 @@
                 if(input.value) triageObj[input.id.replace('tri', '').toLowerCase()] = input.value;
             });
             await db.collection('appointments').doc(id).update({ triage: triageObj });
-            closeTriageModal(); mostrarMensaje('Evaluación guardada.', 'success'); await loadAppointments();
+            closeTriageModal(); 
+            mostrarMensaje('Evaluación previa guardada.', 'success'); 
+            await loadAppointments();
         }
 
-        // IA COPILOT Y RECETAS
+        // ----------------------------------------------------
+        // INTELIGENCIA ARTIFICIAL FISIOTERAPIA Y CUOTAS
+        // ----------------------------------------------------
         function openPrescriptionModal(id) { 
             const apt = appointments.find(x => x.id === id);
             const p = patients.find(pat => pat.id === apt.patientId);
             document.getElementById('rxAppointmentId').value = id;
             document.getElementById('rxPatientName').textContent = p.nombre;
             document.getElementById('prescriptionModal').classList.remove('hidden'); 
+            
             document.getElementById('rxBorrador').value = '';
             document.getElementById('rxDiagnostico').value = '';
             document.getElementById('rxRecomendaciones').value = '';
             
+            // Limpiar Checkeos y Cuotas
+            document.getElementById('checkTratamiento').checked = false;
+            document.getElementById('divCuotas').classList.add('hidden');
+            document.getElementById('numCuotas').value = 1;
+            document.getElementById('rxNextDate').value = '';
+
             document.querySelectorAll('.vital-input').forEach(input => {
                 input.value = '';
                 if(apt && apt.triage) {
@@ -697,7 +844,9 @@
                     if(apt.triage[key]) input.value = apt.triage[key];
                 }
             });
-            document.getElementById('medicinesContainer').innerHTML = ''; addMedicineRow(); 
+            
+            document.getElementById('medicinesContainer').innerHTML = ''; 
+            addMedicineRow(); 
         }
         function closePrescriptionModal() { document.getElementById('prescriptionModal').classList.add('hidden'); }
 
@@ -705,64 +854,52 @@
             const id = 'med_' + Date.now() + Math.floor(Math.random() * 1000); 
             document.getElementById('medicinesContainer').insertAdjacentHTML('beforeend', `
             <div id="${id}" class="flex gap-2 mb-2 relative bg-white p-3 border border-gray-200 rounded-xl shadow-sm animate-slideIn">
-                <input class="border border-gray-300 p-2 w-full text-sm rounded-lg med-name focus:ring-2 focus:ring-teal-500" value="${med?.medicamento||''}" placeholder="Terapia (Ej: Magnetoterapia)">
-                <input class="border border-gray-300 p-2 w-1/2 text-sm rounded-lg med-dose focus:ring-2 focus:ring-teal-500" value="${med?.dosis||''}" placeholder="Duración / Frecuencia">
-                <button onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-red-400 font-bold">✖</button>
+                <input class="border border-gray-300 p-2 w-full text-sm rounded-lg med-name outline-none focus:ring-2 focus:ring-teal-500 font-bold" value="${med?.medicamento||''}" placeholder="Terapia (Ej: Magnetoterapia)">
+                <input class="border border-gray-300 p-2 w-1/2 text-sm rounded-lg med-dose outline-none focus:ring-2 focus:ring-teal-500 font-bold" value="${med?.dosis||''}" placeholder="Sesiones">
+                <button onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600 font-black">✖</button>
             </div>`); 
+        }
+
+        function toggleCuotas() {
+            const div = document.getElementById('divCuotas');
+            if(document.getElementById('checkTratamiento').checked) div.classList.remove('hidden');
+            else div.classList.add('hidden');
         }
 
         async function procesarConIA() { 
             const btn = document.getElementById('btnCopiloto'); 
             const borrador = document.getElementById('rxBorrador').value;
             
-            if(!borrador.trim()) return alert("Escribe algunas notas primero.");
+            if(!borrador.trim()) return alert("Escribe notas rápidas para que la IA pueda estructurarlas.");
 
             let datosExtras = [];
             document.querySelectorAll('.vital-input').forEach(input => {
                 if(input.value) datosExtras.push(`${input.previousElementSibling.textContent}: ${input.value}`);
             });
-            const contextoClinico = datosExtras.length > 0 ? "Datos medidos: " + datosExtras.join(', ') : "";
+            const contextoClinico = datosExtras.length > 0 ? "Datos evaluados: " + datosExtras.join(', ') : "";
 
-            btn.innerHTML='⏳ Evaluando...'; btn.disabled = true;
+            btn.innerHTML='⏳ Analizando...'; btn.disabled = true;
             try { 
                 const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, { 
                     method:'POST', headers: {'Content-Type': 'application/json'}, 
-                    body:JSON.stringify({ notasBorrador: borrador, especialidad: 'fisioterapia', contextoClinico }) 
+                    body:JSON.stringify({ notasBorrador: borrador, especialidad: 'fisioterapia', contextoClinico: contextoClinico }) 
                 }); 
                 const data = await res.json(); 
                 
-                // 🔥 PROTECCIÓN: Si el servidor devuelve un error, detenemos todo y NO borramos las notas 🔥
-                if (!res.ok || data.error) {
-                    throw new Error(data.error || "Fallo en la comunicación con la IA del servidor.");
-                }
+                if (!res.ok || data.error) throw new Error(data.error || "Fallo en IA.");
 
                 document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
-                
-                // Validación para unir arreglos de recomendaciones de manera segura
-                if(Array.isArray(data.recomendaciones)) {
-                    document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
-                } else {
-                    document.getElementById('rxRecomendaciones').value = data.recomendaciones || '';
-                }
+                if(Array.isArray(data.recomendaciones)) document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
+                else document.getElementById('rxRecomendaciones').value = data.recomendaciones || '';
 
                 document.getElementById('medicinesContainer').innerHTML = ''; 
-                if(data.receta && data.receta.length > 0) {
-                    data.receta.forEach(m => addMedicineRow(m)); 
-                } else {
-                    addMedicineRow();
-                }
-
-                // 🛡️ SOLO borramos el borrador si todo el proceso fue un éxito
+                if(data.receta && data.receta.length > 0) data.receta.forEach(m => addMedicineRow(m)); 
+                else addMedicineRow();
+                
                 document.getElementById('rxBorrador').value = ''; 
-                mostrarMensaje('Notas estructuradas con IA de Fisioterapia.', 'success');
-
-            } catch(e){ 
-                console.error("Fallo IA:", e);
-                alert("Alerta del Servidor: " + e.message); 
-            } 
-            finally { 
-                btn.innerHTML='🪄 Estructurar Automáticamente'; btn.disabled = false; 
-            } 
+                mostrarMensaje('Estructurado por Inteligencia Artificial', 'success');
+            } catch(e){ alert("Hubo un error con la IA. " + e.message); } 
+            finally { btn.innerHTML='ESTRUCTURAR CON IA 🪄'; btn.disabled = false; } 
         }
 
         async function submitPrescription() { 
@@ -771,7 +908,8 @@
             const p = patients.find(x=>x.id===a.patientId); 
             
             let diag = document.getElementById('rxDiagnostico').value; 
-            let customVitalsStr = []; let vitalsObj = {};
+            let customVitalsStr = []; 
+            let vitalsObj = {};
             
             document.querySelectorAll('.vital-input').forEach(input => {
                 if(input.value) {
@@ -779,7 +917,8 @@
                     vitalsObj[input.id.replace('rx', '').toLowerCase()] = input.value;
                 }
             });
-            if(customVitalsStr.length > 0) diag = `[Datos Físicos: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
+
+            if (customVitalsStr.length > 0) diag = `[Datos Físicos: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
 
             const meds = []; 
             Array.from(document.getElementById('medicinesContainer').children).forEach(r => { 
@@ -790,24 +929,45 @@
             const recText = document.getElementById('rxRecomendaciones').value;
             const recList = recText ? recText.split('\n').filter(r => r.trim() !== '') : [];
 
+            // Cuotas y Próxima Sesión
+            if(document.getElementById('checkTratamiento').checked) {
+                let cuotas = document.getElementById('numCuotas').value;
+                recList.push(`⚠️ Plan de Terapia Financiero: Paquete de ${cuotas} sesión(es)/cuotas.`);
+                vitalsObj.planCuotas = cuotas;
+            }
+            
+            let nextDate = document.getElementById('rxNextDate').value;
+            if(nextDate) {
+                recList.push(`📅 Próxima Terapia programada para: ${nextDate}`);
+                vitalsObj.proximoChequeo = nextDate;
+            }
+
             const btn = document.getElementById('btnSubmitPrescription');
-            btn.innerHTML = '⏳ Guardando...'; btn.disabled = true;
+            btn.innerHTML = '⏳ Generando y Enviando...'; btn.disabled = true;
             try {
-                if(diag || meds.length > 0) {
+                if(diag || meds.length > 0 || customVitalsStr.length > 0) {
                     await db.collection('patients').doc(p.id).collection('vitals').add({ 
                         fecha: new Date(), diagnostico: diag, recomendaciones: recList, ...vitalsObj 
                     }); 
                 }
+                
                 await fetch(`${API_BASE_URL}/send-prescription`, { 
                     method:'POST', headers: {'Content-Type': 'application/json'}, 
-                    body:JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre, diagnostico: diag, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal }) 
+                    body:JSON.stringify({ 
+                        doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre, 
+                        diagnostico: diag, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal 
+                    }) 
                 }); 
-                closePrescriptionModal(); openBillingModal(id, p.nombre); 
-            } catch (err) { mostrarMensaje("Error al guardar", "error"); } 
-            finally { btn.innerHTML = 'Siguiente: Cobro ➡️'; btn.disabled = false; }
+                
+                closePrescriptionModal(); 
+                openBillingModal(id, p.nombre); 
+            } catch (err) { mostrarMensaje("Error al procesar", "error"); } 
+            finally { btn.innerHTML = 'GUARDAR Y COBRAR ➡️'; btn.disabled = false; }
         }
 
-        // COBROS Y PAYPHONE MOCK
+        // ----------------------------------------------------
+        // COBROS 
+        // ----------------------------------------------------
         function openBillingModal(id, name) { 
             document.getElementById('billingAptId').value = id; 
             document.getElementById('billingPatName').textContent = name; 
@@ -817,10 +977,12 @@
             document.getElementById('billingModal').classList.remove('hidden'); 
         }
         function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
+        
         function calculateTotal() { 
             const s = parseFloat(document.getElementById('billingSubtotal').value) || 0; 
             document.getElementById('billingTotalDisplay').textContent = '$' + (document.getElementById('billingIva').checked ? s*1.15 : s).toFixed(2); 
         }
+        
         async function submitBilling() { 
             const id = document.getElementById('billingAptId').value; 
             const a = appointments.find(x => x.id === id); 
@@ -828,27 +990,41 @@
             const sub = parseFloat(document.getElementById('billingSubtotal').value) || 0; 
             const tot = document.getElementById('billingIva').checked ? sub * 1.15 : sub;
             
-            const btn = document.getElementById('btnFinalizarCobro'); btn.disabled = true;
+            const btn = document.getElementById('btnFinalizarCobro'); btn.disabled = true; btn.innerHTML = '⏳ Enviando...';
             try {
                 await fetch(`${API_BASE_URL}/send-message`, { 
                     method: 'POST', headers: {'Content-Type': 'application/json'}, 
                     body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre}\n\n👤 Paciente: ${p.nombre}\n💵 Total: $${tot.toFixed(2)}` }) 
                 });
                 await db.collection('appointments').doc(id).update({ estado: 'completada', monto: tot });
-                closeBillingModal(); await loadAppointments(); mostrarMensaje('Cobro registrado', 'success');
+                closeBillingModal(); await loadAppointments(); mostrarMensaje('Cobro registrado exitosamente.', 'success');
             } catch (err) { alert('Error enviando comprobante.'); } 
-            finally { btn.disabled = false; }
+            finally { btn.disabled = false; btn.innerHTML = 'FINALIZAR Y ENVIAR 📲'; }
         }
 
-        // GOOGLE CALENDAR & CONFIGURACIÓN
+        // ----------------------------------------------------
+        // CONFIGURACIÓN (LOGO Y HORARIOS)
+        // ----------------------------------------------------
         async function syncGoogleCalendar() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl`);
                 const data = await res.json();
                 window.open(data.url, '_blank');
-                const t = document.getElementById('clinicGCalendarToken'); t.classList.remove('hidden'); t.readOnly = false;
-                alert("1. Autoriza en Google.\n2. Copia el JSON.\n3. Pégalo aquí abajo y Guarda Cambios.");
-            } catch(e) { alert("Error API Google."); }
+                const t = document.getElementById('clinicGCalendarToken'); 
+                t.classList.remove('hidden'); t.readOnly = false;
+            } catch(e) { alert("Error conectando con API de Google Calendar."); }
+        }
+
+        function previewLogo(input) {
+            const file = input.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('clinicLogoPreview').src = e.target.result;
+                    clinicDataGlobal.logo = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         async function saveClinicSettings() {
@@ -858,11 +1034,15 @@
                 telefono: normalizarTelefono(document.getElementById('clinicPhone').value),
                 direccion: document.getElementById('clinicAddress').value,
                 color: document.getElementById('clinicColor').value,
-                gCalendarToken: document.getElementById('clinicGCalendarToken').value
+                gCalendarToken: document.getElementById('clinicGCalendarToken').value,
+                hInicio: document.getElementById('hInicio').value,
+                hFin: document.getElementById('hFin').value,
+                nonWorkingDays: document.getElementById('nonWorkingDays').value
             };
             try {
                 await db.collection('users').doc(parentDoctorId).update({ clinicInfo: info });
-                clinicDataGlobal = info; mostrarMensaje('Configuración guardada.', 'success'); closeSettingsModal();
+                clinicDataGlobal = info; mostrarMensaje('Configuración guardada.', 'success'); 
+                closeSettingsModal(); applyClinicBranding();
             } catch(e) { mostrarMensaje('Error al guardar.', 'error'); }
         }
 
@@ -874,33 +1054,18 @@
                 document.getElementById('clinicAddress').value = clinicDataGlobal.direccion || '';
                 document.getElementById('clinicColor').value = clinicDataGlobal.color || '#0f766e';
                 document.getElementById('clinicGCalendarToken').value = clinicDataGlobal.gCalendarToken || '';
+                document.getElementById('hInicio').value = clinicDataGlobal.hInicio || '08:00';
+                document.getElementById('hFin').value = clinicDataGlobal.hFin || '17:00';
+                document.getElementById('nonWorkingDays').value = clinicDataGlobal.nonWorkingDays || '';
+                if(clinicDataGlobal.logo) document.getElementById('clinicLogoPreview').src = clinicDataGlobal.logo;
             }
             document.getElementById('settingsModal').classList.remove('hidden'); 
         }
         function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 
-        // OMNICANAL & PROMOS
-        function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
-        function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
-        function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
-        function closePromotionsModal() { document.getElementById('promotionsModal').classList.add('hidden'); }
-
-        async function sendPromotion() {
-            const msg = document.getElementById('promoMessage').value.trim();
-            const target = document.getElementById('promoTargeting').value.trim() || 'A todos';
-            if(!msg) return alert("Escribe un mensaje.");
-            const btn = document.getElementById('btnSendPromo'); btn.disabled = true; btn.innerHTML = '⏳ Enviando...';
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, mensajePromocion: msg, instruccionesIA: target })
-                });
-                const data = await res.json();
-                if(data.success) { mostrarMensaje(`Campaña enviada a ${data.enviados} pacientes.`, 'success'); closePromotionsModal(); }
-            } catch(e) { alert("Error al enviar."); } finally { btn.disabled = false; btn.innerHTML = 'Enviar Inteligente 🚀'; }
-        }
-
-        // HISTORIAL CLÍNICO
+        // ----------------------------------------------------
+        // HISTORIAL CLÍNICO Y GRÁFICA DE DOLOR
+        // ----------------------------------------------------
         async function openHistoryModal(patientId) { 
             currentPatientIdForImages = patientId; 
             document.getElementById('historyModal').classList.remove('hidden'); 
@@ -910,30 +1075,67 @@
             try {
                 const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'asc').get(); 
                 if(snap.empty) {
-                    document.getElementById('historyTimeline').innerHTML = '<p class="text-center text-gray-500 mt-10">Sin Historial Clínico.</p>';
+                    document.getElementById('historyTimeline').innerHTML = '<p class="text-center text-gray-500 mt-10">Sin Historial Clínico registrado.</p>';
+                    document.getElementById('chartContainer').classList.add('hidden');
+                    if(vitalsChartInstance) vitalsChartInstance.destroy();
                 } else {
-                    const docs = snap.docs; let timelineHtml = '';
+                    const docs = snap.docs; 
+                    let timelineHtml = '';
+                    const labels = [];
+                    const dataDolor = []; // Para fisioterapia la métrica estrella es el dolor
+
                     for(let i = docs.length - 1; i >= 0; i--) {
                         const d = docs[i].data();
-                        const dateStr = d.fecha.toDate ? d.fecha.toDate().toLocaleDateString('es-ES') : '';
+                        const dateObj = d.fecha.toDate ? d.fecha.toDate() : new Date(d.fecha);
+                        const dateStr = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                        
                         let vStr = '';
                         if(d.dolor) vStr += `Dolor: ${d.dolor}/10 | `;
                         if(d.zona) vStr += `Zona: ${d.zona} | `;
                         if(d.mov) vStr += `Movilidad: ${d.mov}`;
 
+                        let recsHtml = '';
+                        if(d.recomendaciones && d.recomendaciones.length > 0) {
+                            recsHtml = `<div class="bg-orange-50 p-3 rounded-xl mt-3 border border-orange-100"><p class="text-xs font-black text-orange-800 uppercase mb-1">💡 Recomendaciones:</p><ul class="text-xs text-orange-900 font-bold space-y-1">${d.recomendaciones.map(r=>`<li>• ${r}</li>`).join('')}</ul></div>`;
+                        }
+
+                        let diagHtml = d.diagnostico || 'Sin diagnóstico.';
+                        diagHtml = diagHtml.replace(/\n/g, '<br>');
+
                         timelineHtml += `
-                        <div class="bg-white p-5 border-l-4 border-teal-500 rounded-r-2xl shadow-sm mb-4">
+                        <div class="bg-white p-6 border-l-4 border-teal-500 rounded-r-3xl shadow-sm mb-4">
                             <span class="text-sm font-black text-teal-900">📅 ${dateStr}</span>
-                            <p class="text-sm text-gray-700 mt-2">${d.diagnostico || 'Sin diagnóstico.'}</p>
-                            ${vStr ? `<p class="text-xs text-slate-500 font-bold mt-2">📊 ${vStr}</p>` : ''}
+                            <p class="text-xs text-slate-700 mt-3 font-bold">${diagHtml}</p>
+                            ${vStr ? `<p class="text-xs text-slate-500 font-black mt-3">📊 ${vStr}</p>` : ''}
+                            ${recsHtml}
                         </div>`;
+
+                        // Data para gráfico
+                        labels.unshift(dateStr);
+                        if(d.dolor) dataDolor.unshift(parseFloat(d.dolor));
                     }
                     document.getElementById('historyTimeline').innerHTML = timelineHtml;
+
+                    const ctx = document.getElementById('vitalsChartCanvas');
+                    if(vitalsChartInstance) vitalsChartInstance.destroy();
+
+                    if(dataDolor.length > 0) {
+                        document.getElementById('chartContainer').classList.remove('hidden');
+                        vitalsChartInstance = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{ label: 'Nivel de Dolor (1-10)', data: dataDolor, borderColor: '#0f766e', backgroundColor: 'rgba(15, 118, 110, 0.1)', fill: true, tension: 0.4 }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 10 } } }
+                        });
+                    } else { document.getElementById('chartContainer').classList.add('hidden'); }
                 }
-            } catch(e) { document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center">Error cargando historial.</p>'; }
+            } catch(e) { document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center font-bold">Error cargando historial.</p>'; }
+            
             loadPatientImages(patientId);
         }
-        function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); }
+        function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); if(vitalsChartInstance) vitalsChartInstance.destroy(); }
 
         async function uploadPatientImage(input) {
             const file = input.files[0]; if(!file || !currentPatientIdForImages) return;
@@ -944,32 +1146,34 @@
                 const url = await storageRef.getDownloadURL();
                 await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({ url: url, nombre: file.name, fechaCreacion: new Date() });
                 loadPatientImages(currentPatientIdForImages); 
-            } catch (e) { alert('Error subiendo archivo'); } finally { btn.textContent = '📁 Subir Archivo'; btn.disabled = false; input.value = ''; }
+            } catch (e) { alert('Error subiendo archivo'); } finally { btn.textContent = 'Subir Archivo'; btn.disabled = false; input.value = ''; }
         }
 
         async function loadPatientImages(pid) {
             const gal = document.getElementById('patientImagesGallery'); gal.innerHTML = '<div class="spinner mx-auto col-span-full"></div>';
             try {
                 const snap = await db.collection('patients').doc(pid).collection('images').orderBy('fechaCreacion', 'desc').get();
-                if(snap.empty) return gal.innerHTML = '<p class="text-xs text-gray-400 col-span-full text-center">No hay estudios.</p>';
+                if(snap.empty) return gal.innerHTML = '<p class="text-xs font-bold text-gray-400 col-span-full text-center">No hay archivos anexados.</p>';
                 gal.innerHTML = snap.docs.map(doc => {
                     const data = doc.data(); const isPDF = data.nombre.toLowerCase().endsWith('.pdf');
-                    return isPDF ? `<div class="bg-red-50 p-2 text-center cursor-pointer border rounded" onclick="window.open('${data.url}')"><span class="text-2xl">📄</span><p class="text-[9px] text-red-800 truncate">${data.nombre}</p></div>` 
-                                 : `<div class="cursor-pointer" onclick="window.open('${data.url}')"><img src="${data.url}" class="w-full h-24 object-cover rounded border"></div>`;
+                    return isPDF ? `<div class="bg-red-50 p-2 text-center cursor-pointer border rounded-xl" onclick="window.open('${data.url}')"><span class="text-3xl">📄</span><p class="text-[9px] font-black text-red-800 truncate mt-1">${data.nombre}</p></div>` 
+                                 : `<div class="cursor-pointer overflow-hidden rounded-xl border border-slate-200" onclick="window.open('${data.url}')"><img src="${data.url}" class="w-full h-24 object-cover hover:scale-110 transition-transform duration-300"></div>`;
                 }).join('');
-            } catch (e) { gal.innerHTML = '<p class="text-xs text-red-500">Error imágenes.</p>'; }
+            } catch (e) { gal.innerHTML = '<p class="text-xs font-bold text-red-500">Error al cargar imágenes.</p>'; }
         }
 
         function copiarMiLink() {
-            const link = window.location.href.split('?')[0].replace('dashboard-fisioterapia.html', `agendar.html?doc=${parentDoctorId}`);
-            navigator.clipboard.writeText(link).then(() => mostrarMensaje('¡Copiado!', 'success'));
+            const currentPath = window.location.href.split('?')[0]; 
+            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
+            navigator.clipboard.writeText(miLink).then(() => mostrarMensaje('¡Enlace copiado al portapapeles!', 'success')).catch(err => alert("Copia manualmente tu link: " + miLink));
         }
-        function mostrarMensaje(msg, type='success') { 
-            const d = document.getElementById('formMessage'); 
-            d.textContent = msg; 
-            d.className = `p-4 rounded-lg mt-4 font-bold shadow-md border ${type==='success'?'bg-green-100 text-green-800 border-green-300':'bg-red-100 text-red-800 border-red-300'}`; 
-            d.classList.remove('hidden'); 
-            setTimeout(()=>d.classList.add('hidden'), 3500); 
+        function mostrarMensaje(msg, type='success') {
+            const d = document.getElementById('formMessage');
+            d.textContent = msg;
+            d.className = `p-4 rounded-2xl mb-4 font-black text-sm shadow-md border ${type==='success'?'bg-emerald-100 text-emerald-800 border-emerald-300':'bg-red-100 text-red-800 border-red-300'}`;
+            d.classList.remove('hidden');
+            setTimeout(()=>d.classList.add('hidden'), 3500);
         }
     </script>
 </body>
