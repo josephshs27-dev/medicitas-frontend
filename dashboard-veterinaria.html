@@ -110,15 +110,15 @@
                                         <option value="">-- Seleccionar Mascota --</option>
                                     </select>
                                     <div class="grid grid-cols-2 gap-3">
-                                        <input type="date" id="appointmentDate" required class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500">
-                                        <input type="time" id="appointmentTime" required class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <input type="date" id="appointmentDate" required class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold">
+                                        <input type="time" id="appointmentTime" required class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold">
                                     </div>
-                                    <input type="text" id="appointmentReason" required placeholder="Motivo (Ej. Vacunación, Consulta)" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <input type="text" id="appointmentReason" required placeholder="Motivo (Ej. Vacunación)" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold focus:ring-2 focus:ring-indigo-500">
                                     <select id="appointmentStatus" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500">
                                         <option value="pendiente">Pendiente</option>
                                         <option value="confirmada">Confirmada</option>
                                     </select>
-                                    <textarea id="appointmentNotes" rows="2" placeholder="Notas internas" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                                    <textarea id="appointmentNotes" rows="2" placeholder="Notas internas" class="w-full px-4 py-3 border rounded-2xl bg-slate-50 font-bold focus:ring-2 focus:ring-indigo-500"></textarea>
                                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-95">AGENDAR EN ASISTENCITAS 🚀</button>
                                 </form>
                             </div>
@@ -148,7 +148,8 @@
                                 <div class="flex gap-2 w-full md:w-auto">
                                     <input type="text" id="searchPatientInput" placeholder="🔍 Buscar mascota o dueño..." class="flex-1 md:w-64 px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500">
                                     <button onclick="openPromotionsModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-3 rounded-xl shadow-sm">📢 Promoción</button>
-                                    <button onclick="document.getElementById('newPatientModal').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-3 rounded-xl shadow-sm">➕ Nueva Mascota</button>
+                                    <button onclick="openMetaModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-3 rounded-xl shadow-sm hidden md:block">🌐 Meta</button>
+                                    <button onclick="document.getElementById('newPatientModal').classList.remove('hidden')" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-3 rounded-xl shadow-sm">➕ Nueva Mascota</button>
                                 </div>
                             </div>
                             <div id="patientsDirectoryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -223,20 +224,25 @@
                     <input type="hidden" id="rxAppointmentId">
                     <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 rounded-3xl shadow-lg text-white">
                         <h4 class="font-black text-lg mb-2 flex items-center gap-2">🪄 Copiloto Veterinario (IA)</h4>
-                        <p class="text-indigo-100 text-xs mb-4">Dicta o escribe las notas clínicas, la IA estructurará la ficha de la mascota.</p>
-                        <textarea id="rxBorrador" rows="3" placeholder="Ej: Perro con vómitos de 2 días, sospecha parvovirus, recetar suero oral..." class="w-full text-slate-800 p-4 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-300 font-bold"></textarea>
+                        <p class="text-indigo-100 text-xs mb-4">Dicta o escribe las notas clínicas. La IA las acomodará en la ficha estructurada automáticamente.</p>
+                        <textarea id="rxBorrador" rows="3" placeholder="Ej: Perro con vómitos de 2 días, sospecha parvovirus, mucosas pálidas, recetar suero oral..." class="w-full text-slate-800 p-4 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-300 font-bold"></textarea>
                         <button onclick="procesarConIA()" id="btnCopiloto" class="w-full bg-white text-indigo-700 font-black py-4 rounded-2xl mt-4 shadow-md transition-all active:scale-95">ESTRUCTURAR FICHA VET 🪄</button>
                     </div>
 
                     <div>
-                        <h4 class="font-black text-slate-400 text-xs uppercase tracking-widest mb-4">Análisis / Diagnóstico Veterinario</h4>
-                        <textarea id="rxDiagnostico" rows="4" class="w-full p-4 border rounded-2xl bg-slate-50 font-bold text-slate-800 border-slate-200 outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
+                        <h4 class="font-black text-slate-400 text-xs uppercase tracking-widest mb-4">Ficha Clínica - Estructurada</h4>
+                        <div class="space-y-3">
+                            <div><label class="block text-xs font-black text-slate-500 mb-1">Motivo de Consulta</label><input type="text" id="vetMotivo" class="w-full px-4 py-2 border rounded-xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500"></div>
+                            <div><label class="block text-xs font-black text-slate-500 mb-1">Anamnesis (Síntomas/Historia)</label><textarea id="vetAnamnesis" rows="2" class="w-full px-4 py-2 border rounded-xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500"></textarea></div>
+                            <div><label class="block text-xs font-black text-slate-500 mb-1">Hallazgos Clínicos Especiales</label><textarea id="vetExamen" rows="2" class="w-full px-4 py-2 border rounded-xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500"></textarea></div>
+                            <div><label class="block text-xs font-black text-slate-500 mb-1">Diagnóstico (Presuntivo o Definitivo)</label><input type="text" id="vetDiagnostico" class="w-full px-4 py-2 border rounded-xl bg-slate-50 font-bold outline-none focus:ring-2 focus:ring-indigo-500"></div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="space-y-6">
                     <div>
-                        <h4 class="font-black text-slate-400 text-xs uppercase tracking-widest mb-4">Constantes Fisiológicas</h4>
+                        <h4 class="font-black text-slate-400 text-xs uppercase tracking-widest mb-4">Constantes Fisiológicas (Triaje)</h4>
                         <div class="grid grid-cols-4 gap-2" id="dynamicVitalsContainer">
                             <div><label class="block text-[9px] font-bold text-slate-500 uppercase">Edad</label><input type="text" id="rxEdad" class="w-full px-2 py-2 border rounded-lg bg-slate-50 font-bold vital-input text-center"></div>
                             <div><label class="block text-[9px] font-bold text-slate-500 uppercase">Peso (kg)</label><input type="number" step="0.1" id="rxPeso" class="w-full px-2 py-2 border rounded-lg bg-slate-50 font-bold vital-input text-center"></div>
@@ -578,28 +584,17 @@
 
         function updateDashboardStats() {
             if(!appointments) return;
-            const filterValue = document.getElementById('financeFilter').value;
+            const filterValue = document.getElementById('filterAppointmentStatus') ? document.getElementById('filterAppointmentStatus').value : 'activas';
             let filtered = appointments;
             
             const startOfDay = new Date(new Date().setHours(0,0,0,0));
             const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
-            filtered = appointments.filter(a => {
-                if(filterValue === 'todo') return true;
-                const [y, m, d] = a.fecha.split('-');
-                const aptDate = new Date(y, m - 1, d);
-                if(filterValue === 'hoy') return aptDate >= startOfDay;
-                if(filterValue === 'mes') return aptDate >= startOfMonth;
-                return true;
-            });
+            const ingresos = appointments.filter(a => a.estado === 'completada').reduce((sum, a) => sum + (parseFloat(a.monto) || 0), 0);
 
-            const ingresos = filtered.filter(a => a.estado === 'completada').reduce((sum, a) => sum + (parseFloat(a.monto) || 0), 0);
-            const pendientes = filtered.filter(a => a.estado === 'pendiente' || a.estado === 'confirmada').length;
-
-            document.getElementById('kpiCitas').textContent = filtered.length;
-            document.getElementById('kpiIngresos').textContent = `$${ingresos.toFixed(2)}`;
-            document.getElementById('kpiPacientes').textContent = patients.length; 
-            document.getElementById('kpiPendientes').textContent = pendientes;
+            if (document.getElementById('kpiCitas')) document.getElementById('kpiCitas').textContent = appointments.length;
+            if (document.getElementById('kpiIngresos')) document.getElementById('kpiIngresos').textContent = `$${ingresos.toFixed(2)}`;
+            if (document.getElementById('kpiPacientes')) document.getElementById('kpiPacientes').textContent = patients.length; 
         }
 
         function renderAppointments() {
@@ -622,7 +617,7 @@
             container.innerHTML = filtered.map(apt => {
                 const p = patients.find(pat => pat.id === apt.patientId);
                 const isPend = apt.estado === 'pendiente';
-                let btnConfirm = isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" class="bg-green-50 text-green-700 text-xs py-2 rounded-lg font-bold border border-green-200 hover:bg-green-100">✅ CONFIRMAR</button>` : '';
+                let btnConfirm = isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" class="bg-green-50 text-green-700 text-xs py-2 px-3 rounded-lg font-black hover:bg-green-200">✅ CONFIRMAR</button>` : '';
 
                 return `<div class="border rounded-xl p-4 bg-white shadow-sm border-indigo-100 mb-3 hover:shadow-md transition">
                     <div class="flex justify-between items-center mb-2">
@@ -634,9 +629,9 @@
                     </div>
                     <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
                         ${btnConfirm}
-                        <button onclick="openTriageModal('${apt.id}')" class="bg-teal-50 text-teal-700 text-xs py-2 rounded-lg font-bold border border-teal-100">🌡️ TRIAJE</button>
-                        <button onclick="openPrescriptionModal('${apt.id}')" class="bg-indigo-600 text-white text-xs py-2 rounded-lg font-black shadow-sm">⚕️ ATENDER</button>
-                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 text-blue-700 text-xs py-2 rounded-lg font-bold border border-blue-100">📖 HIST</button>
+                        <button onclick="openTriageModal('${apt.id}')" class="bg-teal-50 text-teal-700 text-xs py-2 rounded-lg font-bold border border-teal-100 hover:bg-teal-100">🌡️ TRIAJE</button>
+                        <button onclick="openPrescriptionModal('${apt.id}')" class="bg-indigo-600 text-white text-xs py-2 rounded-lg font-black shadow-sm hover:bg-indigo-700">⚕️ ATENDER</button>
+                        <button onclick="openHistoryModal('${p?.id}')" class="bg-blue-50 text-blue-700 text-xs py-2 rounded-lg font-bold border border-blue-100 hover:bg-blue-100">📖 HIST</button>
                     </div>
                 </div>`;
             }).join('');
@@ -837,7 +832,7 @@
             closeTriageModal(); mostrarMensaje('Datos de Triaje guardados.', 'success'); await loadAppointments();
         }
 
-        // IA COPILOT Y PLAN VETERINARIO
+        // IA COPILOT Y PLAN VETERINARIO ESTRUCTURADO
         function openPrescriptionModal(id) { 
             const apt = appointments.find(x => x.id === id);
             const p = patients.find(pat => pat.id === apt.patientId);
@@ -845,7 +840,12 @@
             document.getElementById('rxPatientName').textContent = `${p.nombre} (Dueño: ${p.dueno})`;
             document.getElementById('prescriptionModal').classList.remove('hidden'); 
             document.getElementById('rxBorrador').value = '';
-            document.getElementById('rxDiagnostico').value = '';
+            
+            // Limpiar campos estructurales de la Ficha Veterinaria
+            document.getElementById('vetMotivo').value = '';
+            document.getElementById('vetAnamnesis').value = '';
+            document.getElementById('vetExamen').value = '';
+            document.getElementById('vetDiagnostico').value = '';
             document.getElementById('rxRecomendaciones').value = '';
             
             document.getElementById('checkTratamiento').checked = false;
@@ -868,9 +868,9 @@
             const id = 'med_' + Date.now() + Math.floor(Math.random() * 1000); 
             document.getElementById('medicinesContainer').insertAdjacentHTML('beforeend', `
             <div id="${id}" class="flex gap-2 mb-2 relative bg-white p-3 border border-gray-200 rounded-xl shadow-sm animate-slideIn">
-                <input class="border border-gray-300 p-2 w-full text-sm rounded-lg med-name focus:ring-2 focus:ring-indigo-500" value="${med?.medicamento||''}" placeholder="Medicina/Vacuna">
-                <input class="border border-gray-300 p-2 w-1/2 text-sm rounded-lg med-dose focus:ring-2 focus:ring-indigo-500" value="${med?.dosis||''}" placeholder="Dosis">
-                <button onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-red-400 font-bold">✖</button>
+                <input class="border border-gray-300 p-2 w-full text-sm rounded-lg med-name focus:ring-2 focus:ring-indigo-500 font-bold" value="${med?.medicamento||''}" placeholder="Medicina/Vacuna">
+                <input class="border border-gray-300 p-2 w-1/2 text-sm rounded-lg med-dose focus:ring-2 focus:ring-indigo-500 font-bold" value="${med?.dosis||''}" placeholder="Dosis">
+                <button onclick="document.getElementById('${id}').remove()" class="absolute top-2 right-2 text-red-400 hover:text-red-600 font-black">✖</button>
             </div>`); 
         }
 
@@ -902,7 +902,12 @@
                 
                 if (!res.ok || data.error) throw new Error(data.error || "Fallo IA.");
 
-                document.getElementById('rxDiagnostico').value = data.diagnostico || ''; 
+                // ASIGNAR LA DATA A LOS CAMPOS ESTRUCTURADOS (Pro)
+                document.getElementById('vetMotivo').value = data.motivo_consulta || data.motivo || '';
+                document.getElementById('vetAnamnesis').value = data.anamnesis || '';
+                document.getElementById('vetExamen').value = data.examen_fisico || data.examen || '';
+                document.getElementById('vetDiagnostico').value = data.diagnostico || '';
+
                 if(Array.isArray(data.recomendaciones)) document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
                 else document.getElementById('rxRecomendaciones').value = data.recomendaciones || '';
 
@@ -913,7 +918,7 @@
                 document.getElementById('rxBorrador').value = ''; 
                 mostrarMensaje('Ficha estructurada por IA Veterinaria.', 'success');
             } catch(e){ alert("Servidor: " + e.message); } 
-            finally { btn.innerHTML='🪄 Estructurar Ficha Vet'; btn.disabled = false; } 
+            finally { btn.innerHTML='ESTRUCTURAR FICHA VET 🪄'; btn.disabled = false; } 
         }
 
         async function submitPrescription() { 
@@ -921,7 +926,21 @@
             const a = appointments.find(x=>x.id===id); 
             const p = patients.find(x=>x.id===a.patientId); 
             
-            let diag = document.getElementById('rxDiagnostico').value; 
+            // RECOPILAR FICHA ESTRUCTURADA
+            let vetMotivo = document.getElementById('vetMotivo').value;
+            let vetAnamnesis = document.getElementById('vetAnamnesis').value;
+            let vetExamen = document.getElementById('vetExamen').value;
+            let vetDiagnostico = document.getElementById('vetDiagnostico').value;
+
+            let diagFinal = "";
+            if (vetMotivo || vetAnamnesis || vetExamen || vetDiagnostico) {
+                diagFinal += `[Ficha Clínica Veterinaria]\n`;
+                if(vetMotivo) diagFinal += `- Motivo: ${vetMotivo}\n`;
+                if(vetAnamnesis) diagFinal += `- Anamnesis: ${vetAnamnesis}\n`;
+                if(vetExamen) diagFinal += `- Hallazgos Clínicos: ${vetExamen}\n`;
+                if(vetDiagnostico) diagFinal += `- Diagnóstico: ${vetDiagnostico}\n\n`;
+            }
+
             let customVitalsStr = []; let vitalsObj = {};
             
             document.querySelectorAll('.vital-input').forEach(input => {
@@ -930,7 +949,7 @@
                     vitalsObj[input.id.replace('rx', '').toLowerCase()] = input.value;
                 }
             });
-            if(customVitalsStr.length > 0) diag = `[Constantes Fisiológicas: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
+            if(customVitalsStr.length > 0) diagFinal = `[Constantes Fisiológicas: ${customVitalsStr.join(' | ')}]\n\n${diagFinal}`;
 
             const meds = []; 
             Array.from(document.getElementById('medicinesContainer').children).forEach(r => { 
@@ -957,18 +976,18 @@
             const btn = document.getElementById('btnSubmitPrescription');
             btn.innerHTML = '⏳ Guardando...'; btn.disabled = true;
             try {
-                if(diag || meds.length > 0) {
+                if(diagFinal || meds.length > 0) {
                     await db.collection('patients').doc(p.id).collection('vitals').add({ 
-                        fecha: new Date(), diagnostico: diag, recomendaciones: recList, ...vitalsObj 
+                        fecha: new Date(), diagnostico: diagFinal, recomendaciones: recList, ...vitalsObj 
                     }); 
                 }
                 await fetch(`${API_BASE_URL}/send-prescription`, { 
                     method:'POST', headers: {'Content-Type': 'application/json'}, 
-                    body:JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: `${p.nombre} (Dueño: ${p.dueno})`, diagnostico: diag, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal }) 
+                    body:JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: `${p.nombre} (Dueño: ${p.dueno})`, diagnostico: diagFinal, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal }) 
                 }); 
                 closePrescriptionModal(); openBillingModal(id, p.nombre); 
             } catch (err) { mostrarMensaje("Error al guardar", "error"); } 
-            finally { btn.innerHTML = 'Siguiente: Cobro ➡️'; btn.disabled = false; }
+            finally { btn.innerHTML = 'GUARDAR Y COBRAR ➡️'; btn.disabled = false; }
         }
 
         // COBROS
@@ -1004,7 +1023,7 @@
             finally { btn.disabled = false; }
         }
 
-        // GOOGLE CALENDAR & CONFIGURACIÓN
+        // GOOGLE CALENDAR BLINDADO & CONFIGURACIÓN
         async function syncGoogleCalendar() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl`);
@@ -1046,9 +1065,7 @@
             try {
                 await db.collection('users').doc(parentDoctorId).update({ clinicInfo: info });
                 clinicDataGlobal = info; mostrarMensaje('Configuración guardada.', 'success'); 
-                closeSettingsModal();
-                if(info.color) document.getElementById('navBar').style.backgroundColor = info.color;
-                if(info.nombre) document.getElementById('navTitle').textContent = info.nombre;
+                closeSettingsModal(); applyClinicBranding();
             } catch(e) { mostrarMensaje('Error al guardar.', 'error'); }
         }
 
@@ -1058,7 +1075,7 @@
                 document.getElementById('clinicRuc').value = clinicDataGlobal.ruc || '';
                 document.getElementById('clinicPhone').value = clinicDataGlobal.telefono || '';
                 document.getElementById('clinicAddress').value = clinicDataGlobal.direccion || '';
-                document.getElementById('clinicColor').value = clinicDataGlobal.color || '#4338ca';
+                document.getElementById('clinicColor').value = clinicDataGlobal.color || '#4f46e5';
                 document.getElementById('clinicGCalendarToken').value = clinicDataGlobal.gCalendarToken || '';
                 document.getElementById('hInicio').value = clinicDataGlobal.hInicio || '08:00';
                 document.getElementById('hFin').value = clinicDataGlobal.hFin || '17:00';
@@ -1069,7 +1086,7 @@
         }
         function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 
-        // OMNICANAL & PROMOS
+        // OMNICANAL & PROMOS BLINDADOS
         function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
         function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
         function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
@@ -1129,11 +1146,15 @@
                         if(d.ritmo) vStr += `FC: ${d.ritmo}bpm | `;
                         if(d.raza) vStr += `Raza: ${d.raza}`;
 
+                        // Mapeo Ficha estructurada en historial
+                        let diagHtml = d.diagnostico || 'Sin diagnóstico.';
+                        diagHtml = diagHtml.replace(/\n/g, '<br>');
+
                         timelineHtml += `
                         <div class="bg-white p-5 border-l-4 border-indigo-500 rounded-r-2xl shadow-sm mb-4">
                             <span class="text-sm font-black text-indigo-900">📅 ${dateStr}</span>
-                            <p class="text-sm text-gray-700 mt-2">${d.diagnostico || 'Sin diagnóstico.'}</p>
-                            ${vStr ? `<p class="text-xs text-slate-500 font-bold mt-2">📊 ${vStr}</p>` : ''}
+                            <p class="text-sm text-gray-700 mt-3 font-medium">${diagHtml}</p>
+                            ${vStr ? `<p class="text-xs text-slate-500 font-bold mt-3">📊 ${vStr}</p>` : ''}
                         </div>`;
 
                         labels.unshift(dateStr);
@@ -1156,7 +1177,7 @@
                         });
                     } else { document.getElementById('chartContainer').classList.add('hidden'); }
                 }
-            } catch(e) { document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center">Error cargando historial.</p>'; }
+            } catch(e) { document.getElementById('historyTimeline').innerHTML = '<p class="text-red-500 text-center font-bold">Error cargando historial.</p>'; }
             loadPatientImages(patientId);
         }
         function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); if(vitalsChartInstance) vitalsChartInstance.destroy(); }
@@ -1170,25 +1191,27 @@
                 const url = await storageRef.getDownloadURL();
                 await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({ url: url, nombre: file.name, fechaCreacion: new Date() });
                 loadPatientImages(currentPatientIdForImages); 
-            } catch (e) { alert('Error subiendo archivo'); } finally { btn.textContent = '📁 Subir Archivo'; btn.disabled = false; input.value = ''; }
+            } catch (e) { alert('Error subiendo archivo'); } finally { btn.textContent = 'Subir Archivo'; btn.disabled = false; input.value = ''; }
         }
 
         async function loadPatientImages(pid) {
             const gal = document.getElementById('patientImagesGallery'); gal.innerHTML = '<div class="spinner mx-auto col-span-full"></div>';
             try {
                 const snap = await db.collection('patients').doc(pid).collection('images').orderBy('fechaCreacion', 'desc').get();
-                if(snap.empty) return gal.innerHTML = '<p class="text-xs text-gray-400 col-span-full text-center">No hay estudios anexados.</p>';
+                if(snap.empty) return gal.innerHTML = '<p class="text-xs font-bold text-gray-400 col-span-full text-center">No hay estudios anexados.</p>';
                 gal.innerHTML = snap.docs.map(doc => {
                     const data = doc.data(); const isPDF = data.nombre.toLowerCase().endsWith('.pdf');
-                    return isPDF ? `<div class="bg-red-50 p-2 text-center cursor-pointer border rounded" onclick="window.open('${data.url}')"><span class="text-2xl">📄</span><p class="text-[9px] text-red-800 truncate">${data.nombre}</p></div>` 
-                                 : `<div class="cursor-pointer" onclick="window.open('${data.url}')"><img src="${data.url}" class="w-full h-24 object-cover rounded border hover:scale-105"></div>`;
+                    return isPDF ? `<div class="bg-red-50 p-2 text-center cursor-pointer border rounded-xl" onclick="window.open('${data.url}')"><span class="text-3xl">📄</span><p class="text-[9px] font-black text-red-800 truncate mt-1">${data.nombre}</p></div>` 
+                                 : `<div class="cursor-pointer overflow-hidden rounded-xl border border-slate-200" onclick="window.open('${data.url}')"><img src="${data.url}" class="w-full h-24 object-cover hover:scale-105 transition-transform duration-300"></div>`;
                 }).join('');
-            } catch (e) { gal.innerHTML = '<p class="text-xs text-red-500">Error imágenes.</p>'; }
+            } catch (e) { gal.innerHTML = '<p class="text-xs font-bold text-red-500">Error imágenes.</p>'; }
         }
 
         function copiarMiLink() {
-            const link = window.location.href.split('?')[0].replace('dashboard-veterinaria.html', `agendar.html?doc=${parentDoctorId}`);
-            navigator.clipboard.writeText(link).then(() => mostrarMensaje('¡Copiado!', 'success'));
+            const currentPath = window.location.href.split('?')[0]; 
+            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
+            navigator.clipboard.writeText(miLink).then(() => mostrarMensaje('¡Enlace copiado al portapapeles!', 'success')).catch(err => alert("Copia manualmente tu link: " + miLink));
         }
         function mostrarMensaje(msg, type='success') { 
             const d = document.getElementById('formMessage'); 
