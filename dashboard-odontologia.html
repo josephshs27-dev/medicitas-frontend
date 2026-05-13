@@ -1061,10 +1061,15 @@
             try {
                 const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl`);
                 const data = await res.json();
+                if(!res.ok) throw new Error(data.error || "Fallo en el servidor");
                 window.open(data.url, '_blank');
                 const t = document.getElementById('clinicGCalendarToken'); 
                 t.classList.remove('hidden'); t.readOnly = false;
-            } catch(e) { alert("Error conectando con API de Google Calendar."); }
+                alert("Instrucciones:\n1. Autoriza en Google.\n2. Copia todo el código JSON.\n3. Pégalo aquí abajo y pulsa Guardar Cambios.");
+            } catch(e) { 
+                console.error(e);
+                alert("Error conectando con API de Google Calendar: " + e.message); 
+            }
         }
 
         function previewLogo(input) {
@@ -1129,7 +1134,9 @@
             const msg = document.getElementById('promoMessage').value.trim();
             const target = document.getElementById('promoTargeting').value.trim() || 'A todos';
             if(!msg) return alert("Escribe un mensaje publicitario.");
+            
             if(!confirm("¿Seguro que deseas lanzar la campaña? La IA evaluará tu mensaje antes de enviarlo.")) return;
+
             const btn = document.getElementById('btnSendPromo'); btn.disabled = true; btn.innerHTML = '⏳ Enviando...';
             try {
                 const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
@@ -1140,8 +1147,15 @@
                 if(data.success) { 
                     mostrarMensaje(`Campaña enviada a ${data.enviados} pacientes exitosamente.`, 'success'); 
                     closePromotionsModal(); 
-                } else throw new Error(data.error);
-            } catch(e) { alert("Error al enviar la campaña promocional."); } finally { btn.disabled = false; btn.innerHTML = 'Enviar Inteligente 🚀'; }
+                } else {
+                    throw new Error(data.error || "Error desconocido");
+                }
+            } catch(e) { 
+                console.error(e);
+                alert("Error al enviar la campaña: " + e.message); 
+            } finally { 
+                btn.disabled = false; btn.innerHTML = 'Enviar Inteligente 🚀'; 
+            }
         }
 
         // ----------------------------------------------------
