@@ -1056,7 +1056,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    db.settings({ experimentalForceLongPolling: true, merge: true }); // 🔥 BINDEADO EL FIREBASE PARA QUE NO SE CUELGUE 🔥
+    // (Hemos borrado la línea de db.settings para que Firebase gestione la red automáticamente)
     const storage = firebase.storage();
 
     let parentDoctorId = null;
