@@ -1058,13 +1058,10 @@
         appId: "1:310910036460:web:1a979471880251173838c9"
     };
     
+    // 🔥 FIREBASE INIT SIN RESTRICCIONES MANUALES 🔥
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    
-    // 🔥 CORRECCIÓN FINAL FIREBASE: Long Polling + Merge para evitar cuelgues y warnings 🔥
-    db.settings({ experimentalForceLongPolling: true, merge: true });
-    
     const storage = firebase.storage();
 
     let parentDoctorId = null;
@@ -1106,7 +1103,6 @@
                     document.getElementById('suspendedView').style.display = 'none';
                     applyClinicBranding();
                     
-                    // CARGA SEGURA
                     await loadPatients().catch(e=>console.error(e));
                     await loadAppointments().catch(e=>console.error(e));
                     await loadInsumos().catch(e=>console.error(e));
