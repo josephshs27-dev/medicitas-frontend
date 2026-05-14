@@ -1059,7 +1059,6 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    // 🔥 NO RE-DECLARAMOS EL LONG POLLING PARA EVITAR CONFLICTOS 🔥
     const storage = firebase.storage();
 
     let parentDoctorId = null;
