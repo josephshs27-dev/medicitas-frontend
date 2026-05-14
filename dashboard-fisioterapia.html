@@ -191,6 +191,14 @@
         .btn-purple { background: #f5f3ff; color: #5b21b6; border: 1px solid #ddd6fe; }
         .btn-full { width: 100%; justify-content: center; }
 
+        /* ── Badges ── */
+        .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-confirmed { background: #d1fae5; color: #065f46; }
+        .badge-completed { background: #dbeafe; color: #1e40af; }
+        .badge-proposed { background: #ede9fe; color: #5b21b6; }
+        .badge-teal { background: var(--accent-light); color: var(--accent-dark); border: 1px solid #99f6e4; }
+
         /* ── Table ── */
         .dtable { width: 100%; border-collapse: collapse; }
         .dtable thead th { background: #f8fafc; color: var(--txt2); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 11px 20px; border-bottom: 1px solid var(--border); text-align: left; }
@@ -198,6 +206,12 @@
         .dtable tbody tr:hover { background: #f8fafc; }
         .dtable tbody td { padding: 13px 20px; font-size: 13.5px; color: var(--txt1); }
         .dtable tbody tr:last-child { border-bottom: none; }
+
+        /* ── Avatar ── */
+        .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
+
+        /* ── Separator ── */
+        .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
 
         /* ── Modals ── */
         .modal-wrap {
@@ -223,10 +237,28 @@
         }
         .modal-close-btn:hover { background: #f1f5f9; color: var(--txt1); }
 
+        /* ── Date/time inputs ── */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(0.4) sepia(1) saturate(3) hue-rotate(130deg); }
+
+        /* ── Suspended ── */
+        #suspendedView { display: none; flex: 1; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+        #suspendedView.show { display: flex; }
+
+        /* ── Progress bar for cuotas ── */
+        .progress-bar { height: 6px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+
+        /* ── Search input ── */
+        .search-wrap { position: relative; }
+        .search-wrap input { padding-left: 36px !important; }
+        .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
+
+        /* ── Birthday badge ── */
+        .bday-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; background: #fdf2f8; border-radius: 99px; font-size: 10.5px; color: #9d174d; font-weight: 700; }
+
         /* Spinner */
         .spinner { border: 3px solid rgba(13,148,136,0.15); border-top: 3px solid var(--accent); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
-        
-        .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
     </style>
 </head>
 <body>
@@ -1012,7 +1044,6 @@
         }
     })();
 
-    // ── Original Firebase + App Logic ──
     const API_BASE_URL = "https://api.asistencitas.com";
     const firebaseConfig = {
         apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc",
@@ -1025,7 +1056,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    db.settings({ experimentalForceLongPolling: true });
+    db.settings({ experimentalForceLongPolling: true, merge: true }); // 🔥 BINDEADO EL FIREBASE PARA QUE NO SE CUELGUE 🔥
     const storage = firebase.storage();
 
     let parentDoctorId = null;
@@ -1049,31 +1080,40 @@
 
     auth.onAuthStateChanged(async (user) => {
         if (!user) { window.location.href = 'index.html'; return; }
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-            const data = userDoc.data();
-            const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'fisioterapia';
-            if (esp !== 'fisioterapia' && data.rol !== 'vendedor') {
-                window.location.href = `dashboard-${esp}.html`; return;
-            }
-            parentDoctorId = user.uid;
-            clinicDataGlobal = data.clinicInfo || { especialidad: 'fisioterapia' };
-            if (data.estadoSuscripcion === 'suspendido') {
-                document.getElementById('dashboardView').classList.add('hidden');
-                document.getElementById('suspendedView').style.display = 'flex';
-            } else {
-                document.getElementById('dashboardView').classList.remove('hidden');
-                document.getElementById('suspendedView').style.display = 'none';
-                applyClinicBranding();
-                await loadPatients();
-                await loadAppointments();
-                await loadInsumos();
-                await loadPlanesPago();
-                checkBirthdays();
-                checkCalendarSyncUI();
-            }
+        try {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const data = userDoc.data();
+                const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'fisioterapia';
+                if (esp !== 'fisioterapia' && data.rol !== 'vendedor') {
+                    window.location.href = `dashboard-${esp}.html`; return;
+                }
+                parentDoctorId = user.uid;
+                clinicDataGlobal = data.clinicInfo || { especialidad: 'fisioterapia' };
+                if (data.estadoSuscripcion === 'suspendido') {
+                    document.getElementById('dashboardView').classList.add('hidden');
+                    document.getElementById('suspendedView').style.display = 'flex';
+                } else {
+                    document.getElementById('dashboardView').classList.remove('hidden');
+                    document.getElementById('suspendedView').style.display = 'none';
+                    applyClinicBranding();
+                    
+                    // 🔥 CARGA SEGURA PARA EVITAR PANTALLAS CONGELADAS 🔥
+                    await loadPatients().catch(e=>console.error(e));
+                    await loadAppointments().catch(e=>console.error(e));
+                    await loadInsumos().catch(e=>console.error(e));
+                    await loadPlanesPago().catch(e=>console.error(e));
+                    
+                    checkBirthdays();
+                    checkCalendarSyncUI();
+                }
+            } else { window.location.href = 'index.html'; }
+        } catch(error) {
+            console.error(error);
+            mostrarMensaje("Problemas de red al cargar tu información. Actualiza la página.", "error");
+        } finally {
             document.getElementById('authCheckOverlay').classList.add('hidden');
-        } else { window.location.href = 'index.html'; }
+        }
     });
 
     function applyClinicBranding() {
@@ -1609,6 +1649,7 @@
             });
             const contextoClinico = datosExtras.length > 0 ? "Datos evaluados: " + datosExtras.join(', ') : "";
 
+            // 🔥 CORRECCIÓN: Ruta V3 de IA Copilot 🔥
             const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({ notasBorrador: borrador, especialidad: 'fisioterapia', contextoClinico })
@@ -1678,6 +1719,7 @@
             }
         }
 
+        // 🔥 CORRECCIÓN: Agendar y Calendarizar automáticamente 🔥
         let nextDate = document.getElementById('rxNextDate').value;
         let nextTime = document.getElementById('rxNextTime').value;
         if(nextDate && nextTime) {
@@ -1706,7 +1748,7 @@
 
             await db.collection('appointments').doc(aptId).update({ diagnostico: diag, recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() });
 
-            // 🔥 AHORA SÍ ENVIAMOS EL PDF POR WHATSAPP AL PACIENTE 🔥
+            // 🔥 CORRECCIÓN: Enviar la receta al Whatsapp 🔥
             await fetch(`${API_BASE_URL}/send-prescription`, {
                 method:'POST', headers: {'Content-Type': 'application/json'},
                 body:JSON.stringify({
@@ -1773,7 +1815,7 @@
         document.getElementById('historyModal').classList.remove('hidden');
         document.getElementById('historyTimeline').innerHTML = '<div style="display:flex;justify-content:center;padding:32px;"><div class="spinner"></div></div>';
         try {
-            // Fisioterapia guarda los historiales en 'vitals'
+            // 🔥 CORRECCIÓN: Historial fisioterapéutico guardado en 'vitals' 🔥
             const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
             if(snap.empty) {
                 document.getElementById('historyTimeline').innerHTML = '<p style="text-align:center;color:#94a3b8;font-weight:600;font-size:13px;padding:32px;">Sin historial clínico registrado.</p>';
@@ -1864,6 +1906,7 @@
     function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
     function closePromotionsModal() { document.getElementById('promotionsModal').classList.add('hidden'); }
 
+    // 🔥 CORRECCIÓN: Parámetros del Payload de Promociones 🔥
     async function sendPromotion() {
         const targeting = document.getElementById('promoTargeting').value || 'A todos';
         const message = document.getElementById('promoMessage').value;
@@ -1937,6 +1980,24 @@
             closeSettingsModal();
             mostrarMensaje('Configuración guardada exitosamente.', 'success');
         } catch(e) { alert('Error guardando configuración.'); }
+    }
+
+    // ── LINK ──
+    function copiarMiLink() {
+        const currentPath = window.location.href.split('?')[0];
+        const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+        const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
+        navigator.clipboard.writeText(miLink).then(()=>mostrarMensaje('¡Enlace copiado al portapapeles!','success')).catch(()=>alert("Copia manualmente: "+miLink));
+    }
+
+    // ── MENSAJES ──
+    function mostrarMensaje(msg, type='success') {
+        const d = document.getElementById('formMessage');
+        const isSuccess = type === 'success';
+        d.style.cssText = `padding:12px 18px;border-radius:9px;font-size:13px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;background:${isSuccess?'#f0fdf4':'#fef2f2'};border:1px solid ${isSuccess?'#bbf7d0':'#fecaca'};color:${isSuccess?'#166534':'#991b1b'};`;
+        d.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg>${msg}`;
+        d.classList.remove('hidden');
+        setTimeout(()=>d.classList.add('hidden'), 3500);
     }
 </script>
 </body>
