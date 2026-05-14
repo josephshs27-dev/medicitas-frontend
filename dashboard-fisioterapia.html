@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistencitas Pro — Fisioterapia</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob:; frame-src *; style-src * 'unsafe-inline'; font-src * data:;">
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -265,6 +265,10 @@
 
 <div id="authCheckOverlay">
     <div style="display:flex;flex-direction:column;align-items:center;gap:20px;">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <rect width="48" height="48" rx="12" fill="rgba(13,148,136,0.15)"/>
+            <path d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM22 28.828L16.586 23.414L18 22L22 26L30 18L31.414 19.414L22 28.828Z" fill="#0d9488"/>
+        </svg>
         <div class="loader-ring"></div>
         <p class="loader-text">Iniciando Asistencitas · Fisioterapia</p>
     </div>
@@ -1056,7 +1060,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    // (Hemos borrado la línea de db.settings para que Firebase gestione la red automáticamente)
+    // 🔥 NO RE-DECLARAMOS EL LONG POLLING PARA EVITAR CONFLICTOS 🔥
     const storage = firebase.storage();
 
     let parentDoctorId = null;
@@ -1649,7 +1653,6 @@
             });
             const contextoClinico = datosExtras.length > 0 ? "Datos evaluados: " + datosExtras.join(', ') : "";
 
-            // 🔥 CORRECCIÓN: Ruta V3 de IA Copilot 🔥
             const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({ notasBorrador: borrador, especialidad: 'fisioterapia', contextoClinico })
@@ -1719,7 +1722,6 @@
             }
         }
 
-        // 🔥 CORRECCIÓN: Agendar y Calendarizar automáticamente 🔥
         let nextDate = document.getElementById('rxNextDate').value;
         let nextTime = document.getElementById('rxNextTime').value;
         if(nextDate && nextTime) {
@@ -1748,7 +1750,6 @@
 
             await db.collection('appointments').doc(aptId).update({ diagnostico: diag, recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() });
 
-            // 🔥 CORRECCIÓN: Enviar la receta al Whatsapp 🔥
             await fetch(`${API_BASE_URL}/send-prescription`, {
                 method:'POST', headers: {'Content-Type': 'application/json'},
                 body:JSON.stringify({
@@ -1815,7 +1816,6 @@
         document.getElementById('historyModal').classList.remove('hidden');
         document.getElementById('historyTimeline').innerHTML = '<div style="display:flex;justify-content:center;padding:32px;"><div class="spinner"></div></div>';
         try {
-            // 🔥 CORRECCIÓN: Historial fisioterapéutico guardado en 'vitals' 🔥
             const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
             if(snap.empty) {
                 document.getElementById('historyTimeline').innerHTML = '<p style="text-align:center;color:#94a3b8;font-weight:600;font-size:13px;padding:32px;">Sin historial clínico registrado.</p>';
@@ -1906,11 +1906,11 @@
     function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
     function closePromotionsModal() { document.getElementById('promotionsModal').classList.add('hidden'); }
 
-    // 🔥 CORRECCIÓN: Parámetros del Payload de Promociones 🔥
     async function sendPromotion() {
         const targeting = document.getElementById('promoTargeting').value || 'A todos';
         const message = document.getElementById('promoMessage').value;
-        if(!message) return alert("Escribe un mensaje.");
+        if(!message) return alert("Escribe un mensaje publicitario.");
+        
         const btn = document.getElementById('btnSendPromo');
         btn.textContent='Enviando...'; btn.disabled=true;
         try {
