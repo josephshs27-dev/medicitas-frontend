@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistencitas Pro — Medicina General</title>
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="data:,\">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -15,13 +15,14 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         :root {
-            --sidebar-bg: #0f172a;
-            --sidebar-hover: rgba(37,99,235,0.15);
-            --sidebar-active: rgba(37,99,235,0.25);
+            /* Paleta Azul para Medicina General */
+            --sidebar-bg: #0f172a; 
+            --sidebar-hover: rgba(37, 99, 235, 0.15);
+            --sidebar-active: rgba(37, 99, 235, 0.25);
             --sidebar-sep: rgba(255,255,255,0.07);
-            --accent: #2563eb;
-            --accent-dark: #1d4ed8;
-            --accent-light: #eff6ff;
+            --accent: #2563eb; 
+            --accent-dark: #1d4ed8; 
+            --accent-light: #eff6ff; 
             --page: #f1f5f9;
             --card: #ffffff;
             --border: #e2e8f0;
@@ -49,7 +50,7 @@
         }
         .loader-ring {
             width: 44px; height: 44px; border-radius: 50%;
-            border: 3px solid rgba(37,99,235,0.2);
+            border: 3px solid rgba(37, 99, 235, 0.2);
             border-top-color: var(--accent);
             animation: spin 0.8s linear infinite;
         }
@@ -143,7 +144,7 @@
 
         /* ── Forms ── */
         .finput { width: 100%; padding: 9px 13px; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; font-size: 13px; font-weight: 600; color: var(--txt1); outline: none; transition: border-color 0.15s, box-shadow 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .finput:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+        .finput:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
         .flabel { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--txt2); margin-bottom: 5px; }
 
         /* ── Buttons ── */
@@ -152,12 +153,18 @@
         .btn-sm { font-size: 12px; padding: 6px 12px; }
         .btn-md { font-size: 13px; padding: 9px 18px; }
         .btn-lg { font-size: 14px; padding: 11px 24px; }
+        .btn-xl { font-size: 14.5px; padding: 13px 28px; }
         .btn-primary { background: var(--accent); color: white; }
         .btn-primary:hover { background: var(--accent-dark); }
         .btn-secondary { background: white; color: var(--txt1); border: 1px solid var(--border); }
         .btn-secondary:hover { background: #f8fafc; }
         .btn-ghost { background: transparent; color: var(--txt2); }
         .btn-ghost:hover { background: #f1f5f9; color: var(--txt1); }
+        .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #fee2e2; }
+        .btn-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .btn-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .btn-warn { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
         .btn-full { width: 100%; justify-content: center; }
 
         /* ── Table ── */
@@ -171,18 +178,8 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
-        /* ── Mapa Anatómico (Homúnculo) ── */
-        .body-map-container { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
-        .b-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
-        .b-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
-        .b-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
-        .b-part.has-finding { background: #fee2e2; border-color: #f87171; color: #dc2626; }
-        /* Tamaños específicos de las partes */
-        .b-head { width: 45px; height: 50px; border-radius: 40% 40% 15px 15px; }
-        .b-chest { width: 70px; height: 60px; border-radius: 8px; }
-        .b-abdomen { width: 65px; height: 55px; border-radius: 8px 8px 20px 20px; }
-        .b-arm { width: 30px; height: 80px; border-radius: 15px; }
-        .b-leg { width: 35px; height: 90px; border-radius: 10px; }
+        /* ── Separator ── */
+        .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
 
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -195,11 +192,30 @@
         .modal-close-btn { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: var(--txt2); font-size: 20px; line-height: 1; transition: background 0.15s; }
         .modal-close-btn:hover { background: #f1f5f9; color: var(--txt1); }
 
-        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(0.4) sepia(1) saturate(3) hue-rotate(200deg); }
-        .spinner { border: 3px solid rgba(37,99,235,0.15); border-top: 3px solid var(--accent); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
+        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(0.4) sepia(1) saturate(3) hue-rotate(240deg); }
+        .spinner { border: 3px solid rgba(37, 99, 235, 0.15); border-top: 3px solid var(--accent); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
         .search-wrap { position: relative; }
         .search-wrap input { padding-left: 36px !important; }
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
+
+        /* 🔥 MEJORA 1: ESTILOS MAPA ANATÓMICO (Homúnculo) 🔥 */
+        .body-map-container { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+        .b-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
+        .b-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
+        .b-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
+        .b-part.has-finding { background: #fee2e2; border-color: #f87171; color: #dc2626; }
+        .b-head { width: 45px; height: 50px; border-radius: 40% 40% 15px 15px; }
+        .b-chest { width: 70px; height: 60px; border-radius: 8px; }
+        .b-abdomen { width: 65px; height: 55px; border-radius: 8px 8px 20px 20px; }
+        .b-arm { width: 30px; height: 80px; border-radius: 15px; }
+        .b-leg { width: 35px; height: 90px; border-radius: 10px; }
+
+        /* 🔥 MEJORA 2: ESTILOS CALENDARIO INTERACTIVO 🔥 */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
+        .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+        .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -207,7 +223,7 @@
 <div id="authCheckOverlay">
     <div style="display:flex;flex-direction:column;align-items:center;gap:20px;">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect width="48" height="48" rx="12" fill="rgba(37,99,235,0.15)"/>
+            <rect width="48" height="48" rx="12" fill="rgba(37, 99, 235, 0.15)"/>
             <path d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM22 28.828L16.586 23.414L18 22L22 26L30 18L31.414 19.414L22 28.828Z" fill="#2563eb"/>
         </svg>
         <div class="loader-ring"></div>
@@ -237,7 +253,7 @@
             </button>
             <button onclick="switchTab('agenda')" id="tabBtnAgenda" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                Agenda Clínica
+                Agenda Médica
             </button>
             <button onclick="switchTab('pacientes')" id="tabBtnPacientes" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -245,7 +261,7 @@
             </button>
             <button onclick="switchTab('finanzas')" id="tabBtnFinanzas" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                Finanzas y Planes
+                Finanzas
             </button>
             <button onclick="switchTab('insumos')" id="tabBtnInsumos" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
@@ -268,6 +284,11 @@
         </nav>
 
         <div class="sb-bottom">
+            <div id="subscriptionBadge" class="hidden" style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: rgba(255,255,255,0.4); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Suscripción activa hasta:</p>
+                <p id="uiNextBillingDate" style="color: #fff; font-size: 12px; font-weight: 800; margin: 0;">--/--/--</p>
+            </div>
+
             <button onclick="copiarMiLink()" class="sb-action">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                 Mi Link de Reservas
@@ -334,21 +355,21 @@
 
                     <div class="kpi-grid">
                         <div class="kpi-card">
-                            <div class="kpi-icon" style="background:#eff6ff;">
-                                <svg width="20" height="20" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <div class="kpi-icon" style="background:var(--accent-light);">
+                                <svg width="20" height="20" fill="none" stroke="var(--accent-dark)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             </div>
                             <div class="kpi-label">Consultas del período</div>
                             <div class="kpi-value accent" id="kpiCitas">0</div>
-                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#2563eb,#3b82f6);"></div>
+                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,var(--accent),var(--accent-dark));"></div>
                         </div>
 
                         <div class="kpi-card">
-                            <div class="kpi-icon" style="background:#e0e7ff;">
-                                <svg width="20" height="20" fill="none" stroke="#4f46e5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div class="kpi-icon" style="background:#f0fdf4;">
+                                <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <div class="kpi-label">Ingresos reales</div>
-                            <div class="kpi-value money" style="color:#4f46e5;" id="kpiIngresos">$0.00</div>
-                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#4f46e5,#6366f1);"></div>
+                            <div class="kpi-value money" style="color:#16a34a;" id="kpiIngresos">$0.00</div>
+                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#16a34a,#22c55e);"></div>
                         </div>
 
                         <div class="kpi-card">
@@ -377,7 +398,7 @@
                             <svg width="16" height="16" fill="none" stroke="var(--accent)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span style="font-size:13px;font-weight:700;color:var(--txt1);">Panel de control clínico</span>
                         </div>
-                        <p style="font-size:12.5px;color:var(--txt2);line-height:1.6;margin:0;">Navega por los módulos desde el panel lateral para gestionar consultas, pacientes, planes e inventario. Los datos de métricas se actualizan en tiempo real desde tu agenda.</p>
+                        <p style="font-size:12.5px;color:var(--txt2);line-height:1.6;margin:0;">Navega por los módulos desde el panel lateral para gestionar consultas, pacientes, finanzas e inventario. Los datos de métricas se actualizan en tiempo real.</p>
                     </div>
                 </div>
 
@@ -387,7 +408,7 @@
                         <div class="panel" style="height:fit-content;">
                             <div class="panel-head">
                                 <div>
-                                    <div class="panel-title">Nueva Consulta</div>
+                                    <div class="panel-title">Nuevo Turno</div>
                                     <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Registro manual de cita</div>
                                 </div>
                                 <div style="width:32px;height:32px;background:var(--accent-light);border-radius:8px;display:flex;align-items:center;justify-content:center;">
@@ -415,7 +436,7 @@
                                         </div>
                                         <div>
                                             <label class="flabel">Motivo *</label>
-                                            <input type="text" id="appointmentReason" placeholder="Ej: Control general" class="finput">
+                                            <input type="text" id="appointmentReason" placeholder="Ej: Dolor abdominal" class="finput">
                                         </div>
                                         <div>
                                             <label class="flabel">Estado</label>
@@ -484,8 +505,8 @@
                     <div class="panel">
                         <div class="panel-head">
                             <div>
-                                <div class="panel-title">Planes y Paquetes de Salud</div>
-                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Control de abonos y saldos pendientes por paciente</div>
+                                <div class="panel-title">Planes de Tratamiento · Cuotas</div>
+                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Control de abonos y saldos pendientes (ej. Cirugías)</div>
                             </div>
                         </div>
                         <div class="panel-body-np" style="overflow-x:auto;">
@@ -509,7 +530,7 @@
                     <div class="panel">
                         <div class="panel-head">
                             <div>
-                                <div class="panel-title">Inventario Médico</div>
+                                <div class="panel-title">Inventario Clínico</div>
                                 <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Control de stock de medicamentos y material</div>
                             </div>
                             <button onclick="openAddInsumoModal()" class="btn btn-primary btn-md">
@@ -535,21 +556,22 @@
             </div></div></main>
 </div><div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
     <div class="modal-box" style="width:100%;max-width:400px;">
-        <div class="modal-hd" style="background:#eff6ff;">
+        <div class="modal-hd" style="background:var(--accent-light);">
             <div>
-                <div class="modal-title">Signos Vitales</div>
-                <div class="modal-sub">Registro de triaje previo</div>
+                <div class="modal-title">Triaje y Constantes</div>
+                <div class="modal-sub">Registro de métricas del paciente</div>
             </div>
             <button onclick="closeTriageModal()" class="modal-close-btn">&times;</button>
         </div>
         <div class="modal-bd">
             <input type="hidden" id="triageAppointmentId">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <div><label class="flabel">Edad</label><input type="number" id="triEdad" class="finput"></div>
-                <div><label class="flabel">Peso (kg)</label><input type="number" id="triPeso" class="finput"></div>
-                <div><label class="flabel">Altura (cm)</label><input type="number" id="triAltura" class="finput"></div>
+                <div><label class="flabel">Presión (mmHg)</label><input type="text" id="triPresion" placeholder="120/80" class="finput"></div>
                 <div><label class="flabel">FC (bpm)</label><input type="number" id="triRitmo" class="finput"></div>
-                <div style="grid-column:span 2;"><label class="flabel">Presión Arterial (mmHg)</label><input type="text" id="triPresion" placeholder="120/80" class="finput"></div>
+                <div><label class="flabel">Temp (°C)</label><input type="number" step="0.1" id="triTemp" class="finput"></div>
+                <div><label class="flabel">SpO2 (%)</label><input type="number" id="triOximetria" class="finput"></div>
+                <div><label class="flabel">Peso (kg)</label><input type="number" step="0.1" id="triPeso" class="finput"></div>
+                <div><label class="flabel">Altura (cm)</label><input type="number" id="triAltura" class="finput"></div>
             </div>
         </div>
         <div class="modal-ft" style="justify-content:stretch;">
@@ -561,9 +583,9 @@
 
 <div id="prescriptionModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
     <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
-        <div class="modal-hd" style="background:#eff6ff;flex-shrink:0;">
+        <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
             <div>
-                <div class="modal-title">Atención y Ficha MSP 008</div>
+                <div class="modal-title">Ficha Clínica · MSP 008</div>
                 <div class="modal-sub" id="rxPatientName">Paciente</div>
             </div>
             <button onclick="closePrescriptionModal()" class="modal-close-btn">&times;</button>
@@ -574,24 +596,25 @@
                 <div style="display:flex;flex-direction:column;gap:18px;">
                     <input type="hidden" id="rxAppointmentId">
 
-                    <div style="background:linear-gradient(135deg,var(--accent),#4f46e5);border-radius:12px;padding:20px;">
+                    <div style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:12px;padding:20px;">
                         <div style="color:white;font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                            Copiloto IA Médico
+                            Copiloto Médico (IA)
                         </div>
-                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe notas rápidas (ej. dolor de cabeza 2 días, prescribir paracetamol)..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
-                        <button onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe notas (ej: Paciente masculino 45 años, refiere dolor lumbar irradiado a pierna derecha desde hace 3 días)..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
+                        <button onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent-dark);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
                             ESTRUCTURAR FICHA CON IA ✦
                         </button>
                     </div>
 
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;">
-                        <h4 style="font-size:12px;font-weight:800;color:var(--txt1);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Ficha Oficial MSP 008</h4>
+                        <h4 style="font-size:12px;font-weight:800;color:var(--txt1);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Detalles Clínicos</h4>
                         <div style="display:flex;flex-direction:column;gap:10px;">
                             <div><label class="flabel">Motivo de Consulta</label><input type="text" id="mspMotivo" class="finput"></div>
                             <div><label class="flabel">Enfermedad Actual</label><textarea id="mspEnfermedad" rows="2" class="finput" style="resize:none;"></textarea></div>
-                            <div><label class="flabel">Antecedentes</label><textarea id="mspAntecedentes" rows="1" class="finput" style="resize:none;"></textarea></div>
-<div>
+                            <div><label class="flabel">Antecedentes Personales / Familiares</label><textarea id="mspAntecedentes" rows="1" class="finput" style="resize:none;"></textarea></div>
+                            
+                            <div>
                                 <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
                                     <label class="flabel" style="margin:0; color:var(--accent-dark);">Examen Físico (Mapa Anatómico)</label>
                                     <button type="button" onclick="limpiarMapa()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
@@ -621,49 +644,51 @@
                                     </div>
                                 </div>
                                 <textarea id="mspExamen" rows="2" placeholder="Los hallazgos del examen físico se detallarán aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
-                            </div>                            <div><label class="flabel">CIE-10 (Aprox)</label><input type="text" id="mspCie10" class="finput"></div>
+                            </div>
+
+                            <div><label class="flabel">Diagnóstico (CIE-10 / PRE / DEF)</label><textarea id="rxDiagnostico" rows="2" class="finput" style="resize:none;"></textarea></div>
                         </div>
-                        <textarea id="rxDiagnostico" class="hidden"></textarea>
                     </div>
                 </div>
 
                 <div style="display:flex;flex-direction:column;gap:18px;">
 
                     <div class="panel">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Signos Vitales</div></div>
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Constantes (Triaje)</div></div>
                         <div class="panel-body">
                             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="dynamicVitalsContainer">
-                                <div><label class="flabel">Edad</label><input type="number" id="rxEdad" class="finput"></div>
-                                <div><label class="flabel">Peso</label><input type="number" id="rxPeso" class="finput"></div>
+                                <div><label class="flabel">PA</label><input type="text" id="rxPresion" class="finput"></div>
+                                <div><label class="flabel">FC</label><input type="number" id="rxRitmo" class="finput"></div>
+                                <div><label class="flabel">Temp</label><input type="number" step="0.1" id="rxTemp" class="finput"></div>
+                                <div><label class="flabel">SpO2</label><input type="number" id="rxOximetria" class="finput"></div>
+                                <div><label class="flabel">Peso</label><input type="number" step="0.1" id="rxPeso" class="finput"></div>
                                 <div><label class="flabel">Altura</label><input type="number" id="rxAltura" class="finput"></div>
-                                <div style="grid-column:span 2;"><label class="flabel" style="color:#dc2626;">Presión Arterial</label><input type="text" id="rxPresion" class="finput" style="color:#dc2626;"></div>
-                                <div><label class="flabel">Frec. Cardíaca</label><input type="number" id="rxRitmo" class="finput"></div>
                             </div>
                         </div>
                     </div>
 
                     <div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                            <label class="flabel" style="margin:0;color:var(--accent);">Medicación</label>
+                            <label class="flabel" style="margin:0;color:var(--accent-dark);">💊 Receta Médica</label>
                             <button onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #bfdbfe;">+ Agregar</button>
                         </div>
                         <div id="medicinesContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
                     </div>
 
                     <div>
-                        <label class="flabel" style="color:#c2410c;">Recomendaciones</label>
+                        <label class="flabel" style="color:#c2410c;">Indicaciones / Plan de Tratamiento</label>
                         <textarea id="rxRecomendaciones" rows="2" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
                     </div>
 
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:0;">
                             <input type="checkbox" id="checkTratamiento" onchange="toggleCuotas()" style="width:18px;height:18px;accent-color:var(--accent);">
-                            <span style="font-size:13px;font-weight:700;color:var(--txt1);">Plan médico a largo plazo / Cuotas</span>
+                            <span style="font-size:13px;font-weight:700;color:var(--txt1);">Tratamiento Largo / Cirugía en Cuotas</span>
                         </label>
                         <div id="divCuotas" class="hidden" style="margin-top:14px;display:none;">
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                                 <div>
-                                    <label class="flabel">N° Cuotas</label>
+                                    <label class="flabel">N° Cuotas/Abonos</label>
                                     <input type="number" id="numCuotas" value="1" min="1" class="finput" style="font-size:18px;font-weight:800;text-align:center;">
                                 </div>
                                 <div>
@@ -677,7 +702,7 @@
                     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;">
                         <div style="font-size:13px;font-weight:800;color:#1e40af;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
                             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            Auto-Agendar Próxima Cita
+                            Auto-Agendar Próximo Control
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                             <input type="date" id="rxNextDate" class="finput" style="border-color:#bfdbfe;">
@@ -788,7 +813,7 @@
 
 <div id="historyModal" class="modal-wrap hidden" style="z-index:73;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
     <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
-        <div class="modal-hd" style="background:#eff6ff;flex-shrink:0;">
+        <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
             <div>
                 <div class="modal-title">Expediente Clínico</div>
                 <div class="modal-sub" id="historyPatientInfo">Cargando...</div>
@@ -799,14 +824,14 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                 <div style="display:flex;flex-direction:column;gap:16px;">
                     <div id="chartContainer" class="panel hidden" style="height:220px;">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución del Peso (kg)</div></div>
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución de Peso (kg)</div></div>
                         <div style="padding:16px;height:calc(100% - 53px);">
                             <canvas id="vitalsChartCanvas"></canvas>
                         </div>
                     </div>
                     <div class="panel">
                         <div class="panel-head">
-                            <div class="panel-title" style="font-size:13px;">Exámenes de Laboratorio / Imágenes</div>
+                            <div class="panel-title" style="font-size:13px;">Exámenes / Laboratorio</div>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
                                 <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="btn btn-secondary btn-sm">
@@ -816,7 +841,7 @@
                             </div>
                         </div>
                         <div class="panel-body">
-                            <div id="patientImagesGallery" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-height:180px;overflow-y:auto;" class="cs"></div>
+                            <div id="patientImagesGallery" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-height:400px;overflow-y:auto;" class="cs"></div>
                         </div>
                     </div>
                 </div>
@@ -835,18 +860,18 @@
 <div id="addInsumoModal" class="modal-wrap hidden" style="z-index:82;">
     <div class="modal-box" style="width:100%;max-width:380px;">
         <div class="modal-hd">
-            <div class="modal-title">Agregar Insumo</div>
+            <div class="modal-title">Agregar Insumo/Medicamento</div>
             <button onclick="document.getElementById('addInsumoModal').classList.add('hidden')" class="modal-close-btn">&times;</button>
         </div>
         <div class="modal-bd">
             <div style="display:flex;flex-direction:column;gap:12px;">
-                <div><label class="flabel">Nombre del insumo *</label><input type="text" id="insumoName" placeholder="Ej: Jeringas, Paracetamol..." class="finput"></div>
+                <div><label class="flabel">Nombre del insumo *</label><input type="text" id="insumoName" placeholder="Ej: Paracetamol 500mg" class="finput"></div>
                 <div><label class="flabel">Cantidad inicial</label><input type="number" id="insumoQty" class="finput"></div>
                 <div>
                     <label class="flabel">Categoría</label>
                     <select id="insumoCat" class="finput">
-                        <option value="Material Médico">Material Médico</option>
-                        <option value="Medicamentos">Medicamentos</option>
+                        <option value="Medicamento">Medicamento</option>
+                        <option value="Material Quirúrgico">Material Quirúrgico</option>
                         <option value="Oficina">Oficina</option>
                     </select>
                 </div>
@@ -874,7 +899,7 @@
                     <svg width="26" height="26" fill="none" stroke="#be185d" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
                 </div>
             </div>
-            <textarea id="bdayGiftText" rows="4" placeholder="Ej: ¡Felicidades! Tienes un 20% OFF en tu próxima consulta por tu cumpleaños..." class="finput" style="background:#fdf2f8;border-color:#fbcfe8;resize:none;"></textarea>
+            <textarea id="bdayGiftText" rows="4" placeholder="Ej: ¡Feliz Cumpleaños! Tienes un 20% de descuento en tu próximo control médico..." class="finput" style="background:#fdf2f8;border-color:#fbcfe8;resize:none;"></textarea>
         </div>
         <div class="modal-ft">
             <button onclick="document.getElementById('birthdayModal').classList.add('hidden')" class="btn btn-ghost btn-md" style="flex:1;">Cancelar</button>
@@ -894,7 +919,7 @@
         </div>
         <div class="modal-bd">
             <div style="display:flex;flex-direction:column;gap:12px;">
-                <div><label class="flabel">Instrucción de segmento</label><input type="text" id="promoTargeting" placeholder="Ej: Pacientes pediátricos" class="finput" style="border-color:#fed7aa;background:#fff7ed;"></div>
+                <div><label class="flabel">Instrucción de segmento</label><input type="text" id="promoTargeting" placeholder="Ej: Pacientes diabéticos" class="finput" style="border-color:#fed7aa;background:#fff7ed;"></div>
                 <div><label class="flabel">Mensaje base</label><textarea id="promoMessage" rows="5" class="finput" placeholder="Escribe el mensaje de la campaña..." style="border-color:#fed7aa;background:#fff7ed;resize:none;"></textarea></div>
             </div>
         </div>
@@ -907,7 +932,7 @@
 
 <div id="metaModal" class="modal-wrap hidden" style="z-index:62;">
     <div class="modal-box" style="width:100%;max-width:420px;">
-        <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),#4f46e5);">
+        <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));">
             <div>
                 <div class="modal-title" style="color:white;">Meta Omnicanal</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">IA en todas tus redes</div>
@@ -948,7 +973,7 @@
 <div id="settingsModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
     <div class="modal-box" style="width:100%;max-width:680px;max-height:95vh;display:flex;flex-direction:column;">
         <div class="modal-hd" style="flex-shrink:0;">
-            <div class="modal-title">Configuración del Centro</div>
+            <div class="modal-title">Configuración de Consultorio</div>
             <button onclick="closeSettingsModal()" class="modal-close-btn">&times;</button>
         </div>
         <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
@@ -979,8 +1004,8 @@
                 <hr class="sep">
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;">
-                        <div class="panel-title" style="font-size:13px;margin-bottom:10px;color:var(--accent);">Horario Laboral</div>
+                    <div style="background:var(--accent-light);border:1px solid var(--accent);border-radius:10px;padding:16px;">
+                        <div class="panel-title" style="font-size:13px;margin-bottom:10px;color:var(--accent-dark);">Horario Laboral</div>
                         <div style="display:flex;align-items:center;gap:10px;">
                             <input type="time" id="hInicio" class="finput" style="flex:1;">
                             <span style="font-size:12px;font-weight:700;color:var(--txt2);">hasta</span>
@@ -989,7 +1014,16 @@
                     </div>
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
-                        <input type="text" id="nonWorkingDays" placeholder="Ej: 2026-05-24, 2026-12-25" class="finput" style="font-size:12px;">
+                        
+                        <div id="holidayCalendar" class="mt-2 bg-white border border-slate-200 rounded-lg p-3">
+                            <div class="flex justify-between items-center mb-3">
+                                <button type="button" onclick="changeCalMonth(-1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">◀</button>
+                                <span id="calMonthLabel" style="font-size:11px; font-weight:800; text-transform:uppercase;">Mes</span>
+                                <button type="button" onclick="changeCalMonth(1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">▶</button>
+                            </div>
+                            <div class="cal-grid" id="calDaysGrid"></div>
+                        </div>
+                        <p style="font-size:9.5px; color:var(--txt3); margin-top:8px; font-weight:600;">Haz clic en un día para marcarlo como feriado/vacaciones. La agenda bloqueará esos días.</p>
                     </div>
                 </div>
 
@@ -998,7 +1032,7 @@
                 <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:space-between;">
                     <div>
                         <div style="font-size:13.5px;font-weight:800;color:#1e40af;margin-bottom:3px;">Google Calendar</div>
-                        <div style="font-size:12px;color:#3b82f6;font-weight:500;">Vincula tu agenda para auto-agendar pacientes</div>
+                        <div style="font-size:12px;color:#3b82f6;font-weight:500;">Vincula tu agenda para auto-agendar citas</div>
                     </div>
                     <button id="btnSyncCalendar" onclick="syncGoogleCalendar()" class="btn btn-md" style="background:white;color:#1d4ed8;border:1px solid #bfdbfe;white-space:nowrap;">
                         Vincular cuenta
@@ -1034,13 +1068,14 @@
         appId: "1:310910036460:web:1a979471880251173838c9"
     };
     
-    // FIREBASE INIT LIBRE
+    // 🔥 CORRECCIÓN EXACTA DE FIREBASE V10.7 🔥
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     const storage = firebase.storage();
 
-    // FORZADOR ANTI-CUELGUE (OCULTA LA PANTALLA EN 3 SEGS PASE LO QUE PASE)
+    // FORZADOR ANTI-CUELGUE (OCULTA LA PANTALLA EN 3 SEGS)
     setTimeout(() => {
         const overlay = document.getElementById('authCheckOverlay');
         if(overlay) overlay.style.display = 'none';
@@ -1055,6 +1090,10 @@
     let currentPatientIdForImages = null;
     let vitalsChartInstance = null;
     let editPatientId = null;
+
+    // Variables Calendario Interactivo
+    let holidays = [];
+    let currentCalDate = new Date();
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1071,12 +1110,34 @@
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 const data = userDoc.data();
-                const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'medicina';
-                if (esp !== 'medicina' && data.rol !== 'vendedor') {
+                
+                // 🔥 LÓGICA DE AUTO-SUSPENSIÓN Y BADGE 🔥
+                if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
+                    const ahora = new Date();
+                    const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
+                    const diferenciaDias = (ahora - fechaPago) / (1000 * 60 * 60 * 24);
+
+                    if (diferenciaDias > 31) {
+                        await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
+                        window.location.reload(); 
+                        return;
+                    }
+                    
+                    // Mostrar Fecha en Sidebar
+                    const fechaVence = new Date(fechaPago);
+                    fechaVence.setDate(fechaVence.getDate() + 30);
+                    document.getElementById('uiNextBillingDate').textContent = fechaVence.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                    document.getElementById('subscriptionBadge').classList.remove('hidden');
+                }
+
+                const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'medicina_general';
+                if (esp !== 'medicina_general' && data.rol !== 'vendedor') {
                     window.location.href = `dashboard-${esp}.html`; return;
                 }
                 parentDoctorId = user.uid;
-                clinicDataGlobal = data.clinicInfo || { especialidad: 'medicina' };
+                clinicDataGlobal = data.clinicInfo || { especialidad: 'medicina_general' };
+                holidays = clinicDataGlobal.diasNoLaborables || []; // Cargamos feriados
+
                 if (data.estadoSuscripcion === 'suspendido') {
                     document.getElementById('dashboardView').classList.add('hidden');
                     document.getElementById('suspendedView').style.display = 'flex';
@@ -1085,7 +1146,6 @@
                     document.getElementById('suspendedView').style.display = 'none';
                     applyClinicBranding();
                     
-                    // CARGA SEGURA
                     await loadPatients().catch(e=>console.error(e));
                     await loadAppointments().catch(e=>console.error(e));
                     await loadInsumos().catch(e=>console.error(e));
@@ -1135,21 +1195,21 @@
         const body = document.getElementById('insumosTableBody');
         if(!body) return;
         if(insumos.length === 0) {
-            body.innerHTML = '<tr><td colspan=\"3\" style=\"padding:32px;text-align:center;color:#94a3b8;font-weight:600;\">No hay insumos registrados.</td></tr>';
+            body.innerHTML = '<tr><td colspan="3" style="padding:32px;text-align:center;color:#94a3b8;font-weight:600;">No hay insumos registrados.</td></tr>';
             return;
         }
         body.innerHTML = insumos.map(i => `
             <tr>
-                <td><span style=\"font-weight:700;color:#0f172a;\">${i.nombre}</span>${i.categoria ? `<br><span style=\"font-size:11px;color:#94a3b8;font-weight:600;\">${i.categoria}</span>` : ''}</td>
+                <td><span style="font-weight:700;color:#0f172a;">${i.nombre}</span>${i.categoria ? `<br><span style="font-size:11px;color:#94a3b8;font-weight:600;">${i.categoria}</span>` : ''}</td>
                 <td>
-                    <span style=\"display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;${i.stock < 10 ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;'}\">
+                    <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;${i.stock < 10 ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;'}">
                         ${i.stock} uds.${i.stock < 10 ? ' ⚠' : ''}
                     </span>
                 </td>
                 <td>
-                    <div style=\"display:flex;gap:6px;\">
-                        <button onclick=\"updateStock('${i.id}', 1)\" style=\"width:30px;height:30px;border-radius:7px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;cursor:pointer;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Plus Jakarta Sans',sans-serif;\">+</button>
-                        <button onclick=\"updateStock('${i.id}', -1)\" style=\"width:30px;height:30px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Plus Jakarta Sans',sans-serif;\">−</button>
+                    <div style="display:flex;gap:6px;">
+                        <button onclick="updateStock('${i.id}', 1)" style="width:30px;height:30px;border-radius:7px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;cursor:pointer;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Plus Jakarta Sans',sans-serif;">+</button>
+                        <button onclick="updateStock('${i.id}', -1)" style="width:30px;height:30px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Plus Jakarta Sans',sans-serif;">−</button>
                     </div>
                 </td>
             </tr>`).join('');
@@ -1169,7 +1229,7 @@
             document.getElementById('insumoQty').value = '';
             mostrarMensaje("Insumo agregado correctamente.", "success");
             loadInsumos();
-        } catch(e) { alert("Error al guardar insumo."); }
+        } catch(e) { alert("Error al guardar."); }
     }
 
     async function updateStock(id, diff) {
@@ -1190,7 +1250,7 @@
         const container = document.getElementById('birthdayList');
         if(container) {
             if(bdays.length > 0) {
-                container.innerHTML = bdays.map(p => `<div style=\"display:flex;align-items:center;gap:4px;margin-bottom:4px;font-size:13px;font-weight:700;color:#be185d;\">🎁 ${p.nombre}</div>`).join('');
+                container.innerHTML = bdays.map(p => `<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;font-size:13px;font-weight:700;color:#be185d;">🎁 ${p.nombre}</div>`).join('');
             } else {
                 container.innerHTML = "<span style='color:#94a3b8;font-weight:500;font-size:13px;'>Ninguno hoy</span>";
             }
@@ -1238,7 +1298,7 @@
             agenda: 'Agenda Médica',
             pacientes: 'Directorio de Pacientes',
             finanzas: 'Finanzas y Planes',
-            insumos: 'Inventario Médico'
+            insumos: 'Inventario Clínico'
         };
         tabs.forEach(t => {
             const cap = t.charAt(0).toUpperCase() + t.slice(1);
@@ -1257,7 +1317,7 @@
     async function loadPatients() {
         const snap = await db.collection('patients').where('doctorId', '==', parentDoctorId).get();
         patients = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
-        document.getElementById('patientSelect').innerHTML = '<option value=\"\">Seleccionar paciente...</option>' + patients.map(p => `<option value=\"${p.id}\">${p.nombre}</option>`).join('');
+        document.getElementById('patientSelect').innerHTML = '<option value="">Seleccionar paciente...</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
         renderPatientsDirectory(patients);
         if(document.getElementById('kpiPacientes')) document.getElementById('kpiPacientes').textContent = patients.length;
     }
@@ -1281,7 +1341,7 @@
         const tbody = document.getElementById('planesPagoTableBody');
         if(!tbody) return;
         if(planesPago.length === 0) {
-            tbody.innerHTML = '<tr><td colspan=\"5\" style=\"padding:40px;text-align:center;color:#94a3b8;font-weight:600;\">No hay planes en cuotas activos.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:#94a3b8;font-weight:600;">No hay planes en cuotas activos.</td></tr>';
             return;
         }
         tbody.innerHTML = planesPago.map(plan => {
@@ -1291,23 +1351,23 @@
             const initials = (p?.nombre || '?').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
             return `<tr>
                 <td>
-                    <div style=\"display:flex;align-items:center;gap:10px;\">
-                        <div class=\"avatar\" style=\"background:var(--accent);font-size:12px;\">${initials}</div>
-                        <span style=\"font-weight:800;\">${p?.nombre || 'Desconocido'}</span>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="avatar" style="background:var(--accent);font-size:12px;">${initials}</div>
+                        <span style="font-weight:800;">${p?.nombre || 'Desconocido'}</span>
                     </div>
                 </td>
-                <td style=\"color:#64748b;font-size:12.5px;font-weight:600;\">${plan.fechaInicio}</td>
+                <td style="color:#64748b;font-size:12.5px;font-weight:600;">${plan.fechaInicio}</td>
                 <td>
-                    <div style=\"display:flex;align-items:center;gap:10px;\">
-                        <div style=\"flex:1;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;min-width:60px;\">
-                            <div style=\"height:100%;background:var(--accent);border-radius:99px;width:${progress}%;\"></div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="flex:1;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;min-width:60px;">
+                            <div style="height:100%;background:var(--accent);border-radius:99px;width:${progress}%;"></div>
                         </div>
-                        <span style=\"font-size:11.5px;font-weight:700;color:#64748b;white-space:nowrap;\">${plan.cuotasPagadas}/${plan.totalCuotas}</span>
+                        <span style="font-size:11.5px;font-weight:700;color:#64748b;white-space:nowrap;">${plan.cuotasPagadas}/${plan.totalCuotas}</span>
                     </div>
                 </td>
-                <td><span style=\"font-weight:800;color:#dc2626;font-size:15px;\">$${saldo}</span></td>
+                <td><span style="font-weight:800;color:#dc2626;font-size:15px;">$${saldo}</span></td>
                 <td>
-                    <button onclick=\"openPayInstallment('${plan.id}', '${p?.nombre}')\" class=\"btn btn-primary btn-sm\">💳 Abonar</button>
+                    <button onclick="openPayInstallment('${plan.id}', '${p?.nombre}')" class="btn btn-primary btn-sm">💳 Abonar</button>
                 </td>
             </tr>`;
         }).join('');
@@ -1387,11 +1447,11 @@
         else if(sFilter === 'completada') filtered = appointments.filter(a => a.estado === 'completada');
 
         if(filtered.length === 0) {
-            container.innerHTML = `<div style=\"display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;text-align:center;\">
-                <div style=\"width:52px;height:52px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;\">
-                    <svg width=\"24\" height=\"24\" fill=\"none\" stroke=\"#94a3b8\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z\"/></svg>
+            container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;text-align:center;">
+                <div style="width:52px;height:52px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+                    <svg width="24" height="24" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
-                <p style=\"color:#94a3b8;font-weight:600;font-size:13.5px;margin:0;\">No hay citas en esta vista</p>
+                <p style="color:#94a3b8;font-weight:600;font-size:13.5px;margin:0;">No hay citas en esta vista</p>
             </div>`;
             return;
         }
@@ -1402,7 +1462,7 @@
             'confirmada': { label:'Confirmada', bg:'#d1fae5', color:'#065f46' },
             'completada': { label:'Completada', bg:'#dbeafe', color:'#1e40af' },
         };
-        const avatarPalette = ['#2563eb','#4f46e5','#0ea5e9','#059669','#ea580c','#db2777','#7c3aed'];
+        const avatarPalette = ['#2563eb','#1d4ed8','#3b82f6','#6366f1','#8b5cf6'];
 
         container.innerHTML = filtered.map((apt, idx) => {
             const p = patients.find(pat => pat.id === apt.patientId);
@@ -1411,53 +1471,53 @@
             const initials = (p?.nombre||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
             const avatarBg = avatarPalette[idx % avatarPalette.length];
 
-            return `<div style=\"background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:8px;transition:box-shadow 0.2s;position:relative;\" onmouseenter=\"this.style.boxShadow='0 4px 16px rgba(0,0,0,0.07)'\" onmouseleave=\"this.style.boxShadow='none'\">
+            return `<div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin-bottom:8px;transition:box-shadow 0.2s;position:relative;" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.07)'" onmouseleave="this.style.boxShadow='none'">
                 
-                <button onclick=\"deleteAppointment('${apt.id}')\" style=\"position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:7px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#cbd5e1;transition:all 0.15s;\" onmouseenter=\"this.style.background='#fef2f2';this.style.color='#dc2626'\" onmouseleave=\"this.style.background='transparent';this.style.color='#cbd5e1'\" title=\"Eliminar Turno\">
-                    <svg width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16\"/></svg>
+                <button onclick="deleteAppointment('${apt.id}')" style="position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:7px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#cbd5e1;transition:all 0.15s;" onmouseenter="this.style.background='#fef2f2';this.style.color='#dc2626'" onmouseleave="this.style.background='transparent';this.style.color='#cbd5e1'" title="Eliminar Turno">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
 
-                <div style=\"display:flex;align-items:flex-start;gap:11px;padding-right:30px;\">
-                    <div style=\"width:38px;height:38px;border-radius:9px;background:${avatarBg};display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:13px;flex-shrink:0;\">${initials}</div>
-                    <div style=\"flex:1;min-width:0;\">
-                        <div style=\"display:flex;align-items:center;justify-content:space-between;gap:8px;\">
-                            <span style=\"font-weight:800;font-size:14px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">${p?.nombre||'Desconocido'}</span>
-                            <span style=\"padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;background:${sc.bg};color:${sc.color};\">${sc.label}</span>
+                <div style="display:flex;align-items:flex-start;gap:11px;padding-right:30px;">
+                    <div style="width:38px;height:38px;border-radius:9px;background:${avatarBg};display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:13px;flex-shrink:0;">${initials}</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                            <span style="font-weight:800;font-size:14px;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p?.nombre||'Desconocido'}</span>
+                            <span style="padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;background:${sc.bg};color:${sc.color};">${sc.label}</span>
                         </div>
-                        <div style=\"display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap;\">
-                            <span style=\"font-size:12px;color:#64748b;font-weight:600;\">${apt.motivo||''}</span>
-                            <span style=\"font-size:11px;color:#94a3b8;font-weight:600;\">📅 ${apt.fecha} · ${apt.hora}</span>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:3px;flex-wrap:wrap;">
+                            <span style="font-size:12px;color:#64748b;font-weight:600;">${apt.motivo||''}</span>
+                            <span style="font-size:11px;color:#94a3b8;font-weight:600;">📅 ${apt.fecha} · ${apt.hora}</span>
                         </div>
                     </div>
                 </div>
-                <div style=\"display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;\">
-                    ${isPend ? `<button onclick=\"confirmAppointmentManually('${apt.id}')\" style=\"padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;\">✅ Confirmar</button>` : ''}
-                    <button onclick=\"openTriageModal('${apt.id}')\" style=\"padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;\">Signos V.</button>
-                    <button onclick=\"openPrescriptionModal('${apt.id}')\" style=\"padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;\">⚕️ Atender</button>
-                    <button onclick=\"openHistoryModal('${p?.id}')\" style=\"padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;\">📖 Historial</button>
+                <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+                    ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#e0e7ff;color:#1e40af;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
+                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Triaje</button>
+                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Atender</button>
+                    <button onclick="openHistoryModal('${p?.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
             </div>`;
         }).join('');
     }
 
     function renderPatientsDirectory(list) {
-        const avatarPalette = ['#2563eb','#4f46e5','#0ea5e9','#059669','#ea580c','#db2777','#7c3aed'];
+        const avatarPalette = ['#2563eb','#1d4ed8','#3b82f6','#6366f1','#8b5cf6'];
         document.getElementById('patientsDirectoryList').innerHTML = list.map((p, idx) => {
             const initials = p.nombre.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
             const avatarBg = avatarPalette[idx % avatarPalette.length];
-            return `<div style=\"background:white;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;transition:box-shadow 0.2s;\" onmouseenter=\"this.style.boxShadow='0 4px 16px rgba(0,0,0,0.07)'\" onmouseleave=\"this.style.boxShadow='none'\">
-                <div style=\"display:flex;align-items:center;gap:11px;margin-bottom:12px;\">
-                    <div style=\"width:42px;height:42px;border-radius:10px;background:${avatarBg};display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:15px;flex-shrink:0;\">${initials}</div>
+            return `<div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;transition:box-shadow 0.2s;" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.07)'" onmouseleave="this.style.boxShadow='none'">
+                <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px;">
+                    <div style="width:42px;height:42px;border-radius:10px;background:${avatarBg};display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:15px;flex-shrink:0;">${initials}</div>
                     <div>
-                        <div style=\"font-weight:800;font-size:14px;color:#0f172a;\">${p.nombre}</div>
-                        <div style=\"font-size:11.5px;color:#64748b;font-weight:600;margin-top:1px;\">CI: ${p.cedula||'N/A'}</div>
+                        <div style="font-weight:800;font-size:14px;color:#0f172a;">${p.nombre}</div>
+                        <div style="font-size:11.5px;color:#64748b;font-weight:600;margin-top:1px;">CI: ${p.cedula||'N/A'}</div>
                     </div>
                 </div>
-                <div style=\"font-size:12.5px;color:var(--accent);font-weight:700;margin-bottom:4px;\">📱 ${p.telefonoWhatsApp||'—'}</div>
-                ${p.fechaNacimiento ? `<div style=\"display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#fdf2f8;border-radius:99px;font-size:10.5px;color:#9d174d;font-weight:700;margin-top:4px;\">🎂 ${p.fechaNacimiento}</div>` : ''}
-                <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;\">
-                    <button onclick=\"openEditPatientModal('${p.id}')\" style=\"padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;\">✏️ Editar</button>
-                    <button onclick=\"openHistoryModal('${p.id}')\" style=\"padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;\">📖 Historial</button>
+                <div style="font-size:12.5px;color:var(--accent);font-weight:700;margin-bottom:4px;">📱 ${p.telefonoWhatsApp||'—'}</div>
+                ${p.fechaNacimiento ? `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#fdf2f8;border-radius:99px;font-size:10.5px;color:#9d174d;font-weight:700;margin-top:4px;">🎂 ${p.fechaNacimiento}</div>` : ''}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;">
+                    <button onclick="openEditPatientModal('${p.id}')" style="padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✏️ Editar</button>
+                    <button onclick="openHistoryModal('${p.id}')" style="padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
             </div>`;
         }).join('');
@@ -1475,7 +1535,7 @@
         const p = patients.find(x => x.id === id);
         if(!p) return;
         editPatientId = id;
-        document.getElementById('patientModalTitle').textContent = "Editar Paciente";
+        document.getElementById('patientModalTitle').textContent = "Editar Registro";
         document.getElementById('patientCedula').value = p.cedula||'';
         document.getElementById('patientName').value = p.nombre||'';
         document.getElementById('patientPhone').value = p.telefonoWhatsApp ? p.telefonoWhatsApp.replace('593','') : '';
@@ -1498,7 +1558,7 @@
         try {
             if(editPatientId) {
                 await db.collection('patients').doc(editPatientId).update({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob });
-                mostrarMensaje("Paciente actualizado con éxito.", "success");
+                mostrarMensaje("Registro actualizado con éxito.", "success");
             } else {
                 const exist = await db.collection('patients').where('doctorId','==',parentDoctorId).where('cedula','==',cedula).get();
                 if(!exist.empty) { btn.disabled=false; btn.textContent="Guardar"; return alert("Esta cédula ya está registrada."); }
@@ -1548,10 +1608,10 @@
     // ── TRIAGE ──
     function openTriageModal(aptId) {
         document.getElementById('triageAppointmentId').value = aptId;
-        ['triEdad','triPeso','triAltura','triPresion','triRitmo'].forEach(id => document.getElementById(id).value = '');
+        ['triPresion','triRitmo','triTemp','triOximetria','triPeso','triAltura'].forEach(id => document.getElementById(id).value = '');
         const apt = appointments.find(x => x.id === aptId);
         if(apt && apt.triaje) {
-            ['edad','peso','altura','presion','ritmo'].forEach(key => {
+            ['presion','ritmo','temp','oximetria','peso','altura'].forEach(key => {
                 const input = document.getElementById('tri' + key.charAt(0).toUpperCase() + key.slice(1));
                 if(input && apt.triaje[key]) input.value = apt.triaje[key];
             });
@@ -1563,38 +1623,41 @@
     async function saveTriage() {
         const aptId = document.getElementById('triageAppointmentId').value;
         const data = {
-            edad: document.getElementById('triEdad').value,
-            peso: document.getElementById('triPeso').value,
-            altura: document.getElementById('triAltura').value,
             presion: document.getElementById('triPresion').value,
             ritmo: document.getElementById('triRitmo').value,
+            temp: document.getElementById('triTemp').value,
+            oximetria: document.getElementById('triOximetria').value,
+            peso: document.getElementById('triPeso').value,
+            altura: document.getElementById('triAltura').value,
         };
         try {
             await db.collection('appointments').doc(aptId).update({ triaje: data });
-            mostrarMensaje('Signos vitales guardados.', 'success');
+            mostrarMensaje('Constantes guardadas.', 'success');
             closeTriageModal();
             await loadAppointments();
-        } catch(e) { alert('Error guardando signos.'); }
+        } catch(e) { alert('Error guardando constantes.'); }
     }
 
-    // ── PRESCRIPTION (MEDICINA + MSP008 + IA) ──
-    function openPrescriptionModal(aptId) {initMapaAnatomico();
+    // ── PRESCRIPTION (MEDICINA + IA + HOMÚNCULO) ──
+    function openPrescriptionModal(aptId) {
+        initMapaAnatomico(); // INICIALIZAR EL MAPA AL ABRIR LA MODAL
+        
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
         document.getElementById('rxPatientName').textContent = p?.nombre || 'Paciente';
         
-        // Ficha MSP
+        // Ficha Oficial MSP 008
         document.getElementById('mspMotivo').value = apt?.mspMotivo || '';
         document.getElementById('mspEnfermedad').value = apt?.mspEnfermedad || '';
         document.getElementById('mspAntecedentes').value = apt?.mspAntecedentes || '';
         document.getElementById('mspExamen').value = apt?.mspExamen || '';
-        document.getElementById('mspCie10').value = apt?.mspCie10 || '';
         
+        document.getElementById('rxDiagnostico').value = apt?.diagnostico || '';
         document.getElementById('rxRecomendaciones').value = apt?.recomendaciones?.join('\n') || '';
         document.getElementById('rxBorrador').value = '';
         
-        ['rxEdad', 'rxPeso', 'rxAltura', 'rxPresion', 'rxRitmo'].forEach(id => {
+        ['rxPresion', 'rxRitmo', 'rxTemp', 'rxOximetria', 'rxPeso', 'rxAltura'].forEach(id => {
             const input = document.getElementById(id);
             input.value = '';
             if(apt && apt.triaje) {
@@ -1617,7 +1680,7 @@
         const div = document.createElement('div');
         div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;';
         div.innerHTML = `
-            <input type="text" placeholder="Medicamento" class="finput med-name" style="font-size:12.5px;" value="${med?.medicamento||''}">
+            <input type="text" placeholder="Medicamento/Insumo" class="finput med-name" style="font-size:12.5px;" value="${med?.medicamento||''}">
             <input type="text" placeholder="Dosis / Horario" class="finput med-dose" style="font-size:12.5px;" value="${med?.dosis||''}">
             <button onclick="this.parentElement.remove()" style="width:30px;height:30px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>`;
         document.getElementById('medicinesContainer').appendChild(div);
@@ -1628,6 +1691,62 @@
         document.getElementById('divCuotas').style.display = checked ? 'block' : 'none';
     }
 
+    // ── LÓGICA DEL MAPA ANATÓMICO (Homúnculo Médico) ──
+    let parteActual = null;
+    let estadoCuerpo = {};
+
+    function initMapaAnatomico() {
+        estadoCuerpo = {};
+        document.querySelectorAll('.b-part').forEach(el => el.classList.remove('has-finding'));
+        document.getElementById('mspExamen').value = '';
+    }
+
+    function abrirSelectorParte(e, parte) {
+        parteActual = parte;
+        document.getElementById('selectedPartLabel').textContent = parte;
+        const selector = document.getElementById('bodySelector');
+        selector.style.display = 'flex';
+        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
+        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
+    }
+
+    function marcarParte(hallazgo) {
+        if(!parteActual) return;
+        const partId = parteActual.replace(/ /g, '_');
+        const el = document.getElementById(`part-${partId}`);
+        if(!el) return;
+        
+        if(hallazgo !== 'sano') {
+            el.classList.add('has-finding');
+            estadoCuerpo[parteActual] = hallazgo;
+        } else {
+            el.classList.remove('has-finding');
+            delete estadoCuerpo[parteActual];
+        }
+        
+        document.getElementById('bodySelector').style.display = 'none';
+        actualizarTextoExamen();
+    }
+
+    function actualizarTextoExamen() {
+        if(Object.keys(estadoCuerpo).length === 0) {
+            document.getElementById('mspExamen').value = 'Examen físico sin hallazgos patológicos aparentes en regiones evaluadas.';
+            return;
+        }
+        const textoGenerado = Object.keys(estadoCuerpo).map(parte => `• ${parte}: ${estadoCuerpo[parte]}`).join('\n');
+        document.getElementById('mspExamen').value = "Hallazgos al Examen Físico:\n" + textoGenerado;
+    }
+
+    function limpiarMapa() { initMapaAnatomico(); }
+
+    // Cerrar selector al hacer clic afuera
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.b-part') && !e.target.closest('#bodySelector')) {
+            const sel = document.getElementById('bodySelector');
+            if(sel) sel.style.display = 'none';
+        }
+    });
+
     async function procesarConIA() {
         const borrador = document.getElementById('rxBorrador').value.trim();
         if(!borrador) return alert("Escribe notas primero para que la IA pueda estructurarlas.");
@@ -1635,24 +1754,32 @@
         btn.textContent = 'Analizando...'; btn.disabled = true;
         try {
             let datosExtras = [];
-            ['rxEdad', 'rxPeso', 'rxAltura', 'rxPresion', 'rxRitmo'].forEach(id => {
+            ['rxPresion', 'rxRitmo', 'rxTemp', 'rxOximetria', 'rxPeso', 'rxAltura'].forEach(id => {
                 const val = document.getElementById(id).value;
                 const label = document.getElementById(id).previousElementSibling.textContent;
                 if(val) datosExtras.push(`${label}: ${val}`);
             });
-            const contextoClinico = datosExtras.length > 0 ? "Datos evaluados: " + datosExtras.join(', ') : "";
+            const contextoClinico = datosExtras.length > 0 ? "Constantes: " + datosExtras.join(', ') : "";
 
             const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ notasBorrador: borrador, especialidad: 'medicina', contextoClinico })
+                body: JSON.stringify({ notasBorrador: borrador, especialidad: 'medicina_general', contextoClinico })
             });
             const data = await res.json();
             
-            if(data.diagnostico) {
-                document.getElementById('mspEnfermedad').value = data.diagnostico;
-                document.getElementById('rxDiagnostico').value = data.diagnostico;
+            if(data.motivo_consulta) document.getElementById('mspMotivo').value = data.motivo_consulta;
+            if(data.enfermedad_actual) document.getElementById('mspEnfermedad').value = data.enfermedad_actual;
+            if(data.antecedentes) document.getElementById('mspAntecedentes').value = data.antecedentes;
+            
+            // Adjuntar IA al examen físico si el doctor no usó el mapa
+            let currentExamen = document.getElementById('mspExamen').value;
+            if(data.examen_fisico) {
+                if(!currentExamen || currentExamen.includes('sin hallazgos')) {
+                    document.getElementById('mspExamen').value = data.examen_fisico;
+                }
             }
-            if(data.cie10) document.getElementById('mspCie10').value = data.cie10;
+
+            if(data.diagnostico) document.getElementById('rxDiagnostico').value = data.diagnostico;
             
             if(Array.isArray(data.recomendaciones)) document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
             else if (data.recomendaciones) document.getElementById('rxRecomendaciones').value = data.recomendaciones;
@@ -1662,7 +1789,7 @@
                 data.receta.forEach(m => addMedicineRow(m));
             } else { addMedicineRow(); }
             
-            mostrarMensaje('Ficha médica estructurada por IA con éxito.', 'success');
+            mostrarMensaje('Ficha Médica estructurada por IA con éxito.', 'success');
         } catch(e) { alert('Error al conectar con la IA. Inténtalo de nuevo.'); }
         finally { btn.innerHTML = 'ESTRUCTURAR FICHA CON IA ✦'; btn.disabled = false; }
     }
@@ -1679,21 +1806,21 @@
         let mspEnfermedad = document.getElementById('mspEnfermedad').value;
         let mspAntecedentes = document.getElementById('mspAntecedentes').value;
         let mspExamen = document.getElementById('mspExamen').value;
-        let mspCie10 = document.getElementById('mspCie10').value;
+        let rxDiagnostico = document.getElementById('rxDiagnostico').value;
 
         let diagFinal = "";
-        if (mspMotivo || mspEnfermedad || mspAntecedentes || mspExamen || mspCie10) {
-            diagFinal += `[Ficha MSP 008]\n`;
+        if (mspMotivo || mspEnfermedad || mspAntecedentes || mspExamen || rxDiagnostico) {
+            diagFinal += `[Ficha Clínica MSP 008]\n`;
             if(mspMotivo) diagFinal += `- Motivo: ${mspMotivo}\n`;
-            if(mspEnfermedad) diagFinal += `- Enfermedad/Evolución: ${mspEnfermedad}\n`;
+            if(mspEnfermedad) diagFinal += `- Enfermedad Actual: ${mspEnfermedad}\n`;
             if(mspAntecedentes) diagFinal += `- Antecedentes: ${mspAntecedentes}\n`;
             if(mspExamen) diagFinal += `- Examen Físico: ${mspExamen}\n`;
-            if(mspCie10) diagFinal += `- CIE-10: ${mspCie10}\n\n`;
+            if(rxDiagnostico) diagFinal += `- Diagnóstico CIE-10: ${rxDiagnostico}\n\n`;
         }
 
         let customVitalsStr = [];
         let vitalsObj = {};
-        ['rxEdad', 'rxPeso', 'rxAltura', 'rxPresion', 'rxRitmo'].forEach(id => {
+        ['rxPresion', 'rxRitmo', 'rxTemp', 'rxOximetria', 'rxPeso', 'rxAltura'].forEach(id => {
             const val = document.getElementById(id).value;
             const label = document.getElementById(id).previousElementSibling.textContent;
             if(val) {
@@ -1702,7 +1829,7 @@
             }
         });
 
-        if (customVitalsStr.length > 0) diagFinal = `[Signos Vitales: ${customVitalsStr.join(' | ')}]\n\n${diagFinal}`;
+        if (customVitalsStr.length > 0) diagFinal = `[Constantes Fisiológicas: ${customVitalsStr.join(' | ')}]\n\n${diagFinal}`;
 
         const meds = [];
         Array.from(document.getElementById('medicinesContainer').children).forEach(r => {
@@ -1716,7 +1843,7 @@
         if(document.getElementById('checkTratamiento').checked) {
             let cuotas = parseInt(document.getElementById('numCuotas').value) || 1;
             let montoTotalPlan = parseFloat(document.getElementById('montoTotalPlan').value) || 0;
-            recList.push(`⚠️ Tratamiento Asignado: Diferido en ${cuotas} cuota(s). Monto Total: $${montoTotalPlan.toFixed(2)}`);
+            recList.push(`⚠️ Plan Financiero: Diferido en ${cuotas} cuota(s). Monto Total: $${montoTotalPlan.toFixed(2)}`);
 
             if(cuotas > 1 && montoTotalPlan > 0) {
                 await db.collection('planes_pago').add({
@@ -1732,12 +1859,12 @@
         let nextDate = document.getElementById('rxNextDate').value;
         let nextTime = document.getElementById('rxNextTime').value;
         if(nextDate && nextTime) {
-            recList.push(`📅 Tu próxima cita de control queda agendada para: ${nextDate} a las ${nextTime}`);
+            recList.push(`📅 Tu próximo control queda agendado para: ${nextDate} a las ${nextTime}`);
 
             await db.collection('appointments').add({
                 doctorId: parentDoctorId, patientId: p.id,
                 fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
-                motivo: 'Cita de Control (Auto-Agendada)', fechaCreacion: new Date()
+                motivo: 'Control Médico (Auto-Agendado)', fechaCreacion: new Date()
             });
 
             if(clinicDataGlobal.gCalendarToken) {
@@ -1757,7 +1884,7 @@
 
             await db.collection('appointments').doc(aptId).update({ 
                 diagnostico: diagFinal, 
-                mspMotivo, mspEnfermedad, mspAntecedentes, mspExamen, mspCie10,
+                mspMotivo, mspEnfermedad, mspAntecedentes, mspExamen,
                 recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() 
             });
 
@@ -1783,64 +1910,6 @@
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
 
-    // ── LÓGICA DEL MAPA ANATÓMICO (MEDICINA) ──
-    let parteActual = null;
-    let estadoCuerpo = {};
-
-    function initMapaAnatomico() {
-        estadoCuerpo = {};
-        document.querySelectorAll('.b-part').forEach(el => el.classList.remove('has-finding'));
-        document.getElementById('mspExamen').value = '';
-    }
-
-    function abrirSelectorParte(e, parte) {
-        parteActual = parte;
-        document.getElementById('selectedPartLabel').textContent = parte;
-        const selector = document.getElementById('bodySelector');
-        selector.style.display = 'flex';
-        // Posicionar pop-up
-        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
-        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
-    }
-
-    function marcarParte(hallazgo) {
-        if(!parteActual) return;
-        const partId = parteActual.replace(' ', '_');
-        const el = document.getElementById(`part-${partId}`);
-        
-        if(hallazgo !== 'sano') {
-            el.classList.add('has-finding');
-            estadoCuerpo[parteActual] = hallazgo;
-        } else {
-            el.classList.remove('has-finding');
-            delete estadoCuerpo[parteActual];
-        }
-        
-        document.getElementById('bodySelector').style.display = 'none';
-        actualizarTextoExamen();
-    }
-
-    function actualizarTextoExamen() {
-        if(Object.keys(estadoCuerpo).length === 0) {
-            document.getElementById('mspExamen').value = 'Examen físico sin hallazgos patológicos aparentes en regiones evaluadas.';
-            return;
-        }
-        const textoGenerado = Object.keys(estadoCuerpo).map(parte => `• ${parte}: ${estadoCuerpo[parte]}`).join('\n');
-        document.getElementById('mspExamen').value = "Hallazgos al Examen Físico:\n" + textoGenerado;
-    }
-
-    function limpiarMapa() {
-        initMapaAnatomico();
-    }
-
-    // Cerrar selector al hacer clic afuera
-    document.addEventListener('click', (e) => {
-        if(!e.target.closest('.b-part') && !e.target.closest('#bodySelector')) {
-            const sel = document.getElementById('bodySelector');
-            if(sel) sel.style.display = 'none';
-        }
-    });
-    
     // ── BILLING ──
     function calculateTotal() {
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
@@ -1865,7 +1934,7 @@
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.` })
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Médica'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.` })
                 });
             }
             
@@ -1900,9 +1969,9 @@
                     const dateStr = dateObj.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
                     
                     let vStr='';
-                    if(d.presion) vStr+=`PA: ${d.presion} mmHg`;
-                    if(d.ritmo) vStr+=` · FC: ${d.ritmo} bpm`;
-                    if(d.peso) vStr+=` · Peso: ${d.peso} kg`;
+                    if(d.presion) vStr+=`PA: ${d.presion} | `;
+                    if(d.peso) vStr+=`Peso: ${d.peso}kg | `;
+                    if(d.temp) vStr+=`Temp: ${d.temp}°C`;
                     
                     let recsHtml='';
                     if(d.recomendaciones&&d.recomendaciones.length>0) {
@@ -1932,7 +2001,7 @@
                     document.getElementById('chartContainer').classList.remove('hidden');
                     vitalsChartInstance = new Chart(ctx, {
                         type:'line',
-                        data:{ labels, datasets:[{ label:'Evolución de Peso (kg)', data:dataPeso, borderColor:'#2563eb', backgroundColor:'rgba(37,99,235,0.08)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#2563eb' }] },
+                        data:{ labels, datasets:[{ label:'Evolución de Peso (kg)', data:dataPeso, borderColor:'#2563eb', backgroundColor:'rgba(37, 99, 235, 0.08)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#2563eb' }] },
                         options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ min:0, grid:{ color:'#f1f5f9' } }, x:{ grid:{ display:false } } } }
                     });
                 } else { document.getElementById('chartContainer').classList.add('hidden'); }
@@ -2002,7 +2071,46 @@
     function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
     function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
 
-    // ── SETTINGS ──
+    // ── CALENDARIO DIDÁCTICO Y SETTINGS ──
+    function renderHolidayCalendar() {
+        const grid = document.getElementById('calDaysGrid');
+        const monthLabel = document.getElementById('calMonthLabel');
+        if(!grid) return;
+        grid.innerHTML = '';
+        
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Cabecera
+        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+        // Espacios
+        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+        // Días
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isHoliday = holidays.includes(dateStr);
+            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
+        }
+    }
+
+    function toggleHoliday(dateStr) {
+        if (holidays.includes(dateStr)) {
+            holidays = holidays.filter(d => d !== dateStr);
+        } else {
+            holidays.push(dateStr);
+        }
+        renderHolidayCalendar();
+    }
+
+    function changeCalMonth(dir) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+        renderHolidayCalendar();
+    }
+
     function openSettingsModal() {
         document.getElementById('clinicName').value = clinicDataGlobal?.nombre||'';
         document.getElementById('clinicRuc').value = clinicDataGlobal?.ruc||'';
@@ -2011,9 +2119,10 @@
         document.getElementById('clinicColor').value = clinicDataGlobal?.color||'#2563eb';
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
-        document.getElementById('nonWorkingDays').value = (clinicDataGlobal?.diasNoLaborables||[]).join(', ');
+        renderHolidayCalendar(); // Renderiza el calendario al abrir modal
         document.getElementById('settingsModal').classList.remove('hidden');
     }
+
     function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 
     function previewLogo(input) {
@@ -2039,7 +2148,7 @@
             color: document.getElementById('clinicColor').value,
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
-            diasNoLaborables: document.getElementById('nonWorkingDays').value.split(',').map(d=>d.trim()).filter(Boolean),
+            diasNoLaborables: holidays, // Guardamos los holidays del calendario visual
             logo: logoUrl
         };
         try {
