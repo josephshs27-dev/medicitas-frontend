@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistencitas Pro — Clínica Veterinaria</title>
-    <link rel="icon" href="data:,">
+    <link rel="icon" href="data:,\">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -185,6 +185,9 @@
 
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
+
+        /* ── Separator ── */
+        .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
 
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -494,7 +497,7 @@
                             <table class="dtable" style="min-width:560px;">
                                 <thead>
                                     <tr>
-                                        <th>Paciente (Mascota)</th>
+                                        <th>Paciente</th>
                                         <th>Inicio del plan</th>
                                         <th>Progreso cuotas</th>
                                         <th>Saldo pendiente</th>
@@ -1009,7 +1012,10 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    db.settings({ experimentalForceLongPolling: true, merge: true });
+    
+    // 🔥 CORRECCIÓN EXACTA DE FIREBASE 🔥
+    db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+    
     const storage = firebase.storage();
 
     // FORZADOR ANTI-CUELGUE (OCULTA LA PANTALLA EN 3 SEGS)
