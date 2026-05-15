@@ -1083,6 +1083,21 @@
                 }
                 parentDoctorId = user.uid;
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'fisioterapia' };
+                // ... dentro de auth.onAuthStateChanged ...
+                 if (userDoc.exists) {
+                const data = userDoc.data();
+        
+                // 1. Mostrar la fecha de vencimiento en el Sidebar
+                if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
+                mostrarFechaVencimiento(data.fechaUltimoCobro);
+                }
+        
+                // 2. Lógica de auto-suspensión que hablamos antes
+                verificarVencimiento(data); 
+
+                // ... resto de tu código de carga ...
+                }
+
                 if (data.estadoSuscripcion === 'suspendido') {
                     document.getElementById('dashboardView').classList.add('hidden');
                     document.getElementById('suspendedView').style.display = 'flex';
@@ -2043,6 +2058,21 @@
         d.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg>${msg}`;
         d.classList.remove('hidden');
         setTimeout(()=>d.classList.add('hidden'), 3500);
+    }
+
+    function mostrarFechaVencimiento(fechaUltimoCobro) {
+        if (!fechaUltimoCobro) return;
+        
+        // Convertimos el Timestamp de Firebase a objeto Date de JS
+        const fechaPago = fechaUltimoCobro.toDate ? fechaUltimoCobro.toDate() : new Date(fechaUltimoCobro);
+        
+        // Sumamos 30 días
+        const fechaVence = new Date(fechaPago);
+        fechaVence.setDate(fechaVence.getDate() + 30);
+        
+        const opciones = { day: 'numeric', month: 'short', year: 'numeric' };
+        document.getElementById('uiNextBillingDate').textContent = fechaVence.toLocaleDateString('es-ES', opciones);
+        document.getElementById('subscriptionBadge').classList.remove('hidden');
     }
 </script>
 </body>
