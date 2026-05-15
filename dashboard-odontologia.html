@@ -197,6 +197,13 @@
         .tooth.extraccion { background: #f1f5f9; border-color: #cbd5e1; color: #475569; text-decoration: line-through; opacity: 0.6; }
         .tooth.corona { background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
 
+        /* 🔥 MEJORA: ESTILOS CALENDARIO INTERACTIVO 🔥 */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
+        .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+        .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
+
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
@@ -280,6 +287,11 @@
         </nav>
 
         <div class="sb-bottom">
+            <div id="subscriptionBadge" class="hidden" style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <p style="color: rgba(255,255,255,0.4); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Suscripción activa hasta:</p>
+                <p id="uiNextBillingDate" style="color: #fff; font-size: 12px; font-weight: 800; margin: 0;">--/--/--</p>
+            </div>
+
             <button onclick="copiarMiLink()" class="sb-action">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                 Mi Link de Reservas
@@ -980,7 +992,15 @@
                     </div>
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
-                        <input type="text" id="nonWorkingDays" placeholder="Ej: 2026-05-24, 2026-12-25" class="finput" style="font-size:12px;">
+                        <div id="holidayCalendar" class="mt-2 bg-white border border-slate-200 rounded-lg p-3">
+                            <div class="flex justify-between items-center mb-3">
+                                <button type="button" onclick="changeCalMonth(-1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">◀</button>
+                                <span id="calMonthLabel" style="font-size:11px; font-weight:800; text-transform:uppercase;">Mes</span>
+                                <button type="button" onclick="changeCalMonth(1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">▶</button>
+                            </div>
+                            <div class="cal-grid" id="calDaysGrid"></div>
+                        </div>
+                        <p style="font-size:9.5px; color:var(--txt3); margin-top:8px; font-weight:600;">Haz clic en un día para marcarlo como feriado/vacaciones. La agenda bloqueará esos días.</p>
                     </div>
                 </div>
 
@@ -1025,10 +1045,11 @@
         appId: "1:310910036460:web:1a979471880251173838c9"
     };
     
-    // FIREBASE INIT LIBRE DE CONFLICTOS
+    // 🔥 CORRECCIÓN EXACTA DE FIREBASE V10.7 🔥
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     const storage = firebase.storage();
 
     // FORZADOR ANTI-CUELGUE (OCULTA LA PANTALLA EN 3 SEGS)
@@ -1047,6 +1068,10 @@
     let vitalsChartInstance = null;
     let editPatientId = null;
 
+    // Variables Calendario Interactivo
+    let holidays = [];
+    let currentCalDate = new Date();
+
     function normalizarTelefono(phone) {
         if (!phone) return '';
         let cleaned = String(phone).replace(/\D/g, '');
@@ -1062,12 +1087,34 @@
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 const data = userDoc.data();
+                
+                // 🔥 LÓGICA DE AUTO-SUSPENSIÓN Y BADGE 🔥
+                if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
+                    const ahora = new Date();
+                    const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
+                    const diferenciaDias = (ahora - fechaPago) / (1000 * 60 * 60 * 24);
+
+                    if (diferenciaDias > 31) {
+                        await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
+                        window.location.reload(); 
+                        return;
+                    }
+                    
+                    // Mostrar Fecha en Sidebar
+                    const fechaVence = new Date(fechaPago);
+                    fechaVence.setDate(fechaVence.getDate() + 30);
+                    document.getElementById('uiNextBillingDate').textContent = fechaVence.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                    document.getElementById('subscriptionBadge').classList.remove('hidden');
+                }
+
                 const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'odontologia';
                 if (esp !== 'odontologia' && data.rol !== 'vendedor') {
                     window.location.href = `dashboard-${esp}.html`; return;
                 }
                 parentDoctorId = user.uid;
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'odontologia' };
+                holidays = clinicDataGlobal.diasNoLaborables || []; // Cargamos feriados
+
                 if (data.estadoSuscripcion === 'suspendido') {
                     document.getElementById('dashboardView').classList.add('hidden');
                     document.getElementById('suspendedView').style.display = 'flex';
@@ -1465,7 +1512,7 @@
         const p = patients.find(x => x.id === id);
         if(!p) return;
         editPatientId = id;
-        document.getElementById('patientModalTitle').textContent = "Editar Paciente";
+        document.getElementById('patientModalTitle').textContent = "Editar Registro";
         document.getElementById('patientCedula').value = p.cedula||'';
         document.getElementById('patientName').value = p.nombre||'';
         document.getElementById('patientPhone').value = p.telefonoWhatsApp ? p.telefonoWhatsApp.replace('593','') : '';
@@ -1488,7 +1535,7 @@
         try {
             if(editPatientId) {
                 await db.collection('patients').doc(editPatientId).update({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob });
-                mostrarMensaje("Paciente actualizado con éxito.", "success");
+                mostrarMensaje("Registro actualizado con éxito.", "success");
             } else {
                 const exist = await db.collection('patients').where('doctorId','==',parentDoctorId).where('cedula','==',cedula).get();
                 if(!exist.empty) { btn.disabled=false; btn.textContent="Guardar"; return alert("Esta cédula ya está registrada."); }
@@ -1974,7 +2021,46 @@
     function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
     function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
 
-    // ── SETTINGS ──
+    // ── CALENDARIO DIDÁCTICO Y SETTINGS ──
+    function renderHolidayCalendar() {
+        const grid = document.getElementById('calDaysGrid');
+        const monthLabel = document.getElementById('calMonthLabel');
+        if(!grid) return;
+        grid.innerHTML = '';
+        
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Cabecera
+        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+        // Espacios
+        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+        // Días
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isHoliday = holidays.includes(dateStr);
+            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
+        }
+    }
+
+    function toggleHoliday(dateStr) {
+        if (holidays.includes(dateStr)) {
+            holidays = holidays.filter(d => d !== dateStr);
+        } else {
+            holidays.push(dateStr);
+        }
+        renderHolidayCalendar();
+    }
+
+    function changeCalMonth(dir) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+        renderHolidayCalendar();
+    }
+
     function openSettingsModal() {
         document.getElementById('clinicName').value = clinicDataGlobal?.nombre||'';
         document.getElementById('clinicRuc').value = clinicDataGlobal?.ruc||'';
@@ -1983,9 +2069,10 @@
         document.getElementById('clinicColor').value = clinicDataGlobal?.color||'#0891b2';
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
-        document.getElementById('nonWorkingDays').value = (clinicDataGlobal?.diasNoLaborables||[]).join(', ');
+        renderHolidayCalendar(); // Renderiza el calendario al abrir modal
         document.getElementById('settingsModal').classList.remove('hidden');
     }
+
     function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 
     function previewLogo(input) {
@@ -2011,7 +2098,7 @@
             color: document.getElementById('clinicColor').value,
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
-            diasNoLaborables: document.getElementById('nonWorkingDays').value.split(',').map(d=>d.trim()).filter(Boolean),
+            diasNoLaborables: holidays, // Guardamos los holidays del calendario visual
             logo: logoUrl
         };
         try {
