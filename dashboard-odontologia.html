@@ -188,6 +188,14 @@
 
         /* ── Separator ── */
         .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
+       
+        /* ── Odontograma Interactivo ── */
+        .odontograma-row { display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; margin-bottom: 8px; }
+        .tooth { width: 100%; aspect-ratio: 1; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.15s; background: white; color: var(--txt2); user-select: none; }
+        .tooth:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-2px); }
+        .tooth.caries { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+        .tooth.extraccion { background: #f1f5f9; border-color: #cbd5e1; color: #475569; text-decoration: line-through; opacity: 0.6; }
+        .tooth.corona { background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
 
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -592,7 +600,25 @@
                         <div style="display:flex;flex-direction:column;gap:10px;">
                             <div><label class="flabel">Motivo de Consulta</label><input type="text" id="mspMotivo" class="finput"></div>
                             <div><label class="flabel">Enfermedad Actual / Evolución</label><textarea id="mspEnfermedad" rows="2" class="finput" style="resize:none;"></textarea></div>
-                            <div><label class="flabel">Odontograma / Sist. Estomatognático</label><textarea id="mspOdontograma" rows="2" placeholder="Ej: Pieza 46 con caries oclusal" class="finput" style="resize:none;"></textarea></div>
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
+                                    <label class="flabel" style="margin:0; color:var(--accent-dark);">Odontograma Interactivo</label>
+                                    <button type="button" onclick="limpiarOdontograma()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                                </div>
+                                <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px; position:relative;">
+                                    <div class="odontograma-row" id="teeth-top"></div>
+                                    <div class="odontograma-row" id="teeth-bottom" style="margin-bottom:0;"></div>
+                                    
+                                    <div id="toothSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:130px; transform: translateX(-50%); margin-top:5px;">
+                                        <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Pieza <span id="selectedToothLabel" style="color:var(--txt1);"></span></div>
+                                        <button type="button" onclick="marcarDiente('caries')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Caries</button>
+                                        <button type="button" onclick="marcarDiente('extraccion')" style="font-size:11px; font-weight:700; color:#475569; background:#f1f5f9; border:none; padding:5px; border-radius:4px; cursor:pointer;">Extraída/Ausente</button>
+                                        <button type="button" onclick="marcarDiente('corona')" style="font-size:11px; font-weight:700; color:#2563eb; background:#eff6ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Corona / Resina</button>
+                                        <button type="button" onclick="marcarDiente('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Marcar Sano</button>
+                                    </div>
+                                </div>
+                                <textarea id="mspOdontograma" rows="2" placeholder="El diagnóstico se escribirá aquí automáticamente..." class="finput" style="resize:none; margin-top:8px; background:white; font-size:12px;"></textarea>
+                            </div>
                             <div><label class="flabel">CIE-10 Odontológico (Aprox)</label><input type="text" id="mspCie10" placeholder="Ej: K02.1" class="finput"></div>
                         </div>
                         <textarea id="rxDiagnostico" class="hidden"></textarea>
@@ -1541,7 +1567,7 @@
     }
 
     // ── PRESCRIPTION (ODONTOLOGÍA + MSP033 + IA) ──
-    function openPrescriptionModal(aptId) {
+    function openPrescriptionModal(aptId) {initOdontograma();
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
@@ -1741,6 +1767,69 @@
         } catch(e) { alert('Error al generar la receta o enviar a WhatsApp.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
+
+    // ── LÓGICA DEL ODONTOGRAMA INTERACTIVO ──
+    let dienteActual = null;
+    let estadoDientes = {};
+
+    function initOdontograma() {
+        const topTeeth = [18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28];
+        const bottomTeeth = [48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38];
+        
+        const renderRow = (arr, containerId) => {
+            document.getElementById(containerId).innerHTML = arr.map(num => 
+                `<div id="tooth-${num}" class="tooth" onclick="abrirSelectorDiente(event, ${num})">${num}</div>`
+            ).join('');
+        };
+        renderRow(topTeeth, 'teeth-top');
+        renderRow(bottomTeeth, 'teeth-bottom');
+        estadoDientes = {}; // Reiniciamos memoria
+    }
+
+    function abrirSelectorDiente(e, num) {
+        dienteActual = num;
+        document.getElementById('selectedToothLabel').textContent = num;
+        const selector = document.getElementById('toothSelector');
+        selector.style.display = 'flex';
+        // Posicionar bajo el diente
+        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
+        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
+    }
+
+    function marcarDiente(estado) {
+        if(!dienteActual) return;
+        const el = document.getElementById(`tooth-${dienteActual}`);
+        el.classList.remove('caries', 'extraccion', 'corona');
+        
+        if(estado !== 'sano') {
+            el.classList.add(estado);
+            estadoDientes[dienteActual] = estado;
+        } else {
+            delete estadoDientes[dienteActual];
+        }
+        
+        document.getElementById('toothSelector').style.display = 'none';
+        actualizarTextoOdontograma();
+    }
+
+    function actualizarTextoOdontograma() {
+        const traduccion = { 'caries': 'Caries', 'extraccion': 'Pieza Ausente', 'corona': 'Corona/Resina' };
+        const textoGenerado = Object.keys(estadoDientes).map(num => `Pza.${num}: ${traduccion[estadoDientes[num]]}`).join(' | ');
+        document.getElementById('mspOdontograma').value = textoGenerado;
+    }
+
+    function limpiarOdontograma() {
+        initOdontograma();
+        document.getElementById('mspOdontograma').value = '';
+    }
+
+    // Cerramos el pop-up si hacen clic fuera de los dientes
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.tooth') && !e.target.closest('#toothSelector')) {
+            const sel = document.getElementById('toothSelector');
+            if(sel) sel.style.display = 'none';
+        }
+    });
 
     // ── BILLING ──
     function calculateTotal() {
