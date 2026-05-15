@@ -153,13 +153,27 @@
         .btn-sm { font-size: 12px; padding: 6px 12px; }
         .btn-md { font-size: 13px; padding: 9px 18px; }
         .btn-lg { font-size: 14px; padding: 11px 24px; }
+        .btn-xl { font-size: 14.5px; padding: 13px 28px; }
         .btn-primary { background: var(--accent); color: white; }
         .btn-primary:hover { background: var(--accent-dark); }
         .btn-secondary { background: white; color: var(--txt1); border: 1px solid var(--border); }
         .btn-secondary:hover { background: #f8fafc; }
         .btn-ghost { background: transparent; color: var(--txt2); }
         .btn-ghost:hover { background: #f1f5f9; color: var(--txt1); }
+        .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #fee2e2; }
+        .btn-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .btn-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .btn-warn { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
         .btn-full { width: 100%; justify-content: center; }
+
+        /* ── Badges ── */
+        .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-confirmed { background: #d1fae5; color: #065f46; }
+        .badge-completed { background: #dbeafe; color: #1e40af; }
+        .badge-proposed { background: #ede9fe; color: #5b21b6; }
+        .badge-teal { background: var(--accent-light); color: var(--accent-dark); border: 1px solid #c7d2fe; }
 
         /* ── Table ── */
         .dtable { width: 100%; border-collapse: collapse; }
@@ -480,7 +494,7 @@
                             <table class="dtable" style="min-width:560px;">
                                 <thead>
                                     <tr>
-                                        <th>Paciente</th>
+                                        <th>Paciente (Mascota)</th>
                                         <th>Inicio del plan</th>
                                         <th>Progreso cuotas</th>
                                         <th>Saldo pendiente</th>
@@ -594,7 +608,7 @@
                                 <div><label class="flabel">Edad</label><input type="text" id="rxEdad" class="finput"></div>
                                 <div><label class="flabel">Peso</label><input type="number" step="0.1" id="rxPeso" class="finput"></div>
                                 <div><label class="flabel">Temp</label><input type="number" step="0.1" id="rxTemp" class="finput"></div>
-                                <div><label class="flabel">FC (bpm)</label><input type="number" id="rxRitmo" class="finput"></div>
+                                <div style="grid-column:span 2;"><label class="flabel">FC (bpm)</label><input type="number" id="rxRitmo" class="finput"></div>
                             </div>
                         </div>
                     </div>
