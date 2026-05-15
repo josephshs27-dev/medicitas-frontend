@@ -171,19 +171,6 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
-        /* ── Mapa Muscular / Articular (Fisioterapia) ── */
-        .fisio-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
-        .f-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
-        .f-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
-        .f-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
-        .f-part.has-issue { background: #fee2e2; border-color: #f87171; color: #dc2626; }
-        /* Tamaños específicos */
-        .f-cervical { width: 55px; height: 30px; border-radius: 12px 12px 4px 4px; }
-        .f-dorsal { width: 75px; height: 40px; border-radius: 4px; }
-        .f-lumbar { width: 65px; height: 40px; border-radius: 4px 4px 12px 12px; }
-        .f-joint { width: 35px; height: 35px; border-radius: 50%; } /* Hombros, rodillas */
-        .f-limb { width: 30px; height: 60px; border-radius: 12px; }
-
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
@@ -200,6 +187,25 @@
         .search-wrap { position: relative; }
         .search-wrap input { padding-left: 36px !important; }
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
+
+        /* 🔥 MEJORA 1: ESTILOS MAPA FISIOTERAPIA 🔥 */
+        .fisio-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+        .f-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
+        .f-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
+        .f-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
+        .f-part.has-issue { background: #fee2e2; border-color: #f87171; color: #dc2626; }
+        .f-cervical { width: 55px; height: 30px; border-radius: 12px 12px 4px 4px; }
+        .f-dorsal { width: 75px; height: 40px; border-radius: 4px; }
+        .f-lumbar { width: 65px; height: 40px; border-radius: 4px 4px 12px 12px; }
+        .f-joint { width: 35px; height: 35px; border-radius: 50%; } 
+        .f-limb { width: 30px; height: 60px; border-radius: 12px; }
+
+        /* 🔥 MEJORA 2: ESTILOS CALENDARIO INTERACTIVO 🔥 */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
+        .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+        .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -272,6 +278,7 @@
                 <p style="color: rgba(255,255,255,0.4); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Suscripción activa hasta:</p>
                 <p id="uiNextBillingDate" style="color: #fff; font-size: 12px; font-weight: 800; margin: 0;">--/--/--</p>
             </div>
+
             <button onclick="copiarMiLink()" class="sb-action">
                 <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                 Mi Link de Reservas
@@ -591,46 +598,48 @@
                     </div>
 
                     <div>
-                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
-                                    <label class="flabel" style="margin:0; color:var(--accent-dark);">Mapa Físico (Puntos de Dolor)</label>
-                                    <button type="button" onclick="limpiarMapaFisio()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
+                            <label class="flabel" style="margin:0; color:var(--accent-dark);">Mapa Físico (Puntos de Dolor)</label>
+                            <button type="button" onclick="limpiarMapaFisio()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                        </div>
+                        <div style="position:relative;">
+                            <div class="fisio-map">
+                                <div class="f-row">
+                                    <div id="part-Hombro_Izq" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Hombro Izquierdo')">H.I</div>
+                                    <div id="part-Cervical" class="f-part f-cervical" onclick="abrirSelectorFisio(event, 'Zona Cervical')">Cervical</div>
+                                    <div id="part-Hombro_Der" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Hombro Derecho')">H.D</div>
                                 </div>
-                                <div style="position:relative;">
-                                    <div class="fisio-map">
-                                        <div class="f-row">
-                                            <div id="part-Hombro_Izq" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Hombro Izquierdo')">H.I</div>
-                                            <div id="part-Cervical" class="f-part f-cervical" onclick="abrirSelectorFisio(event, 'Zona Cervical')">Cervical</div>
-                                            <div id="part-Hombro_Der" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Hombro Derecho')">H.D</div>
-                                        </div>
-                                        <div class="f-row">
-                                            <div id="part-Brazo_Izq" class="f-part f-limb" onclick="abrirSelectorFisio(event, 'Brazo Izquierdo')">Br.I</div>
-                                            <div id="part-Dorsal" class="f-part f-dorsal" onclick="abrirSelectorFisio(event, 'Zona Dorsal')">Dorsal</div>
-                                            <div id="part-Brazo_Der" class="f-part f-limb" onclick="abrirSelectorFisio(event, 'Brazo Derecho')">Br.D</div>
-                                        </div>
-                                        <div class="f-row">
-                                            <div id="part-Lumbar" class="f-part f-lumbar" onclick="abrirSelectorFisio(event, 'Zona Lumbar')">Lumbar</div>
-                                        </div>
-                                        <div class="f-row" style="margin-top:4px;">
-                                            <div id="part-Rodilla_Izq" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Rodilla Izquierda')">Rod.I</div>
-                                            <div style="width:45px;"></div> <div id="part-Rodilla_Der" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Rodilla Derecha')">Rod.D</div>
-                                        </div>
-                                        <div class="f-row">
-                                            <div id="part-Tobillo_Izq" class="f-part f-joint" style="width:30px; height:30px;" onclick="abrirSelectorFisio(event, 'Tobillo Izquierdo')">Tob.I</div>
-                                            <div style="width:55px;"></div> <div id="part-Tobillo_Der" class="f-part f-joint" style="width:30px; height:30px;" onclick="abrirSelectorFisio(event, 'Tobillo Derecho')">Tob.D</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div id="fisioSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:160px; transform: translateX(-50%); margin-top:5px;">
-                                        <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Región: <span id="selectedFisioPart" style="color:var(--txt1);"></span></div>
-                                        <button type="button" onclick="marcarFisio('Contractura')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Contractura / Espasmo</button>
-                                        <button type="button" onclick="marcarFisio('Esguince / Desgarro')" style="font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:none; padding:5px; border-radius:4px; cursor:pointer;">Esguince / Desgarro</button>
-                                        <button type="button" onclick="marcarFisio('Tendinitis')" style="font-size:11px; font-weight:700; color:#9d174d; background:#fdf2f8; border:none; padding:5px; border-radius:4px; cursor:pointer;">Tendinitis / Bursitis</button>
-                                        <button type="button" onclick="marcarFisio('Limitación articular')" style="font-size:11px; font-weight:700; color:#4f46e5; background:#e0e7ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Limitación Articular</button>
-                                        <button type="button" onclick="marcarFisio('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Sin anomalías</button>
-                                    </div>
+                                <div class="f-row">
+                                    <div id="part-Brazo_Izq" class="f-part f-limb" onclick="abrirSelectorFisio(event, 'Brazo Izquierdo')">Br.I</div>
+                                    <div id="part-Dorsal" class="f-part f-dorsal" onclick="abrirSelectorFisio(event, 'Zona Dorsal')">Dorsal</div>
+                                    <div id="part-Brazo_Der" class="f-part f-limb" onclick="abrirSelectorFisio(event, 'Brazo Derecho')">Br.D</div>
                                 </div>
-                                <textarea id="rxDiagnostico" rows="3" placeholder="El diagnóstico y evolución se generarán aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
+                                <div class="f-row">
+                                    <div id="part-Lumbar" class="f-part f-lumbar" onclick="abrirSelectorFisio(event, 'Zona Lumbar')">Lumbar</div>
+                                </div>
+                                <div class="f-row" style="margin-top:4px;">
+                                    <div id="part-Rodilla_Izq" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Rodilla Izquierda')">Rod.I</div>
+                                    <div style="width:45px;"></div>
+                                    <div id="part-Rodilla_Der" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Rodilla Derecha')">Rod.D</div>
+                                </div>
+                                <div class="f-row">
+                                    <div id="part-Tobillo_Izq" class="f-part f-joint" style="width:30px; height:30px;" onclick="abrirSelectorFisio(event, 'Tobillo Izquierdo')">Tob.I</div>
+                                    <div style="width:55px;"></div>
+                                    <div id="part-Tobillo_Der" class="f-part f-joint" style="width:30px; height:30px;" onclick="abrirSelectorFisio(event, 'Tobillo Derecho')">Tob.D</div>
+                                </div>
                             </div>
+                            
+                            <div id="fisioSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:160px; transform: translateX(-50%); margin-top:5px;">
+                                <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Región: <span id="selectedFisioPart" style="color:var(--txt1);"></span></div>
+                                <button type="button" onclick="marcarFisio('Contractura')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Contractura / Espasmo</button>
+                                <button type="button" onclick="marcarFisio('Esguince / Desgarro')" style="font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:none; padding:5px; border-radius:4px; cursor:pointer;">Esguince / Desgarro</button>
+                                <button type="button" onclick="marcarFisio('Tendinitis')" style="font-size:11px; font-weight:700; color:#9d174d; background:#fdf2f8; border:none; padding:5px; border-radius:4px; cursor:pointer;">Tendinitis / Bursitis</button>
+                                <button type="button" onclick="marcarFisio('Limitación articular')" style="font-size:11px; font-weight:700; color:#4f46e5; background:#e0e7ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Limitación Articular</button>
+                                <button type="button" onclick="marcarFisio('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Sin anomalías</button>
+                            </div>
+                        </div>
+                        <textarea id="rxDiagnostico" rows="3" placeholder="El diagnóstico y evolución se generarán aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
+                    </div>
 
                     <div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -982,7 +991,7 @@
                     </div>
                 </div>
 
-                <hr class="sep">
+                <hr class="sep" style="border-top:1px solid var(--border);margin:0;">
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;padding:16px;">
@@ -995,7 +1004,15 @@
                     </div>
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
-                        <input type="text" id="nonWorkingDays" placeholder="Ej: 2026-05-24, 2026-12-25" class="finput" style="font-size:12px;">
+                        <div id="holidayCalendar" class="mt-2 bg-white border border-slate-200 rounded-lg p-3">
+                            <div class="flex justify-between items-center mb-3">
+                                <button type="button" onclick="changeCalMonth(-1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">◀</button>
+                                <span id="calMonthLabel" style="font-size:11px; font-weight:800; text-transform:uppercase;">Mes</span>
+                                <button type="button" onclick="changeCalMonth(1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">▶</button>
+                            </div>
+                            <div class="cal-grid" id="calDaysGrid"></div>
+                        </div>
+                        <p style="font-size:9.5px; color:var(--txt3); margin-top:8px; font-weight:600;">Haz clic en un día para marcarlo como feriado/vacaciones. La agenda online bloqueará esos días.</p>
                     </div>
                 </div>
 
@@ -1044,6 +1061,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
+    db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     const storage = firebase.storage();
 
     // FORZADOR ANTI-CUELGUE (OCULTA LA PANTALLA EN 3.5 SEGS PASE LO QUE PASE)
@@ -1061,6 +1079,10 @@
     let currentPatientIdForImages = null;
     let vitalsChartInstance = null;
     let editPatientId = null;
+    
+    // Variables Calendario
+    let holidays = [];
+    let currentCalDate = new Date();
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1077,26 +1099,33 @@
             const userDoc = await db.collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 const data = userDoc.data();
+                
+                // 🔥 LÓGICA DE AUTO-SUSPENSIÓN 🔥
+                if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
+                    const ahora = new Date();
+                    const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
+                    const diferenciaDias = (ahora - fechaPago) / (1000 * 60 * 60 * 24);
+
+                    if (diferenciaDias > 31) {
+                        await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
+                        window.location.reload(); 
+                        return;
+                    }
+                    
+                    // Mostrar Fecha en Sidebar
+                    const fechaVence = new Date(fechaPago);
+                    fechaVence.setDate(fechaVence.getDate() + 30);
+                    document.getElementById('uiNextBillingDate').textContent = fechaVence.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                    document.getElementById('subscriptionBadge').classList.remove('hidden');
+                }
+
                 const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'fisioterapia';
                 if (esp !== 'fisioterapia' && data.rol !== 'vendedor') {
                     window.location.href = `dashboard-${esp}.html`; return;
                 }
                 parentDoctorId = user.uid;
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'fisioterapia' };
-                // ... dentro de auth.onAuthStateChanged ...
-                 if (userDoc.exists) {
-                const data = userDoc.data();
-        
-                // 1. Mostrar la fecha de vencimiento en el Sidebar
-                if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
-                mostrarFechaVencimiento(data.fechaUltimoCobro);
-                }
-        
-                // 2. Lógica de auto-suspensión que hablamos antes
-                verificarVencimiento(data); 
-
-                // ... resto de tu código de carga ...
-                }
+                holidays = clinicDataGlobal.diasNoLaborables || [];
 
                 if (data.estadoSuscripcion === 'suspendido') {
                     document.getElementById('dashboardView').classList.add('hidden');
@@ -1598,13 +1627,14 @@
         } catch(e) { alert('Error guardando triaje.'); }
     }
 
-    // ── PRESCRIPTION (TERAPIA + IA + PDF) ──
-    function openPrescriptionModal(aptId) {initMapaFisio();
+    // ── PRESCRIPTION (TERAPIA + IA + MAPA) ──
+    function openPrescriptionModal(aptId) {
+        initMapaFisio(); // 🔥 INICIALIZA EL MAPA FÍSICO 🔥
+
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
         document.getElementById('rxPatientName').textContent = p?.nombre || 'Paciente';
-        document.getElementById('rxDiagnostico').value = apt?.diagnostico || '';
         document.getElementById('rxRecomendaciones').value = apt?.recomendaciones?.join('\n') || '';
         document.getElementById('rxBorrador').value = '';
         
@@ -1642,6 +1672,62 @@
         document.getElementById('divCuotas').style.display = checked ? 'block' : 'none';
     }
 
+    // ── LÓGICA DEL MAPA FÍSICO (FISIOTERAPIA) ──
+    let parteFisioActual = null;
+    let estadoFisio = {};
+
+    function initMapaFisio() {
+        estadoFisio = {};
+        document.querySelectorAll('.f-part').forEach(el => el.classList.remove('has-issue'));
+        document.getElementById('rxDiagnostico').value = '';
+    }
+
+    function abrirSelectorFisio(e, parte) {
+        parteFisioActual = parte;
+        document.getElementById('selectedFisioPart').textContent = parte;
+        const selector = document.getElementById('fisioSelector');
+        selector.style.display = 'flex';
+        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
+        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
+    }
+
+    function marcarFisio(hallazgo) {
+        if(!parteFisioActual) return;
+        const partId = parteFisioActual.replace(/ /g, '_');
+        const el = document.getElementById(`part-${partId}`);
+        
+        if(hallazgo !== 'sano') {
+            el.classList.add('has-issue');
+            estadoFisio[parteFisioActual] = hallazgo;
+        } else {
+            el.classList.remove('has-issue');
+            delete estadoFisio[parteFisioActual];
+        }
+        
+        document.getElementById('fisioSelector').style.display = 'none';
+        actualizarTextoFisio();
+    }
+
+    function actualizarTextoFisio() {
+        if(Object.keys(estadoFisio).length === 0) {
+            document.getElementById('rxDiagnostico').value = '';
+            return;
+        }
+        const textoGenerado = Object.keys(estadoFisio).map(parte => `• ${parte}: ${estadoFisio[parte]}`).join('\n');
+        document.getElementById('rxDiagnostico').value = "Hallazgos Físicos y Diagnóstico:\n" + textoGenerado;
+    }
+
+    function limpiarMapaFisio() {
+        initMapaFisio();
+    }
+
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.f-part') && !e.target.closest('#fisioSelector')) {
+            const sel = document.getElementById('fisioSelector');
+            if(sel) sel.style.display = 'none';
+        }
+    });
+
     async function procesarConIA() {
         const borrador = document.getElementById('rxBorrador').value.trim();
         if(!borrador) return alert("Escribe notas primero para que la IA pueda estructurarlas.");
@@ -1662,7 +1748,11 @@
             });
             const data = await res.json();
             
-            if(data.diagnostico) document.getElementById('rxDiagnostico').value = data.diagnostico;
+            // Append IA diagnosis to map diagnosis
+            let currentDiag = document.getElementById('rxDiagnostico').value;
+            if(data.diagnostico) {
+                document.getElementById('rxDiagnostico').value = currentDiag ? currentDiag + "\n\n(IA): " + data.diagnostico : data.diagnostico;
+            }
             
             if(Array.isArray(data.recomendaciones)) document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
             else if (data.recomendaciones) document.getElementById('rxRecomendaciones').value = data.recomendaciones;
@@ -1775,63 +1865,6 @@
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
 
-    // ── LÓGICA DEL MAPA FÍSICO (FISIOTERAPIA) ──
-    let parteFisioActual = null;
-    let estadoFisio = {};
-
-    function initMapaFisio() {
-        estadoFisio = {};
-        document.querySelectorAll('.f-part').forEach(el => el.classList.remove('has-issue'));
-        document.getElementById('rxDiagnostico').value = '';
-    }
-
-    function abrirSelectorFisio(e, parte) {
-        parteFisioActual = parte;
-        document.getElementById('selectedFisioPart').textContent = parte;
-        const selector = document.getElementById('fisioSelector');
-        selector.style.display = 'flex';
-        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
-        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
-    }
-
-    function marcarFisio(hallazgo) {
-        if(!parteFisioActual) return;
-        const partId = parteFisioActual.replace(/ /g, '_');
-        const el = document.getElementById(`part-${partId}`);
-        
-        if(hallazgo !== 'sano') {
-            el.classList.add('has-issue');
-            estadoFisio[parteFisioActual] = hallazgo;
-        } else {
-            el.classList.remove('has-issue');
-            delete estadoFisio[parteFisioActual];
-        }
-        
-        document.getElementById('fisioSelector').style.display = 'none';
-        actualizarTextoFisio();
-    }
-
-    function actualizarTextoFisio() {
-        if(Object.keys(estadoFisio).length === 0) {
-            document.getElementById('rxDiagnostico').value = '';
-            return;
-        }
-        const textoGenerado = Object.keys(estadoFisio).map(parte => `• ${parte}: ${estadoFisio[parte]}`).join('\n');
-        document.getElementById('rxDiagnostico').value = "Hallazgos Físicos y Diagnóstico:\n" + textoGenerado;
-    }
-
-    function limpiarMapaFisio() {
-        initMapaFisio();
-    }
-
-    // Cerrar selector al hacer clic afuera
-    document.addEventListener('click', (e) => {
-        if(!e.target.closest('.f-part') && !e.target.closest('#fisioSelector')) {
-            const sel = document.getElementById('fisioSelector');
-            if(sel) sel.style.display = 'none';
-        }
-    });
-    
     // ── BILLING ──
     function calculateTotal() {
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
@@ -1993,7 +2026,46 @@
     function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
     function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
 
-    // ── SETTINGS ──
+    // ── CALENDARIO DIDÁCTICO Y SETTINGS ──
+    function renderHolidayCalendar() {
+        const grid = document.getElementById('calDaysGrid');
+        const monthLabel = document.getElementById('calMonthLabel');
+        if(!grid) return;
+        grid.innerHTML = '';
+        
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Cabecera
+        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+        // Espacios
+        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+        // Días
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isHoliday = holidays.includes(dateStr);
+            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
+        }
+    }
+
+    function toggleHoliday(dateStr) {
+        if (holidays.includes(dateStr)) {
+            holidays = holidays.filter(d => d !== dateStr);
+        } else {
+            holidays.push(dateStr);
+        }
+        renderHolidayCalendar();
+    }
+
+    function changeCalMonth(dir) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+        renderHolidayCalendar();
+    }
+
     function openSettingsModal() {
         document.getElementById('clinicName').value = clinicDataGlobal?.nombre||'';
         document.getElementById('clinicRuc').value = clinicDataGlobal?.ruc||'';
@@ -2002,9 +2074,10 @@
         document.getElementById('clinicColor').value = clinicDataGlobal?.color||'#0f766e';
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
-        document.getElementById('nonWorkingDays').value = (clinicDataGlobal?.diasNoLaborables||[]).join(', ');
+        renderHolidayCalendar(); // Renderiza el calendario al abrir modal
         document.getElementById('settingsModal').classList.remove('hidden');
     }
+
     function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 
     function previewLogo(input) {
@@ -2030,7 +2103,7 @@
             color: document.getElementById('clinicColor').value,
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
-            diasNoLaborables: document.getElementById('nonWorkingDays').value.split(',').map(d=>d.trim()).filter(Boolean),
+            diasNoLaborables: holidays, // Guardamos los holidays del calendario visual
             logo: logoUrl
         };
         try {
@@ -2058,21 +2131,6 @@
         d.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg>${msg}`;
         d.classList.remove('hidden');
         setTimeout(()=>d.classList.add('hidden'), 3500);
-    }
-
-    function mostrarFechaVencimiento(fechaUltimoCobro) {
-        if (!fechaUltimoCobro) return;
-        
-        // Convertimos el Timestamp de Firebase a objeto Date de JS
-        const fechaPago = fechaUltimoCobro.toDate ? fechaUltimoCobro.toDate() : new Date(fechaUltimoCobro);
-        
-        // Sumamos 30 días
-        const fechaVence = new Date(fechaPago);
-        fechaVence.setDate(fechaVence.getDate() + 30);
-        
-        const opciones = { day: 'numeric', month: 'short', year: 'numeric' };
-        document.getElementById('uiNextBillingDate').textContent = fechaVence.toLocaleDateString('es-ES', opciones);
-        document.getElementById('subscriptionBadge').classList.remove('hidden');
     }
 </script>
 </body>
