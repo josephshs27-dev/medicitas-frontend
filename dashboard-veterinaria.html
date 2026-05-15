@@ -189,19 +189,29 @@
         /* ── Separator ── */
         .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
 
-        /* ── Mapa Anatómico Veterinario ── */
-        .vet-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; background: #f5f3ff; border-radius: 12px; border: 1px solid var(--border); }
-        .v-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
-        .v-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1; }
-        .v-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
-        .v-part.has-finding { background: #fee2e2; border-color: #f87171; color: #dc2626; }
-        /* Silueta Estilizada de Mascota */
-        .v-head { width: 40px; height: 35px; border-radius: 50% 50% 10px 10px; }
-        .v-neck { width: 25px; height: 15px; border-radius: 4px; }
-        .v-body-main { width: 90px; height: 55px; border-radius: 12px 25px 12px 12px; }
-        .v-leg-front { width: 15px; height: 45px; border-radius: 4px; }
-        .v-leg-back { width: 18px; height: 45px; border-radius: 4px; }
-        .v-tail { width: 40px; height: 10px; border-radius: 20px; transform: rotate(-30deg); margin-left: -15px; margin-top: 10px; }
+        /* ── Mapa Anatómico Veterinario (Actualizado con 4 Patas) ── */
+        .vet-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; background: #f5f3ff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        .v-row { display: flex; gap: 4px; justify-content: center; width: 100%; position: relative; }
+        .v-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 8.5px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1; z-index: 2; }
+        .v-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); z-index: 10; }
+        .v-part.has-finding { background: #fee2e2; border-color: #f87171; color: #dc2626; z-index: 5; }
+
+        /* Silueta Estilizada del Perro de Perfil Completo */
+        .v-head { width: 45px; height: 38px; border-radius: 50% 50% 12px 12px; margin-top: 5px; }
+        .v-neck { width: 28px; height: 18px; border-radius: 4px; margin-top: -3px; z-index: 1; }
+        .v-body-main { width: 110px; height: 60px; border-radius: 12px 25px 12px 12px; margin-top: -3px; }
+        
+        /* Contenedor de Patas para alinearlas de perfil */
+        .legs-container { display: flex; justify-content: space-around; width: 110px; margin-top: -10px; z-index: 1; }
+        .legs-group { display: flex; gap: 2px; } /* Delanteras juntas, Traseras juntas */
+        
+        /* Estilo general para piernas */
+        .v-leg { width: 16px; height: 50px; border-radius: 4px; border-width: 1px 2px 2px 1px; } /* Borde diferencado para simular profundidad */
+        
+        /* Piernas traseras (detrás del cuerpo) */
+        .has-finding.v-leg { z-index: 6; }
+        
+        .v-tail { width: 45px; height: 12px; border-radius: 20px; transform: rotate(-35deg); margin-left: -20px; margin-top: 15px; }
 
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -619,15 +629,20 @@
                                     <div class="vet-map">
                                         <div class="v-row"><div id="vpart-Cabeza" class="v-part v-head" onclick="abrirSelectorVet(event, 'Cabeza')">Cabeza</div></div>
                                         <div class="v-row"><div id="vpart-Cuello" class="v-part v-neck" onclick="abrirSelectorVet(event, 'Cuello')"></div></div>
-                                        <div class="v-row" style="align-items: flex-start;">
-                                            <div id="vpart-Pata_Delantera" class="v-part v-leg-front" onclick="abrirSelectorVet(event, 'Pata Delantera')">P.D</div>
+                                        <div class="v-row" style="align-items: flex-start; justify-content: flex-start; padding-left: 20px;">
                                             <div id="vpart-Torso_Lomo" class="v-part v-body-main" onclick="abrirSelectorVet(event, 'Torso/Lomo')">Torso / Lomo</div>
                                             <div id="vpart-Cola" class="v-part v-tail" onclick="abrirSelectorVet(event, 'Cola')">Cola</div>
                                         </div>
-                                        <div class="v-row" style="margin-top: -10px;">
-                                            <div style="width: 25px;"></div>
-                                            <div id="vpart-Pata_Trasera" class="v-part v-leg-back" onclick="abrirSelectorVet(event, 'Pata Trasera')">P.T</div>
-                                            <div style="width: 40px;"></div>
+                                        
+                                        <div class="legs-container">
+                                            <div class="legs-group">
+                                                <div id="vpart-Pata_Delantera_Izquierda" class="v-part v-leg" style="border-right-width:2px; border-bottom-width:2px;" onclick="abrirSelectorVet(event, 'Pata Delantera Izquierda')">P.D.I</div>
+                                                <div id="vpart-Pata_Delantera_Derecha" class="v-part v-leg" style="margin-left: -5px; border-left-width:0; background: #fafafa; border-color: #cbd5e1; z-index: 1;" onclick="abrirSelectorVet(event, 'Pata Delantera Derecha')">P.D.D</div>
+                                            </div>
+                                            <div class="legs-group">
+                                                <div id="vpart-Pata_Trasera_Izquierda" class="v-part v-leg" style="border-right-width:2px; border-bottom-width:2px;" onclick="abrirSelectorVet(event, 'Pata Trasera Izquierda')">P.T.I</div>
+                                                <div id="vpart-Pata_Trasera_Derecha" class="v-part v-leg" style="margin-left: -5px; border-left-width:0; background: #fafafa; border-color: #cbd5e1; z-index: 1;" onclick="abrirSelectorVet(event, 'Pata Trasera Derecha')">P.T.D</div>
+                                            </div>
                                         </div>
                                     </div>
                                     
@@ -641,9 +656,7 @@
                                     </div>
                                 </div>
                                 <textarea id="rxDiagnostico" rows="3" placeholder="El hallazgo clínico se redactará aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
-                            </div>                        </div>
-                    </div>
-                </div>
+                            </div>
 
                 <div style="display:flex;flex-direction:column;gap:18px;">
 
@@ -1821,9 +1834,12 @@
 
     function marcarVet(hallazgo) {
         if(!parteVetActual) return;
+        // Reemplazamos espacios y diagonales para crear IDs válidos de HTML
         const partId = parteVetActual.replace(/ /g, '_').replace(/\//g, '_');
         const el = document.getElementById(`vpart-${partId}`);
         
+        if(!el) return; // Seguridad
+
         if(hallazgo !== 'sano') {
             el.classList.add('has-finding');
             estadoVet[parteVetActual] = hallazgo;
