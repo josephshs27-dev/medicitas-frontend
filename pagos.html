@@ -36,7 +36,7 @@
 
     <div id="loadingView" class="flex-1 flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Verificando conexión segura y tarifas...</p>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm loader-text">Verificando conexión segura y tarifas...</p>
     </div>
 
     <div id="mainContainer" class="hidden flex-1 w-full max-w-5xl mx-auto px-4 py-10">
@@ -164,6 +164,9 @@
         const auth = firebase.auth(); 
         const db = firebase.firestore();
 
+        // Agregamos el Token directo para la confirmación de URL
+        const PAYPHONE_TOKEN = "WUPQ68USXcdiO_ZIUY-D2gQMKDyZ7ZNJmMgw__Yr8ISbV55fB4S6G-AVsfgSr_q_2ZjRZMC3-tJseaQO4vbuSUH50_M67MSYVIqwEcqmu00rORvVdnI3eDZlkDTcBtnoLf5JUI2ojuUQEDEJ4cXiWNymaPPiY22nro-H9CXrXc1t3JCsO__wjXF_xrHCC5UUnWCX0mT0qjxeXVjt1UwV6f73106FyjmHoh9mjgFRnqKDRII4BZc1_KeW0FUatBNn3KoH6kNPpIc7z4B3RZCCOTmKNjNt-Pg9oZdrgQeMST5lLrwKBxRl-BRAJsdHiu9U4CvNAQ";
+
         let currentUserUid = null;
         let isPayphoneRendered = false;
         let currentPlanPrice = 20; 
@@ -171,6 +174,52 @@
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUserUid = user.uid;
+
+                // 🚨 INTERCEPTOR DE REDIRECCIÓN PAYPHONE 🚨
+                const urlParams = new URLSearchParams(window.location.search);
+                const ppId = urlParams.get('id');
+                const clientTxId = urlParams.get('clientTransactionId');
+
+                if (ppId && clientTxId) {
+                    document.querySelector('.loader-text').textContent = "Confirmando tu pago con el banco, no cierres esta ventana...";
+                    
+                    try {
+                        const response = await fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${PAYPHONE_TOKEN}`
+                            },
+                            body: JSON.stringify({ id: parseInt(ppId), clientTxId: clientTxId })
+                        });
+
+                        const data = await response.json();
+                        
+                        // Si el status es Approved o statusCode es 3 (Aprobado en PayPhone)
+                        if (data.transactionStatus === "Approved" || data.statusCode === 3) {
+                            await db.collection('users').doc(currentUserUid).update({
+                                estadoSuscripcion: 'activo',
+                                suscripcionPayphone: true,
+                                payphoneTransaccionId: ppId,
+                                fechaUltimoCobro: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            // Limpiamos la URL y mandamos al dashboard
+                            window.location.href = 'index.html';
+                            return; 
+                        } else {
+                            alert("❌ El banco rechazó la tarjeta o cancelaste el proceso. Intenta de nuevo.");
+                            window.location.href = 'pagos.html';
+                            return;
+                        }
+                    } catch (err) {
+                        console.error("Error confirmando pago redireccionado:", err);
+                        alert("Hubo un error de conexión al confirmar el pago. Inténtalo de nuevo.");
+                        window.location.href = 'pagos.html';
+                        return;
+                    }
+                }
+
+                // Si no hay redirección, flujo normal de la página
                 try {
                     const userDoc = await db.collection('users').doc(user.uid).get();
                     if (userDoc.exists && userDoc.data().rol === 'doctor') {
@@ -190,10 +239,8 @@
                         if (userData.estadoSuscripcion === 'activo' && userData.suscripcionPayphone) {
                             document.getElementById('activeBillingView').classList.remove('hidden');
                             
-                            // CÁLCULO SEGURO DE LA FECHA
                             let nextDate = new Date();
                             if(userData.fechaUltimoCobro) {
-                                // Si es un Timestamp de Firebase, usar .toDate(). Si ya es Date, usarlo directo.
                                 let f = userData.fechaUltimoCobro;
                                 nextDate = new Date(f.toDate ? f.toDate() : f);
                                 nextDate.setMonth(nextDate.getMonth() + 1);
@@ -233,7 +280,7 @@
                 let amountInCents = Math.round(currentPlanPrice * 100);
 
                 payphone.Button({
-                    token: "WUPQ68USXcdiO_ZIUY-D2gQMKDyZ7ZNJmMgw__Yr8ISbV55fB4S6G-AVsfgSr_q_2ZjRZMC3-tJseaQO4vbuSUH50_M67MSYVIqwEcqmu00rORvVdnI3eDZlkDTcBtnoLf5JUI2ojuUQEDEJ4cXiWNymaPPiY22nro-H9CXrXc1t3JCsO__wjXF_xrHCC5UUnWCX0mT0qjxeXVjt1UwV6f73106FyjmHoh9mjgFRnqKDRII4BZc1_KeW0FUatBNn3KoH6kNPpIc7z4B3RZCCOTmKNjNt-Pg9oZdrgQeMST5lLrwKBxRl-BRAJsdHiu9U4CvNAQ",
+                    token: PAYPHONE_TOKEN,
                     btnHorizontal: true,
                     btnCard: true,
                     createOrder: function(actions) {
@@ -241,11 +288,12 @@
                             amount: amountInCents, 
                             amountWithoutTax: amountInCents,
                             currency: "USD",
-                            clientTransactionId: "sub_" + currentUserUid + "_" + Date.now()
+                            clientTransactionId: "sub_" + currentUserUid + "_" + Date.now(),
+                            // Le decimos a Payphone que regrese obligatoriamente aquí si el navegador lo fuerza a abrir otra pestaña
+                            responseUrl: window.location.href.split('?')[0]
                         });
                     },
                     onComplete: function(model, actions) {
-                        // Confirmamos el pago en la pasarela
                         actions.confirm({
                             id: model.id,
                             clientTxId: model.clientTxId
@@ -254,7 +302,6 @@
                             alert("✅ Pago exitoso procesado por PayPhone.");
                             
                             try {
-                                // 1. Actualizamos Firebase usando la hora del Servidor para evitar bugs
                                 await db.collection('users').doc(currentUserUid).update({
                                     estadoSuscripcion: 'activo',
                                     suscripcionPayphone: true,
@@ -262,7 +309,6 @@
                                     fechaUltimoCobro: firebase.firestore.FieldValue.serverTimestamp()
                                 });
 
-                                // 2. REDIRECCIÓN CORRECTA: Te mandamos al portal inteligente (index.html)
                                 window.location.href = 'index.html'; 
                             } catch (e) {
                                 console.error("Error BD:", e);
@@ -295,7 +341,6 @@
                         suscripcionPayphone: false
                     });
                     alert("Suscripción suspendida.");
-                    // Si suspende, se recarga para volver a mostrarle la pantalla de pagar los $20
                     window.location.reload();
                 } catch(e) {
                     alert("Error procesando la solicitud.");
