@@ -999,11 +999,10 @@
         appId: "1:310910036460:web:1a979471880251173838c9"
     };
     
-    // FIREBASE INIT LIBRE DE ERRORES LONG POLLING Y MERGE
+    // FIREBASE INIT LIBRE DE CONFLICTOS
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    db.settings({ experimentalForceLongPolling: true, merge: true });
     const storage = firebase.storage();
 
     // FORZADOR ANTI-CUELGUE (OCULTA LA PANTALLA EN 3 SEGS)
@@ -1107,7 +1106,7 @@
             <tr>
                 <td><span style="font-weight:700;color:#0f172a;">${i.nombre}</span>${i.categoria ? `<br><span style="font-size:11px;color:#94a3b8;font-weight:600;">${i.categoria}</span>` : ''}</td>
                 <td>
-                    <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;${i.stock < 10 ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;'}">
+                    <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;${i.stock < 10 ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;'}\">
                         ${i.stock} uds.${i.stock < 10 ? ' ⚠' : ''}
                     </span>
                 </td>
@@ -1397,8 +1396,8 @@
                 </div>
                 <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
                     ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#cffafe;color:#164e63;border:1px solid #a5f3fc;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
-                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Triaje</button>
-                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Ficha 033</button>
+                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Medidas</button>
+                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Atender</button>
                     <button onclick="openHistoryModal('${p?.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
             </div>`;
@@ -1940,7 +1939,7 @@
         const currentPath = window.location.href.split('?')[0];
         const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
         const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
-        navigator.clipboard.writeText(miLink).then(()=>mostrarMensaje('¡Enlace copiado al portapapeles!','success')).catch(()=>alert("Copia manualmente: "+miLink));
+        navigator.clipboard.writeText(miLink).then(()=>mostrarMensaje('¡Enlace copiado al portapapeles!','success')).catch(()=>alert("Copia manually: "+miLink));
     }
 
     // ── MENSAJES ──
