@@ -171,6 +171,19 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
+        /* ── Mapa Anatómico (Homúnculo) ── */
+        .body-map-container { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+        .b-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
+        .b-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
+        .b-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
+        .b-part.has-finding { background: #fee2e2; border-color: #f87171; color: #dc2626; }
+        /* Tamaños específicos de las partes */
+        .b-head { width: 45px; height: 50px; border-radius: 40% 40% 15px 15px; }
+        .b-chest { width: 70px; height: 60px; border-radius: 8px; }
+        .b-abdomen { width: 65px; height: 55px; border-radius: 8px 8px 20px 20px; }
+        .b-arm { width: 30px; height: 80px; border-radius: 15px; }
+        .b-leg { width: 35px; height: 90px; border-radius: 10px; }
+
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
@@ -578,8 +591,37 @@
                             <div><label class="flabel">Motivo de Consulta</label><input type="text" id="mspMotivo" class="finput"></div>
                             <div><label class="flabel">Enfermedad Actual</label><textarea id="mspEnfermedad" rows="2" class="finput" style="resize:none;"></textarea></div>
                             <div><label class="flabel">Antecedentes</label><textarea id="mspAntecedentes" rows="1" class="finput" style="resize:none;"></textarea></div>
-                            <div><label class="flabel">Examen Físico</label><textarea id="mspExamen" rows="1" class="finput" style="resize:none;"></textarea></div>
-                            <div><label class="flabel">CIE-10 (Aprox)</label><input type="text" id="mspCie10" class="finput"></div>
+<div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
+                                    <label class="flabel" style="margin:0; color:var(--accent-dark);">Examen Físico (Mapa Anatómico)</label>
+                                    <button type="button" onclick="limpiarMapa()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                                </div>
+                                <div style="position:relative;">
+                                    <div class="body-map-container">
+                                        <div class="b-row"><div id="part-Cabeza" class="b-part b-head" onclick="abrirSelectorParte(event, 'Cabeza')">Cabeza</div></div>
+                                        <div class="b-row">
+                                            <div id="part-Brazo_Derecho" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo Derecho')">B. Der</div>
+                                            <div id="part-Tórax" class="b-part b-chest" onclick="abrirSelectorParte(event, 'Tórax')">Tórax</div>
+                                            <div id="part-Brazo_Izquierdo" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo Izquierdo')">B. Izq</div>
+                                        </div>
+                                        <div class="b-row"><div id="part-Abdomen" class="b-part b-abdomen" onclick="abrirSelectorParte(event, 'Abdomen')">Abdomen</div></div>
+                                        <div class="b-row">
+                                            <div id="part-Pierna_Derecha" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna Derecha')">P. Der</div>
+                                            <div id="part-Pierna_Izquierda" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna Izquierda')">P. Izq</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="bodySelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:140px; transform: translateX(-50%); margin-top:5px;">
+                                        <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Región: <span id="selectedPartLabel" style="color:var(--txt1);"></span></div>
+                                        <button type="button" onclick="marcarParte('Dolor localizado')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Dolor</button>
+                                        <button type="button" onclick="marcarParte('Inflamación / Edema')" style="font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:none; padding:5px; border-radius:4px; cursor:pointer;">Inflamación/Edema</button>
+                                        <button type="button" onclick="marcarParte('Herida / Trauma')" style="font-size:11px; font-weight:700; color:#9d174d; background:#fdf2f8; border:none; padding:5px; border-radius:4px; cursor:pointer;">Herida / Trauma</button>
+                                        <button type="button" onclick="marcarParte('Masa palpable')" style="font-size:11px; font-weight:700; color:#4f46e5; background:#e0e7ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Masa palpable</button>
+                                        <button type="button" onclick="marcarParte('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Sin anomalías</button>
+                                    </div>
+                                </div>
+                                <textarea id="mspExamen" rows="2" placeholder="Los hallazgos del examen físico se detallarán aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
+                            </div>                            <div><label class="flabel">CIE-10 (Aprox)</label><input type="text" id="mspCie10" class="finput"></div>
                         </div>
                         <textarea id="rxDiagnostico" class="hidden"></textarea>
                     </div>
@@ -1536,7 +1578,7 @@
     }
 
     // ── PRESCRIPTION (MEDICINA + MSP008 + IA) ──
-    function openPrescriptionModal(aptId) {
+    function openPrescriptionModal(aptId) {initMapaAnatomico();
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
@@ -1741,6 +1783,64 @@
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
 
+    // ── LÓGICA DEL MAPA ANATÓMICO (MEDICINA) ──
+    let parteActual = null;
+    let estadoCuerpo = {};
+
+    function initMapaAnatomico() {
+        estadoCuerpo = {};
+        document.querySelectorAll('.b-part').forEach(el => el.classList.remove('has-finding'));
+        document.getElementById('mspExamen').value = '';
+    }
+
+    function abrirSelectorParte(e, parte) {
+        parteActual = parte;
+        document.getElementById('selectedPartLabel').textContent = parte;
+        const selector = document.getElementById('bodySelector');
+        selector.style.display = 'flex';
+        // Posicionar pop-up
+        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
+        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
+    }
+
+    function marcarParte(hallazgo) {
+        if(!parteActual) return;
+        const partId = parteActual.replace(' ', '_');
+        const el = document.getElementById(`part-${partId}`);
+        
+        if(hallazgo !== 'sano') {
+            el.classList.add('has-finding');
+            estadoCuerpo[parteActual] = hallazgo;
+        } else {
+            el.classList.remove('has-finding');
+            delete estadoCuerpo[parteActual];
+        }
+        
+        document.getElementById('bodySelector').style.display = 'none';
+        actualizarTextoExamen();
+    }
+
+    function actualizarTextoExamen() {
+        if(Object.keys(estadoCuerpo).length === 0) {
+            document.getElementById('mspExamen').value = 'Examen físico sin hallazgos patológicos aparentes en regiones evaluadas.';
+            return;
+        }
+        const textoGenerado = Object.keys(estadoCuerpo).map(parte => `• ${parte}: ${estadoCuerpo[parte]}`).join('\n');
+        document.getElementById('mspExamen').value = "Hallazgos al Examen Físico:\n" + textoGenerado;
+    }
+
+    function limpiarMapa() {
+        initMapaAnatomico();
+    }
+
+    // Cerrar selector al hacer clic afuera
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.b-part') && !e.target.closest('#bodySelector')) {
+            const sel = document.getElementById('bodySelector');
+            if(sel) sel.style.display = 'none';
+        }
+    });
+    
     // ── BILLING ──
     function calculateTotal() {
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
