@@ -189,6 +189,20 @@
         /* ── Separator ── */
         .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
 
+        /* ── Mapa Anatómico Veterinario ── */
+        .vet-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; background: #f5f3ff; border-radius: 12px; border: 1px solid var(--border); }
+        .v-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
+        .v-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1; }
+        .v-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
+        .v-part.has-finding { background: #fee2e2; border-color: #f87171; color: #dc2626; }
+        /* Silueta Estilizada de Mascota */
+        .v-head { width: 40px; height: 35px; border-radius: 50% 50% 10px 10px; }
+        .v-neck { width: 25px; height: 15px; border-radius: 4px; }
+        .v-body-main { width: 90px; height: 55px; border-radius: 12px 25px 12px 12px; }
+        .v-leg-front { width: 15px; height: 45px; border-radius: 4px; }
+        .v-leg-back { width: 18px; height: 45px; border-radius: 4px; }
+        .v-tail { width: 40px; height: 10px; border-radius: 20px; transform: rotate(-30deg); margin-left: -15px; margin-top: 10px; }
+
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
@@ -596,8 +610,38 @@
                             <div><label class="flabel">Motivo de Consulta</label><input type="text" id="mspMotivo" class="finput"></div>
                             <div><label class="flabel">Anamnesis (Reporte del Dueño)</label><textarea id="mspAnamnesis" rows="2" class="finput" style="resize:none;"></textarea></div>
                             <div><label class="flabel">Examen Físico Especial</label><textarea id="mspExamen" rows="2" class="finput" style="resize:none;"></textarea></div>
-                            <div><label class="flabel">Diagnóstico (Presuntivo/Definitivo)</label><textarea id="rxDiagnostico" rows="2" class="finput" style="resize:none;"></textarea></div>
-                        </div>
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
+                                    <label class="flabel" style="margin:0; color:var(--accent-dark);">Evaluación Física Visual</label>
+                                    <button type="button" onclick="limpiarMapaVet()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                                </div>
+                                <div style="position:relative;">
+                                    <div class="vet-map">
+                                        <div class="v-row"><div id="vpart-Cabeza" class="v-part v-head" onclick="abrirSelectorVet(event, 'Cabeza')">Cabeza</div></div>
+                                        <div class="v-row"><div id="vpart-Cuello" class="v-part v-neck" onclick="abrirSelectorVet(event, 'Cuello')"></div></div>
+                                        <div class="v-row" style="align-items: flex-start;">
+                                            <div id="vpart-Pata_Delantera" class="v-part v-leg-front" onclick="abrirSelectorVet(event, 'Pata Delantera')">P.D</div>
+                                            <div id="vpart-Torso_Lomo" class="v-part v-body-main" onclick="abrirSelectorVet(event, 'Torso/Lomo')">Torso / Lomo</div>
+                                            <div id="vpart-Cola" class="v-part v-tail" onclick="abrirSelectorVet(event, 'Cola')">Cola</div>
+                                        </div>
+                                        <div class="v-row" style="margin-top: -10px;">
+                                            <div style="width: 25px;"></div>
+                                            <div id="vpart-Pata_Trasera" class="v-part v-leg-back" onclick="abrirSelectorVet(event, 'Pata Trasera')">P.T</div>
+                                            <div style="width: 40px;"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="vetSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:160px; transform: translateX(-50%); margin-top:5px;">
+                                        <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Zona: <span id="selectedVetPart" style="color:var(--txt1);"></span></div>
+                                        <button type="button" onclick="marcarVet('Dolor / Sensibilidad')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Dolor / Sensibilidad</button>
+                                        <button type="button" onclick="marcarVet('Masa / Bulto')" style="font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:none; padding:5px; border-radius:4px; cursor:pointer;">Masa / Bulto</button>
+                                        <button type="button" onclick="marcarVet('Herida / Lesión de piel')" style="font-size:11px; font-weight:700; color:#9d174d; background:#fdf2f8; border:none; padding:5px; border-radius:4px; cursor:pointer;">Herida / Piel</button>
+                                        <button type="button" onclick="marcarVet('Parásitos externos')" style="font-size:11px; font-weight:700; color:#4f46e5; background:#e0e7ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Parásitos Ext.</button>
+                                        <button type="button" onclick="marcarVet('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Normal</button>
+                                    </div>
+                                </div>
+                                <textarea id="rxDiagnostico" rows="3" placeholder="El hallazgo clínico se redactará aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
+                            </div>                        </div>
                     </div>
                 </div>
 
@@ -1555,7 +1599,7 @@
     }
 
     // ── PRESCRIPTION (VETERINARIA + IA) ──
-    function openPrescriptionModal(aptId) {
+    function openPrescriptionModal(aptId) {initMapaVet();
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
@@ -1755,6 +1799,61 @@
         } catch(e) { alert('Error al generar la receta o enviar a WhatsApp.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
+
+    // ── LÓGICA DEL MAPA CLÍNICO VETERINARIO ──
+    let parteVetActual = null;
+    let estadoVet = {};
+
+    function initMapaVet() {
+        estadoVet = {};
+        document.querySelectorAll('.v-part').forEach(el => el.classList.remove('has-finding'));
+        document.getElementById('rxDiagnostico').value = '';
+    }
+
+    function abrirSelectorVet(e, parte) {
+        parteVetActual = parte;
+        document.getElementById('selectedVetPart').textContent = parte;
+        const selector = document.getElementById('vetSelector');
+        selector.style.display = 'flex';
+        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
+        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
+    }
+
+    function marcarVet(hallazgo) {
+        if(!parteVetActual) return;
+        const partId = parteVetActual.replace(/ /g, '_').replace(/\//g, '_');
+        const el = document.getElementById(`vpart-${partId}`);
+        
+        if(hallazgo !== 'sano') {
+            el.classList.add('has-finding');
+            estadoVet[parteVetActual] = hallazgo;
+        } else {
+            el.classList.remove('has-finding');
+            delete estadoVet[parteVetActual];
+        }
+        
+        document.getElementById('vetSelector').style.display = 'none';
+        actualizarTextoVet();
+    }
+
+    function actualizarTextoVet() {
+        if(Object.keys(estadoVet).length === 0) {
+            document.getElementById('rxDiagnostico').value = '';
+            return;
+        }
+        const textoGenerado = Object.keys(estadoVet).map(parte => `• ${parte}: ${estadoVet[parte]}`).join('\n');
+        document.getElementById('rxDiagnostico').value = "Hallazgos al Examen Físico:\n" + textoGenerado;
+    }
+
+    function limpiarMapaVet() { initMapaVet(); }
+
+    // Cerrar selector al hacer clic afuera
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.v-part') && !e.target.closest('#vetSelector')) {
+            const sel = document.getElementById('vetSelector');
+            if(sel) sel.style.display = 'none';
+        }
+    });
 
     // ── BILLING ──
     function calculateTotal() {
