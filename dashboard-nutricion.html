@@ -189,6 +189,18 @@
         /* ── Separator ── */
         .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
 
+        /* ── Mapa Antropométrico (Nutrición) ── */
+        .nutri-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+        .n-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
+        .n-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
+        .n-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
+        .n-part.has-issue { background: #fef3c7; border-color: #f59e0b; color: #b45309; } /* Color ámbar para grasa/retención */
+        .n-head { width: 40px; height: 40px; border-radius: 50%; }
+        .n-chest { width: 70px; height: 45px; border-radius: 8px 8px 4px 4px; }
+        .n-abdomen { width: 75px; height: 50px; border-radius: 4px 4px 16px 16px; }
+        .n-arm { width: 25px; height: 80px; border-radius: 12px; }
+        .n-leg { width: 35px; height: 80px; border-radius: 8px 8px 16px 16px; }
+
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
@@ -591,9 +603,38 @@
                     </div>
 
                     <div>
-                        <label class="flabel">Análisis Nutricional</label>
-                        <textarea id="rxDiagnostico" rows="4" class="finput" style="resize:vertical;"></textarea>
-                    </div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
+                                    <label class="flabel" style="margin:0; color:var(--accent-dark);">Composición Corporal Visual</label>
+                                    <button type="button" onclick="limpiarMapaNutri()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                                </div>
+                                <div style="position:relative;">
+                                    <div class="nutri-map">
+                                        <div class="n-row"><div id="part-Rostro_Cuello" class="n-part n-head" onclick="abrirSelectorNutri(event, 'Rostro/Cuello')">Cara</div></div>
+                                        <div class="n-row">
+                                            <div id="part-Brazo_Derecho" class="n-part n-arm" onclick="abrirSelectorNutri(event, 'Brazo Derecho')">B.D</div>
+                                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                                <div id="part-Zona_Pectoral" class="n-part n-chest" onclick="abrirSelectorNutri(event, 'Zona Pectoral')">Tórax</div>
+                                                <div id="part-Abdomen_Cintura" class="n-part n-abdomen" onclick="abrirSelectorNutri(event, 'Abdomen/Cintura')">Abdomen</div>
+                                            </div>
+                                            <div id="part-Brazo_Izquierdo" class="n-part n-arm" onclick="abrirSelectorNutri(event, 'Brazo Izquierdo')">B.I</div>
+                                        </div>
+                                        <div class="n-row">
+                                            <div id="part-Pierna_Derecha" class="n-part n-leg" onclick="abrirSelectorNutri(event, 'Pierna Derecha')">P.D</div>
+                                            <div id="part-Pierna_Izquierda" class="n-part n-leg" onclick="abrirSelectorNutri(event, 'Pierna Izquierda')">P.I</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="nutriSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:170px; transform: translateX(-50%); margin-top:5px;">
+                                        <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Región: <span id="selectedNutriPart" style="color:var(--txt1);"></span></div>
+                                        <button type="button" onclick="marcarNutri('Exceso de Grasa / Adiposidad')" style="font-size:11px; font-weight:700; color:#b45309; background:#fef3c7; border:none; padding:5px; border-radius:4px; cursor:pointer;">Grasa Localizada</button>
+                                        <button type="button" onclick="marcarNutri('Retención de Líquidos / Edema')" style="font-size:11px; font-weight:700; color:#1d4ed8; background:#eff6ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Retención de Líquidos</button>
+                                        <button type="button" onclick="marcarNutri('Déficit de Masa Muscular')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Déficit Muscular</button>
+                                        <button type="button" onclick="marcarNutri('Pliegue Alterado')" style="font-size:11px; font-weight:700; color:#6d28d9; background:#f5f3ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Pliegue Alterado</button>
+                                        <button type="button" onclick="marcarNutri('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Rango Adecuado</button>
+                                    </div>
+                                </div>
+                                <textarea id="rxDiagnostico" rows="3" placeholder="El análisis antropométrico y diagnóstico se generará aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
+                            </div>
 
                     <div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -1546,7 +1587,7 @@
     }
 
     // ── PRESCRIPTION (NUTRICION + IA) ──
-    function openPrescriptionModal(aptId) {
+    function openPrescriptionModal(aptId) {initMapaNutri();
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
@@ -1721,6 +1762,63 @@
         } catch(e) { alert('Error al generar el plan o enviar a WhatsApp.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
+
+    // ── LÓGICA DEL MAPA ANTROPOMÉTRICO (NUTRICIÓN) ──
+    let parteNutriActual = null;
+    let estadoNutri = {};
+
+    function initMapaNutri() {
+        estadoNutri = {};
+        document.querySelectorAll('.n-part').forEach(el => el.classList.remove('has-issue'));
+        document.getElementById('rxDiagnostico').value = '';
+    }
+
+    function abrirSelectorNutri(e, parte) {
+        parteNutriActual = parte;
+        document.getElementById('selectedNutriPart').textContent = parte;
+        const selector = document.getElementById('nutriSelector');
+        selector.style.display = 'flex';
+        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
+        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
+    }
+
+    function marcarNutri(hallazgo) {
+        if(!parteNutriActual) return;
+        const partId = parteNutriActual.replace(/ /g, '_').replace(/\//g, '_');
+        const el = document.getElementById(`part-${partId}`);
+        
+        if(hallazgo !== 'sano') {
+            el.classList.add('has-issue');
+            estadoNutri[parteNutriActual] = hallazgo;
+        } else {
+            el.classList.remove('has-issue');
+            delete estadoNutri[parteNutriActual];
+        }
+        
+        document.getElementById('nutriSelector').style.display = 'none';
+        actualizarTextoNutri();
+    }
+
+    function actualizarTextoNutri() {
+        if(Object.keys(estadoNutri).length === 0) {
+            document.getElementById('rxDiagnostico').value = '';
+            return;
+        }
+        const textoGenerado = Object.keys(estadoNutri).map(parte => `• ${parte}: ${estadoNutri[parte]}`).join('\n');
+        document.getElementById('rxDiagnostico').value = "Análisis Antropométrico y Hallazgos:\n" + textoGenerado;
+    }
+
+    function limpiarMapaNutri() {
+        initMapaNutri();
+    }
+
+    // Cerrar selector al hacer clic afuera
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.n-part') && !e.target.closest('#nutriSelector')) {
+            const sel = document.getElementById('nutriSelector');
+            if(sel) sel.style.display = 'none';
+        }
+    });
 
     // ── BILLING ──
     function calculateTotal() {
