@@ -1130,12 +1130,12 @@
                     document.getElementById('subscriptionBadge').classList.remove('hidden');
                 }
 
-                const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'medicina_general';
-                if (esp !== 'medicina_general' && data.rol !== 'vendedor') {
+                const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'medicina';
+                if (esp !== 'medicina' && data.rol !== 'vendedor') {
                     window.location.href = `dashboard-${esp}.html`; return;
                 }
                 parentDoctorId = user.uid;
-                clinicDataGlobal = data.clinicInfo || { especialidad: 'medicina_general' };
+                clinicDataGlobal = data.clinicInfo || { especialidad: 'medicina' };
                 holidays = clinicDataGlobal.diasNoLaborables || []; // Cargamos feriados
 
                 if (data.estadoSuscripcion === 'suspendido') {
@@ -1763,7 +1763,7 @@
 
             const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ notasBorrador: borrador, especialidad: 'medicina_general', contextoClinico })
+                body: JSON.stringify({ notasBorrador: borrador, especialidad: 'medicina', contextoClinico })
             });
             const data = await res.json();
             
