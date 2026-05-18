@@ -19,7 +19,7 @@
     <div id="loginAdminView" class="flex-1 flex items-center justify-center">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-full max-w-md">
             <div class="text-center mb-6">
-                <img src="img/logo.png" alt="Agendacitas" class="h-16 w-auto mx-auto mb-4 object-contain" onerror="this.outerHTML='<span class=\\'text-5xl\\'>👑</span>'">
+                <img src="img/logo.png" alt="Agendacitas" class="h-16 w-auto mx-auto mb-4 object-contain" onerror="this.outerHTML='<span class=\'text-5xl\'>👑</span>'">
                 <h2 class="text-2xl font-bold text-white mt-4">Búnker del CEO</h2>
                 <p class="text-slate-400 text-sm">Acceso restringido a la administración SaaS.</p>
             </div>
@@ -41,10 +41,10 @@
     <div id="dashboardAdminView" class="hidden flex-1 flex flex-col">
         <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md">
             <div class="flex items-center gap-3">
-                <img src="img/logo.png" alt="Agendacitas" class="h-10 w-auto object-contain bg-white rounded p-1" onerror="this.outerHTML='<span class=\\'text-3xl\\'>👑</span>'">
+                <img src="img/logo.png" alt="Agendacitas" class="h-10 w-auto object-contain bg-white rounded p-1" onerror="this.outerHTML='<span class=\'text-3xl\'>👑</span>'">
                 <div>
                     <h1 class="text-xl font-black text-white leading-tight">Agendacitas</h1>
-                    <p class="text-xs text-blue-400 font-bold uppercase tracking-widest">SaaS Control Center</p>
+                    <p class="text-xs text-blue-400 font-bold uppercase tracking-widest">Jerarquía Nivel 1: SúperAdmin</p>
                 </div>
             </div>
             <button onclick="logoutAdmin()" class="bg-slate-700 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition font-bold text-sm">Desconectar</button>
@@ -99,7 +99,7 @@
 
             <div id="viewClinicas" class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Suscriptores y Planes</h2>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Jerarquía Nivel 3: Clínicas Operativas</h2>
                     <div class="flex gap-2">
                         <button onclick="openNewClinicModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Registrar Nueva Clínica</button>
                         <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
@@ -113,6 +113,7 @@
                                 <th class="pb-3 px-4 font-semibold">Clínica & Especialidad</th>
                                 <th class="pb-3 px-4 font-semibold text-center">Conexión Meta (Omnicanal)</th>
                                 <th class="pb-3 px-4 font-semibold text-center">Plan de Suscripción</th>
+                                <th class="pb-3 px-4 font-semibold text-center text-indigo-400">Próximo Pago</th>
                                 <th class="pb-3 pl-4 font-semibold text-right">Acción Maestra</th>
                             </tr>
                         </thead>
@@ -124,7 +125,7 @@
 
             <div id="viewVendedores" class="hidden bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">👥 Fuerza de Ventas y Referidos</h2>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">👥 Jerarquía Nivel 2: Fuerza de Ventas</h2>
                     <div class="flex gap-2">
                         <button onclick="openNewVendedorModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Nuevo Vendedor</button>
                         <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
@@ -137,7 +138,7 @@
                                 <th class="pb-3 pr-4 font-semibold">Nombre del Vendedor</th>
                                 <th class="pb-3 px-4 font-semibold">Contacto</th>
                                 <th class="pb-3 px-4 font-semibold text-center">Fecha de Ingreso</th>
-                                <th class="pb-3 pl-4 font-semibold text-right">ID Referido (Vínculo)</th>
+                                <th class="pb-3 pl-4 font-semibold text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="vendedoresTableBody" class="text-sm">
@@ -285,7 +286,6 @@
 
         let mapaVendedores = {}; 
 
-        // 🔥 FUNCIÓN PARA UNIFICAR FORMATO DE NÚMEROS A 593 🔥
         function normalizarTelefono(phone) {
             if (!phone) return '';
             let cleaned = String(phone).replace(/\D/g, ''); 
@@ -293,6 +293,11 @@
             if (cleaned.startsWith('09') && cleaned.length === 10) return '593' + cleaned.substring(1);
             if (cleaned.startsWith('9') && cleaned.length === 9) return '593' + cleaned;
             return cleaned; 
+        }
+
+        function copiarLinkVendedor(vid) {
+            const link = `https://asistencitas.com/registro.html?ref=${vid}`;
+            navigator.clipboard.writeText(link).then(() => alert("Link de referido copiado: " + link));
         }
 
         // LOGIN ADMINISTRADOR
@@ -352,7 +357,11 @@
                             <td class="py-4 pr-4"><p class="font-bold text-white">${v.nombre}</p></td>
                             <td class="py-4 px-4"><p class="text-sm text-slate-300">📱 ${v.telefonoWhatsApp}</p><p class="text-xs text-slate-500">${v.email}</p></td>
                             <td class="py-4 px-4 text-center"><p class="text-sm text-slate-300">${v.fechaRegistro?.toDate().toLocaleDateString() || 'N/A'}</p></td>
-                            <td class="py-4 pl-4 text-right"><span class="bg-indigo-900/40 text-indigo-300 px-2 py-1 rounded text-xs font-mono border border-indigo-700">${doc.id}</span></td>
+                            <td class="py-4 pl-4 text-right flex gap-2 justify-end">
+                                <button onclick="copiarLinkVendedor('${doc.id}')" class="bg-slate-700 hover:bg-slate-600 text-white px-2 py-1.5 rounded text-xs transition block text-center" title="Copiar Link de Registro">🔗 Link</button>
+                                <button onclick="eliminarVendedor('${doc.id}', '${v.nombre}')" class="bg-red-900/50 hover:bg-red-600 text-red-200 border border-red-800 px-2 py-1.5 rounded transition text-xs font-bold block text-center" title="Eliminar Vendedor y reasignar comisiones a Matriz">🗑️ Eliminar</button>
+                                <span class="bg-indigo-900/40 text-indigo-300 px-2 py-1.5 rounded text-[10px] font-mono border border-indigo-700 block text-center">ID: ${doc.id}</span>
+                            </td>
                         </tr>`;
                 });
                 document.getElementById('vendedoresTableBody').innerHTML = vendHtml || '<tr><td colspan="4" class="text-center py-4 text-slate-500">Sin vendedores.</td></tr>';
@@ -392,6 +401,14 @@
                         ? `<span class="bg-green-900/30 text-green-400 border border-green-800 px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase">ACTIVO</span>`
                         : `<span class="bg-red-900/30 text-red-400 border border-red-800 px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase">SUSPENDIDO</span>`;
                     
+                    // 🔥 MEJORA: FECHA DE PRÓXIMO PAGO 🔥
+                    let fechaPagoStr = "<span class='text-slate-500 text-xs font-semibold'>Sin pagos registrados</span>";
+                    if(data.fechaUltimoCobro) {
+                        const f = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
+                        f.setDate(f.getDate() + 30);
+                        fechaPagoStr = `<span class="bg-indigo-900/50 px-3 py-1.5 rounded-full border border-indigo-800 text-indigo-300 font-bold text-[11px]">${f.toLocaleDateString('es-ES', {day:'2-digit', month:'short', year:'numeric'})}</span>`;
+                    }
+
                     html += `
                     <tr class="border-b border-slate-700/50 hover:bg-slate-700/20 group">
                         <td class="py-4 pr-4">
@@ -423,6 +440,9 @@
                                 <button onclick="updatePlan('${doc.id}')" class="text-blue-400 hover:text-white text-sm" title="Guardar Plan">💾</button>
                             </div>
                         </td>
+                        <td class="py-4 px-4 text-center whitespace-nowrap">
+                            ${fechaPagoStr}
+                        </td>
                         <td class="py-4 pl-4 text-right">
                             <div class="flex gap-2 justify-end">
                                 <button onclick="toggleSuscripcion('${doc.id}', '${estado === 'activo' ? 'suspendido' : 'activo'}')" class="text-xs font-bold border px-2 py-1 rounded ${estado === 'activo' ? 'bg-red-900/20 text-red-300 border-red-800 hover:bg-red-700 hover:text-white' : 'bg-green-900/20 text-green-300 border-green-800 hover:bg-green-700 hover:text-white'}" title="${estado === 'activo' ? 'Suspender acceso' : 'Reactivar acceso'}">
@@ -434,7 +454,7 @@
                     </tr>`;
                 });
                 
-                tbody.innerHTML = html || '<tr><td colspan="5" class="text-center py-4 text-slate-500">Sin clínicas.</td></tr>';
+                tbody.innerHTML = html || '<tr><td colspan="6" class="text-center py-4 text-slate-500">Sin clínicas operativas.</td></tr>';
 
                 // MATEMÁTICAS
                 const iva = ingresosTotalesMensuales * 0.15;
@@ -453,7 +473,32 @@
             } catch (error) { console.error(error); }
         }
 
-        // FUNCIONES DE LA TABLA
+        // 🔥 FUNCIÓN: ELIMINAR VENDEDOR Y REASIGNAR COMISIONES 🔥
+        async function eliminarVendedor(vendedorId, nombre) {
+            if(!confirm(`⚠️ ¿Estás seguro de eliminar a ${nombre} de la fuerza de ventas?\n\nAl hacerlo, todas sus clínicas pasarán a ser administradas por el Sistema Matriz y las comisiones regresarán al CEO.`)) return;
+
+            try {
+                const batch = db.batch();
+                
+                // 1. Encontrar a los doctores de este vendedor y quitarles el ID
+                const doctoresSnap = await db.collection('users').where('vendedorId', '==', vendedorId).get();
+                doctoresSnap.forEach(doc => {
+                    batch.update(db.collection('users').doc(doc.id), { vendedorId: null });
+                });
+
+                // 2. Eliminar al vendedor de la base de datos
+                batch.delete(db.collection('users').doc(vendedorId));
+
+                // 3. Ejecutar
+                await batch.commit();
+                alert(`✅ Vendedor eliminado. Las clínicas han sido reasignadas a la Matriz.`);
+                loadGlobalData();
+            } catch(e) {
+                alert("Error al eliminar el vendedor: " + e.message);
+            }
+        }
+
+        // FUNCIONES DE LA TABLA CLÍNICAS
         async function updatePlan(id) {
             await db.collection('users').doc(id).update({ precioSuscripcion: parseFloat(document.getElementById(`plan_${id}`).value) });
             alert("Plan actualizado"); loadGlobalData();
