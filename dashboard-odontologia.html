@@ -220,6 +220,74 @@
         .search-wrap { position: relative; }
         .search-wrap input { padding-left: 36px !important; }
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
+    .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
+
+        /* 📱 ── OPTIMIZACIÓN RESPONSIVE (MÓVILES) ── 📱 */
+        @media (max-width: 768px) {
+            :root { --sidebar-w: 0px; }
+            
+            /* Sidebar flotante */
+            #appSidebar { 
+                transform: translateX(-100%); 
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+                width: 260px; 
+                box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+                z-index: 100;
+            }
+            #appSidebar.open { transform: translateX(0); }
+            
+            #appMain { margin-left: 0; width: 100vw; }
+            
+            /* Barra Superior */
+            .topbar { padding: 0 16px; }
+            .topbar-title { font-size: 14px; }
+            .topbar-tag { display: none !important; }
+            
+            .content-area { padding: 14px; }
+            
+            /* Grids a 1 columna */
+            .kpi-grid { grid-template-columns: 1fr !important; gap: 12px; margin-bottom: 20px; }
+            
+            /* Forzar Agenda y Formularios a 1 columna vertical */
+            #tabContentAgenda > div { display: flex !important; flex-direction: column !important; height: auto !important; }
+            .modal-bd > div, 
+            .modal-bd > div > div, 
+            #prescriptionModal .cs > div,
+            #historyModal .cs > div { 
+                grid-template-columns: 1fr !important; 
+                display: flex !important; 
+                flex-direction: column !important; 
+                height: auto !important;
+            }
+            
+            /* Ajustar Modales */
+            .modal-box { width: 95% !important; max-height: 90vh !important; margin: 0 auto; }
+            .modal-hd { padding: 14px 20px; }
+            .modal-bd { padding: 16px 20px; }
+            .modal-ft { padding: 14px 20px; flex-direction: column; gap: 8px; }
+            .modal-ft .btn { width: 100%; }
+            
+            /* Tablas con scroll horizontal suave */
+            .panel-body-np, .panel-body { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+            .dtable { min-width: 600px; } 
+            
+            /* Ajustar mapas interactivos ligeramente */
+            .body-map-container, .vet-map, .fisio-map, .nutri-map { transform: scale(0.9); transform-origin: top center; margin-bottom: -10px; }
+
+            /* Mostrar botón menú */
+            .mobile-menu-btn { display: flex !important; }
+        }
+        
+        /* Estilos del botón Hamburguesa y el fondo oscuro */
+        .mobile-menu-btn {
+            display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1);
+            margin-right: 12px; align-items: center; justify-content: center; padding: 0;
+        }
+        #mobileOverlay {
+            display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px);
+        }
+        #mobileOverlay.show { display: block; animation: fadeIn 0.2s ease-out; }
+
     </style>
 </head>
 <body>
@@ -2126,6 +2194,44 @@
         d.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg>${msg}`;
         d.classList.remove('hidden');
         setTimeout(()=>d.classList.add('hidden'), 3500);
+    }
+    // 📱 ── INYECCIÓN JS: MENÚ RESPONSIVE MÓVIL ── 📱
+    (function initMobileUI() {
+        // 1. Agregar el botón hamburguesa a la barra superior
+        const topbarContainer = document.querySelector('.topbar > div:first-child');
+        if (topbarContainer && !document.getElementById('mobileMenuBtn')) {
+            const btn = document.createElement('button');
+            btn.id = 'mobileMenuBtn';
+            btn.className = 'mobile-menu-btn';
+            btn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>';
+            btn.onclick = toggleMobileMenu;
+            
+            topbarContainer.style.display = 'flex';
+            topbarContainer.style.alignItems = 'center';
+            topbarContainer.insertBefore(btn, topbarContainer.firstChild);
+        }
+
+        // 2. Agregar overlay oscuro para cerrar el menú al tocar afuera
+        if (!document.getElementById('mobileOverlay')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'mobileOverlay';
+            overlay.onclick = toggleMobileMenu;
+            document.body.appendChild(overlay);
+        }
+        
+        // 3. Cerrar el menú automáticamente al hacer clic en cualquier opción (solo en móviles)
+        document.querySelectorAll('.nav-link, .sb-action').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) { toggleMobileMenu(); }
+            });
+        });
+    })();
+
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('appSidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
     }
 </script>
 </body>
