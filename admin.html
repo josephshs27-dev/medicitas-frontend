@@ -412,12 +412,24 @@
             // Clínicas
             const tbody = document.getElementById('clinicsTableBody');
             try {
-                const snapshot = await db.collection('users').where('rol', '==', 'doctor').orderBy('fechaRegistro', 'desc').get();
+                // 🔥 ELIMINAMOS EL orderBy PARA EVITAR EL BLOQUEO DE ÍNDICES DE FIREBASE 🔥
+                const snapshot = await db.collection('users').where('rol', '==', 'doctor').get();
+                
+                let clinicasArray = [];
+                snapshot.forEach(doc => clinicasArray.push({ id: doc.id, data: doc.data() }));
+                
+                clinicasArray.sort((a, b) => {
+                    let fA = a.data.fechaRegistro && a.data.fechaRegistro.toMillis ? a.data.fechaRegistro.toMillis() : 0;
+                    let fB = b.data.fechaRegistro && b.data.fechaRegistro.toMillis ? b.data.fechaRegistro.toMillis() : 0;
+                    return fB - fA;
+                });
+
                 let html = '';
                 let activas = 0; let ingresosTotalesMensuales = 0; let comisionVendedoresMensual = 0; let comisionSocioMensual = 0;
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
+                clinicasArray.forEach(item => {
+                    const docId = item.id;
+                    const data = item.data;
                     const info = data.clinicInfo || {};
                     const estado = data.estadoSuscripcion || 'activo'; 
                     const vendName = data.vendedorId ? (mapaVendedores[data.vendedorId] || '🗑️ Agente Borrado') : '🏢 Directo (Matriz)';
@@ -452,20 +464,20 @@
                         </td>
                         <td class="py-4 px-2 text-center">
                             <div class="grid grid-cols-2 gap-1 mb-1">
-                                <input type="text" id="meta_${doc.id}" value="${data.metaPhoneId || ''}" placeholder="WA ID" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-green-400 rounded outline-none py-1 focus:border-green-500">
-                                <input type="text" id="fb_${doc.id}" value="${data.fbPageId || ''}" placeholder="FB Page" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-blue-400 rounded outline-none py-1 focus:border-blue-500">
-                                <input type="text" id="ig_${doc.id}" value="${data.igAccountId || ''}" placeholder="IG ID" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-pink-400 rounded outline-none py-1 focus:border-pink-500">
-                                <input type="text" id="token_${doc.id}" value="${data.fbPageToken || ''}" placeholder="Token Meta" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-purple-400 rounded outline-none py-1 focus:border-purple-500">
+                                <input type="text" id="meta_${docId}" value="${data.metaPhoneId || ''}" placeholder="WA ID" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-green-400 rounded outline-none py-1 focus:border-green-500">
+                                <input type="text" id="fb_${docId}" value="${data.fbPageId || ''}" placeholder="FB Page" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-blue-400 rounded outline-none py-1 focus:border-blue-500">
+                                <input type="text" id="ig_${docId}" value="${data.igAccountId || ''}" placeholder="IG ID" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-pink-400 rounded outline-none py-1 focus:border-pink-500">
+                                <input type="text" id="token_${docId}" value="${data.fbPageToken || ''}" placeholder="Token Meta" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-purple-400 rounded outline-none py-1 focus:border-purple-500">
                             </div>
-                            <button onclick="updateSocials('${doc.id}')" class="text-[9px] font-bold bg-slate-700 hover:bg-slate-600 text-white w-full py-1 rounded transition">💾 Guardar API</button>
+                            <button onclick="updateSocials('${docId}')" class="text-[9px] font-bold bg-slate-700 hover:bg-slate-600 text-white w-full py-1 rounded transition">💾 Guardar API</button>
                         </td>
                         <td class="py-4 px-2 text-center">
-                            <select id="plan_${doc.id}" class="w-full bg-slate-900 border border-slate-600 text-white px-1 py-1 rounded text-[11px] font-bold outline-none mb-1 text-center">
+                            <select id="plan_${docId}" class="w-full bg-slate-900 border border-slate-600 text-white px-1 py-1 rounded text-[11px] font-bold outline-none mb-1 text-center">
                                 <option value="20" ${precioStr == 20 ? 'selected' : ''}>$20.00 Base</option>
                                 <option value="30" ${precioStr == 30 ? 'selected' : ''}>$30.00 Medio</option>
                                 <option value="40" ${precioStr == 40 ? 'selected' : ''}>$40.00 Pro</option>
                             </select>
-                            <button onclick="updatePlan('${doc.id}')" class="text-[9px] font-bold bg-slate-700 hover:bg-slate-600 text-white w-full py-1 rounded transition">💾 Guardar Tarifa</button>
+                            <button onclick="updatePlan('${docId}')" class="text-[9px] font-bold bg-slate-700 hover:bg-slate-600 text-white w-full py-1 rounded transition">💾 Guardar Tarifa</button>
                             ${statusBadge}
                         </td>
                         <td class="py-4 px-2 text-center">
@@ -473,10 +485,10 @@
                         </td>
                         <td class="py-4 pr-4 pl-2 text-right">
                             <div class="flex flex-col gap-1 items-end">
-                                <button onclick="toggleSuscripcion('${doc.id}', '${estado === 'activo' ? 'suspendido' : 'activo'}')" class="text-[10px] font-bold border px-2 py-1 rounded w-[85px] text-center ${estado === 'activo' ? 'bg-red-900/20 text-red-300 border-red-800 hover:bg-red-700 hover:text-white' : 'bg-green-900/20 text-green-300 border-green-800 hover:bg-green-700 hover:text-white'}">
+                                <button onclick="toggleSuscripcion('${docId}', '${estado === 'activo' ? 'suspendido' : 'activo'}')" class="text-[10px] font-bold border px-2 py-1 rounded w-[85px] text-center ${estado === 'activo' ? 'bg-red-900/20 text-red-300 border-red-800 hover:bg-red-700 hover:text-white' : 'bg-green-900/20 text-green-300 border-green-800 hover:bg-green-700 hover:text-white'}">
                                     ${estado === 'activo' ? '⏸ Suspender' : '▶️ Activar'}
                                 </button>
-                                <button onclick="deleteClinic('${doc.id}', '${data.nombre}')" class="bg-red-950 hover:bg-red-600 text-red-300 border border-red-900 px-2 py-1 rounded transition text-[10px] font-bold w-[85px] text-center">🗑️ Eliminar</button>
+                                <button onclick="deleteClinic('${docId}', '${data.nombre}')" class="bg-red-950 hover:bg-red-600 text-red-300 border border-red-900 px-2 py-1 rounded transition text-[10px] font-bold w-[85px] text-center">🗑️ Eliminar</button>
                             </div>
                         </td>
                     </tr>`;
