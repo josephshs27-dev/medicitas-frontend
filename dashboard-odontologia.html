@@ -1011,7 +1011,10 @@
             </div>
         </div>
         <div style="padding:14px 26px;border-top:1px solid var(--border);background:white;">
-            <button onclick="mostrarMensaje('Canales sincronizados.','success')" class="btn btn-primary btn-md btn-full">Sincronizar canales</button>
+            <button id="btnMetaConnect" onclick="iniciarConexionMeta()" class="btn btn-primary btn-md btn-full">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                Vincular Facebook / WhatsApp
+            </button>
         </div>
     </div>
 </div>
@@ -1102,6 +1105,81 @@
             el.textContent = d.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
         }
     })();
+    // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
+
+    // 1. Inicializar el SDK de Facebook
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '2479673065791422', // ⚠️ PON AQUÍ EL ID DE TU APP DE META
+            cookie     : true,
+            xfbml      : true,
+            version    : 'v18.0'
+        });
+    };
+
+    // 2. Cargar el script de Facebook asíncronamente
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/es_LA/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    // 3. Función que se dispara al dar clic en el botón
+    function iniciarConexionMeta() {
+        const btn = document.getElementById('btnMetaConnect');
+        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
+        btn.disabled = true;
+
+        FB.login(function(response) {
+            if (response.authResponse && response.authResponse.code) {
+                // Si el doctor aceptó, Meta nos devuelve un "Código de Autorización"
+                const codigoOauth = response.authResponse.code;
+                guardarCredencialesMetaEnBackend(codigoOauth);
+            } else {
+                mostrarMensaje('Conexión cancelada.', 'error');
+                btn.innerHTML = 'Vincular Facebook / WhatsApp';
+                btn.disabled = false;
+            }
+        }, {
+            config_id: '4347842542212616', // ⚠️ PON AQUÍ TU ID DE CONFIGURACIÓN
+            response_type: 'code',          // Obligatorio para token de servidor
+            override_default_response_type: true,
+            extras: { setup: {} }
+        });
+    }
+
+    // 4. Función para enviar el código a tu servidor (wpp.js)
+    async function guardarCredencialesMetaEnBackend(codigoOauth) {
+        const btn = document.getElementById('btnMetaConnect');
+        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
+        
+        try {
+            // Llama a la ruta que crearemos en wpp.js
+            const res = await fetch(`${API_BASE_URL}/api/meta/oauth`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    doctorId: parentDoctorId,
+                    code: codigoOauth
+                })
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                mostrarMensaje('¡Cuentas de Meta vinculadas con éxito!', 'success');
+                closeMetaModal();
+            } else {
+                throw new Error(data.error);
+            }
+        } catch(e) {
+            mostrarMensaje('Error guardando credenciales: ' + e.message, 'error');
+        } finally {
+            btn.innerHTML = 'Vincular Facebook / WhatsApp';
+            btn.disabled = false;
+        }
+    }
 
     const API_BASE_URL = "https://api.asistencitas.com";
     const firebaseConfig = {
