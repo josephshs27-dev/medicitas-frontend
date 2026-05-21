@@ -3,239 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SúperAdmin - Asistencitas SaaS</title>
-    <link rel="icon" href="data:,">
+    <title>SúperAdmin - Agendacitas SaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <style>
-        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #1e293b; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-        
-        /* 📱 OPTIMIZACIÓN RESPONSIVE MÓVIL PARA SUPERADMIN 📱 */
-        @media (max-width: 768px) {
-            nav { flex-direction: column; gap: 12px; text-align: center; padding: 16px; }
-            nav > div { flex-direction: column; gap: 8px; }
-            nav h1 { font-size: 1.2rem; }
-            
-            /* Tarjetas métricas a 2 columnas en móvil */
-            .grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
-            .md\:grid-cols-6 { grid-template-columns: 1fr 1fr !important; gap: 8px; }
-            .md\:grid-cols-2 { grid-template-columns: 1fr !important; }
-            
-            /* Botones de Pestañas */
-            #btnTabClinicas, #btnTabVendedores { width: 100%; text-align: center; padding: 10px; }
-            .flex.gap-3.mb-4 { flex-direction: column; gap: 8px; }
-            
-            /* Tablas con scroll horizontal suave (evita que se aplasten) */
-            .overflow-x-auto table { min-width: 950px; }
-            
-            /* Modal a 1 columna */
-            .max-h-\[70vh\] { max-height: 80vh; padding: 16px; }
-            #newClinicModal .grid-cols-2 { grid-template-columns: 1fr !important; }
-            
-            /* Cabeceras de paneles */
-            #viewClinicas > div:first-child, #viewVendedores > div:first-child { flex-direction: column; gap: 12px; align-items: stretch; text-align: center; }
-            #viewClinicas > div:first-child > div, #viewVendedores > div:first-child > div { justify-content: center; flex-wrap: wrap; }
-        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-200 h-screen flex flex-col font-sans">
 
-    <div id="loginAdminView" class="flex-1 flex items-center justify-center p-4">
+    <div id="loginAdminView" class="flex-1 flex items-center justify-center">
         <div class="bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700 w-full max-w-md">
             <div class="text-center mb-6">
-                <img src="img/logo.png" alt="Agendacitas" class="h-16 w-auto mx-auto mb-4 object-contain" onerror="this.outerHTML='<span class=\'text-5xl\'>👑</span>'">
+                <img src="img/logo.png" alt="Agendacitas" class="h-16 w-auto mx-auto mb-4 object-contain" onerror="this.outerHTML='<span class=\\'text-5xl\\'>👑</span>'">
                 <h2 class="text-2xl font-bold text-white mt-4">Búnker del CEO</h2>
                 <p class="text-slate-400 text-sm">Acceso restringido a la administración SaaS.</p>
             </div>
             <form id="adminLoginForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">Email Maestro</label>
-                    <input type="email" id="adminEmail" required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none text-center">
+                    <input type="email" id="adminEmail" required class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
-                    <input type="password" id="adminPassword" required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none text-center">
+                    <input type="password" id="adminPassword" required class="w-full px-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg mt-4">Ingresar a la Matriz</button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition shadow-lg mt-4">Ingresar a la Matriz</button>
             </form>
-            <div id="adminError" class="mt-4 p-3 bg-red-900/50 border border-red-500 text-red-200 rounded-lg hidden text-sm text-center font-bold"></div>
+            <div id="adminError" class="mt-4 p-3 bg-red-900/50 border border-red-500 text-red-200 rounded-lg hidden text-sm text-center"></div>
         </div>
     </div>
 
-    <div id="dashboardAdminView" class="hidden flex-1 flex flex-col overflow-hidden">
-        
-        <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md flex-shrink-0">
+    <div id="dashboardAdminView" class="hidden flex-1 flex flex-col">
+        <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md">
             <div class="flex items-center gap-3">
-                <img src="img/logo.png" alt="Agendacitas" class="h-10 w-auto object-contain bg-white rounded p-1" onerror="this.outerHTML='<span class=\'text-3xl\'>👑</span>'">
+                <img src="img/logo.png" alt="Agendacitas" class="h-10 w-auto object-contain bg-white rounded p-1" onerror="this.outerHTML='<span class=\\'text-3xl\\'>👑</span>'">
                 <div>
-                    <h1 class="text-xl font-black text-white leading-tight">Asistencitas Pro</h1>
-                    <p class="text-xs text-blue-400 font-bold uppercase tracking-widest">Jerarquía Nivel 1: SúperAdmin</p>
+                    <h1 class="text-xl font-black text-white leading-tight">Agendacitas</h1>
+                    <p class="text-xs text-blue-400 font-bold uppercase tracking-widest">SaaS Control Center</p>
                 </div>
             </div>
-            <button onclick="logoutAdmin()" class="bg-slate-700 hover:bg-red-600 text-white px-5 py-2.5 rounded-lg transition font-bold text-sm shadow">Desconectar</button>
+            <button onclick="logoutAdmin()" class="bg-slate-700 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition font-bold text-sm">Desconectar</button>
         </nav>
 
-        <main class="p-4 md:p-6 flex-1 overflow-hidden flex flex-col max-w-7xl mx-auto w-full">
+        <div class="p-6 flex-1 overflow-hidden flex flex-col max-w-7xl mx-auto w-full">
             
             <h2 class="text-lg font-bold text-slate-300 mb-3 uppercase tracking-widest">Resumen Financiero (Mensual)</h2>
-            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6 flex-shrink-0">
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
                 <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-md">
                     <p class="text-[10px] text-slate-400 uppercase font-bold">Ingreso Bruto</p>
-                    <p class="text-xl md:text-2xl font-black text-white mt-1" id="kpiBruto">$0.00</p>
+                    <p class="text-xl font-black text-white mt-1" id="kpiBruto">$0.00</p>
                 </div>
                 <div class="bg-slate-800 p-4 rounded-xl border border-orange-900/50 shadow-md">
                     <p class="text-[10px] text-orange-400 uppercase font-bold">Reserva IVA (15%)</p>
-                    <p class="text-xl md:text-2xl font-black text-orange-400 mt-1" id="kpiIva">$0.00</p>
+                    <p class="text-xl font-black text-orange-400 mt-1" id="kpiIva">$0.00</p>
                 </div>
                 <div class="bg-slate-800 p-4 rounded-xl border border-red-900/50 shadow-md">
                     <p class="text-[10px] text-red-400 uppercase font-bold">PayPhone (6%)</p>
-                    <p class="text-xl md:text-2xl font-black text-red-400 mt-1" id="kpiPayphone">$0.00</p>
+                    <p class="text-xl font-black text-red-400 mt-1" id="kpiPayphone">$0.00</p>
                 </div>
                 <div class="bg-slate-800 p-4 rounded-xl border border-indigo-900/50 shadow-md">
                     <p class="text-[10px] text-indigo-400 uppercase font-bold">Socio ($3/u)</p>
-                    <p class="text-xl md:text-2xl font-black text-indigo-400 mt-1" id="kpiSocio">$0.00</p>
+                    <p class="text-xl font-black text-indigo-400 mt-1" id="kpiSocio">$0.00</p>
                 </div>
                 <div class="bg-slate-800 p-4 rounded-xl border border-blue-900/50 shadow-md">
                     <p class="text-[10px] text-blue-400 uppercase font-bold">Vendedores ($3/u)</p>
-                    <p class="text-xl md:text-2xl font-black text-blue-400 mt-1" id="kpiVendedores">$0.00</p>
+                    <p class="text-xl font-black text-blue-400 mt-1" id="kpiVendedores">$0.00</p>
                 </div>
                 <div class="bg-gradient-to-br from-green-600 to-emerald-500 p-4 rounded-xl border border-green-400 shadow-lg relative overflow-hidden">
                     <p class="text-[10px] text-green-100 uppercase font-bold relative z-10">Ganancia Neta (CEO)</p>
-                    <p class="text-2xl md:text-3xl font-black text-white mt-1 relative z-10" id="kpiNeto">$0.00</p>
+                    <p class="text-2xl font-black text-white mt-1 relative z-10" id="kpiNeto">$0.00</p>
                     <div class="absolute -right-4 -bottom-4 text-5xl opacity-20">📈</div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 flex-shrink-0">
-                <div class="bg-slate-800 border border-slate-700 px-5 py-4 rounded-xl flex items-center justify-between shadow">
-                    <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Clínicas Activas / Totales</span>
-                    <span class="text-2xl font-black text-white"><span class="text-green-400" id="kpiActiveClinics">0</span> / <span id="kpiTotalClinics">0</span></span>
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-slate-800 border border-slate-700 px-4 py-3 rounded-xl flex items-center justify-between">
+                    <span class="text-slate-400 text-xs font-semibold uppercase">Clínicas Activas / Totales</span>
+                    <span class="text-xl font-black text-white"><span class="text-green-400" id="kpiActiveClinics">0</span> / <span id="kpiTotalClinics">0</span></span>
                 </div>
-                <div class="bg-slate-800 border border-slate-700 px-5 py-4 rounded-xl flex items-center justify-between shadow">
-                    <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Fuerza de Ventas</span>
-                    <span class="text-2xl font-black text-indigo-400" id="kpiTotalVendedores">0</span>
+                <div class="bg-slate-800 border border-slate-700 px-4 py-3 rounded-xl flex items-center justify-between">
+                    <span class="text-slate-400 text-xs font-semibold uppercase">Fuerza de Ventas</span>
+                    <span class="text-xl font-black text-indigo-400" id="kpiTotalVendedores">0</span>
                 </div>
             </div>
 
-            <div class="flex gap-3 mb-4 flex-shrink-0">
-                <button onclick="switchTab('clinicas')" id="btnTabClinicas" class="px-6 py-2.5 rounded-lg font-bold bg-blue-600 text-white shadow-lg transition-colors">🏥 Gestión de Clínicas</button>
-                <button onclick="switchTab('vendedores')" id="btnTabVendedores" class="px-6 py-2.5 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors">👥 Equipo de Ventas</button>
+            <div class="flex gap-3 mb-4">
+                <button onclick="switchTab('clinicas')" id="btnTabClinicas" class="px-6 py-2 rounded-lg font-bold bg-blue-600 text-white shadow-lg transition-colors">🏥 Gestión de Clínicas</button>
+                <button onclick="switchTab('vendedores')" id="btnTabVendedores" class="px-6 py-2 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors">👥 Equipo de Ventas</button>
             </div>
 
             <div id="viewClinicas" class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Jerarquía Nivel 3: Clínicas Operativas</h2>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Suscriptores y Planes</h2>
                     <div class="flex gap-2">
-                        <button onclick="openNewClinicModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md whitespace-nowrap">➕ Nueva Clínica</button>
+                        <button onclick="openNewClinicModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Registrar Nueva Clínica</button>
                         <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
                     </div>
                 </div>
-                <div class="overflow-x-auto overflow-y-auto custom-scroll flex-1 p-0 md:p-4">
-                    <table class="w-full text-left border-collapse min-w-full">
-                        <thead class="bg-slate-900 md:bg-transparent">
-                            <tr class="text-[10px] md:text-xs uppercase text-slate-400 border-b border-slate-700">
-                                <th class="pb-3 pt-3 pl-4 pr-4 font-semibold">Dr. / Clínica</th>
-                                <th class="pb-3 pt-3 px-4 font-semibold text-center">Conexión Meta (Tokens Omnicanal)</th>
-                                <th class="pb-3 pt-3 px-4 font-semibold text-center">Plan y Tarifa</th>
-                                <th class="pb-3 pt-3 px-4 font-semibold text-center text-indigo-400">Próximo Pago</th>
-                                <th class="pb-3 pt-3 pr-4 font-semibold text-right">Acciones Maestras</th>
+                <div class="overflow-x-auto overflow-y-auto custom-scroll flex-1 p-4">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-xs uppercase text-slate-400 border-b border-slate-700">
+                                <th class="pb-3 pr-4 font-semibold">Dr. / Administrador</th>
+                                <th class="pb-3 px-4 font-semibold">Clínica & Especialidad</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Conexión Meta (Omnicanal)</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Plan de Suscripción</th>
+                                <th class="pb-3 pl-4 font-semibold text-right">Acción Maestra</th>
                             </tr>
                         </thead>
-                        <tbody id="clinicsTableBody" class="text-xs md:text-sm">
-                        </tbody>
+                        <tbody id="clinicsTableBody" class="text-sm">
+                            </tbody>
                     </table>
                 </div>
             </div>
 
             <div id="viewVendedores" class="hidden bg-slate-800 border border-slate-700 rounded-xl shadow-lg flex-1 flex flex-col overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">👥 Jerarquía Nivel 2: Fuerza de Ventas</h2>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">👥 Fuerza de Ventas y Referidos</h2>
                     <div class="flex gap-2">
-                        <button onclick="openNewVendedorModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md whitespace-nowrap">➕ Nuevo Vendedor</button>
+                        <button onclick="openNewVendedorModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md">➕ Nuevo Vendedor</button>
                         <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
                     </div>
                 </div>
-                <div class="overflow-x-auto overflow-y-auto custom-scroll flex-1 p-0 md:p-4">
-                    <table class="w-full text-left border-collapse min-w-full">
-                        <thead class="bg-slate-900 md:bg-transparent">
-                            <tr class="text-[10px] md:text-xs uppercase text-slate-400 border-b border-slate-700">
-                                <th class="pb-3 pt-3 pl-4 pr-4 font-semibold">Vendedor</th>
-                                <th class="pb-3 pt-3 px-4 font-semibold">Contacto</th>
-                                <th class="pb-3 pt-3 px-4 font-semibold text-center">Fecha Ingreso</th>
-                                <th class="pb-3 pt-3 pr-4 font-semibold text-right">Acciones</th>
+                <div class="overflow-x-auto overflow-y-auto custom-scroll flex-1 p-4">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-xs uppercase text-slate-400 border-b border-slate-700">
+                                <th class="pb-3 pr-4 font-semibold">Nombre del Vendedor</th>
+                                <th class="pb-3 px-4 font-semibold">Contacto</th>
+                                <th class="pb-3 px-4 font-semibold text-center">Fecha de Ingreso</th>
+                                <th class="pb-3 pl-4 font-semibold text-right">ID Referido (Vínculo)</th>
                             </tr>
                         </thead>
-                        <tbody id="vendedoresTableBody" class="text-xs md:text-sm">
-                        </tbody>
+                        <tbody id="vendedoresTableBody" class="text-sm">
+                            </tbody>
                     </table>
                 </div>
             </div>
 
-        </main>
+        </div>
     </div>
 
-    <div id="newClinicModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center py-4 px-2">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg shadow-2xl">
+    <div id="newClinicModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center py-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg mx-4 shadow-2xl">
             <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
                 <h3 class="text-lg font-bold text-white">🏢 Registrar Clínica B2B</h3>
                 <button onclick="closeNewClinicModal()" class="text-slate-400 hover:text-red-500 font-bold text-2xl">&times;</button>
             </div>
             <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scroll">
+                <p class="text-xs text-slate-400 mb-2">Credenciales y configuración inicial del nuevo cliente.</p>
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">Nombre Clínica</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Nombre del Doctor/Clínica</label>
                     <input type="text" id="newC_Nombre" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">Correo</label>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
                         <input type="email" id="newC_Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">Contraseña</label>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
                         <input type="text" id="newC_Pass" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500">
                     </div>
                 </div>
 
                 <div class="p-3 bg-slate-900 border border-slate-700 rounded-lg space-y-3">
-                    <h4 class="text-sm font-bold text-white mb-2">🌐 Conexión Meta Omnicanal</h4>
+                    <h4 class="text-sm font-bold text-white mb-2">🌐 Conexión Meta (Omnicanal)</h4>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[10px] font-bold text-green-400 mb-1">WA Phone ID</label>
-                            <input type="text" id="newC_MetaID" class="w-full px-3 py-2 bg-slate-800 border border-green-500/50 rounded text-white text-xs">
+                            <label class="block text-xs font-bold text-green-400 mb-1">WhatsApp Phone ID</label>
+                            <input type="text" id="newC_MetaID" placeholder="Ej: 116155092..." class="w-full px-3 py-2 bg-slate-800 border border-green-500/50 rounded text-white focus:ring-1 focus:ring-green-500 outline-none text-xs">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-blue-400 mb-1">FB Page ID</label>
-                            <input type="text" id="newC_FbID" class="w-full px-3 py-2 bg-slate-800 border border-blue-500/50 rounded text-white text-xs">
+                            <label class="block text-xs font-bold text-blue-400 mb-1">Facebook Page ID</label>
+                            <input type="text" id="newC_FbID" placeholder="Ej: 1042345..." class="w-full px-3 py-2 bg-slate-800 border border-blue-500/50 rounded text-white focus:ring-1 focus:ring-blue-500 outline-none text-xs">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[10px] font-bold text-pink-400 mb-1">IG Account ID</label>
-                            <input type="text" id="newC_IgID" class="w-full px-3 py-2 bg-slate-800 border border-pink-500/50 rounded text-white text-xs">
+                            <label class="block text-xs font-bold text-pink-400 mb-1">Instagram Account ID</label>
+                            <input type="text" id="newC_IgID" placeholder="Ej: 178414..." class="w-full px-3 py-2 bg-slate-800 border border-pink-500/50 rounded text-white focus:ring-1 focus:ring-pink-500 outline-none text-xs">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-purple-400 mb-1">Token Permanente</label>
-                            <input type="text" id="newC_FbToken" class="w-full px-3 py-2 bg-slate-800 border border-purple-500/50 rounded text-white text-xs">
+                            <label class="block text-xs font-bold text-purple-400 mb-1">Token de Página Meta</label>
+                            <input type="text" id="newC_FbToken" placeholder="EAAjPPZ..." class="w-full px-3 py-2 bg-slate-800 border border-purple-500/50 rounded text-white focus:ring-1 focus:ring-purple-500 outline-none text-xs">
                         </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">Plan ($)</label>
-                        <select id="newC_Plan" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white">
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Plan Base</label>
+                        <select id="newC_Plan" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500 outline-none">
                             <option value="20">Básico ($20.00)</option>
                             <option value="30">Intermedio ($30.00)</option>
                             <option value="40">Avanzado ($40.00)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">Especialidad</label>
-                        <select id="newC_Esp" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white">
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Especialidad</label>
+                        <select id="newC_Esp" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500 outline-none">
                             <option value="medicina">General</option>
                             <option value="odontologia">Odontología</option>
                             <option value="fisioterapia">Fisioterapia</option>
@@ -246,51 +218,51 @@
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">WhatsApp Negocio Público</label>
-                    <input type="tel" id="newC_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white" placeholder="099...">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Teléfono Público de Clínica</label>
+                    <input type="tel" id="newC_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-blue-500" placeholder="099...">
                 </div>
 
                 <div class="p-3 bg-indigo-900/30 border border-indigo-500/50 rounded-lg">
-                    <label class="block text-xs font-bold text-indigo-300 mb-1 uppercase">Agente Comercial (Comisión)</label>
-                    <select id="newC_Vendedor" class="w-full px-3 py-2 bg-slate-900 border border-indigo-500/50 rounded text-white text-sm outline-none">
-                        <option value="">-- Venta Directa (Matriz) --</option>
+                    <label class="block text-sm font-bold text-indigo-300 mb-1">Asignar Vendedor (Comisión $3.00)</label>
+                    <select id="newC_Vendedor" class="w-full px-3 py-2 bg-slate-900 border border-indigo-500/50 rounded text-white focus:ring-1 focus:ring-indigo-500 outline-none">
+                        <option value="">-- Venta Directa --</option>
                     </select>
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-700 flex justify-end gap-3">
                 <button onclick="closeNewClinicModal()" class="text-slate-300 hover:text-white px-4 py-2 text-sm font-bold">Cancelar</button>
-                <button id="btnCreateClinic" onclick="submitNewClinic()" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-lg shadow text-sm font-bold">Generar Clínica</button>
+                <button id="btnCreateClinic" onclick="submitNewClinic()" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded shadow text-sm font-bold">Generar Clínica</button>
             </div>
         </div>
     </div>
 
-    <div id="newVendedorModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center py-4 px-2">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-md shadow-2xl">
+    <div id="newVendedorModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center py-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-md mx-4 shadow-2xl">
             <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
-                <h3 class="text-lg font-bold text-indigo-400">👥 Nuevo Vendedor</h3>
+                <h3 class="text-lg font-bold text-indigo-400">👥 Registrar Nuevo Vendedor</h3>
                 <button onclick="closeNewVendedorModal()" class="text-slate-400 hover:text-red-500 font-bold text-2xl">&times;</button>
             </div>
             <div class="p-6 space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">Nombre Completo</label>
-                    <input type="text" id="newV_Nombre" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Nombre Completo</label>
+                    <input type="text" id="newV_Nombre" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">Correo Electrónico</label>
-                    <input type="email" id="newV_Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                    <input type="email" id="newV_Email" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">Contraseña</label>
-                    <input type="text" id="newV_Pass" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                    <input type="text" id="newV_Pass" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1 uppercase">WhatsApp</label>
-                    <input type="tel" id="newV_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white" placeholder="099...">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Teléfono (WhatsApp)</label>
+                    <input type="tel" id="newV_Tel" class="w-full px-3 py-2 bg-slate-900 border border-slate-600 rounded text-white focus:ring-1 focus:ring-indigo-500" placeholder="099...">
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-slate-700 flex justify-end gap-3">
                 <button onclick="closeNewVendedorModal()" class="text-slate-300 hover:text-white px-4 py-2 text-sm font-bold">Cancelar</button>
-                <button id="btnCreateVendedor" onclick="submitNewVendedor()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-lg shadow text-sm font-bold">Crear Vendedor</button>
+                <button id="btnCreateVendedor" onclick="submitNewVendedor()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded shadow text-sm font-bold">Crear Vendedor</button>
             </div>
         </div>
     </div>
@@ -310,10 +282,10 @@
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const auth = firebase.auth(); 
         const db = firebase.firestore();
-        db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
 
         let mapaVendedores = {}; 
 
+        // 🔥 FUNCIÓN PARA UNIFICAR FORMATO DE NÚMEROS A 593 🔥
         function normalizarTelefono(phone) {
             if (!phone) return '';
             let cleaned = String(phone).replace(/\D/g, ''); 
@@ -323,40 +295,24 @@
             return cleaned; 
         }
 
-        // ── 1. LOGIN FIREWALL (Nadie más entra aquí) ──
+        // LOGIN ADMINISTRADOR
         document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            document.getElementById('adminError').classList.add('hidden');
             try {
                 await auth.signInWithEmailAndPassword(document.getElementById('adminEmail').value, document.getElementById('adminPassword').value);
             } catch(err) {
-                const errorBox = document.getElementById('adminError');
-                errorBox.textContent = "❌ Acceso Denegado. Credenciales inválidas.";
-                errorBox.classList.remove('hidden');
+                document.getElementById('adminError').textContent = "Acceso denegado.";
+                document.getElementById('adminError').classList.remove('hidden');
             }
         });
 
         function logoutAdmin() { auth.signOut(); }
 
-        auth.onAuthStateChanged(async (user) => {
+        auth.onAuthStateChanged((user) => {
             if(user) {
-                try {
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    // Firewall: Bloqueamos a doctores y vendedores
-                    const isRestricted = userDoc.exists && (userDoc.data().rol === 'doctor' || userDoc.data().rol === 'vendedor');
-
-                    if (isRestricted) {
-                        await auth.signOut();
-                        const errorBox = document.getElementById('adminError');
-                        errorBox.textContent = "❌ Acceso Denegado. Las clínicas y agentes tienen sus propios paneles.";
-                        errorBox.classList.remove('hidden');
-                        return;
-                    }
-
-                    document.getElementById('loginAdminView').classList.add('hidden');
-                    document.getElementById('dashboardAdminView').classList.remove('hidden');
-                    loadGlobalData();
-                } catch(err) { await auth.signOut(); }
+                document.getElementById('loginAdminView').classList.add('hidden');
+                document.getElementById('dashboardAdminView').classList.remove('hidden');
+                loadGlobalData();
             } else {
                 document.getElementById('loginAdminView').classList.remove('hidden');
                 document.getElementById('dashboardAdminView').classList.add('hidden');
@@ -369,70 +325,60 @@
             if(tab === 'clinicas') {
                 document.getElementById('viewClinicas').classList.remove('hidden');
                 document.getElementById('viewVendedores').classList.add('hidden');
-                btnC.className = "px-6 py-2.5 rounded-lg font-bold bg-blue-600 text-white shadow-lg transition-colors";
-                btnV.className = "px-6 py-2.5 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors";
+                btnC.className = "px-6 py-2 rounded-lg font-bold bg-blue-600 text-white shadow-lg transition-colors";
+                btnV.className = "px-6 py-2 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors";
             } else {
                 document.getElementById('viewClinicas').classList.add('hidden');
                 document.getElementById('viewVendedores').classList.remove('hidden');
-                btnV.className = "px-6 py-2.5 rounded-lg font-bold bg-indigo-600 text-white shadow-lg transition-colors";
-                btnC.className = "px-6 py-2.5 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors";
+                btnV.className = "px-6 py-2 rounded-lg font-bold bg-indigo-600 text-white shadow-lg transition-colors";
+                btnC.className = "px-6 py-2 rounded-lg font-bold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-colors";
             }
         }
 
-        // ── 2. CARGA DE DATOS Y FINANZAS ──
+        // CARGA GENERAL
         async function loadGlobalData() {
-            // Vendedores
+            // 1. Vendedores
             try {
                 const vendSnap = await db.collection('users').where('rol', '==', 'vendedor').get();
                 mapaVendedores = {};
-                let selectOptions = '<option value="">-- Venta Directa (Matriz) --</option>';
+                let selectOptions = '<option value="">-- Venta Directa --</option>';
                 let vendHtml = '';
                 vendSnap.forEach(doc => {
                     const v = doc.data();
                     mapaVendedores[doc.id] = v.nombre;
                     selectOptions += `<option value="${doc.id}">${v.nombre}</option>`;
                     vendHtml += `
-                        <tr class="border-b border-slate-700/50 hover:bg-slate-700/30">
-                            <td class="py-3 pl-4 pr-2 font-bold text-white whitespace-nowrap">${v.nombre}</td>
-                            <td class="py-3 px-2 text-xs text-slate-300">📱 ${v.telefonoWhatsApp || 'N/A'}<br><span class="text-[10px] text-slate-500">${v.email}</span></td>
-                            <td class="py-3 px-2 text-center text-xs text-slate-400">${v.fechaRegistro?.toDate().toLocaleDateString() || 'N/A'}</td>
-                            <td class="py-3 pr-4 pl-2 text-right">
-                                <div class="flex flex-col gap-1 items-end">
-                                    <button onclick="copiarLinkVendedor('${doc.id}')" class="bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded text-[10px] font-bold w-[100px] text-center">🔗 Link Registro</button>
-                                    <button onclick="eliminarVendedor('${doc.id}', '${v.nombre}')" class="bg-red-900/50 hover:bg-red-600 text-red-300 border border-red-800 px-2 py-1 rounded text-[10px] font-bold w-[100px] text-center">🗑️ Eliminar</button>
-                                </div>
-                            </td>
+                        <tr class="border-b border-slate-700/50 hover:bg-slate-700/20">
+                            <td class="py-4 pr-4"><p class="font-bold text-white">${v.nombre}</p></td>
+                            <td class="py-4 px-4"><p class="text-sm text-slate-300">📱 ${v.telefonoWhatsApp}</p><p class="text-xs text-slate-500">${v.email}</p></td>
+                            <td class="py-4 px-4 text-center"><p class="text-sm text-slate-300">${v.fechaRegistro?.toDate().toLocaleDateString() || 'N/A'}</p></td>
+                            <td class="py-4 pl-4 text-right"><span class="bg-indigo-900/40 text-indigo-300 px-2 py-1 rounded text-xs font-mono border border-indigo-700">${doc.id}</span></td>
                         </tr>`;
                 });
-                document.getElementById('vendedoresTableBody').innerHTML = vendHtml || '<tr><td colspan="4" class="text-center py-6 text-slate-500">Fuerza de ventas vacía.</td></tr>';
+                document.getElementById('vendedoresTableBody').innerHTML = vendHtml || '<tr><td colspan="4" class="text-center py-4 text-slate-500">Sin vendedores.</td></tr>';
                 document.getElementById('newC_Vendedor').innerHTML = selectOptions;
                 document.getElementById('kpiTotalVendedores').textContent = vendSnap.size;
-            } catch (e) {}
+            } catch (e) { }
 
-            // Clínicas
+            // 2. Clínicas y Finanzas
             const tbody = document.getElementById('clinicsTableBody');
             try {
-                // 🔥 ELIMINAMOS EL orderBy PARA EVITAR EL BLOQUEO DE ÍNDICES DE FIREBASE 🔥
-                const snapshot = await db.collection('users').where('rol', '==', 'doctor').get();
-                
-                let clinicasArray = [];
-                snapshot.forEach(doc => clinicasArray.push({ id: doc.id, data: doc.data() }));
-                
-                clinicasArray.sort((a, b) => {
-                    let fA = a.data.fechaRegistro && a.data.fechaRegistro.toMillis ? a.data.fechaRegistro.toMillis() : 0;
-                    let fB = b.data.fechaRegistro && b.data.fechaRegistro.toMillis ? b.data.fechaRegistro.toMillis() : 0;
-                    return fB - fA;
-                });
-
+                const snapshot = await db.collection('users').where('rol', '==', 'doctor').orderBy('fechaRegistro', 'desc').get();
                 let html = '';
-                let activas = 0; let ingresosTotalesMensuales = 0; let comisionVendedoresMensual = 0; let comisionSocioMensual = 0;
+                let activas = 0;
+                let ingresosTotalesMensuales = 0;
+                let comisionVendedoresMensual = 0;
+                let comisionSocioMensual = 0;
 
-                clinicasArray.forEach(item => {
-                    const docId = item.id;
-                    const data = item.data;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
                     const info = data.clinicInfo || {};
                     const estado = data.estadoSuscripcion || 'activo'; 
-                    const vendName = data.vendedorId ? (mapaVendedores[data.vendedorId] || '🗑️ Agente Borrado') : '🏢 Directo (Matriz)';
+                    const metaId = data.metaPhoneId || '';
+                    const fbId = data.fbPageId || '';
+                    const igId = data.igAccountId || '';
+                    const fbToken = data.fbPageToken || '';
+                    const vendName = data.vendedorId ? (mapaVendedores[data.vendedorId] || 'Borrado') : 'Venta Directa';
                     const precioStr = data.precioSuscripcion || 20;
 
                     if(estado === 'activo') {
@@ -443,60 +389,54 @@
                     }
                     
                     const statusBadge = estado === 'activo' 
-                        ? `<span class="bg-green-900/30 text-green-400 border border-green-800 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase block mt-1 text-center w-fit mx-auto">ACTIVO</span>`
-                        : `<span class="bg-red-900/30 text-red-400 border border-red-800 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase block mt-1 text-center w-fit mx-auto">CORTADO</span>`;
+                        ? `<span class="bg-green-900/30 text-green-400 border border-green-800 px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase">ACTIVO</span>`
+                        : `<span class="bg-red-900/30 text-red-400 border border-red-800 px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase">SUSPENDIDO</span>`;
                     
-                    // 🔥 FECHAS DE PRÓXIMO PAGO 🔥
-                    let fechaPagoStr = "<span class='text-slate-500 text-[10px]'>Sin registro</span>";
-                    if(data.fechaUltimoCobro) {
-                        const f = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
-                        f.setDate(f.getDate() + 30);
-                        fechaPagoStr = `<span class="bg-indigo-900/50 px-2 py-1 rounded-full border border-indigo-800 text-indigo-300 font-bold text-[11px] whitespace-nowrap">${f.toLocaleDateString('es-ES', {day:'2-digit', month:'short', year:'numeric'})}</span>`;
-                    }
-
                     html += `
-                    <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 group">
-                        <td class="py-4 pl-4 pr-2">
-                            <p class="font-bold text-white text-sm leading-tight">${info.nombre || data.nombre}</p>
-                            <p class="text-[10px] text-blue-300 uppercase mt-0.5 font-bold">${info.especialidad || 'General'}</p>
-                            <p class="text-[9px] text-slate-500 mt-1 truncate max-w-[120px]">✉️ ${data.email}</p>
-                            <p class="text-[9px] text-amber-500/80 mt-1">Ref: ${vendName}</p>
+                    <tr class="border-b border-slate-700/50 hover:bg-slate-700/20 group">
+                        <td class="py-4 pr-4">
+                            <p class="font-bold text-white">${data.nombre}</p>
+                            <p class="text-[10px] text-slate-500 truncate max-w-[150px]">✉️ ${data.email}</p>
                         </td>
-                        <td class="py-4 px-2 text-center">
+                        <td class="py-4 px-4">
+                            <p class="font-semibold text-blue-300 text-sm">${info.nombre || 'No configurada'}</p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider">${info.especialidad || 'General'}</p>
+                            <span class="text-[9px] text-slate-500">Ref: ${vendName}</span>
+                        </td>
+                        <td class="py-4 px-4 text-center">
                             <div class="grid grid-cols-2 gap-1 mb-1">
-                                <input type="text" id="meta_${docId}" value="${data.metaPhoneId || ''}" placeholder="WA ID" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-green-400 rounded outline-none py-1 focus:border-green-500">
-                                <input type="text" id="fb_${docId}" value="${data.fbPageId || ''}" placeholder="FB Page" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-blue-400 rounded outline-none py-1 focus:border-blue-500">
-                                <input type="text" id="ig_${docId}" value="${data.igAccountId || ''}" placeholder="IG ID" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-pink-400 rounded outline-none py-1 focus:border-pink-500">
-                                <input type="text" id="token_${docId}" value="${data.fbPageToken || ''}" placeholder="Token Meta" class="w-full bg-slate-900 border border-slate-600 text-[9px] text-center text-purple-400 rounded outline-none py-1 focus:border-purple-500">
+                                <input type="text" id="meta_${doc.id}" value="${metaId}" placeholder="WA ID" class="w-full bg-slate-900 border border-slate-600 text-[10px] text-center text-green-400 rounded outline-none py-1 focus:border-green-500" title="WhatsApp Phone ID">
+                                <input type="text" id="fb_${doc.id}" value="${fbId}" placeholder="FB Page ID" class="w-full bg-slate-900 border border-slate-600 text-[10px] text-center text-blue-400 rounded outline-none py-1 focus:border-blue-500" title="Facebook Page ID">
+                                <input type="text" id="ig_${doc.id}" value="${igId}" placeholder="IG ID" class="w-full bg-slate-900 border border-slate-600 text-[10px] text-center text-pink-400 rounded outline-none py-1 focus:border-pink-500" title="Instagram Account ID">
+                                <input type="text" id="token_${doc.id}" value="${fbToken}" placeholder="Token FB/IG" class="w-full bg-slate-900 border border-slate-600 text-[10px] text-center text-purple-400 rounded outline-none py-1 focus:border-purple-500" title="Token de Página de Meta">
                             </div>
-                            <button onclick="updateSocials('${docId}')" class="text-[9px] font-bold bg-slate-700 hover:bg-slate-600 text-white w-full py-1 rounded transition">💾 Guardar API</button>
+                            <button onclick="updateSocials('${doc.id}')" class="text-[10px] bg-slate-700 hover:bg-slate-600 text-white w-full py-1 rounded shadow transition">💾 Guardar Redes</button>
                         </td>
-                        <td class="py-4 px-2 text-center">
-                            <select id="plan_${docId}" class="w-full bg-slate-900 border border-slate-600 text-white px-1 py-1 rounded text-[11px] font-bold outline-none mb-1 text-center">
-                                <option value="20" ${precioStr == 20 ? 'selected' : ''}>$20.00 Base</option>
-                                <option value="30" ${precioStr == 30 ? 'selected' : ''}>$30.00 Medio</option>
-                                <option value="40" ${precioStr == 40 ? 'selected' : ''}>$40.00 Pro</option>
-                            </select>
-                            <button onclick="updatePlan('${docId}')" class="text-[9px] font-bold bg-slate-700 hover:bg-slate-600 text-white w-full py-1 rounded transition">💾 Guardar Tarifa</button>
+                        <td class="py-4 px-4 text-center">
                             ${statusBadge}
+                            <div class="mt-2 flex justify-center items-center gap-1">
+                                <select id="plan_${doc.id}" class="w-24 bg-slate-900 border border-slate-600 text-white px-1 py-1 rounded text-xs outline-none">
+                                    <option value="20" ${precioStr == 20 ? 'selected' : ''}>$20.00 Base</option>
+                                    <option value="30" ${precioStr == 30 ? 'selected' : ''}>$30.00 (+100)</option>
+                                    <option value="40" ${precioStr == 40 ? 'selected' : ''}>$40.00 (+200)</option>
+                                </select>
+                                <button onclick="updatePlan('${doc.id}')" class="text-blue-400 hover:text-white text-sm" title="Guardar Plan">💾</button>
+                            </div>
                         </td>
-                        <td class="py-4 px-2 text-center">
-                            ${fechaPagoStr}
-                        </td>
-                        <td class="py-4 pr-4 pl-2 text-right">
-                            <div class="flex flex-col gap-1 items-end">
-                                <button onclick="toggleSuscripcion('${docId}', '${estado === 'activo' ? 'suspendido' : 'activo'}')" class="text-[10px] font-bold border px-2 py-1 rounded w-[85px] text-center ${estado === 'activo' ? 'bg-red-900/20 text-red-300 border-red-800 hover:bg-red-700 hover:text-white' : 'bg-green-900/20 text-green-300 border-green-800 hover:bg-green-700 hover:text-white'}">
-                                    ${estado === 'activo' ? '⏸ Suspender' : '▶️ Activar'}
+                        <td class="py-4 pl-4 text-right">
+                            <div class="flex gap-2 justify-end">
+                                <button onclick="toggleSuscripcion('${doc.id}', '${estado === 'activo' ? 'suspendido' : 'activo'}')" class="text-xs font-bold border px-2 py-1 rounded ${estado === 'activo' ? 'bg-red-900/20 text-red-300 border-red-800 hover:bg-red-700 hover:text-white' : 'bg-green-900/20 text-green-300 border-green-800 hover:bg-green-700 hover:text-white'}" title="${estado === 'activo' ? 'Suspender acceso' : 'Reactivar acceso'}">
+                                    ${estado === 'activo' ? '⏸️' : '▶️'}
                                 </button>
-                                <button onclick="deleteClinic('${docId}', '${data.nombre}')" class="bg-red-950 hover:bg-red-600 text-red-300 border border-red-900 px-2 py-1 rounded transition text-[10px] font-bold w-[85px] text-center">🗑️ Eliminar</button>
+                                <button onclick="deleteClinic('${doc.id}', '${data.nombre}')" class="bg-red-900/50 hover:bg-red-600 text-red-200 border border-red-800 px-2 py-1 rounded transition text-xs font-bold" title="Eliminar Clínica Permanente">🗑️</button>
                             </div>
                         </td>
                     </tr>`;
                 });
                 
-                tbody.innerHTML = html || '<tr><td colspan="5" class="text-center py-6 text-slate-500">Sin clínicas registradas.</td></tr>';
+                tbody.innerHTML = html || '<tr><td colspan="5" class="text-center py-4 text-slate-500">Sin clínicas.</td></tr>';
 
-                // ESQUEMA FINANCIERO AL DETALLE
+                // MATEMÁTICAS
                 const iva = ingresosTotalesMensuales * 0.15;
                 const pasarela = ingresosTotalesMensuales * 0.06;
                 const neto = ingresosTotalesMensuales - iva - pasarela - comisionVendedoresMensual - comisionSocioMensual;
@@ -513,57 +453,47 @@
             } catch (error) { console.error(error); }
         }
 
-        // ── 3. ACCIONES DE MATRIZ ──
-        function copiarLinkVendedor(vid) {
-            const link = `https://asistencitas.com/registro.html?ref=${vid}`;
-            navigator.clipboard.writeText(link).then(() => alert("Link de referido copiado al portapapeles: \n" + link));
-        }
-
-        // ELIMINAR VENDEDOR + REVERSIÓN A MATRIZ
-        async function eliminarVendedor(vendedorId, nombre) {
-            if(!confirm(`⚠️ ATENCIÓN ⚠️\n\n¿Estás seguro de eliminar al agente ${nombre}?\n\n- Su cuenta será borrada.\n- Todas las clínicas afiliadas por este vendedor pasarán a la Matriz.\n- Las comisiones se recuperarán a tu favor.`)) return;
-            try {
-                const batch = db.batch();
-                const doctoresSnap = await db.collection('users').where('vendedorId', '==', vendedorId).get();
-                doctoresSnap.forEach(doc => { batch.update(db.collection('users').doc(doc.id), { vendedorId: null }); });
-                batch.delete(db.collection('users').doc(vendedorId));
-                await batch.commit();
-                alert(`✅ Agente eliminado y cartera reasignada a la matriz.`);
-                loadGlobalData();
-            } catch(e) { alert("Error al procesar la baja en Firestore."); }
-        }
-
-        async function deleteClinic(id, nombre) {
-            if(confirm(`⚠️ ALERTA DE PELIGRO ⚠️\n\n¿Deseas ELIMINAR PERMANENTEMENTE a ${nombre}?\n\nEsta acción revocará su acceso al sistema y no se puede deshacer.`)) {
-                try {
-                    await db.collection('users').doc(id).delete();
-                    alert("✅ Clínica destruida exitosamente.");
-                    loadGlobalData();
-                } catch(e) { alert("Error de servidor."); }
-            }
-        }
-
+        // FUNCIONES DE LA TABLA
         async function updatePlan(id) {
             await db.collection('users').doc(id).update({ precioSuscripcion: parseFloat(document.getElementById(`plan_${id}`).value) });
-            loadGlobalData();
+            alert("Plan actualizado"); loadGlobalData();
         }
 
         async function updateSocials(id) {
+            const metaId = document.getElementById(`meta_${id}`).value.trim();
+            const fbId = document.getElementById(`fb_${id}`).value.trim();
+            const igId = document.getElementById(`ig_${id}`).value.trim();
+            const token = document.getElementById(`token_${id}`).value.trim();
+
             await db.collection('users').doc(id).update({ 
-                metaPhoneId: document.getElementById(`meta_${id}`).value.trim(),
-                fbPageId: document.getElementById(`fb_${id}`).value.trim(),
-                igAccountId: document.getElementById(`ig_${id}`).value.trim(),
-                fbPageToken: document.getElementById(`token_${id}`).value.trim()
+                metaPhoneId: metaId,
+                fbPageId: fbId,
+                igAccountId: igId,
+                fbPageToken: token
             });
-            alert("✅ Credenciales Meta Omnicanal Guardadas.");
+            alert("✅ Redes Sociales y Tokens actualizados. El servidor enrutará WA/FB/IG según esta configuración.");
         }
 
         async function toggleSuscripcion(id, estado) {
-            await db.collection('users').doc(id).update({ estadoSuscripcion: estado });
-            loadGlobalData();
+            if(confirm(`¿Seguro de cambiar el estado a ${estado.toUpperCase()}?`)) {
+                await db.collection('users').doc(id).update({ estadoSuscripcion: estado });
+                loadGlobalData();
+            }
         }
 
-        // ── 4. CREACIÓN B2B ──
+        async function deleteClinic(id, nombre) {
+            if(confirm(`⚠️ ALERTA DE PELIGRO ⚠️\n\n¿Estás absolutamente seguro de que deseas ELIMINAR PERMANENTEMENTE la clínica de ${nombre}?\n\nEsta acción revocará su acceso al sistema de inmediato.`)) {
+                try {
+                    await db.collection('users').doc(id).delete();
+                    alert("✅ Clínica eliminada del sistema exitosamente.");
+                    loadGlobalData();
+                } catch(e) {
+                    alert("Error al eliminar la clínica: " + e.message);
+                }
+            }
+        }
+
+        // MODALES Y CREACIÓN
         function openNewClinicModal() { document.getElementById('newClinicModal').classList.remove('hidden'); }
         function closeNewClinicModal() { document.getElementById('newClinicModal').classList.add('hidden'); }
 
@@ -572,36 +502,48 @@
             const email = document.getElementById('newC_Email').value.trim();
             const pass = document.getElementById('newC_Pass').value.trim();
             const nombre = document.getElementById('newC_Nombre').value.trim();
-            const tel = normalizarTelefono(document.getElementById('newC_Tel').value.trim());
+            const tel = normalizarTelefono(document.getElementById('newC_Tel').value.trim()); // 🔥 APLICANDO FILTRO 593
+            const esp = document.getElementById('newC_Esp').value;
+            const precio = document.getElementById('newC_Plan').value;
+            const vendId = document.getElementById('newC_Vendedor').value;
 
-            if(!email || !pass || !nombre) return alert("Faltan datos obligatorios.");
+            const metaId = document.getElementById('newC_MetaID').value.trim();
+            const fbId = document.getElementById('newC_FbID').value.trim();
+            const igId = document.getElementById('newC_IgID').value.trim();
+            const fbToken = document.getElementById('newC_FbToken').value.trim();
 
-            btn.disabled = true; btn.innerHTML = "Generando...";
+            if(!email || !pass || !nombre) return alert("Llena Nombre, Email y Contraseña.");
+
+            btn.disabled = true;
+            btn.innerHTML = "Generando...";
 
             try {
                 const req = await fetch(`${API_BASE_URL}/api/admin/create-clinic`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                     body: JSON.stringify({ 
-                        email, password: pass, nombre, telefono: tel, 
-                        especialidad: document.getElementById('newC_Esp').value, 
-                        precio: document.getElementById('newC_Plan').value, 
-                        vendedorId: document.getElementById('newC_Vendedor').value, 
-                        metaPhoneId: document.getElementById('newC_MetaID').value.trim(), 
-                        fbPageId: document.getElementById('newC_FbID').value.trim(), 
-                        igAccountId: document.getElementById('newC_IgID').value.trim(), 
-                        fbPageToken: document.getElementById('newC_FbToken').value.trim() 
+                        email, password: pass, nombre, telefono: tel, especialidad: esp, precio, vendedorId: vendId, 
+                        metaPhoneId: metaId, fbPageId: fbId, igAccountId: igId, fbPageToken: fbToken 
                     })
                 });
 
                 const res = await req.json();
                 if(res.success) {
-                    alert(`✅ Clínica Integrada.`);
+                    alert(`✅ Clínica Creada con Éxito.`);
                     closeNewClinicModal();
                     loadGlobalData();
-                    ['newC_Email','newC_Pass','newC_Nombre','newC_Tel','newC_MetaID','newC_FbID','newC_IgID','newC_FbToken'].forEach(id => document.getElementById(id).value = '');
-                } else { alert("Error: " + res.error); }
-            } catch(e) { alert("Fallo de red."); } 
+                    document.getElementById('newC_Email').value = '';
+                    document.getElementById('newC_Pass').value = '';
+                    document.getElementById('newC_Nombre').value = '';
+                    document.getElementById('newC_Tel').value = '';
+                    document.getElementById('newC_MetaID').value = '';
+                    document.getElementById('newC_FbID').value = '';
+                    document.getElementById('newC_IgID').value = '';
+                    document.getElementById('newC_FbToken').value = '';
+                } else {
+                    alert("Error: " + res.error);
+                }
+            } catch(e) { alert("Error de conexión con el servidor Node.js."); } 
             finally { btn.disabled = false; btn.innerHTML = "Generar Clínica"; }
         }
 
@@ -613,26 +555,33 @@
             const email = document.getElementById('newV_Email').value.trim();
             const pass = document.getElementById('newV_Pass').value.trim();
             const nombre = document.getElementById('newV_Nombre').value.trim();
-            const tel = normalizarTelefono(document.getElementById('newV_Tel').value.trim());
+            const tel = normalizarTelefono(document.getElementById('newV_Tel').value.trim()); // 🔥 APLICANDO FILTRO 593
 
             if(!email || !pass || !nombre) return alert("Llena Nombre, Email y Contraseña.");
-            btn.disabled = true; btn.innerHTML = "Creando...";
+
+            btn.disabled = true;
+            btn.innerHTML = "Creando...";
 
             try {
                 const req = await fetch(`${API_BASE_URL}/api/admin/create-vendedor`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                     body: JSON.stringify({ email, password: pass, nombre, telefono: tel })
                 });
 
                 const res = await req.json();
                 if(res.success) {
-                    alert(`✅ Vendedor Aprobado.`);
+                    alert(`✅ Vendedor Creado con Éxito.`);
                     closeNewVendedorModal();
                     loadGlobalData(); 
-                    ['newV_Email','newV_Pass','newV_Nombre','newV_Tel'].forEach(id => document.getElementById(id).value = '');
-                } else { alert("Error: " + res.error); }
-            } catch(e) { alert("Fallo de red."); } 
+                    document.getElementById('newV_Email').value = '';
+                    document.getElementById('newV_Pass').value = '';
+                    document.getElementById('newV_Nombre').value = '';
+                    document.getElementById('newV_Tel').value = '';
+                } else {
+                    alert("Error: " + res.error);
+                }
+            } catch(e) { alert("Error de conexión con el servidor Node.js."); } 
             finally { btn.disabled = false; btn.innerHTML = "Crear Vendedor"; }
         }
     </script>
