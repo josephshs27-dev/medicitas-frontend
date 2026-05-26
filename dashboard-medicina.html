@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistencitas Pro — Medicina General</title>
-    <link rel="icon" href="data:,\">
+    <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -41,6 +41,7 @@
         /* ── Animations ── */
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         .slide-up { animation: slideUp 0.25s ease-out; }
 
         /* ── Loading overlay ── */
@@ -153,18 +154,12 @@
         .btn-sm { font-size: 12px; padding: 6px 12px; }
         .btn-md { font-size: 13px; padding: 9px 18px; }
         .btn-lg { font-size: 14px; padding: 11px 24px; }
-        .btn-xl { font-size: 14.5px; padding: 13px 28px; }
         .btn-primary { background: var(--accent); color: white; }
         .btn-primary:hover { background: var(--accent-dark); }
         .btn-secondary { background: white; color: var(--txt1); border: 1px solid var(--border); }
         .btn-secondary:hover { background: #f8fafc; }
         .btn-ghost { background: transparent; color: var(--txt2); }
         .btn-ghost:hover { background: #f1f5f9; color: var(--txt1); }
-        .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-        .btn-danger:hover { background: #fee2e2; }
-        .btn-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-        .btn-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-        .btn-warn { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
         .btn-full { width: 100%; justify-content: center; }
 
         /* ── Table ── */
@@ -178,17 +173,14 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
-        /* ── Separator ── */
-        .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
-
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
-        .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
-        .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh;}
+        .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .modal-title { font-size: 16px; font-weight: 800; color: var(--txt1); }
         .modal-sub { font-size: 12.5px; color: var(--txt2); font-weight: 500; margin-top: 2px; }
-        .modal-bd { padding: 22px 26px; }
-        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; }
+        .modal-bd { padding: 22px 26px; overflow-y: auto;}
+        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; flex-shrink: 0;}
         .modal-close-btn { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: var(--txt2); font-size: 20px; line-height: 1; transition: background 0.15s; }
         .modal-close-btn:hover { background: #f1f5f9; color: var(--txt1); }
 
@@ -199,7 +191,7 @@
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
 
         /* 🔥 MEJORA 1: ESTILOS MAPA ANATÓMICO (Homúnculo) 🔥 */
-        .body-map-container { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+        .body-map-container { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 20px 10px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
         .b-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
         .b-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
         .b-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
@@ -210,78 +202,48 @@
         .b-arm { width: 30px; height: 80px; border-radius: 15px; }
         .b-leg { width: 35px; height: 90px; border-radius: 10px; }
 
+        /* 🔥 MEJORA: PESTAÑAS (TABS) PARA OPTIMIZAR ESPACIO 🔥 */
+        .rx-tabs-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding: 0 26px; background: #fafbfc; overflow-x: auto; flex-shrink: 0; }
+        .rx-tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+        .rx-tab-btn:hover { color: var(--txt1); }
+        .rx-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .rx-tab-pane { display: none; padding: 22px 26px; }
+        .rx-tab-pane.active { display: block; animation: fadeIn 0.25s ease-out; }
+
         /* 🔥 MEJORA 2: ESTILOS CALENDARIO INTERACTIVO 🔥 */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
         .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
         .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
         .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
-    .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
 
         /* 📱 ── OPTIMIZACIÓN RESPONSIVE (MÓVILES) ── 📱 */
         @media (max-width: 768px) {
             :root { --sidebar-w: 0px; }
-            
-            /* Sidebar flotante */
-            #appSidebar { 
-                transform: translateX(-100%); 
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-                width: 260px; 
-                box-shadow: 4px 0 24px rgba(0,0,0,0.5);
-                z-index: 100;
-            }
+            #appSidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); z-index: 100; }
             #appSidebar.open { transform: translateX(0); }
-            
             #appMain { margin-left: 0; width: 100vw; }
-            
-            /* Barra Superior */
             .topbar { padding: 0 16px; }
             .topbar-title { font-size: 14px; }
             .topbar-tag { display: none !important; }
-            
             .content-area { padding: 14px; }
-            
-            /* Grids a 1 columna */
             .kpi-grid { grid-template-columns: 1fr !important; gap: 12px; margin-bottom: 20px; }
-            
-            /* Forzar Agenda y Formularios a 1 columna vertical */
             #tabContentAgenda > div { display: flex !important; flex-direction: column !important; height: auto !important; }
-            .modal-bd > div, 
-            .modal-bd > div > div, 
-            #prescriptionModal .cs > div,
-            #historyModal .cs > div { 
-                grid-template-columns: 1fr !important; 
-                display: flex !important; 
-                flex-direction: column !important; 
-                height: auto !important;
-            }
-            
-            /* Ajustar Modales */
             .modal-box { width: 95% !important; max-height: 90vh !important; margin: 0 auto; }
             .modal-hd { padding: 14px 20px; }
             .modal-bd { padding: 16px 20px; }
+            .rx-tab-pane { padding: 16px 20px; }
+            .rx-tabs-nav { padding: 0 16px; }
             .modal-ft { padding: 14px 20px; flex-direction: column; gap: 8px; }
             .modal-ft .btn { width: 100%; }
-            
-            /* Tablas con scroll horizontal suave */
             .panel-body-np, .panel-body { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
             .dtable { min-width: 600px; } 
-            
-            /* Ajustar mapas interactivos ligeramente */
-            .body-map-container, .vet-map, .fisio-map, .nutri-map { transform: scale(0.9); transform-origin: top center; margin-bottom: -10px; }
-
-            /* Mostrar botón menú */
+            .body-map-container { transform: scale(0.95); transform-origin: top center; margin-bottom: -10px; }
             .mobile-menu-btn { display: flex !important; }
         }
         
-        /* Estilos del botón Hamburguesa y el fondo oscuro */
-        .mobile-menu-btn {
-            display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1);
-            margin-right: 12px; align-items: center; justify-content: center; padding: 0;
-        }
-        #mobileOverlay {
-            display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px);
-        }
+        .mobile-menu-btn { display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1); margin-right: 12px; align-items: center; justify-content: center; padding: 0; }
+        #mobileOverlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px); }
         #mobileOverlay.show { display: block; animation: fadeIn 0.2s ease-out; }
 
     </style>
@@ -622,7 +584,9 @@
                 </div>
 
             </div></div></main>
-</div><div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
+</div>
+
+<div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
     <div class="modal-box" style="width:100%;max-width:400px;">
         <div class="modal-hd" style="background:var(--accent-light);">
             <div>
@@ -650,7 +614,7 @@
 </div>
 
 <div id="prescriptionModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
-    <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
+    <div class="modal-box" style="width:100%;max-width:850px;max-height:95vh;display:flex;flex-direction:column;">
         <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
             <div>
                 <div class="modal-title">Ficha Clínica · MSP 008</div>
@@ -658,94 +622,130 @@
             </div>
             <button onclick="closePrescriptionModal()" class="modal-close-btn">&times;</button>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        
+        <div class="rx-tabs-nav cs">
+            <button type="button" class="rx-tab-btn active" onclick="switchRxTab('tab-anamnesis', this)">1. Anamnesis e IA</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-fisico', this)">2. Examen Físico</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-plan', this)">3. Diagnóstico y Plan</button>
+        </div>
 
+        <div style="flex:1;overflow-y:auto;" class="cs">
+            <input type="hidden" id="rxAppointmentId">
+
+            <div id="tab-anamnesis" class="rx-tab-pane active">
                 <div style="display:flex;flex-direction:column;gap:18px;">
-                    <input type="hidden" id="rxAppointmentId">
-
+                    
                     <div style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:12px;padding:20px;">
                         <div style="color:white;font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                             Copiloto Médico (IA)
                         </div>
-                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe notas (ej: Paciente masculino 45 años, refiere dolor lumbar irradiado a pierna derecha desde hace 3 días)..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
-                        <button onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent-dark);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe notas clínicas (ej: Paciente masculino 45 años, refiere dolor lumbar irradiado a pierna derecha desde hace 3 días)..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
+                        <button type="button" onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent-dark);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
                             ESTRUCTURAR FICHA CON IA ✦
                         </button>
                     </div>
 
-                    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;">
-                        <h4 style="font-size:12px;font-weight:800;color:var(--txt1);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Detalles Clínicos</h4>
-                        <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div class="panel">
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Motivo y Antecedentes</div></div>
+                        <div class="panel-body" style="display:flex;flex-direction:column;gap:12px;">
                             <div><label class="flabel">Motivo de Consulta</label><input type="text" id="mspMotivo" class="finput"></div>
                             <div><label class="flabel">Enfermedad Actual</label><textarea id="mspEnfermedad" rows="2" class="finput" style="resize:none;"></textarea></div>
-                            <div><label class="flabel">Antecedentes Personales / Familiares</label><textarea id="mspAntecedentes" rows="1" class="finput" style="resize:none;"></textarea></div>
-                            
-                            <div>
-                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
-                                    <label class="flabel" style="margin:0; color:var(--accent-dark);">Examen Físico (Mapa Anatómico)</label>
-                                    <button type="button" onclick="limpiarMapa()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
-                                </div>
-                                <div style="position:relative;">
-                                    <div class="body-map-container">
-                                        <div class="b-row"><div id="part-Cabeza" class="b-part b-head" onclick="abrirSelectorParte(event, 'Cabeza')">Cabeza</div></div>
-                                        <div class="b-row">
-                                            <div id="part-Brazo_Derecho" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo Derecho')">B. Der</div>
-                                            <div id="part-Tórax" class="b-part b-chest" onclick="abrirSelectorParte(event, 'Tórax')">Tórax</div>
-                                            <div id="part-Brazo_Izquierdo" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo Izquierdo')">B. Izq</div>
-                                        </div>
-                                        <div class="b-row"><div id="part-Abdomen" class="b-part b-abdomen" onclick="abrirSelectorParte(event, 'Abdomen')">Abdomen</div></div>
-                                        <div class="b-row">
-                                            <div id="part-Pierna_Derecha" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna Derecha')">P. Der</div>
-                                            <div id="part-Pierna_Izquierda" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna Izquierda')">P. Izq</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div id="bodySelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:140px; transform: translateX(-50%); margin-top:5px;">
-                                        <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Región: <span id="selectedPartLabel" style="color:var(--txt1);"></span></div>
-                                        <button type="button" onclick="marcarParte('Dolor localizado')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Dolor</button>
-                                        <button type="button" onclick="marcarParte('Inflamación / Edema')" style="font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:none; padding:5px; border-radius:4px; cursor:pointer;">Inflamación/Edema</button>
-                                        <button type="button" onclick="marcarParte('Herida / Trauma')" style="font-size:11px; font-weight:700; color:#9d174d; background:#fdf2f8; border:none; padding:5px; border-radius:4px; cursor:pointer;">Herida / Trauma</button>
-                                        <button type="button" onclick="marcarParte('Masa palpable')" style="font-size:11px; font-weight:700; color:#4f46e5; background:#e0e7ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Masa palpable</button>
-                                        <button type="button" onclick="marcarParte('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Sin anomalías</button>
-                                    </div>
-                                </div>
-                                <textarea id="mspExamen" rows="2" placeholder="Los hallazgos del examen físico se detallarán aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
-                            </div>
-
-                            <div><label class="flabel">Diagnóstico (CIE-10 / PRE / DEF)</label><textarea id="rxDiagnostico" rows="2" class="finput" style="resize:none;"></textarea></div>
+                            <div><label class="flabel">Antecedentes Personales / Familiares</label><textarea id="mspAntecedentes" rows="2" class="finput" style="resize:none;"></textarea></div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div style="display:flex;flex-direction:column;gap:18px;">
-
+            <div id="tab-fisico" class="rx-tab-pane">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    
                     <div class="panel">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Constantes (Triaje)</div></div>
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Signos Vitales y Antropometría</div></div>
                         <div class="panel-body">
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="dynamicVitalsContainer">
-                                <div><label class="flabel">PA</label><input type="text" id="rxPresion" class="finput"></div>
-                                <div><label class="flabel">FC</label><input type="number" id="rxRitmo" class="finput"></div>
-                                <div><label class="flabel">Temp</label><input type="number" step="0.1" id="rxTemp" class="finput"></div>
-                                <div><label class="flabel">SpO2</label><input type="number" id="rxOximetria" class="finput"></div>
-                                <div><label class="flabel">Peso</label><input type="number" step="0.1" id="rxPeso" class="finput"></div>
-                                <div><label class="flabel">Altura</label><input type="number" id="rxAltura" class="finput"></div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                                <div>
+                                    <label class="flabel">Presión Arterial</label>
+                                    <input type="text" id="rxPresion" placeholder="120/80" class="finput" oninput="evaluarSignos()">
+                                    <div id="alertaPresion" style="font-size:10px;font-weight:700;margin-top:4px;"></div>
+                                </div>
+                                <div><label class="flabel">Frec. Cardíaca</label><input type="number" id="rxRitmo" class="finput"></div>
+                                <div><label class="flabel">Temp. (°C)</label><input type="number" step="0.1" id="rxTemp" class="finput"></div>
+                                <div><label class="flabel">SpO2 (%)</label><input type="number" id="rxOximetria" class="finput"></div>
+                                <div><label class="flabel">Peso (kg)</label><input type="number" step="0.1" id="rxPeso" class="finput" oninput="calcularIMC()"></div>
+                                <div>
+                                    <label class="flabel">Altura (cm)</label>
+                                    <input type="number" id="rxAltura" class="finput" oninput="calcularIMC()">
+                                    <div id="alertaIMC" style="font-size:10px;font-weight:700;margin-top:4px;"></div>
+                                </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
+                            <label class="flabel" style="margin:0; color:var(--accent-dark);">Mapa Anatómico Interactivo</label>
+                            <button type="button" onclick="limpiarMapa()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                        </div>
+                        <div style="position:relative;">
+                            <div class="body-map-container">
+                                <div class="b-row"><div id="part-Cabeza" class="b-part b-head" onclick="abrirSelectorParte(event, 'Cabeza')">Cabeza</div></div>
+                                <div class="b-row">
+                                    <div id="part-Brazo_Derecho" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo Derecho')">B. Der</div>
+                                    <div id="part-Tórax" class="b-part b-chest" onclick="abrirSelectorParte(event, 'Tórax')">Tórax</div>
+                                    <div id="part-Brazo_Izquierdo" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo Izquierdo')">B. Izq</div>
+                                </div>
+                                <div class="b-row"><div id="part-Abdomen" class="b-part b-abdomen" onclick="abrirSelectorParte(event, 'Abdomen')">Abdomen</div></div>
+                                <div class="b-row">
+                                    <div id="part-Pierna_Derecha" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna Derecha')">P. Der</div>
+                                    <div id="part-Pierna_Izquierda" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna Izquierda')">P. Izq</div>
+                                </div>
+                            </div>
+                            
+                            <div id="bodySelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:140px; transform: translateX(-50%); margin-top:5px;">
+                                <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Región: <span id="selectedPartLabel" style="color:var(--txt1);"></span></div>
+                                <button type="button" onclick="marcarParte('Dolor localizado')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Dolor</button>
+                                <button type="button" onclick="marcarParte('Inflamación / Edema')" style="font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:none; padding:5px; border-radius:4px; cursor:pointer;">Inflamación/Edema</button>
+                                <button type="button" onclick="marcarParte('Herida / Trauma')" style="font-size:11px; font-weight:700; color:#9d174d; background:#fdf2f8; border:none; padding:5px; border-radius:4px; cursor:pointer;">Herida / Trauma</button>
+                                <button type="button" onclick="marcarParte('Masa palpable')" style="font-size:11px; font-weight:700; color:#4f46e5; background:#e0e7ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Masa palpable</button>
+                                <button type="button" onclick="marcarParte('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Sin anomalías</button>
+                            </div>
+                        </div>
+                        <textarea id="mspExamen" rows="3" placeholder="Los hallazgos del examen físico se detallarán aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-plan" class="rx-tab-pane">
+                <div style="display:flex;flex-direction:column;gap:18px;">
+                    
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div>
+                            <label class="flabel">Diagnóstico Presuntivo/Definitivo</label>
+                            <textarea id="rxDiagnostico" rows="2" class="finput" style="resize:none;"></textarea>
+                        </div>
+                        <div>
+                            <label class="flabel">Riesgo Cardiovascular (10 años)</label>
+                            <select id="rxRiesgoCV" class="finput" style="height:62px;">
+                                <option value="">No evaluado...</option>
+                                <option value="Bajo (<10%)">Bajo (<10%)</option>
+                                <option value="Moderado (10-20%)">Moderado (10-20%)</option>
+                                <option value="Alto (>20%)">Alto (>20%)</option>
+                            </select>
                         </div>
                     </div>
 
                     <div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                             <label class="flabel" style="margin:0;color:var(--accent-dark);">💊 Receta Médica</label>
-                            <button onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #bfdbfe;">+ Agregar</button>
+                            <button type="button" onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #bfdbfe;">+ Agregar</button>
                         </div>
                         <div id="medicinesContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
                     </div>
 
                     <div>
                         <label class="flabel" style="color:#c2410c;">Indicaciones / Plan de Tratamiento</label>
-                        <textarea id="rxRecomendaciones" rows="2" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
+                        <textarea id="rxRecomendaciones" rows="3" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
                     </div>
 
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
@@ -780,10 +780,11 @@
                     </div>
                 </div>
             </div>
+
         </div>
-        <div class="modal-ft" style="flex-shrink:0;">
-            <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg" style="flex:1;">Cancelar</button>
-            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="flex:2;">
+        <div class="modal-ft" style="flex-shrink:0; justify-content: flex-end;">
+            <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg">Cancelar</button>
+            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="min-width:180px;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Guardar y Cobrar
             </button>
@@ -892,7 +893,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                 <div style="display:flex;flex-direction:column;gap:16px;">
                     <div id="chartContainer" class="panel hidden" style="height:220px;">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución de Peso (kg)</div></div>
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución Clínica (Peso)</div></div>
                         <div style="padding:16px;height:calc(100% - 53px);">
                             <canvas id="vitalsChartCanvas"></canvas>
                         </div>
@@ -1327,6 +1328,57 @@
                 btn.style.borderColor = '#bbf7d0';
                 btn.onclick = null;
             }
+        }
+    }
+
+    // ── TABS NAVEGACIÓN CONSULTA MÉDICA ──
+    function switchRxTab(tabId, btn) {
+        document.querySelectorAll('.rx-tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.rx-tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(btn) btn.classList.add('active');
+    }
+
+    function calcularIMC() {
+        const peso = parseFloat(document.getElementById('rxPeso').value);
+        const alturaCm = parseFloat(document.getElementById('rxAltura').value);
+        const divAlerta = document.getElementById('alertaIMC');
+        
+        if(peso && alturaCm) {
+            const alturaM = alturaCm / 100;
+            const imc = (peso / (alturaM * alturaM)).toFixed(1);
+            let color = '#16a34a';
+            let texto = `IMC: ${imc} (Normal)`;
+            
+            if(imc < 18.5) { color = '#ca8a04'; texto = `IMC: ${imc} (Bajo peso)`; }
+            else if(imc >= 25 && imc < 30) { color = '#ea580c'; texto = `IMC: ${imc} (Sobrepeso)`; }
+            else if(imc >= 30) { color = '#dc2626'; texto = `IMC: ${imc} (Obesidad)`; }
+            
+            divAlerta.textContent = texto;
+            divAlerta.style.color = color;
+        } else {
+            divAlerta.textContent = '';
+        }
+    }
+
+    function evaluarSignos() {
+        const pa = document.getElementById('rxPresion').value;
+        const divAlerta = document.getElementById('alertaPresion');
+        
+        if(pa && pa.includes('/')) {
+            const [sis, dia] = pa.split('/').map(Number);
+            if(sis > 139 || dia > 89) {
+                divAlerta.textContent = "⚠️ Hipertensión";
+                divAlerta.style.color = "#dc2626";
+            } else if(sis < 90 || dia < 60) {
+                divAlerta.textContent = "⚠️ Hipotensión";
+                divAlerta.style.color = "#ca8a04";
+            } else {
+                divAlerta.textContent = "✓ Normotensión";
+                divAlerta.style.color = "#16a34a";
+            }
+        } else {
+            divAlerta.textContent = '';
         }
     }
 
@@ -1786,7 +1838,11 @@
 
     // ── PRESCRIPTION (MEDICINA + IA + HOMÚNCULO) ──
     function openPrescriptionModal(aptId) {
-        initMapaAnatomico(); // INICIALIZAR EL MAPA AL ABRIR LA MODAL
+        initMapaAnatomico(); 
+        
+        // Resetea Tabs
+        const firstTabBtn = document.querySelector('.rx-tabs-nav .rx-tab-btn');
+        if(firstTabBtn) switchRxTab('tab-anamnesis', firstTabBtn);
         
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
@@ -1800,6 +1856,7 @@
         document.getElementById('mspExamen').value = apt?.mspExamen || '';
         
         document.getElementById('rxDiagnostico').value = apt?.diagnostico || '';
+        document.getElementById('rxRiesgoCV').value = apt?.rxRiesgoCV || '';
         document.getElementById('rxRecomendaciones').value = apt?.recomendaciones?.join('\n') || '';
         document.getElementById('rxBorrador').value = '';
         
@@ -1811,6 +1868,9 @@
                 if(apt.triaje[key]) input.value = apt.triaje[key];
             }
         });
+
+        calcularIMC();
+        evaluarSignos();
 
         document.getElementById('rxNextDate').value = '';
         document.getElementById('rxNextTime').value = '';
@@ -1953,6 +2013,7 @@
         let mspAntecedentes = document.getElementById('mspAntecedentes').value;
         let mspExamen = document.getElementById('mspExamen').value;
         let rxDiagnostico = document.getElementById('rxDiagnostico').value;
+        let rxRiesgoCV = document.getElementById('rxRiesgoCV').value;
 
         let diagFinal = "";
         if (mspMotivo || mspEnfermedad || mspAntecedentes || mspExamen || rxDiagnostico) {
@@ -1961,7 +2022,9 @@
             if(mspEnfermedad) diagFinal += `- Enfermedad Actual: ${mspEnfermedad}\n`;
             if(mspAntecedentes) diagFinal += `- Antecedentes: ${mspAntecedentes}\n`;
             if(mspExamen) diagFinal += `- Examen Físico: ${mspExamen}\n`;
-            if(rxDiagnostico) diagFinal += `- Diagnóstico CIE-10: ${rxDiagnostico}\n\n`;
+            if(rxDiagnostico) diagFinal += `- Diagnóstico CIE-10: ${rxDiagnostico}\n`;
+            if(rxRiesgoCV) diagFinal += `- Riesgo CV (10 años): ${rxRiesgoCV}\n`;
+            diagFinal += '\n';
         }
 
         let customVitalsStr = [];
@@ -2030,7 +2093,7 @@
 
             await db.collection('appointments').doc(aptId).update({ 
                 diagnostico: diagFinal, 
-                mspMotivo, mspEnfermedad, mspAntecedentes, mspExamen,
+                mspMotivo, mspEnfermedad, mspAntecedentes, mspExamen, rxRiesgoCV,
                 recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() 
             });
 
@@ -2108,7 +2171,7 @@
             } else {
                 const docs = snap.docs;
                 let timelineHtml = '';
-                const labels=[], dataPeso=[];
+                const labels=[], dataPeso=[], dataPresionSistolica=[];
                 for(let i=docs.length-1;i>=0;i--) {
                     const d = docs[i].data();
                     const dateObj = d.fecha.toDate ? d.fecha.toDate() : new Date(d.fecha);
@@ -2138,17 +2201,28 @@
                     
                     labels.unshift(dateStr);
                     if(d.peso) dataPeso.unshift(parseFloat(d.peso));
+                    if(d.presion && d.presion.includes('/')) {
+                        dataPresionSistolica.unshift(parseFloat(d.presion.split('/')[0]));
+                    }
                 }
                 document.getElementById('historyTimeline').innerHTML = timelineHtml;
                 
                 const ctx = document.getElementById('vitalsChartCanvas');
                 if(vitalsChartInstance) vitalsChartInstance.destroy();
-                if(dataPeso.length>0) {
+                if(dataPeso.length>0 || dataPresionSistolica.length>0) {
                     document.getElementById('chartContainer').classList.remove('hidden');
+                    const datasets = [];
+                    if(dataPeso.length>0) {
+                        datasets.push({ label:'Peso (kg)', data:dataPeso, borderColor:'#2563eb', backgroundColor:'rgba(37, 99, 235, 0.08)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#2563eb' });
+                    }
+                    if(dataPresionSistolica.length>0) {
+                        datasets.push({ label:'Presión Sistólica (mmHg)', data:dataPresionSistolica, borderColor:'#dc2626', backgroundColor:'transparent', fill:false, tension:0.4, borderDash: [5, 5], pointRadius:4, pointBackgroundColor:'#dc2626' });
+                    }
+
                     vitalsChartInstance = new Chart(ctx, {
                         type:'line',
-                        data:{ labels, datasets:[{ label:'Evolución de Peso (kg)', data:dataPeso, borderColor:'#2563eb', backgroundColor:'rgba(37, 99, 235, 0.08)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#2563eb' }] },
-                        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ min:0, grid:{ color:'#f1f5f9' } }, x:{ grid:{ display:false } } } }
+                        data:{ labels, datasets: datasets },
+                        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:true, position: 'bottom', labels: {boxWidth: 12, font: {size: 10}}} }, scales:{ y:{ min:0, grid:{ color:'#f1f5f9' } }, x:{ grid:{ display:false } } } }
                     });
                 } else { document.getElementById('chartContainer').classList.add('hidden'); }
             }
@@ -2323,6 +2397,7 @@
         d.classList.remove('hidden');
         setTimeout(()=>d.classList.add('hidden'), 3500);
     }
+
     // 📱 ── INYECCIÓN JS: MENÚ RESPONSIVE MÓVIL ── 📱
     (function initMobileUI() {
         // 1. Agregar el botón hamburguesa a la barra superior
