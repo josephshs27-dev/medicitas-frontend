@@ -41,6 +41,7 @@
         /* ── Animations ── */
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         .slide-up { animation: slideUp 0.25s ease-out; }
 
         /* ── Loading overlay ── */
@@ -189,8 +190,8 @@
         /* ── Separator ── */
         .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
 
-        /* ── Mapa Anatómico Veterinario (Actualizado con 4 Patas) ── */
-        .vet-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; background: #f5f3ff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        /* ── Mapa Anatómico Veterinario (Silueta Perfil) ── */
+        .vet-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 24px 12px; background: #f5f3ff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
         .v-row { display: flex; gap: 4px; justify-content: center; width: 100%; position: relative; }
         .v-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 8.5px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1; z-index: 2; }
         .v-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); z-index: 10; }
@@ -200,34 +201,28 @@
         .v-head { width: 45px; height: 38px; border-radius: 50% 50% 12px 12px; margin-top: 5px; }
         .v-neck { width: 28px; height: 18px; border-radius: 4px; margin-top: -3px; z-index: 1; }
         .v-body-main { width: 110px; height: 60px; border-radius: 12px 25px 12px 12px; margin-top: -3px; }
-        
-        /* Contenedor de Patas para alinearlas de perfil */
         .legs-container { display: flex; justify-content: space-around; width: 110px; margin-top: -10px; z-index: 1; }
-        .legs-group { display: flex; gap: 2px; } /* Delanteras juntas, Traseras juntas */
-        
-        /* Estilo general para piernas */
+        .legs-group { display: flex; gap: 2px; } 
         .v-leg { width: 16px; height: 50px; border-radius: 4px; border-width: 1px 2px 2px 1px; } 
-        
-        /* Piernas traseras (detrás del cuerpo) */
         .has-finding.v-leg { z-index: 6; }
-        
         .v-tail { width: 45px; height: 12px; border-radius: 20px; transform: rotate(-35deg); margin-left: -20px; margin-top: 15px; }
 
-        /* 🔥 MEJORA: ESTILOS CALENDARIO INTERACTIVO 🔥 */
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
-        .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
-        .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
-        .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
+        /* 🔥 MEJORA: PESTAÑAS (TABS) PARA OPTIMIZAR ESPACIO 🔥 */
+        .rx-tabs-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding: 0 26px; background: #fafbfc; overflow-x: auto; flex-shrink: 0; }
+        .rx-tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+        .rx-tab-btn:hover { color: var(--txt1); }
+        .rx-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .rx-tab-pane { display: none; padding: 22px 26px; }
+        .rx-tab-pane.active { display: block; animation: fadeIn 0.25s ease-out; }
 
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
-        .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
-        .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
+        .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;}
         .modal-title { font-size: 16px; font-weight: 800; color: var(--txt1); }
         .modal-sub { font-size: 12.5px; color: var(--txt2); font-weight: 500; margin-top: 2px; }
-        .modal-bd { padding: 22px 26px; }
-        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; }
+        .modal-bd { padding: 22px 26px; overflow-y: auto;}
+        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; flex-shrink: 0; }
         .modal-close-btn { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: var(--txt2); font-size: 20px; line-height: 1; transition: background 0.15s; }
         .modal-close-btn:hover { background: #f1f5f9; color: var(--txt1); }
 
@@ -236,72 +231,41 @@
         .search-wrap { position: relative; }
         .search-wrap input { padding-left: 36px !important; }
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
-    .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
+
+        /* 🔥 MEJORA: ESTILOS CALENDARIO INTERACTIVO 🔥 */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
+        .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+        .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
 
         /* 📱 ── OPTIMIZACIÓN RESPONSIVE (MÓVILES) ── 📱 */
         @media (max-width: 768px) {
             :root { --sidebar-w: 0px; }
-            
-            /* Sidebar flotante */
-            #appSidebar { 
-                transform: translateX(-100%); 
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-                width: 260px; 
-                box-shadow: 4px 0 24px rgba(0,0,0,0.5);
-                z-index: 100;
-            }
+            #appSidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); z-index: 100; }
             #appSidebar.open { transform: translateX(0); }
-            
             #appMain { margin-left: 0; width: 100vw; }
-            
-            /* Barra Superior */
             .topbar { padding: 0 16px; }
             .topbar-title { font-size: 14px; }
             .topbar-tag { display: none !important; }
-            
             .content-area { padding: 14px; }
-            
-            /* Grids a 1 columna */
             .kpi-grid { grid-template-columns: 1fr !important; gap: 12px; margin-bottom: 20px; }
-            
-            /* Forzar Agenda y Formularios a 1 columna vertical */
             #tabContentAgenda > div { display: flex !important; flex-direction: column !important; height: auto !important; }
-            .modal-bd > div, 
-            .modal-bd > div > div, 
-            #prescriptionModal .cs > div,
-            #historyModal .cs > div { 
-                grid-template-columns: 1fr !important; 
-                display: flex !important; 
-                flex-direction: column !important; 
-                height: auto !important;
-            }
-            
-            /* Ajustar Modales */
             .modal-box { width: 95% !important; max-height: 90vh !important; margin: 0 auto; }
             .modal-hd { padding: 14px 20px; }
             .modal-bd { padding: 16px 20px; }
+            .rx-tab-pane { padding: 16px 20px; }
+            .rx-tabs-nav { padding: 0 16px; }
             .modal-ft { padding: 14px 20px; flex-direction: column; gap: 8px; }
             .modal-ft .btn { width: 100%; }
-            
-            /* Tablas con scroll horizontal suave */
             .panel-body-np, .panel-body { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
             .dtable { min-width: 600px; } 
-            
-            /* Ajustar mapas interactivos ligeramente */
-            .body-map-container, .vet-map, .fisio-map, .nutri-map { transform: scale(0.9); transform-origin: top center; margin-bottom: -10px; }
-
-            /* Mostrar botón menú */
+            .vet-map { transform: scale(0.95); transform-origin: top center; margin-bottom: -10px; }
             .mobile-menu-btn { display: flex !important; }
         }
         
-        /* Estilos del botón Hamburguesa y el fondo oscuro */
-        .mobile-menu-btn {
-            display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1);
-            margin-right: 12px; align-items: center; justify-content: center; padding: 0;
-        }
-        #mobileOverlay {
-            display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px);
-        }
+        .mobile-menu-btn { display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1); margin-right: 12px; align-items: center; justify-content: center; padding: 0; }
+        #mobileOverlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px); }
         #mobileOverlay.show { display: block; animation: fadeIn 0.2s ease-out; }
 
     </style>
@@ -642,7 +606,9 @@
                 </div>
 
             </div></div></main>
-</div><div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
+</div>
+
+<div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
     <div class="modal-box" style="width:100%;max-width:400px;">
         <div class="modal-hd" style="background:var(--accent-light);">
             <div>
@@ -657,6 +623,24 @@
                 <div style="grid-column:span 2;"><label class="flabel">Especie / Raza</label><input type="text" id="triRaza" placeholder="Ej: Canino / Poodle" class="finput"></div>
                 <div><label class="flabel">Edad</label><input type="text" id="triEdad" placeholder="Ej: 2 años" class="finput"></div>
                 <div><label class="flabel">Peso (kg)</label><input type="number" step="0.1" id="triPeso" class="finput"></div>
+                
+                <div>
+                    <label class="flabel">Sexo</label>
+                    <select id="triSexo" class="finput">
+                        <option value="">Seleccionar...</option>
+                        <option value="Macho">Macho</option>
+                        <option value="Hembra">Hembra</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="flabel">Reproductivo</label>
+                    <select id="triRepro" class="finput">
+                        <option value="">Seleccionar...</option>
+                        <option value="Entero">Entero (Intacto)</option>
+                        <option value="Castrado/Esterilizado">Castrado/Esterilizado</option>
+                    </select>
+                </div>
+
                 <div><label class="flabel">Temp (°C)</label><input type="number" step="0.1" id="triTemp" class="finput"></div>
                 <div><label class="flabel">FC (bpm)</label><input type="number" id="triRitmo" class="finput"></div>
             </div>
@@ -669,7 +653,7 @@
 </div>
 
 <div id="prescriptionModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
-    <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
+    <div class="modal-box" style="width:100%;max-width:850px;max-height:95vh;display:flex;flex-direction:column;">
         <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
             <div>
                 <div class="modal-title">Ficha Clínica Veterinaria</div>
@@ -677,34 +661,74 @@
             </div>
             <button onclick="closePrescriptionModal()" class="modal-close-btn">&times;</button>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        
+        <div class="rx-tabs-nav cs">
+            <button type="button" class="rx-tab-btn active" onclick="switchRxTab('tab-anamnesis', this)">1. Anamnesis e IA</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-fisico', this)">2. Examen Físico</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-plan', this)">3. Plan y Vacunas</button>
+        </div>
 
+        <div style="flex:1;overflow-y:auto;" class="cs">
+            <input type="hidden" id="rxAppointmentId">
+
+            <div id="tab-anamnesis" class="rx-tab-pane active">
                 <div style="display:flex;flex-direction:column;gap:18px;">
-                    <input type="hidden" id="rxAppointmentId">
-
+                    
                     <div style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:12px;padding:20px;">
                         <div style="color:white;font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                             Copiloto Veterinario (IA)
                         </div>
-                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe notas (ej: Canino poodle 2 años, presenta vómito desde ayer, deshidratación leve)..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
-                        <button onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent-dark);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe: Canino poodle 2 años, macho entero, presenta vómito desde ayer, deshidratación leve. Aplicar protector gástrico..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
+                        <button type="button" onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent-dark);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
                             ESTRUCTURAR FICHA CON IA ✦
                         </button>
                     </div>
 
-                    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:16px;">
-                        <h4 style="font-size:12px;font-weight:800;color:var(--txt1);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.05em;">Detalles de la Consulta</h4>
-                        <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div class="panel">
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Información General y Reporte</div></div>
+                        <div class="panel-body" style="display:flex;flex-direction:column;gap:12px;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                <div style="grid-column:span 2;"><label class="flabel">Especie / Raza</label><input type="text" id="rxRaza" placeholder="Ej: Felino / Persa" class="finput"></div>
+                                <div><label class="flabel">Edad</label><input type="text" id="rxEdad" class="finput"></div>
+                                
+                                <div>
+                                    <label class="flabel">Sexo</label>
+                                    <select id="rxSexo" class="finput">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Macho">Macho</option>
+                                        <option value="Hembra">Hembra</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flabel">Reproductivo</label>
+                                    <select id="rxRepro" class="finput">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Entero">Entero (Intacto)</option>
+                                        <option value="Castrado/Esterilizado">Castrado/Esterilizado</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div><label class="flabel">Motivo de Consulta</label><input type="text" id="mspMotivo" class="finput"></div>
-                            <div><label class="flabel">Anamnesis (Reporte del Dueño)</label><textarea id="mspAnamnesis" rows="2" class="finput" style="resize:none;"></textarea></div>
-                            <div><label class="flabel">Examen Físico Especial</label><textarea id="mspExamen" rows="2" class="finput" style="resize:none;"></textarea></div>
+                            <div><label class="flabel">Anamnesis (Reporte del Dueño)</label><textarea id="mspAnamnesis" rows="3" class="finput" style="resize:none;"></textarea></div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div style="display:flex;flex-direction:column;gap:18px;">
+            <div id="tab-fisico" class="rx-tab-pane">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    
+                    <div class="panel">
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Constantes Vitales</div></div>
+                        <div class="panel-body">
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                                <div><label class="flabel">Peso (kg)</label><input type="number" step="0.1" id="rxPeso" class="finput"></div>
+                                <div><label class="flabel">Temp (°C)</label><input type="number" step="0.1" id="rxTemp" class="finput"></div>
+                                <div><label class="flabel">FC (bpm)</label><input type="number" id="rxRitmo" class="finput"></div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
@@ -740,33 +764,30 @@
                                 <button type="button" onclick="marcarVet('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Normal</button>
                             </div>
                         </div>
-                        <textarea id="rxDiagnostico" rows="3" placeholder="El hallazgo clínico se redactará aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
-                    </div>
-
-                    <div class="panel" style="margin-top:10px;">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Constantes (Triaje)</div></div>
-                        <div class="panel-body">
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="dynamicVitalsContainer">
-                                <div style="grid-column:span 3;"><label class="flabel">Especie / Raza</label><input type="text" id="rxRaza" class="finput"></div>
-                                <div><label class="flabel">Edad</label><input type="text" id="rxEdad" class="finput"></div>
-                                <div><label class="flabel">Peso</label><input type="number" step="0.1" id="rxPeso" class="finput"></div>
-                                <div><label class="flabel">Temp</label><input type="number" step="0.1" id="rxTemp" class="finput"></div>
-                                <div style="grid-column:span 2;"><label class="flabel">FC (bpm)</label><input type="number" id="rxRitmo" class="finput"></div>
-                            </div>
-                        </div>
+                        <textarea id="mspExamen" rows="3" placeholder="Detalle los hallazgos del examen físico..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
                     </div>
 
                     <div>
+                        <label class="flabel">Diagnóstico / Hallazgos Finales</label>
+                        <textarea id="rxDiagnostico" rows="2" class="finput" style="resize:none;"></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="tab-plan" class="rx-tab-pane">
+                <div style="display:flex;flex-direction:column;gap:18px;">
+                    <div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                            <label class="flabel" style="margin:0;color:var(--accent-dark);">💊 Receta / Tratamiento</label>
-                            <button onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #c7d2fe;">+ Agregar</button>
+                            <label class="flabel" style="margin:0;color:var(--accent-dark);">💊 Receta / Tratamiento Interno</label>
+                            <button type="button" onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #c7d2fe;">+ Agregar</button>
                         </div>
                         <div id="medicinesContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
                     </div>
 
                     <div>
-                        <label class="flabel" style="color:#c2410c;">Recomendaciones al Dueño</label>
-                        <textarea id="rxRecomendaciones" rows="2" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
+                        <label class="flabel" style="color:#c2410c;">Recomendaciones al Dueño / Dieta</label>
+                        <textarea id="rxRecomendaciones" rows="3" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
                     </div>
 
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
@@ -797,14 +818,15 @@
                             <input type="date" id="rxNextDate" class="finput" style="border-color:#bfdbfe;">
                             <input type="time" id="rxNextTime" class="finput" style="border-color:#bfdbfe;">
                         </div>
-                        <p style="font-size:11px;color:#3b82f6;font-weight:600;margin:8px 0 0;">Al guardar, se creará el turno automáticamente en tu agenda y en Google Calendar.</p>
+                        <p style="font-size:11px;color:#3b82f6;font-weight:600;margin:8px 0 0;">Ideal para recordatorios anuales de vacunación o desparasitación (se crea en tu Google Calendar).</p>
                     </div>
                 </div>
             </div>
+
         </div>
-        <div class="modal-ft" style="flex-shrink:0;">
-            <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg" style="flex:1;">Cancelar</button>
-            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="flex:2;">
+        <div class="modal-ft" style="flex-shrink:0; justify-content: flex-end;">
+            <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg">Cancelar</button>
+            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="min-width:180px;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Guardar y Cobrar
             </button>
@@ -1065,7 +1087,7 @@
 <div id="settingsModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
     <div class="modal-box" style="width:100%;max-width:680px;max-height:95vh;display:flex;flex-direction:column;">
         <div class="modal-hd" style="flex-shrink:0;">
-            <div class="modal-title">Configuración de Veterinaria</div>
+            <div class="modal-title">Configuración de Clínica Veterinaria</div>
             <button onclick="closeSettingsModal()" class="modal-close-btn">&times;</button>
         </div>
         <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
@@ -1148,9 +1170,16 @@
             el.textContent = d.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
         }
     })();
-    // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
 
-    // 1. Inicializar el SDK de Facebook
+    // ── TABS NAVEGACIÓN ──
+    function switchRxTab(tabId, btn) {
+        document.querySelectorAll('.rx-tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.rx-tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(btn) btn.classList.add('active');
+    }
+
+    // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
     window.fbAsyncInit = function() {
         FB.init({
             appId      : '2479673065791422', // ⚠️ PON AQUÍ EL ID DE TU APP DE META
@@ -1160,7 +1189,6 @@
         });
     };
 
-    // 2. Cargar el script de Facebook asíncronamente
     (function(d, s, id){
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) {return;}
@@ -1169,7 +1197,6 @@
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
 
-    // 3. Función que se dispara al dar clic en el botón
     function iniciarConexionMeta() {
         const btn = document.getElementById('btnMetaConnect');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
@@ -1177,7 +1204,6 @@
 
         FB.login(function(response) {
             if (response.authResponse && response.authResponse.code) {
-                // Si el doctor aceptó, Meta nos devuelve un "Código de Autorización"
                 const codigoOauth = response.authResponse.code;
                 guardarCredencialesMetaEnBackend(codigoOauth);
             } else {
@@ -1193,13 +1219,11 @@
         });
     }
 
-    // 4. Función para enviar el código a tu servidor (wpp.js)
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
         const btn = document.getElementById('btnMetaConnect');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
         
         try {
-            // Llama a la ruta que crearemos en wpp.js
             const res = await fetch(`${API_BASE_URL}/api/meta/oauth`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1234,18 +1258,18 @@
         appId: "1:310910036460:web:1a979471880251173838c9"
     };
     
-    // 🔥 CORRECCIÓN EXACTA DE FIREBASE V10.7 🔥
+    // FIREBASE INIT LIBRE
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     const storage = firebase.storage();
 
-    // FORZADOR ANTI-CUELGUE (OCULTA LA PANTALLA EN 3 SEGS)
+    // FORZADOR ANTI-CUELGUE
     setTimeout(() => {
         const overlay = document.getElementById('authCheckOverlay');
         if(overlay) overlay.style.display = 'none';
-    }, 3000);
+    }, 3500);
 
     let parentDoctorId = null;
     let clinicDataGlobal = null;
@@ -1256,8 +1280,8 @@
     let currentPatientIdForImages = null;
     let vitalsChartInstance = null;
     let editPatientId = null;
-
-    // Variables Calendario Interactivo
+    
+    // Variables Calendario
     let holidays = [];
     let currentCalDate = new Date();
 
@@ -1277,7 +1301,7 @@
             if (userDoc.exists) {
                 const data = userDoc.data();
                 
-                // 🔥 LÓGICA DE AUTO-SUSPENSIÓN Y BADGE 🔥
+                // 🔥 LÓGICA DE AUTO-SUSPENSIÓN 🔥
                 if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
                     const ahora = new Date();
                     const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
@@ -1302,7 +1326,7 @@
                 }
                 parentDoctorId = user.uid;
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'veterinaria' };
-                holidays = clinicDataGlobal.diasNoLaborables || []; // Cargamos feriados
+                holidays = clinicDataGlobal.diasNoLaborables || [];
 
                 if (data.estadoSuscripcion === 'suspendido') {
                     document.getElementById('dashboardView').classList.add('hidden');
@@ -1395,7 +1419,7 @@
             document.getElementById('insumoQty').value = '';
             mostrarMensaje("Insumo agregado correctamente.", "success");
             loadInsumos();
-        } catch(e) { alert("Error al guardar."); }
+        } catch(e) { alert("Error al guardar insumo."); }
     }
 
     async function updateStock(id, diff) {
@@ -1456,13 +1480,13 @@
         } catch(e) { alert("Error conectando con API de Google Calendar: " + e.message); }
     }
 
-    // ── TABS ──
+    // ── TABS PRINCIPALES ──
     function switchTab(tabId) {
         const tabs = ['dashboard', 'agenda', 'pacientes', 'finanzas', 'insumos'];
         const titles = {
             dashboard: 'Métricas y Estadísticas',
             agenda: 'Agenda Veterinaria',
-            pacientes: 'Pacientes y Mascotas',
+            pacientes: 'Directorio de Pacientes',
             finanzas: 'Finanzas y Planes',
             insumos: 'Inventario Clínico'
         };
@@ -1507,7 +1531,7 @@
         const tbody = document.getElementById('planesPagoTableBody');
         if(!tbody) return;
         if(planesPago.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:#94a3b8;font-weight:600;">No hay planes en cuotas activos.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:#94a3b8;font-weight:600;">No hay planes activos.</td></tr>';
             return;
         }
         tbody.innerHTML = planesPago.map(plan => {
@@ -1658,7 +1682,7 @@
                 </div>
                 <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
                     ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
-                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Constantes</button>
+                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Triaje</button>
                     <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🐾 Atender</button>
                     <button onclick="openHistoryModal('${p?.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
@@ -1774,10 +1798,13 @@
     // ── TRIAGE ──
     function openTriageModal(aptId) {
         document.getElementById('triageAppointmentId').value = aptId;
-        ['triRaza','triEdad','triPeso','triTemp','triRitmo'].forEach(id => document.getElementById(id).value = '');
+        ['triRaza','triEdad','triPeso','triTemp','triRitmo','triSexo','triRepro'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.value = '';
+        });
         const apt = appointments.find(x => x.id === aptId);
         if(apt && apt.triaje) {
-            ['raza','edad','peso','temp','ritmo'].forEach(key => {
+            ['raza','edad','peso','temp','ritmo','sexo','repro'].forEach(key => {
                 const input = document.getElementById('tri' + key.charAt(0).toUpperCase() + key.slice(1));
                 if(input && apt.triaje[key]) input.value = apt.triaje[key];
             });
@@ -1791,6 +1818,8 @@
         const data = {
             raza: document.getElementById('triRaza').value,
             edad: document.getElementById('triEdad').value,
+            sexo: document.getElementById('triSexo').value,
+            repro: document.getElementById('triRepro').value,
             peso: document.getElementById('triPeso').value,
             temp: document.getElementById('triTemp').value,
             ritmo: document.getElementById('triRitmo').value,
@@ -1803,9 +1832,13 @@
         } catch(e) { alert('Error guardando constantes.'); }
     }
 
-    // ── PRESCRIPTION (VETERINARIA + IA) ──
+    // ── PRESCRIPTION (VETERINARIA + IA CON TABS) ──
     function openPrescriptionModal(aptId) {
-        initMapaVet(); // <--- INICIALIZAR EL MAPA AL ABRIR LA MODAL
+        initMapaVet(); 
+        
+        // Reset Tabs a la pestaña 1
+        const firstTabBtn = document.querySelector('.rx-tabs-nav .rx-tab-btn');
+        if(firstTabBtn) switchRxTab('tab-anamnesis', firstTabBtn);
         
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
@@ -1821,12 +1854,14 @@
         document.getElementById('rxRecomendaciones').value = apt?.recomendaciones?.join('\n') || '';
         document.getElementById('rxBorrador').value = '';
         
-        ['rxRaza', 'rxEdad', 'rxPeso', 'rxTemp', 'rxRitmo'].forEach(id => {
+        ['rxRaza', 'rxEdad', 'rxPeso', 'rxTemp', 'rxRitmo', 'rxSexo', 'rxRepro'].forEach(id => {
             const input = document.getElementById(id);
-            input.value = '';
-            if(apt && apt.triaje) {
-                const key = id.replace('rx', '').toLowerCase();
-                if(apt.triaje[key]) input.value = apt.triaje[key];
+            if(input) {
+                input.value = '';
+                if(apt && apt.triaje) {
+                    const key = id.replace('rx', '').toLowerCase();
+                    if(apt.triaje[key]) input.value = apt.triaje[key];
+                }
             }
         });
 
@@ -1838,14 +1873,15 @@
         addMedicineRow();
         document.getElementById('prescriptionModal').classList.remove('hidden');
     }
+    
     function closePrescriptionModal() { document.getElementById('prescriptionModal').classList.add('hidden'); }
 
     function addMedicineRow(med=null) {
         const div = document.createElement('div');
         div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;';
         div.innerHTML = `
-            <input type="text" placeholder="Medicamento/Insumo" class="finput med-name" style="font-size:12.5px;" value="${med?.medicamento||''}">
-            <input type="text" placeholder="Dosis / Horario" class="finput med-dose" style="font-size:12.5px;" value="${med?.dosis||''}">
+            <input type="text" placeholder="Medicamento/Insumo/Vacuna" class="finput med-name" style="font-size:12.5px;" value="${med?.medicamento||''}">
+            <input type="text" placeholder="Dosis / Vía" class="finput med-dose" style="font-size:12.5px;" value="${med?.dosis||''}">
             <button onclick="this.parentElement.remove()" style="width:30px;height:30px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>`;
         document.getElementById('medicinesContainer').appendChild(div);
     }
@@ -1862,7 +1898,7 @@
     function initMapaVet() {
         estadoVet = {};
         document.querySelectorAll('.v-part').forEach(el => el.classList.remove('has-finding'));
-        document.getElementById('rxDiagnostico').value = '';
+        document.getElementById('mspExamen').value = '';
     }
 
     function abrirSelectorVet(e, parte) {
@@ -1894,11 +1930,11 @@
 
     function actualizarTextoVet() {
         if(Object.keys(estadoVet).length === 0) {
-            document.getElementById('rxDiagnostico').value = '';
+            document.getElementById('mspExamen').value = 'Examen físico visual normal.';
             return;
         }
         const textoGenerado = Object.keys(estadoVet).map(parte => `• ${parte}: ${estadoVet[parte]}`).join('\n');
-        document.getElementById('rxDiagnostico').value = "Hallazgos al Examen Físico Visual:\n" + textoGenerado;
+        document.getElementById('mspExamen').value = "Hallazgos al Examen Físico:\n" + textoGenerado;
     }
 
     function limpiarMapaVet() { initMapaVet(); }
@@ -1918,12 +1954,14 @@
         btn.textContent = 'Analizando...'; btn.disabled = true;
         try {
             let datosExtras = [];
-            ['rxRaza', 'rxEdad', 'rxPeso', 'rxTemp', 'rxRitmo'].forEach(id => {
-                const val = document.getElementById(id).value;
-                const label = document.getElementById(id).previousElementSibling.textContent;
-                if(val) datosExtras.push(`${label}: ${val}`);
+            ['rxRaza', 'rxEdad', 'rxSexo', 'rxRepro', 'rxPeso', 'rxTemp', 'rxRitmo'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el && el.value) {
+                    const label = el.previousElementSibling.textContent;
+                    datosExtras.push(`${label}: ${el.value}`);
+                }
             });
-            const contextoClinico = datosExtras.length > 0 ? "Datos previos: " + datosExtras.join(', ') : "";
+            const contextoClinico = datosExtras.length > 0 ? "Datos del paciente: " + datosExtras.join(', ') : "";
 
             const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
@@ -1933,13 +1971,15 @@
             
             if(data.motivo_consulta) document.getElementById('mspMotivo').value = data.motivo_consulta;
             if(data.anamnesis) document.getElementById('mspAnamnesis').value = data.anamnesis;
-            if(data.examen_fisico) document.getElementById('mspExamen').value = data.examen_fisico;
             
-            // Append IA diagnosis to visual diagnosis if exists
-            let currentDiag = document.getElementById('rxDiagnostico').value;
-            if(data.diagnostico) {
-                document.getElementById('rxDiagnostico').value = currentDiag ? currentDiag + "\n\nDiagnóstico (IA):\n" + data.diagnostico : data.diagnostico;
+            let currentExamen = document.getElementById('mspExamen').value;
+            if(data.examen_fisico) {
+                if(!currentExamen || currentExamen.includes('normal')) {
+                    document.getElementById('mspExamen').value = data.examen_fisico;
+                }
             }
+            
+            if(data.diagnostico) document.getElementById('rxDiagnostico').value = data.diagnostico;
             
             if(Array.isArray(data.recomendaciones)) document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
             else if (data.recomendaciones) document.getElementById('rxRecomendaciones').value = data.recomendaciones;
@@ -1973,21 +2013,21 @@
             if(mspMotivo) diagFinal += `- Motivo: ${mspMotivo}\n`;
             if(mspAnamnesis) diagFinal += `- Anamnesis: ${mspAnamnesis}\n`;
             if(mspExamen) diagFinal += `- Examen Físico: ${mspExamen}\n`;
-            if(rxDiagnostico) diagFinal += `- Hallazgos/Diagnóstico: ${rxDiagnostico}\n\n`;
+            if(rxDiagnostico) diagFinal += `- Diagnóstico Final: ${rxDiagnostico}\n\n`;
         }
 
         let customVitalsStr = [];
         let vitalsObj = {};
-        ['rxRaza', 'rxEdad', 'rxPeso', 'rxTemp', 'rxRitmo'].forEach(id => {
-            const val = document.getElementById(id).value;
-            const label = document.getElementById(id).previousElementSibling.textContent;
-            if(val) {
-                customVitalsStr.push(`${label}: ${val}`);
-                vitalsObj[id.replace('rx', '').toLowerCase()] = val;
+        ['rxRaza', 'rxEdad', 'rxSexo', 'rxRepro', 'rxPeso', 'rxTemp', 'rxRitmo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el && el.value) {
+                const label = el.previousElementSibling.textContent;
+                customVitalsStr.push(`${label}: ${el.value}`);
+                vitalsObj[id.replace('rx', '').toLowerCase()] = el.value;
             }
         });
 
-        if (customVitalsStr.length > 0) diagFinal = `[Constantes Fisiológicas: ${customVitalsStr.join(' | ')}]\n\n${diagFinal}`;
+        if (customVitalsStr.length > 0) diagFinal = `[Datos y Constantes: ${customVitalsStr.join(' | ')}]\n\n${diagFinal}`;
 
         const meds = [];
         Array.from(document.getElementById('medicinesContainer').children).forEach(r => {
@@ -2017,18 +2057,18 @@
         let nextDate = document.getElementById('rxNextDate').value;
         let nextTime = document.getElementById('rxNextTime').value;
         if(nextDate && nextTime) {
-            recList.push(`📅 Tu próximo control queda agendado para: ${nextDate} a las ${nextTime}`);
+            recList.push(`📅 Recordatorio: Próximo control o refuerzo de vacuna programado para: ${nextDate} a las ${nextTime}`);
 
             await db.collection('appointments').add({
                 doctorId: parentDoctorId, patientId: p.id,
                 fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
-                motivo: 'Control Veterinario (Auto-Agendado)', fechaCreacion: new Date()
+                motivo: 'Control / Refuerzo de Vacuna (Auto-Agendado)', fechaCreacion: new Date()
             });
 
             if(clinicDataGlobal.gCalendarToken) {
                 fetch(`${API_BASE_URL}/api/calendar/create-event`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control Veterinario', tokenGCalendar: clinicDataGlobal.gCalendarToken })
+                    body: JSON.stringify({ doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control / Vacuna', tokenGCalendar: clinicDataGlobal.gCalendarToken })
                 });
             }
         }
@@ -2092,7 +2132,7 @@
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.` })
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.` })
                 });
             }
             
@@ -2127,8 +2167,8 @@
                     const dateStr = dateObj.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
                     
                     let vStr='';
-                    if(d.temp) vStr+=`Temp: ${d.temp}°C | `;
                     if(d.peso) vStr+=`Peso: ${d.peso}kg | `;
+                    if(d.temp) vStr+=`Temp: ${d.temp}°C | `;
                     if(d.ritmo) vStr+=`FC: ${d.ritmo} bpm`;
                     
                     let recsHtml='';
@@ -2335,6 +2375,7 @@
         d.classList.remove('hidden');
         setTimeout(()=>d.classList.add('hidden'), 3500);
     }
+
     // 📱 ── INYECCIÓN JS: MENÚ RESPONSIVE MÓVIL ── 📱
     (function initMobileUI() {
         // 1. Agregar el botón hamburguesa a la barra superior
