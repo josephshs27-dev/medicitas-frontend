@@ -40,6 +40,7 @@
         /* ── Animations ── */
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         .slide-up { animation: slideUp 0.25s ease-out; }
 
         /* ── Loading overlay ── */
@@ -173,12 +174,12 @@
 
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
-        .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
-        .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
+        .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .modal-title { font-size: 16px; font-weight: 800; color: var(--txt1); }
         .modal-sub { font-size: 12.5px; color: var(--txt2); font-weight: 500; margin-top: 2px; }
-        .modal-bd { padding: 22px 26px; }
-        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; }
+        .modal-bd { padding: 22px 26px; overflow-y: auto; }
+        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; flex-shrink: 0; }
         .modal-close-btn { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: var(--txt2); font-size: 20px; line-height: 1; transition: background 0.15s; }
         .modal-close-btn:hover { background: #f1f5f9; color: var(--txt1); }
 
@@ -189,7 +190,7 @@
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
 
         /* 🔥 MEJORA 1: ESTILOS MAPA FISIOTERAPIA 🔥 */
-        .fisio-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+        .fisio-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 20px 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
         .f-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
         .f-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
         .f-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
@@ -200,79 +201,55 @@
         .f-joint { width: 35px; height: 35px; border-radius: 50%; } 
         .f-limb { width: 30px; height: 60px; border-radius: 12px; }
 
-        /* 🔥 MEJORA 2: ESTILOS CALENDARIO INTERACTIVO 🔥 */
+        /* 🔥 MEJORA: PESTAÑAS (TABS) PARA OPTIMIZAR ESPACIO 🔥 */
+        .rx-tabs-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding: 0 26px; background: #fafbfc; overflow-x: auto; flex-shrink: 0; }
+        .rx-tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+        .rx-tab-btn:hover { color: var(--txt1); }
+        .rx-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .rx-tab-pane { display: none; padding: 22px 26px; }
+        .rx-tab-pane.active { display: block; animation: fadeIn 0.25s ease-out; }
+
+        /* 🔥 MEJORA: ESCALA VISUAL DEL DOLOR (EVA) 🔥 */
+        .eva-container { padding: 16px; background: white; border: 1px solid var(--border); border-radius: 10px; }
+        .eva-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .eva-slider { -webkit-appearance: none; width: 100%; background: transparent; margin: 10px 0; }
+        .eva-slider::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%); border-radius: 99px; }
+        .eva-slider::-webkit-slider-thumb { height: 22px; width: 22px; border-radius: 50%; background: white; cursor: pointer; -webkit-appearance: none; margin-top: -7px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid var(--txt2); transition: 0.1s; }
+
+        /* 🔥 MEJORA: ESTILOS CALENDARIO INTERACTIVO 🔥 */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
         .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
         .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
         .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
-    
-     .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
 
         /* 📱 ── OPTIMIZACIÓN RESPONSIVE (MÓVILES) ── 📱 */
         @media (max-width: 768px) {
             :root { --sidebar-w: 0px; }
-            
-            /* Sidebar flotante */
-            #appSidebar { 
-                transform: translateX(-100%); 
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-                width: 260px; 
-                box-shadow: 4px 0 24px rgba(0,0,0,0.5);
-                z-index: 100;
-            }
+            #appSidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); z-index: 100; }
             #appSidebar.open { transform: translateX(0); }
-            
             #appMain { margin-left: 0; width: 100vw; }
-            
-            /* Barra Superior */
             .topbar { padding: 0 16px; }
             .topbar-title { font-size: 14px; }
             .topbar-tag { display: none !important; }
-            
             .content-area { padding: 14px; }
-            
-            /* Grids a 1 columna */
             .kpi-grid { grid-template-columns: 1fr !important; gap: 12px; margin-bottom: 20px; }
-            
-            /* Forzar Agenda y Formularios a 1 columna vertical */
             #tabContentAgenda > div { display: flex !important; flex-direction: column !important; height: auto !important; }
-            .modal-bd > div, 
-            .modal-bd > div > div, 
-            #prescriptionModal .cs > div,
-            #historyModal .cs > div { 
-                grid-template-columns: 1fr !important; 
-                display: flex !important; 
-                flex-direction: column !important; 
-                height: auto !important;
-            }
-            
-            /* Ajustar Modales */
             .modal-box { width: 95% !important; max-height: 90vh !important; margin: 0 auto; }
             .modal-hd { padding: 14px 20px; }
             .modal-bd { padding: 16px 20px; }
+            .rx-tab-pane { padding: 16px 20px; }
+            .rx-tabs-nav { padding: 0 16px; }
             .modal-ft { padding: 14px 20px; flex-direction: column; gap: 8px; }
             .modal-ft .btn { width: 100%; }
-            
-            /* Tablas con scroll horizontal suave */
             .panel-body-np, .panel-body { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
             .dtable { min-width: 600px; } 
-            
-            /* Ajustar mapas interactivos ligeramente */
-            .body-map-container, .vet-map, .fisio-map, .nutri-map { transform: scale(0.9); transform-origin: top center; margin-bottom: -10px; }
-
-            /* Mostrar botón menú */
+            .fisio-map { transform: scale(0.95); transform-origin: top center; margin-bottom: -10px; }
             .mobile-menu-btn { display: flex !important; }
         }
         
-        /* Estilos del botón Hamburguesa y el fondo oscuro */
-        .mobile-menu-btn {
-            display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1);
-            margin-right: 12px; align-items: center; justify-content: center; padding: 0;
-        }
-        #mobileOverlay {
-            display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px);
-        }
+        .mobile-menu-btn { display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1); margin-right: 12px; align-items: center; justify-content: center; padding: 0; }
+        #mobileOverlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px); }
         #mobileOverlay.show { display: block; animation: fadeIn 0.2s ease-out; }
 
     </style>
@@ -613,12 +590,14 @@
                 </div>
 
             </div></div></main>
-</div><div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
+</div>
+
+<div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
     <div class="modal-box" style="width:100%;max-width:400px;">
         <div class="modal-hd" style="background:#f0fdfa;">
             <div>
-                <div class="modal-title">Evaluación Física</div>
-                <div class="modal-sub">Registro de métricas del paciente</div>
+                <div class="modal-title">Evaluación Física (Rápida)</div>
+                <div class="modal-sub">Registro de métricas por asistente</div>
             </div>
             <button onclick="closeTriageModal()" class="modal-close-btn">&times;</button>
         </div>
@@ -641,34 +620,86 @@
 </div>
 
 <div id="prescriptionModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
-    <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
+    <div class="modal-box" style="width:100%;max-width:850px;max-height:95vh;display:flex;flex-direction:column;">
         <div class="modal-hd" style="background:#f0fdfa;flex-shrink:0;">
             <div>
-                <div class="modal-title">Plan Fisioterapéutico</div>
+                <div class="modal-title">Plan Fisioterapéutico Especializado</div>
                 <div class="modal-sub" id="rxPatientName">Paciente</div>
             </div>
             <button onclick="closePrescriptionModal()" class="modal-close-btn">&times;</button>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        
+        <div class="rx-tabs-nav cs">
+            <button type="button" class="rx-tab-btn active" onclick="switchRxTab('tab-eval', this)">1. Evaluación e IA</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-mapa', this)">2. Mapa de Dolor</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-plan', this)">3. Plan de Tratamiento</button>
+        </div>
 
+        <div style="flex:1;overflow-y:auto;" class="cs">
+            <input type="hidden" id="rxAppointmentId">
+
+            <div id="tab-eval" class="rx-tab-pane active">
                 <div style="display:flex;flex-direction:column;gap:18px;">
-                    <input type="hidden" id="rxAppointmentId">
-
+                    
                     <div style="background:linear-gradient(135deg,var(--accent),#10b981);border-radius:12px;padding:20px;">
                         <div style="color:white;font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                            Copiloto IA
+                            Copiloto IA Fisioterapéutico
                         </div>
-                        <textarea id="rxBorrador" rows="2" placeholder="Notas rápidas para estructurar el plan..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
-                        <button onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe: Paciente con dolor cervical irradiado al brazo derecho. Limitación en abducción. Aplicar TENS y masaje descontracturante..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
+                        <button type="button" onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
                             ESTRUCTURAR CON IA ✦
                         </button>
                     </div>
 
+                    <div class="panel">
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Métricas y Escalas Funcionales</div></div>
+                        <div class="panel-body" style="display:flex;flex-direction:column;gap:16px;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                                <div><label class="flabel">Edad</label><input type="number" id="rxEdad" class="finput"></div>
+                                <div><label class="flabel">Peso</label><input type="number" id="rxPeso" class="finput"></div>
+                                <div><label class="flabel">Altura (cm)</label><input type="number" id="rxAltura" class="finput"></div>
+                            </div>
+
+                            <div class="eva-container">
+                                <div class="eva-header">
+                                    <label class="flabel" style="margin:0;color:var(--txt1);">Escala Visual Analógica (EVA) de Dolor</label>
+                                    <span id="dolorValueLabel" style="font-size:14px;font-weight:800;color:#10b981;">0 - Sin Dolor 😊</span>
+                                </div>
+                                <input type="range" id="rxDolorSlider" class="eva-slider" min="0" max="10" value="0" oninput="updateDolorLabel(this.value)">
+                                <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:var(--txt3);">
+                                    <span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span>
+                                </div>
+                            </div>
+
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                                <div>
+                                    <label class="flabel">Fuerza Muscular (Escala Daniels)</label>
+                                    <select id="rxFuerza" class="finput">
+                                        <option value="">No evaluada...</option>
+                                        <option value="0">0 - Ausencia de contracción</option>
+                                        <option value="1">1 - Contracción visible, sin movimiento</option>
+                                        <option value="2">2 - Movimiento elimina la gravedad</option>
+                                        <option value="3">3 - Movimiento contra gravedad</option>
+                                        <option value="4">4 - Movimiento con resistencia parcial</option>
+                                        <option value="5">5 - Fuerza normal, resistencia total</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flabel">Rango de Movilidad Articular (ROM)</label>
+                                    <input type="text" id="rxROM" placeholder="Ej: Flexión limitada a 90°" class="finput">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-mapa" class="rx-tab-pane">
+                <div style="display:flex;flex-direction:column;gap:16px;">
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
-                            <label class="flabel" style="margin:0; color:var(--accent-dark);">Mapa Físico (Puntos de Dolor)</label>
+                            <label class="flabel" style="margin:0; color:var(--accent-dark);">Mapa Físico (Topografía del Dolor)</label>
                             <button type="button" onclick="limpiarMapaFisio()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
                         </div>
                         <div style="position:relative;">
@@ -707,42 +738,33 @@
                                 <button type="button" onclick="marcarFisio('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Sin anomalías</button>
                             </div>
                         </div>
-                        <textarea id="rxDiagnostico" rows="3" placeholder="El diagnóstico y evolución se generarán aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
                     </div>
+                    <div>
+                        <label class="flabel">Diagnóstico / Evolución Detallada</label>
+                        <textarea id="rxDiagnostico" rows="4" placeholder="El diagnóstico se construirá aquí con la IA o el mapa..." class="finput" style="resize:vertical; font-size:13px;"></textarea>
+                    </div>
+                </div>
+            </div>
 
+            <div id="tab-plan" class="rx-tab-pane">
+                <div style="display:flex;flex-direction:column;gap:18px;">
                     <div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                            <label class="flabel" style="margin:0;color:var(--accent);">Plan de Terapia</label>
-                            <button onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #99f6e4;">+ Agregar</button>
+                            <label class="flabel" style="margin:0;color:var(--accent);">Plan de Sesión actual (Técnicas / Insumos)</label>
+                            <button type="button" onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #99f6e4;">+ Agregar</button>
                         </div>
                         <div id="medicinesContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
                     </div>
-                </div>
-
-                <div style="display:flex;flex-direction:column;gap:18px;">
-
-                    <div class="panel">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Métricas Físicas</div></div>
-                        <div class="panel-body">
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="dynamicVitalsContainer">
-                                <div><label class="flabel">Edad</label><input type="number" id="rxEdad" class="finput"></div>
-                                <div><label class="flabel">Peso</label><input type="number" id="rxPeso" class="finput"></div>
-                                <div><label class="flabel" style="color:#dc2626;">Dolor</label><input type="number" id="rxDolor" class="finput" style="color:#dc2626;"></div>
-                                <div style="grid-column:span 2;"><label class="flabel">Zona Afectada</label><input type="text" id="rxZona" class="finput"></div>
-                                <div><label class="flabel">Movilidad</label><input type="text" id="rxMov" class="finput"></div>
-                            </div>
-                        </div>
-                    </div>
 
                     <div>
-                        <label class="flabel" style="color:#c2410c;">Cuidados en Casa</label>
+                        <label class="flabel" style="color:#c2410c;">Cuidados en Casa / Ejercicios</label>
                         <textarea id="rxRecomendaciones" rows="3" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
                     </div>
 
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:0;">
                             <input type="checkbox" id="checkTratamiento" onchange="toggleCuotas()" style="width:18px;height:18px;accent-color:var(--accent);">
-                            <span style="font-size:13px;font-weight:700;color:var(--txt1);">Tratamiento largo / Pago en cuotas</span>
+                            <span style="font-size:13px;font-weight:700;color:var(--txt1);">Tratamiento largo / Paquete en Cuotas</span>
                         </label>
                         <div id="divCuotas" class="hidden" style="margin-top:14px;display:none;">
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -751,7 +773,7 @@
                                     <input type="number" id="numCuotas" value="1" min="1" class="finput" style="font-size:18px;font-weight:800;text-align:center;">
                                 </div>
                                 <div>
-                                    <label class="flabel">Monto total ($)</label>
+                                    <label class="flabel">Monto total del paquete ($)</label>
                                     <input type="number" id="montoTotalPlan" step="0.01" placeholder="0.00" class="finput" style="font-size:18px;font-weight:800;text-align:center;">
                                 </div>
                             </div>
@@ -771,10 +793,11 @@
                     </div>
                 </div>
             </div>
+            
         </div>
-        <div class="modal-ft" style="flex-shrink:0;">
-            <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg" style="flex:1;">Cancelar</button>
-            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="flex:2;">
+        <div class="modal-ft" style="flex-shrink:0; justify-content: flex-end;">
+            <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg">Cancelar</button>
+            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="min-width: 180px;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Guardar y Cobrar
             </button>
@@ -883,7 +906,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                 <div style="display:flex;flex-direction:column;gap:16px;">
                     <div id="chartContainer" class="panel hidden" style="height:220px;">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución del Dolor</div></div>
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución del Dolor (EVA)</div></div>
                         <div style="padding:16px;height:calc(100% - 53px);">
                             <canvas id="vitalsChartCanvas"></canvas>
                         </div>
@@ -1120,8 +1143,6 @@
     })();
 
     // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
-
-    // 1. Inicializar el SDK de Facebook
     window.fbAsyncInit = function() {
         FB.init({
             appId      : '2479673065791422', // ⚠️ PON AQUÍ EL ID DE TU APP DE META
@@ -1131,7 +1152,6 @@
         });
     };
 
-    // 2. Cargar el script de Facebook asíncronamente
     (function(d, s, id){
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) {return;}
@@ -1140,7 +1160,6 @@
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
 
-    // 3. Función que se dispara al dar clic en el botón
     function iniciarConexionMeta() {
         const btn = document.getElementById('btnMetaConnect');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
@@ -1148,7 +1167,6 @@
 
         FB.login(function(response) {
             if (response.authResponse && response.authResponse.code) {
-                // Si el doctor aceptó, Meta nos devuelve un "Código de Autorización"
                 const codigoOauth = response.authResponse.code;
                 guardarCredencialesMetaEnBackend(codigoOauth);
             } else {
@@ -1164,13 +1182,11 @@
         });
     }
 
-    // 4. Función para enviar el código a tu servidor (wpp.js)
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
         const btn = document.getElementById('btnMetaConnect');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
         
         try {
-            // Llama a la ruta que crearemos en wpp.js
             const res = await fetch(`${API_BASE_URL}/api/meta/oauth`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1775,9 +1791,34 @@
         } catch(e) { alert('Error guardando triaje.'); }
     }
 
-    // ── PRESCRIPTION (TERAPIA + IA + MAPA) ──
+    // ── PRESCRIPTION CON TABS (TERAPIA + IA + MAPA) ──
+    function switchRxTab(tabId, btn) {
+        document.querySelectorAll('.rx-tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.rx-tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(btn) btn.classList.add('active');
+    }
+
+    function updateDolorLabel(val) {
+        const label = document.getElementById('dolorValueLabel');
+        const slider = document.getElementById('rxDolorSlider');
+        let color = '#10b981'; // Green
+        let text = 'Sin Dolor 😊';
+        if(val > 0 && val <= 3) { color = '#84cc16'; text = 'Dolor Leve 🙂'; }
+        else if(val > 3 && val <= 7) { color = '#f59e0b'; text = 'Dolor Moderado 😕'; }
+        else if(val > 7 && val <= 9) { color = '#ef4444'; text = 'Dolor Severo 😫'; }
+        else if(val == 10) { color = '#991b1b'; text = 'Máximo Dolor 😭'; }
+        
+        label.textContent = `${val} - ${text}`;
+        label.style.color = color;
+    }
+
     function openPrescriptionModal(aptId) {
-        initMapaFisio(); // 🔥 INICIALIZA EL MAPA FÍSICO 🔥
+        initMapaFisio(); // Inicializa el mapa físico
+
+        // Resetea Tabs a la pestaña 1
+        const firstTabBtn = document.querySelector('.rx-tabs-nav .rx-tab-btn');
+        if(firstTabBtn) switchRxTab('tab-eval', firstTabBtn);
 
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
@@ -1786,14 +1827,26 @@
         document.getElementById('rxRecomendaciones').value = apt?.recomendaciones?.join('\n') || '';
         document.getElementById('rxBorrador').value = '';
         
-        ['rxEdad', 'rxPeso', 'rxDolor', 'rxZona', 'rxMov'].forEach(id => {
-            const input = document.getElementById(id);
-            input.value = '';
-            if(apt && apt.triaje) {
-                const key = id.replace('rx', '').toLowerCase();
-                if(apt.triaje[key]) input.value = apt.triaje[key];
-            }
+        // Limpiar campos
+        ['rxEdad', 'rxPeso', 'rxAltura', 'rxFuerza', 'rxROM'].forEach(id => {
+            document.getElementById(id).value = '';
         });
+        
+        document.getElementById('rxDolorSlider').value = 0;
+        updateDolorLabel(0);
+
+        // Cargar datos previos si existen
+        if(apt && apt.triaje) {
+            if(apt.triaje.edad) document.getElementById('rxEdad').value = apt.triaje.edad;
+            if(apt.triaje.peso) document.getElementById('rxPeso').value = apt.triaje.peso;
+            if(apt.triaje.altura) document.getElementById('rxAltura').value = apt.triaje.altura;
+            if(apt.triaje.fuerza) document.getElementById('rxFuerza').value = apt.triaje.fuerza;
+            if(apt.triaje.rom) document.getElementById('rxROM').value = apt.triaje.rom;
+            if(apt.triaje.dolor) {
+                document.getElementById('rxDolorSlider').value = apt.triaje.dolor;
+                updateDolorLabel(apt.triaje.dolor);
+            }
+        }
 
         document.getElementById('rxNextDate').value = '';
         document.getElementById('rxNextTime').value = '';
@@ -1883,11 +1936,19 @@
         btn.textContent = 'Analizando...'; btn.disabled = true;
         try {
             let datosExtras = [];
-            ['rxEdad', 'rxPeso', 'rxDolor', 'rxZona', 'rxMov'].forEach(id => {
-                const val = document.getElementById(id).value;
-                const label = document.getElementById(id).previousElementSibling.textContent;
-                if(val) datosExtras.push(`${label}: ${val}`);
-            });
+            
+            const edad = document.getElementById('rxEdad').value;
+            const peso = document.getElementById('rxPeso').value;
+            const eva = document.getElementById('rxDolorSlider').value;
+            const daniels = document.getElementById('rxFuerza').value;
+            const rom = document.getElementById('rxROM').value;
+            
+            if(edad) datosExtras.push(`Edad: ${edad}`);
+            if(peso) datosExtras.push(`Peso: ${peso}`);
+            if(eva) datosExtras.push(`Dolor EVA: ${eva}/10`);
+            if(daniels) datosExtras.push(`Fuerza Daniels: ${daniels}/5`);
+            if(rom) datosExtras.push(`Rango Movilidad: ${rom}`);
+            
             const contextoClinico = datosExtras.length > 0 ? "Datos evaluados: " + datosExtras.join(', ') : "";
 
             const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, {
@@ -1896,7 +1957,6 @@
             });
             const data = await res.json();
             
-            // Append IA diagnosis to map diagnosis
             let currentDiag = document.getElementById('rxDiagnostico').value;
             if(data.diagnostico) {
                 document.getElementById('rxDiagnostico').value = currentDiag ? currentDiag + "\n\n(IA): " + data.diagnostico : data.diagnostico;
@@ -1927,16 +1987,22 @@
         let customVitalsStr = [];
         let vitalsObj = {};
 
-        ['rxEdad', 'rxPeso', 'rxDolor', 'rxZona', 'rxMov'].forEach(id => {
-            const val = document.getElementById(id).value;
-            const label = document.getElementById(id).previousElementSibling.textContent;
-            if(val) {
-                customVitalsStr.push(`${label}: ${val}`);
-                vitalsObj[id.replace('rx', '').toLowerCase()] = val;
-            }
-        });
+        // Recolectar datos de Fisioterapia
+        const edad = document.getElementById('rxEdad').value;
+        const peso = document.getElementById('rxPeso').value;
+        const altura = document.getElementById('rxAltura').value;
+        const dolorEVA = document.getElementById('rxDolorSlider').value;
+        const fuerza = document.getElementById('rxFuerza').value;
+        const rom = document.getElementById('rxROM').value;
 
-        if (customVitalsStr.length > 0) diag = `[Datos Físicos: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
+        if(edad) { customVitalsStr.push(`Edad: ${edad}`); vitalsObj.edad = edad; }
+        if(peso) { customVitalsStr.push(`Peso: ${peso}`); vitalsObj.peso = peso; }
+        if(altura) { customVitalsStr.push(`Altura: ${altura}`); vitalsObj.altura = altura; }
+        if(dolorEVA) { customVitalsStr.push(`Dolor EVA: ${dolorEVA}/10`); vitalsObj.dolor = dolorEVA; }
+        if(fuerza) { customVitalsStr.push(`Fuerza (Daniels): ${fuerza}/5`); vitalsObj.fuerza = fuerza; }
+        if(rom) { customVitalsStr.push(`ROM: ${rom}`); vitalsObj.rom = rom; }
+
+        if (customVitalsStr.length > 0) diag = `[Evaluación Funcional: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
 
         const meds = [];
         Array.from(document.getElementById('medicinesContainer').children).forEach(r => {
