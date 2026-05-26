@@ -188,7 +188,7 @@
 
         /* ── Separator ── */
         .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
-       
+        
         /* ── Odontograma Interactivo ── */
         .odontograma-row { display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; margin-bottom: 8px; }
         .tooth { width: 100%; aspect-ratio: 1; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; cursor: pointer; transition: all 0.15s; background: white; color: var(--txt2); user-select: none; }
@@ -196,6 +196,19 @@
         .tooth.caries { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
         .tooth.extraccion { background: #f1f5f9; border-color: #cbd5e1; color: #475569; text-decoration: line-through; opacity: 0.6; }
         .tooth.corona { background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
+
+        /* 🔥 MEJORA: TABLAS CLÍNICAS AVANZADAS 🔥 */
+        .clinical-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+        .clinical-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .clinical-table th { background: #f8fafc; font-size: 10px; font-weight: 700; color: var(--txt2); padding: 8px; border-bottom: 1px solid var(--border); text-align: center; }
+        .clinical-table td { padding: 6px; border-bottom: 1px solid var(--border); border-right: 1px solid #f1f5f9; text-align: center; }
+        .clinical-table td:last-child { border-right: none; }
+        .clinical-table input { width: 100%; padding: 4px; text-align: center; border: 1px solid transparent; border-radius: 4px; font-size: 12px; background: transparent; }
+        .clinical-table input:focus { border-color: var(--accent); background: #f8fafc; outline: none; }
+        
+        .cpo-box { display: flex; flex-direction: column; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+        .cpo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+        .cpo-grid input { width: 100%; padding: 6px; text-align: center; font-weight: 700; border: 1px solid var(--border); border-radius: 6px; }
 
         /* 🔥 MEJORA: ESTILOS CALENDARIO INTERACTIVO 🔥 */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
@@ -247,6 +260,7 @@
             
             /* Grids a 1 columna */
             .kpi-grid { grid-template-columns: 1fr !important; gap: 12px; margin-bottom: 20px; }
+            .clinical-grid { grid-template-columns: 1fr !important; }
             
             /* Forzar Agenda y Formularios a 1 columna vertical */
             #tabContentAgenda > div { display: flex !important; flex-direction: column !important; height: auto !important; }
@@ -271,9 +285,6 @@
             .panel-body-np, .panel-body { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
             .dtable { min-width: 600px; } 
             
-            /* Ajustar mapas interactivos ligeramente */
-            .body-map-container, .vet-map, .fisio-map, .nutri-map { transform: scale(0.9); transform-origin: top center; margin-bottom: -10px; }
-
             /* Mostrar botón menú */
             .mobile-menu-btn { display: flex !important; }
         }
@@ -653,7 +664,7 @@
     <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
         <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
             <div>
-                <div class="modal-title">Ficha Odontológica 033</div>
+                <div class="modal-title">Ficha Odontológica Avanzada 033</div>
                 <div class="modal-sub" id="rxPatientName">Paciente</div>
             </div>
             <button onclick="closePrescriptionModal()" class="modal-close-btn">&times;</button>
@@ -699,7 +710,81 @@
                                 </div>
                                 <textarea id="mspOdontograma" rows="2" placeholder="El diagnóstico se escribirá aquí automáticamente..." class="finput" style="resize:none; margin-top:8px; background:white; font-size:12px;"></textarea>
                             </div>
-                            <div><label class="flabel">CIE-10 Odontológico (Aprox)</label><input type="text" id="mspCie10" placeholder="Ej: K02.1" class="finput"></div>
+                            
+                            <div style="margin-top:8px;">
+                                <label class="flabel" style="color:var(--accent-dark);">Indicadores de Salud Bucal</label>
+                                <table class="clinical-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Piezas</th>
+                                            <th>Placa (0-3)</th>
+                                            <th>Cálculo (0-3)</th>
+                                            <th>Gingivitis (0-3)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>16 | 17 | 55</td><td><input type="number" id="indP1" min="0" max="3"></td><td><input type="number" id="indC1" min="0" max="3"></td><td><input type="number" id="indG1" min="0" max="3"></td></tr>
+                                        <tr><td>11 | 21 | 51</td><td><input type="number" id="indP2" min="0" max="3"></td><td><input type="number" id="indC2" min="0" max="3"></td><td><input type="number" id="indG2" min="0" max="3"></td></tr>
+                                        <tr><td>26 | 27 | 65</td><td><input type="number" id="indP3" min="0" max="3"></td><td><input type="number" id="indC3" min="0" max="3"></td><td><input type="number" id="indG3" min="0" max="3"></td></tr>
+                                        <tr><td>36 | 37 | 75</td><td><input type="number" id="indP4" min="0" max="3"></td><td><input type="number" id="indC4" min="0" max="3"></td><td><input type="number" id="indG4" min="0" max="3"></td></tr>
+                                        <tr><td>31 | 41 | 71</td><td><input type="number" id="indP5" min="0" max="3"></td><td><input type="number" id="indC5" min="0" max="3"></td><td><input type="number" id="indG5" min="0" max="3"></td></tr>
+                                        <tr><td>46 | 47 | 85</td><td><input type="number" id="indP6" min="0" max="3"></td><td><input type="number" id="indC6" min="0" max="3"></td><td><input type="number" id="indG6" min="0" max="3"></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="clinical-grid">
+                                <div>
+                                    <label class="flabel">Enf. Periodontal</label>
+                                    <select id="evalPeriodontal" class="finput">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Leve">Leve</option>
+                                        <option value="Moderada">Moderada</option>
+                                        <option value="Severa">Severa</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flabel">Tipo de Oclusión</label>
+                                    <select id="evalOclusion" class="finput">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Angle I">Angle I</option>
+                                        <option value="Angle II">Angle II</option>
+                                        <option value="Angle III">Angle III</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flabel">Nivel de Fluorosis</label>
+                                    <select id="evalFluorosis" class="finput">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Leve">Leve</option>
+                                        <option value="Moderada">Moderada</option>
+                                        <option value="Severa">Severa</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="clinical-grid" style="margin-top: 8px;">
+                                <div class="cpo-box">
+                                    <label class="flabel" style="color:var(--accent-dark); text-align:center;">CPO-D (Permanentes)</label>
+                                    <div class="cpo-grid">
+                                        <div><div style="font-size:10px;text-align:center;">C</div><input type="number" id="cpoC" min="0" oninput="calcCPO()"></div>
+                                        <div><div style="font-size:10px;text-align:center;">P</div><input type="number" id="cpoP" min="0" oninput="calcCPO()"></div>
+                                        <div><div style="font-size:10px;text-align:center;">O</div><input type="number" id="cpoO" min="0" oninput="calcCPO()"></div>
+                                        <div><div style="font-size:10px;text-align:center;color:var(--accent-dark);font-weight:800;">TOTAL</div><input type="text" id="cpoTotal" readonly style="background:#e0f2fe;color:#0369a1;"></div>
+                                    </div>
+                                </div>
+                                <div class="cpo-box">
+                                    <label class="flabel" style="color:var(--txt2); text-align:center;">ceo-d (Deciduos)</label>
+                                    <div class="cpo-grid">
+                                        <div><div style="font-size:10px;text-align:center;">c</div><input type="number" id="ceoC" min="0" oninput="calcCPO()"></div>
+                                        <div><div style="font-size:10px;text-align:center;">e</div><input type="number" id="ceoE" min="0" oninput="calcCPO()"></div>
+                                        <div><div style="font-size:10px;text-align:center;">o</div><input type="number" id="ceoO" min="0" oninput="calcCPO()"></div>
+                                        <div><div style="font-size:10px;text-align:center;color:var(--txt2);font-weight:800;">TOTAL</div><input type="text" id="ceoTotal" readonly style="background:#f1f5f9;color:#475569;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 10px;"><label class="flabel">CIE-10 Odontológico (Aprox)</label><input type="text" id="mspCie10" placeholder="Ej: K02.1" class="finput"></div>
                         </div>
                         <textarea id="rxDiagnostico" class="hidden"></textarea>
                     </div>
@@ -728,8 +813,8 @@
                     </div>
 
                     <div>
-                        <label class="flabel" style="color:#c2410c;">Recomendaciones</label>
-                        <textarea id="rxRecomendaciones" rows="2" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
+                        <label class="flabel" style="color:#c2410c;">Recomendaciones / Plan Tratamiento</label>
+                        <textarea id="rxRecomendaciones" rows="4" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
                     </div>
 
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
@@ -1760,17 +1845,54 @@
     }
 
     // ── PRESCRIPTION (ODONTOLOGÍA + MSP033 + IA) ──
-    function openPrescriptionModal(aptId) {initOdontograma();
+    function openPrescriptionModal(aptId) {
+        initOdontograma();
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
         document.getElementById('rxPatientName').textContent = p?.nombre || 'Paciente';
         
-        // Ficha MSP
+        // Ficha MSP - Datos base
         document.getElementById('mspMotivo').value = apt?.mspMotivo || '';
         document.getElementById('mspEnfermedad').value = apt?.mspEnfermedad || '';
         document.getElementById('mspOdontograma').value = apt?.mspOdontograma || '';
         document.getElementById('mspCie10').value = apt?.mspCie10 || '';
+
+        // Limpiar Indicadores, Periodoncia, CPO
+        [1,2,3,4,5,6].forEach(i => {
+            document.getElementById('indP'+i).value = '';
+            document.getElementById('indC'+i).value = '';
+            document.getElementById('indG'+i).value = '';
+        });
+        document.getElementById('evalPeriodontal').value = '';
+        document.getElementById('evalOclusion').value = '';
+        document.getElementById('evalFluorosis').value = '';
+        ['cpoC','cpoP','cpoO','ceoC','ceoE','ceoO'].forEach(id => document.getElementById(id).value = '');
+        calcCPO();
+
+        // Si la cita tiene indicadores guardados, cargarlos
+        if(apt?.indicadoresBucales) {
+            const ind = apt.indicadoresBucales;
+            [1,2,3,4,5,6].forEach(i => {
+                if(ind['p'+i]) document.getElementById('indP'+i).value = ind['p'+i];
+                if(ind['c'+i]) document.getElementById('indC'+i).value = ind['c'+i];
+                if(ind['g'+i]) document.getElementById('indG'+i).value = ind['g'+i];
+            });
+            if(ind.periodontal) document.getElementById('evalPeriodontal').value = ind.periodontal;
+            if(ind.oclusion) document.getElementById('evalOclusion').value = ind.oclusion;
+            if(ind.fluorosis) document.getElementById('evalFluorosis').value = ind.fluorosis;
+            if(ind.cpo) {
+                document.getElementById('cpoC').value = ind.cpo.c || '';
+                document.getElementById('cpoP').value = ind.cpo.p || '';
+                document.getElementById('cpoO').value = ind.cpo.o || '';
+            }
+            if(ind.ceo) {
+                document.getElementById('ceoC').value = ind.ceo.c || '';
+                document.getElementById('ceoE').value = ind.ceo.e || '';
+                document.getElementById('ceoO').value = ind.ceo.o || '';
+            }
+            calcCPO();
+        }
         
         document.getElementById('rxRecomendaciones').value = apt?.recomendaciones?.join('\n') || '';
         document.getElementById('rxBorrador').value = '';
@@ -1792,6 +1914,7 @@
         addMedicineRow();
         document.getElementById('prescriptionModal').classList.remove('hidden');
     }
+
     function closePrescriptionModal() { document.getElementById('prescriptionModal').classList.add('hidden'); }
 
     function addMedicineRow(med=null) {
@@ -1807,6 +1930,18 @@
     function toggleCuotas() {
         const checked = document.getElementById('checkTratamiento').checked;
         document.getElementById('divCuotas').style.display = checked ? 'block' : 'none';
+    }
+
+    function calcCPO() {
+        const c = parseInt(document.getElementById('cpoC').value) || 0;
+        const p = parseInt(document.getElementById('cpoP').value) || 0;
+        const o = parseInt(document.getElementById('cpoO').value) || 0;
+        document.getElementById('cpoTotal').value = c + p + o;
+
+        const cD = parseInt(document.getElementById('ceoC').value) || 0;
+        const eD = parseInt(document.getElementById('ceoE').value) || 0;
+        const oD = parseInt(document.getElementById('ceoO').value) || 0;
+        document.getElementById('ceoTotal').value = cD + eD + oD;
     }
 
     async function procesarConIA() {
@@ -1860,14 +1995,48 @@
         let mspOdontograma = document.getElementById('mspOdontograma').value;
         let mspCie10 = document.getElementById('mspCie10').value;
 
+        // Recopilar nuevos indicadores
+        let indData = { cpo: {}, ceo: {} };
+        [1,2,3,4,5,6].forEach(i => {
+            indData['p'+i] = document.getElementById('indP'+i).value;
+            indData['c'+i] = document.getElementById('indC'+i).value;
+            indData['g'+i] = document.getElementById('indG'+i).value;
+        });
+        indData.periodontal = document.getElementById('evalPeriodontal').value;
+        indData.oclusion = document.getElementById('evalOclusion').value;
+        indData.fluorosis = document.getElementById('evalFluorosis').value;
+        
+        indData.cpo = { 
+            c: document.getElementById('cpoC').value, 
+            p: document.getElementById('cpoP').value, 
+            o: document.getElementById('cpoO').value,
+            total: document.getElementById('cpoTotal').value 
+        };
+        indData.ceo = { 
+            c: document.getElementById('ceoC').value, 
+            e: document.getElementById('ceoE').value, 
+            o: document.getElementById('ceoO').value,
+            total: document.getElementById('ceoTotal').value 
+        };
+
         let diagFinal = "";
         if (mspMotivo || mspEnfermedad || mspOdontograma || mspCie10) {
             diagFinal += `[Ficha MSP 033]\n`;
             if(mspMotivo) diagFinal += `- Motivo: ${mspMotivo}\n`;
             if(mspEnfermedad) diagFinal += `- Enfermedad/Evolución: ${mspEnfermedad}\n`;
             if(mspOdontograma) diagFinal += `- Odontograma: ${mspOdontograma}\n`;
-            if(mspCie10) diagFinal += `- CIE-10: ${mspCie10}\n\n`;
+            if(mspCie10) diagFinal += `- CIE-10: ${mspCie10}\n`;
         }
+
+        // Agregar los indicadores al Diagnóstico para el PDF
+        let txtInd = [];
+        if(indData.periodontal) txtInd.push(`Enf. Periodontal: ${indData.periodontal}`);
+        if(indData.oclusion) txtInd.push(`Oclusión: ${indData.oclusion}`);
+        if(indData.fluorosis) txtInd.push(`Fluorosis: ${indData.fluorosis}`);
+        if(txtInd.length > 0) diagFinal += `- Evaluación Clínica: ${txtInd.join(', ')}\n`;
+        if(indData.cpo.total > 0) diagFinal += `- CPO-D Total: ${indData.cpo.total}\n`;
+
+        diagFinal += '\n';
 
         let customVitalsStr = [];
         let vitalsObj = {};
@@ -1929,13 +2098,14 @@
         try {
             if(diagFinal || meds.length > 0 || customVitalsStr.length > 0) {
                 await db.collection('patients').doc(p.id).collection('vitals').add({
-                    fecha: new Date(), diagnostico: diagFinal, recomendaciones: recList, ...vitalsObj
+                    fecha: new Date(), diagnostico: diagFinal, recomendaciones: recList, indicadoresBucales: indData, ...vitalsObj
                 });
             }
 
             await db.collection('appointments').doc(aptId).update({ 
                 diagnostico: diagFinal, 
                 mspMotivo, mspEnfermedad, mspOdontograma, mspCie10,
+                indicadoresBucales: indData, // Guardamos los indicadores en el appointment
                 recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() 
             });
 
@@ -2086,7 +2256,7 @@
                     let recsHtml='';
                     if(d.recomendaciones&&d.recomendaciones.length>0) {
                         recsHtml=`<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;margin-top:10px;">
-                            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:#c2410c;margin-bottom:5px;">Recomendaciones</div>
+                            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:#c2410c;margin-bottom:5px;">Recomendaciones / Plan</div>
                             ${d.recomendaciones.map(r=>`<div style="font-size:12px;color:#92400e;font-weight:600;margin-bottom:2px;">• ${r}</div>`).join('')}
                         </div>`;
                     }
