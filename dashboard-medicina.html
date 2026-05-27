@@ -1152,27 +1152,33 @@
 
     // 3. Función que se dispara al dar clic en el botón
     function iniciarConexionMeta() {
-        const btn = document.getElementById('btnMetaConnect');
-        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
-        btn.disabled = true;
+    const btn = document.getElementById('btnMetaConnect');
+    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
+    btn.disabled = true;
 
-        FB.login(function(response) {
-            if (response.authResponse && response.authResponse.code) {
-                // Si el doctor aceptó, Meta nos devuelve un "Código de Autorización"
-                const codigoOauth = response.authResponse.code;
-                guardarCredencialesMetaEnBackend(codigoOauth);
-            } else {
-                mostrarMensaje('Conexión cancelada.', 'error');
-                btn.innerHTML = 'Vincular Facebook / WhatsApp';
-                btn.disabled = false;
-            }
-        }, {
-            config_id: '4347842542212616', // ⚠️ PON AQUÍ TU ID DE CONFIGURACIÓN
-            response_type: 'code',          // Obligatorio para token de servidor
-            override_default_response_type: true,
-            extras: { setup: {} }
-        });
-    }
+    FB.login(function(response) {
+        if (response.authResponse && response.authResponse.code) {
+            const codigoOauth = response.authResponse.code;
+            guardarCredencialesMetaEnBackend(codigoOauth);
+        } else {
+            mostrarMensaje('Conexión cancelada por el usuario.', 'error');
+            btn.innerHTML = 'Vincular Facebook / WhatsApp';
+            btn.disabled = false;
+        }
+    }, {
+        config_id: '4347842542212616', // Asegúrate de que este es el ID configurado en Meta
+        response_type: 'code',
+        override_default_response_type: true,
+        extras: { 
+            setup: {
+                // OPCIONAL: Esto le ahorra a la clínica tener que escribir su nombre en Meta
+                prefetched_profile: {
+                    name: document.getElementById('clinicName').value || 'Clínica Veterinaria'
+                }
+            } 
+        }
+    });
+}
 
     // 4. Función para enviar el código a tu servidor (wpp.js)
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
