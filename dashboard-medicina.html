@@ -190,7 +190,7 @@
         .search-wrap input { padding-left: 36px !important; }
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
 
-        /* 🔥 MEJORA 1: ESTILOS MAPA ANATÓMICO (Homúnculo) 🔥 */
+        /* 🔥 MAPA ANATÓMICO (Homúnculo Médico) 🔥 */
         .body-map-container { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 20px 10px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
         .b-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
         .b-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
@@ -202,7 +202,7 @@
         .b-arm { width: 30px; height: 80px; border-radius: 15px; }
         .b-leg { width: 35px; height: 90px; border-radius: 10px; }
 
-        /* 🔥 MEJORA: PESTAÑAS (TABS) PARA OPTIMIZAR ESPACIO 🔥 */
+        /* 🔥 PESTAÑAS (TABS) PARA OPTIMIZAR ESPACIO 🔥 */
         .rx-tabs-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding: 0 26px; background: #fafbfc; overflow-x: auto; flex-shrink: 0; }
         .rx-tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
         .rx-tab-btn:hover { color: var(--txt1); }
@@ -210,7 +210,7 @@
         .rx-tab-pane { display: none; padding: 22px 26px; }
         .rx-tab-pane.active { display: block; animation: fadeIn 0.25s ease-out; }
 
-        /* 🔥 MEJORA 2: ESTILOS CALENDARIO INTERACTIVO 🔥 */
+        /* 🔥 CALENDARIO INTERACTIVO 🔥 */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
         .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
@@ -246,6 +246,11 @@
         #mobileOverlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px); }
         #mobileOverlay.show { display: block; animation: fadeIn 0.2s ease-out; }
 
+        /* Estilos del Chat */
+        .chat-bubble { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 8px; }
+        .chat-bubble.in { background: white; border: 1px solid var(--border); border-top-left-radius: 0; align-self: flex-start; color: var(--txt1); }
+        .chat-bubble.out { background: #eff6ff; border: 1px solid #bfdbfe; border-top-right-radius: 0; align-self: flex-end; color: #1d4ed8; }
+        .chat-time { font-size: 9px; margin-top: 4px; text-align: right; opacity: 0.7; }
     </style>
 </head>
 <body>
@@ -288,6 +293,10 @@
             <button onclick="switchTab('pacientes')" id="tabBtnPacientes" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 Pacientes
+            </button>
+            <button onclick="switchTab('chats')" id="tabBtnChats" class="nav-link">
+                <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                Bandeja Chats
             </button>
             <button onclick="switchTab('finanzas')" id="tabBtnFinanzas" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
@@ -395,7 +404,7 @@
 
                         <div class="kpi-card">
                             <div class="kpi-icon" style="background:#f0fdf4;">
-                                <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402-2.599-1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <div class="kpi-label">Ingresos reales</div>
                             <div class="kpi-value money" style="color:#16a34a;" id="kpiIngresos">$0.00</div>
@@ -527,6 +536,53 @@
                         </div>
                         <div style="padding:20px;">
                             <div id="patientsDirectoryList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabContentChats" class="hidden slide-up" style="height: calc(100vh - 120px);">
+                    <div style="display:flex; height:100%; background:white; border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+                        
+                        <div style="width:320px; border-right:1px solid var(--border); display:flex; flex-direction:column; background:white;">
+                            <div style="padding:16px; border-bottom:1px solid var(--border); background:#f8fafc;">
+                                <div style="font-weight:800; font-size:14px; color:var(--txt1); margin-bottom:12px;">Mensajes Recientes</div>
+                                <div class="search-wrap">
+                                    <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                    <input type="text" placeholder="Buscar conversación..." class="finput">
+                                </div>
+                            </div>
+                            <div id="chatList" style="flex:1; overflow-y:auto;" class="cs">
+                                <div style="padding:40px; text-align:center;">
+                                    <div class="spinner" style="margin:auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="flex:1; display:flex; flex-direction:column; background:var(--page);">
+                            <div id="chatHeader" style="padding:16px 24px; background:white; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px;">
+                                <div class="avatar" style="background:var(--accent); width:42px; height:42px;">?</div>
+                                <div>
+                                    <div style="font-weight:800; color:var(--txt1); font-size:15px;" id="chatActiveName">Selecciona un chat</div>
+                                    <div style="font-size:11.5px; color:var(--txt2); font-weight:600;" id="chatActivePhone">Panel Omnicanal conectado a Meta API</div>
+                                </div>
+                            </div>
+                            
+                            <div id="chatMessages" style="flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column;" class="cs">
+                                <div style="margin:auto; text-align:center;">
+                                    <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                                        <svg width="28" height="28" fill="none" stroke="var(--txt3)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                    </div>
+                                    <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Bandeja de Entrada</h3>
+                                    <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Escribe un mensaje aquí abajo. Se enviará de forma real al WhatsApp del paciente.</p>
+                                </div>
+                            </div>
+
+                            <div style="padding:16px 24px; background:white; border-top:1px solid var(--border); display:flex; gap:12px; align-items:center;">
+                                <input type="text" id="chatInput" placeholder="Escribe un mensaje..." class="finput" style="padding:12px 16px; font-size:13.5px;" disabled>
+                                <button id="btnSendChat" class="btn btn-primary" style="padding:12px 24px; font-size:13.5px;" disabled>
+                                    Enviar <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -689,16 +745,16 @@
                         </div>
                         <div style="position:relative;">
                             <div class="body-map-container">
-                                <div class="b-row"><div id="part-Cabeza" class="b-part b-head" onclick="abrirSelectorParte(event, 'Cabeza')">Cabeza</div></div>
+                                <div class="b-row"><div id="part-Cabeza" class="b-part b-head" onclick="abrirSelectorParte(event, 'Cabeza', 'Cabeza')">Cabeza</div></div>
                                 <div class="b-row">
-                                    <div id="part-Brazo_Derecho" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo Derecho')">B. Der</div>
-                                    <div id="part-Tórax" class="b-part b-chest" onclick="abrirSelectorParte(event, 'Tórax')">Tórax</div>
-                                    <div id="part-Brazo_Izquierdo" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo Izquierdo')">B. Izq</div>
+                                    <div id="part-Brazo_Derecho" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo_Derecho', 'Brazo Derecho')">B. Der</div>
+                                    <div id="part-Torax" class="b-part b-chest" onclick="abrirSelectorParte(event, 'Torax', 'Tórax')">Tórax</div>
+                                    <div id="part-Brazo_Izquierdo" class="b-part b-arm" onclick="abrirSelectorParte(event, 'Brazo_Izquierdo', 'Brazo Izquierdo')">B. Izq</div>
                                 </div>
-                                <div class="b-row"><div id="part-Abdomen" class="b-part b-abdomen" onclick="abrirSelectorParte(event, 'Abdomen')">Abdomen</div></div>
+                                <div class="b-row"><div id="part-Abdomen" class="b-part b-abdomen" onclick="abrirSelectorParte(event, 'Abdomen', 'Abdomen')">Abdomen</div></div>
                                 <div class="b-row">
-                                    <div id="part-Pierna_Derecha" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna Derecha')">P. Der</div>
-                                    <div id="part-Pierna_Izquierda" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna Izquierda')">P. Izq</div>
+                                    <div id="part-Pierna_Derecha" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna_Derecha', 'Pierna Derecha')">P. Der</div>
+                                    <div id="part-Pierna_Izquierda" class="b-part b-leg" onclick="abrirSelectorParte(event, 'Pierna_Izquierda', 'Pierna Izquierda')">P. Izq</div>
                                 </div>
                             </div>
                             
@@ -1073,7 +1129,7 @@
                     </div>
                 </div>
 
-                <hr class="sep">
+                <hr class="sep" style="border-top:1px solid var(--border);margin:0;">
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                     <div style="background:var(--accent-light);border:1px solid var(--accent);border-radius:10px;padding:16px;">
@@ -1179,7 +1235,6 @@
         }
     });
 }
-
     // 4. Función para enviar el código a tu servidor (wpp.js)
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
         const btn = document.getElementById('btnMetaConnect');
@@ -1247,6 +1302,9 @@
     // Variables Calendario Interactivo
     let holidays = [];
     let currentCalDate = new Date();
+
+    // Variables Chat
+    let activeChatPhone = null;
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1496,11 +1554,12 @@
 
     // ── TABS ──
     function switchTab(tabId) {
-        const tabs = ['dashboard', 'agenda', 'pacientes', 'finanzas', 'insumos'];
+        const tabs = ['dashboard', 'agenda', 'pacientes', 'finanzas', 'insumos', 'chats'];
         const titles = {
             dashboard: 'Métricas y Estadísticas',
             agenda: 'Agenda Médica',
             pacientes: 'Directorio de Pacientes',
+            chats: 'Bandeja Omnicanal (IA)',
             finanzas: 'Finanzas y Planes',
             insumos: 'Inventario Clínico'
         };
@@ -1515,6 +1574,7 @@
         if(titleEl) titleEl.textContent = titles[tabId] || '';
         if(tabId === 'dashboard') updateDashboardStats();
         if(tabId === 'finanzas') renderPlanesPago();
+        if(tabId === 'chats') loadChats();
     }
 
     // ── PATIENTS ──
@@ -1663,8 +1723,8 @@
         const statusCfg = {
             'pendiente': { label:'Pendiente', bg:'#fef3c7', color:'#92400e' },
             'pendiente_confirmacion_paciente': { label:'Propuesta IA', bg:'#ede9fe', color:'#5b21b6' },
-            'confirmada': { label:'Confirmada', bg:'#d1fae5', color:'#065f46' },
-            'completada': { label:'Completada', bg:'#dbeafe', color:'#1e40af' },
+            'confirmada': { label:'Confirmada', bg:'#cffafe', color:'#164e63' },
+            'completada': { label:'Completada', bg:'#e0f2fe', color:'#1e40af' },
         };
         const avatarPalette = ['#2563eb','#1d4ed8','#3b82f6','#6366f1','#8b5cf6'];
 
@@ -1696,7 +1756,7 @@
                 </div>
                 <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
                     ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#e0e7ff;color:#1e40af;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
-                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Triaje</button>
+                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Constantes</button>
                     <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Atender</button>
                     <button onclick="openHistoryModal('${p?.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
@@ -1904,7 +1964,8 @@
     }
 
     // ── LÓGICA DEL MAPA ANATÓMICO (Homúnculo Médico) ──
-    let parteActual = null;
+    let parteActualId = null;
+    let parteActualName = null;
     let estadoCuerpo = {};
 
     function initMapaAnatomico() {
@@ -1913,9 +1974,10 @@
         document.getElementById('mspExamen').value = '';
     }
 
-    function abrirSelectorParte(e, parte) {
-        parteActual = parte;
-        document.getElementById('selectedPartLabel').textContent = parte;
+    function abrirSelectorParte(e, partId, partName) {
+        parteActualId = partId;
+        parteActualName = partName;
+        document.getElementById('selectedPartLabel').textContent = partName;
         const selector = document.getElementById('bodySelector');
         selector.style.display = 'flex';
         selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
@@ -1923,17 +1985,16 @@
     }
 
     function marcarParte(hallazgo) {
-        if(!parteActual) return;
-        const partId = parteActual.replace(/ /g, '_');
-        const el = document.getElementById(`part-${partId}`);
+        if(!parteActualId) return;
+        const el = document.getElementById(`part-${parteActualId}`);
         if(!el) return;
         
         if(hallazgo !== 'sano') {
             el.classList.add('has-finding');
-            estadoCuerpo[parteActual] = hallazgo;
+            estadoCuerpo[parteActualName] = hallazgo;
         } else {
             el.classList.remove('has-finding');
-            delete estadoCuerpo[parteActual];
+            delete estadoCuerpo[parteActualName];
         }
         
         document.getElementById('bodySelector').style.display = 'none';
@@ -1941,12 +2002,18 @@
     }
 
     function actualizarTextoExamen() {
-        if(Object.keys(estadoCuerpo).length === 0) {
-            document.getElementById('mspExamen').value = 'Examen físico sin hallazgos patológicos aparentes en regiones evaluadas.';
-            return;
+        let currentText = document.getElementById('mspExamen').value;
+        const regex = /\n\n--- HALLAZGOS DEL MAPA ---\n([\s\S]*?)--- FIN HALLAZGOS ---/g;
+        currentText = currentText.replace(regex, '').trim();
+
+        if(Object.keys(estadoCuerpo).length > 0) {
+            const textoGenerado = Object.keys(estadoCuerpo).map(parte => `• ${parte}: ${estadoCuerpo[parte]}`).join('\n');
+            const nuevoBloque = `\n\n--- HALLAZGOS DEL MAPA ---\n${textoGenerado}\n--- FIN HALLAZGOS ---`;
+            document.getElementById('mspExamen').value = currentText + nuevoBloque;
+        } else {
+            // Si estaba vacío, ponemos algo genérico o lo dejamos limpio
+            document.getElementById('mspExamen').value = currentText || 'Examen físico sin hallazgos patológicos aparentes en regiones evaluadas.';
         }
-        const textoGenerado = Object.keys(estadoCuerpo).map(parte => `• ${parte}: ${estadoCuerpo[parte]}`).join('\n');
-        document.getElementById('mspExamen').value = "Hallazgos al Examen Físico:\n" + textoGenerado;
     }
 
     function limpiarMapa() { initMapaAnatomico(); }
@@ -2394,7 +2461,133 @@
         navigator.clipboard.writeText(miLink).then(()=>mostrarMensaje('¡Enlace copiado al portapapeles!','success')).catch(()=>alert("Copia manualmente: "+miLink));
     }
 
-    // ── MENSAJES ──
+    // ── MENSAJES OMNICANAL O CHATS ──
+    async function loadChats() {
+        const listEl = document.getElementById('chatList');
+        listEl.innerHTML = '<div style="padding:40px;text-align:center;"><div class="spinner" style="margin:auto;"></div></div>';
+        
+        try {
+            setTimeout(() => {
+                if(patients.length === 0) {
+                    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px;font-weight:600;">No hay pacientes registrados aún.</div>';
+                    return;
+                }
+                
+                const validPatients = patients.filter(p => p.telefonoWhatsApp);
+                
+                if(validPatients.length === 0) {
+                    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px;font-weight:600;">Los pacientes necesitan un número de WhatsApp registrado.</div>';
+                    return;
+                }
+
+                listEl.innerHTML = validPatients.map(p => {
+                    const initials = p.nombre.substring(0,2).toUpperCase();
+                    return `
+                    <div onclick="openChat('${p.telefonoWhatsApp}', '${p.nombre}')" style="padding:16px 20px; border-bottom:1px solid var(--border); cursor:pointer; display:flex; gap:14px; align-items:center; transition:background 0.1s;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'">
+                        <div class="avatar" style="background:var(--accent); width:42px; height:42px; font-size:15px;">${initials}</div>
+                        <div style="flex:1; overflow:hidden;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="font-weight:800; font-size:14px; color:var(--txt1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.nombre}</div>
+                                <div style="font-size:10px; color:white; font-weight:700; background:var(--accent); padding:2px 6px; border-radius:4px;">IA Activa</div>
+                            </div>
+                            <div style="font-size:12.5px; color:var(--txt2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">Haga clic para enviar un mensaje</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }, 600);
+        } catch(e) {
+            listEl.innerHTML = '<div style="color:#dc2626; padding:20px; text-align:center; font-size:13px; font-weight:600;">Error al cargar bandeja</div>';
+        }
+    }
+
+    function openChat(phone, name) {
+        activeChatPhone = phone;
+        document.getElementById('chatActiveName').textContent = name;
+        document.getElementById('chatActivePhone').textContent = "WhatsApp: +" + phone;
+        document.getElementById('chatInput').disabled = false;
+        document.getElementById('btnSendChat').disabled = false;
+        
+        const msgBox = document.getElementById('chatMessages');
+        
+        msgBox.innerHTML = `
+            <div style="margin:auto; text-align:center;">
+                <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                    <svg width="28" height="28" fill="none" stroke="var(--accent)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                </div>
+                <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Chat con ${name}</h3>
+                <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Escribe un mensaje aquí abajo. Se enviará de forma real al WhatsApp del paciente mediante tu API.</p>
+            </div>
+        `;
+        msgBox.scrollTop = msgBox.scrollHeight;
+        document.getElementById('chatInput').focus();
+    }
+
+    // Eventos para enviar el mensaje con clic o Enter
+    document.getElementById('btnSendChat').addEventListener('click', enviarMensajeChat);
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') enviarMensajeChat();
+    });
+
+    // Función real de envío conectada al Backend
+    async function enviarMensajeChat() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if(!msg || !activeChatPhone) return;
+
+        const btn = document.getElementById('btnSendChat');
+        btn.disabled = true;
+        input.disabled = true;
+
+        const msgBox = document.getElementById('chatMessages');
+        const timeStr = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        
+        const emptyState = msgBox.querySelector('h3');
+        if(emptyState && emptyState.textContent.includes('Chat con')) {
+            msgBox.innerHTML = '';
+        }
+
+        // Pintamos el globo azul del mensaje que acaba de enviar el doctor
+        msgBox.innerHTML += `
+            <div class="chat-bubble out slide-up">
+                ${msg}
+                <div class="chat-time">Hoy ${timeStr}</div>
+            </div>
+        `;
+        msgBox.scrollTop = msgBox.scrollHeight;
+        input.value = '';
+
+        try {
+            // Mandamos la orden REAL al backend
+            const res = await fetch(`${API_BASE_URL}/send-message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    doctorId: parentDoctorId,
+                    phoneNumber: activeChatPhone,
+                    message: msg
+                })
+            });
+            const data = await res.json();
+            
+            if(!data.success) throw new Error(data.error || "Error de API");
+            
+        } catch(e) {
+            mostrarMensaje('Error de red al enviar el mensaje de WhatsApp.', 'error');
+            
+            msgBox.innerHTML += `
+                <div style="font-size:11px; color:#dc2626; text-align:right; margin-bottom:8px; font-weight:600;">
+                    ❌ Falló el envío. Revisa tu conexión a Meta.
+                </div>
+            `;
+            msgBox.scrollTop = msgBox.scrollHeight;
+        } finally {
+            btn.disabled = false;
+            input.disabled = false;
+            input.focus();
+        }
+    }
+
+    // ── MENSAJES DEL SISTEMA (TOASTS) ──
     function mostrarMensaje(msg, type='success') {
         const d = document.getElementById('formMessage');
         const isSuccess = type === 'success';
