@@ -29,7 +29,7 @@
             #btnTabClinicas, #btnTabVendedores { width: 100%; text-align: center; padding: 10px; }
             .flex.gap-3.mb-4 { flex-direction: column; gap: 8px; }
             
-            /* Tablas con scroll horizontal suave (evita que se aplasten) */
+            /* Tablas con scroll horizontal suave */
             .overflow-x-auto table { min-width: 950px; }
             
             /* Modal a 1 columna */
@@ -130,6 +130,7 @@
                 <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/50 rounded-t-xl">
                     <h2 class="text-lg font-bold text-white flex items-center gap-2">🏥 Jerarquía Nivel 3: Clínicas Operativas</h2>
                     <div class="flex gap-2">
+                        <button id="btnExportSRI" onclick="exportarSRI()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md whitespace-nowrap">📥 Exportar SRI</button>
                         <button onclick="openNewClinicModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition text-sm font-bold shadow-md whitespace-nowrap">➕ Nueva Clínica</button>
                         <button onclick="loadGlobalData()" class="text-slate-400 hover:text-white transition bg-slate-700 px-3 py-2 rounded-lg" title="Refrescar Datos">🔄</button>
                     </div>
@@ -319,7 +320,7 @@
             return cleaned; 
         }
 
-        // ── 1. LOGIN FIREWALL (Nadie más entra aquí) ──
+        // ── 1. LOGIN FIREWALL ──
         document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             document.getElementById('adminError').classList.add('hidden');
@@ -338,7 +339,6 @@
             if(user) {
                 try {
                     const userDoc = await db.collection('users').doc(user.uid).get();
-                    // Firewall: Bloqueamos a doctores y vendedores
                     const isRestricted = userDoc.exists && (userDoc.data().rol === 'doctor' || userDoc.data().rol === 'vendedor');
 
                     if (isRestricted) {
@@ -430,7 +430,6 @@
                         ? `<span class="bg-green-900/30 text-green-400 border border-green-800 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase block mt-1 text-center w-fit mx-auto">ACTIVO</span>`
                         : `<span class="bg-red-900/30 text-red-400 border border-red-800 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase block mt-1 text-center w-fit mx-auto">CORTADO</span>`;
                     
-                    // 🔥 FECHAS DE PRÓXIMO PAGO 🔥
                     let fechaPagoStr = "<span class='text-slate-500 text-[10px]'>Sin registro</span>";
                     if(data.fechaUltimoCobro) {
                         const f = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
@@ -496,13 +495,65 @@
             } catch (error) { console.error(error); }
         }
 
+        // 🔥 FUNCIÓN PARA EXPORTAR FACTURACIÓN SRI A EXCEL/CSV 🔥
+        async function exportarSRI() {
+            const btn = document.getElementById('btnExportSRI');
+            btn.innerHTML = '⏳ Exportando...';
+            btn.disabled = true;
+
+            try {
+                const snapshot = await db.collection('users').where('rol', '==', 'doctor').get();
+                
+                // Usamos el BOM para que Excel detecte correctamente la codificación UTF-8 (Tildes y Ñs)
+                let csvContent = "\ufeff"; 
+                csvContent += "RUC / Cedula,Razon Social,Direccion,Correo Facturacion,Monto Cobrado,Fecha Ultimo Pago,Estado\n";
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.estadoSuscripcion === 'activo') { // Solo extraemos los que están pagando
+                        const sri = data.facturacionSRI || {};
+                        const ruc = sri.ruc || 'S/N';
+                        const razon = sri.razonSocial ? `"${sri.razonSocial}"` : 'S/N';
+                        const dir = sri.direccion ? `"${sri.direccion}"` : 'S/N';
+                        const correo = sri.correoFacturacion || data.email || 'S/N';
+                        const monto = data.precioSuscripcion || 20;
+                        
+                        let fechaStr = "Sin registro";
+                        if(data.fechaUltimoCobro) {
+                            const f = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
+                            fechaStr = f.toLocaleDateString('es-ES');
+                        }
+
+                        csvContent += `${ruc},${razon},${dir},${correo},${monto},${fechaStr},${data.estadoSuscripcion}\n`;
+                    }
+                });
+
+                // Crear y descargar archivo
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `Reporte_SRI_Facturacion_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                alert("✅ Reporte SRI generado exitosamente. Revisa tus descargas.");
+            } catch(error) {
+                console.error(error);
+                alert("Error al intentar exportar la base de datos.");
+            } finally {
+                btn.innerHTML = '📥 Exportar SRI';
+                btn.disabled = false;
+            }
+        }
+
         // ── 3. ACCIONES DE MATRIZ ──
         function copiarLinkVendedor(vid) {
             const link = `https://asistencitas.com/registro.html?ref=${vid}`;
             navigator.clipboard.writeText(link).then(() => alert("Link de referido copiado al portapapeles: \n" + link));
         }
 
-        // ELIMINAR VENDEDOR + REVERSIÓN A MATRIZ
         async function eliminarVendedor(vendedorId, nombre) {
             if(!confirm(`⚠️ ATENCIÓN ⚠️\n\n¿Estás seguro de eliminar al agente ${nombre}?\n\n- Su cuenta será borrada.\n- Todas las clínicas afiliadas por este vendedor pasarán a la Matriz.\n- Las comisiones se recuperarán a tu favor.`)) return;
             try {
