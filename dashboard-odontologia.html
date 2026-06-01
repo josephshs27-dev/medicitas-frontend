@@ -154,7 +154,6 @@
         .btn-sm { font-size: 12px; padding: 6px 12px; }
         .btn-md { font-size: 13px; padding: 9px 18px; }
         .btn-lg { font-size: 14px; padding: 11px 24px; }
-        .btn-xl { font-size: 14.5px; padding: 13px 28px; }
         .btn-primary { background: var(--accent); color: white; }
         .btn-primary:hover { background: var(--accent-dark); }
         .btn-secondary { background: white; color: var(--txt1); border: 1px solid var(--border); }
@@ -167,14 +166,6 @@
         .btn-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
         .btn-warn { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
         .btn-full { width: 100%; justify-content: center; }
-
-        /* ── Badges ── */
-        .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
-        .badge-pending { background: #fef3c7; color: #92400e; }
-        .badge-confirmed { background: #d1fae5; color: #065f46; }
-        .badge-completed { background: #dbeafe; color: #1e40af; }
-        .badge-proposed { background: #ede9fe; color: #5b21b6; }
-        .badge-teal { background: var(--accent-light); color: var(--accent-dark); border: 1px solid #a5f3fc; }
 
         /* ── Table ── */
         .dtable { width: 100%; border-collapse: collapse; }
@@ -198,7 +189,7 @@
         .tooth.extraccion { background: #f1f5f9; border-color: #cbd5e1; color: #475569; text-decoration: line-through; opacity: 0.6; }
         .tooth.corona { background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
 
-        /* 🔥 MEJORA: TABLAS CLÍNICAS AVANZADAS 🔥 */
+        /* 🔥 TABLAS CLÍNICAS AVANZADAS 🔥 */
         .clinical-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
         .clinical-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         .clinical-table th { background: #f8fafc; font-size: 10px; font-weight: 700; color: var(--txt2); padding: 8px; border-bottom: 1px solid var(--border); text-align: center; }
@@ -211,7 +202,15 @@
         .cpo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
         .cpo-grid input { width: 100%; padding: 6px; text-align: center; font-weight: 700; border: 1px solid var(--border); border-radius: 6px; }
 
-        /* 🔥 MEJORA: ESTILOS CALENDARIO INTERACTIVO 🔥 */
+        /* 🔥 PESTAÑAS (TABS) 🔥 */
+        .rx-tabs-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding: 0 26px; background: #fafbfc; overflow-x: auto; flex-shrink: 0; }
+        .rx-tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+        .rx-tab-btn:hover { color: var(--txt1); }
+        .rx-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .rx-tab-pane { display: none; padding: 22px 26px; }
+        .rx-tab-pane.active { display: block; animation: fadeIn 0.25s ease-out; }
+
+        /* 🔥 ESTILOS CALENDARIO INTERACTIVO 🔥 */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
         .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
@@ -244,65 +243,29 @@
         /* 📱 ── OPTIMIZACIÓN RESPONSIVE (MÓVILES) ── 📱 */
         @media (max-width: 768px) {
             :root { --sidebar-w: 0px; }
-            
-            /* Sidebar flotante */
-            #appSidebar { 
-                transform: translateX(-100%); 
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-                width: 260px; 
-                box-shadow: 4px 0 24px rgba(0,0,0,0.5);
-                z-index: 100;
-            }
+            #appSidebar { transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 260px; box-shadow: 4px 0 24px rgba(0,0,0,0.5); z-index: 100; }
             #appSidebar.open { transform: translateX(0); }
-            
             #appMain { margin-left: 0; width: 100vw; }
-            
-            /* Barra Superior */
             .topbar { padding: 0 16px; }
             .topbar-title { font-size: 14px; }
             .topbar-tag { display: none !important; }
-            
             .content-area { padding: 14px; }
-            
-            /* Grids a 1 columna */
             .kpi-grid { grid-template-columns: 1fr !important; gap: 12px; margin-bottom: 20px; }
-            .clinical-grid { grid-template-columns: 1fr !important; }
-            
-            /* Forzar Agenda y Formularios a 1 columna vertical */
             #tabContentAgenda > div { display: flex !important; flex-direction: column !important; height: auto !important; }
-            .modal-bd > div, 
-            .modal-bd > div > div, 
-            #prescriptionModal .cs > div,
-            #historyModal .cs > div { 
-                grid-template-columns: 1fr !important; 
-                display: flex !important; 
-                flex-direction: column !important; 
-                height: auto !important;
-            }
-            
-            /* Ajustar Modales */
             .modal-box { width: 95% !important; max-height: 90vh !important; margin: 0 auto; }
             .modal-hd { padding: 14px 20px; }
             .modal-bd { padding: 16px 20px; }
+            .rx-tab-pane { padding: 16px 20px; }
+            .rx-tabs-nav { padding: 0 16px; }
             .modal-ft { padding: 14px 20px; flex-direction: column; gap: 8px; }
             .modal-ft .btn { width: 100%; }
-            
-            /* Tablas con scroll horizontal suave */
             .panel-body-np, .panel-body { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
             .dtable { min-width: 600px; } 
-            
-            /* Mostrar botón menú */
             .mobile-menu-btn { display: flex !important; }
         }
         
-        /* Estilos del botón Hamburguesa y el fondo oscuro */
-        .mobile-menu-btn {
-            display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1);
-            margin-right: 12px; align-items: center; justify-content: center; padding: 0;
-        }
-        #mobileOverlay {
-            display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px);
-        }
+        .mobile-menu-btn { display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1); margin-right: 12px; align-items: center; justify-content: center; padding: 0; }
+        #mobileOverlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px); }
         #mobileOverlay.show { display: block; animation: fadeIn 0.2s ease-out; }
 
     </style>
@@ -694,7 +657,9 @@
                 </div>
 
             </div></div></main>
-</div><div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
+</div>
+
+<div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
     <div class="modal-box" style="width:100%;max-width:400px;">
         <div class="modal-hd" style="background:var(--accent-light);">
             <div>
@@ -728,11 +693,18 @@
             </div>
             <button onclick="closePrescriptionModal()" class="modal-close-btn">&times;</button>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        
+        <div class="rx-tabs-nav cs">
+            <button type="button" class="rx-tab-btn active" onclick="switchRxTab('tab-eval', this)">1. Evaluación e IA</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-mapa', this)">2. Odontograma</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-plan', this)">3. Plan y Receta</button>
+        </div>
 
+        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
+            <input type="hidden" id="rxAppointmentId">
+
+            <div id="tab-eval" class="rx-tab-pane active">
                 <div style="display:flex;flex-direction:column;gap:18px;">
-                    <input type="hidden" id="rxAppointmentId">
 
                     <div style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:12px;padding:20px;">
                         <div style="color:white;font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
@@ -750,25 +722,6 @@
                         <div style="display:flex;flex-direction:column;gap:10px;">
                             <div><label class="flabel">Motivo de Consulta</label><input type="text" id="mspMotivo" class="finput"></div>
                             <div><label class="flabel">Enfermedad Actual / Evolución</label><textarea id="mspEnfermedad" rows="2" class="finput" style="resize:none;"></textarea></div>
-                            <div>
-                                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
-                                    <label class="flabel" style="margin:0; color:var(--accent-dark);">Odontograma Interactivo</label>
-                                    <button type="button" onclick="limpiarOdontograma()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
-                                </div>
-                                <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px; position:relative;">
-                                    <div class="odontograma-row" id="teeth-top"></div>
-                                    <div class="odontograma-row" id="teeth-bottom" style="margin-bottom:0;"></div>
-                                    
-                                    <div id="toothSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:130px; transform: translateX(-50%); margin-top:5px;">
-                                        <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Pieza <span id="selectedToothLabel" style="color:var(--txt1);"></span></div>
-                                        <button type="button" onclick="marcarDiente('caries')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Caries</button>
-                                        <button type="button" onclick="marcarDiente('extraccion')" style="font-size:11px; font-weight:700; color:#475569; background:#f1f5f9; border:none; padding:5px; border-radius:4px; cursor:pointer;">Extraída/Ausente</button>
-                                        <button type="button" onclick="marcarDiente('corona')" style="font-size:11px; font-weight:700; color:#2563eb; background:#eff6ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Corona / Resina</button>
-                                        <button type="button" onclick="marcarDiente('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Marcar Sano</button>
-                                    </div>
-                                </div>
-                                <textarea id="mspOdontograma" rows="2" placeholder="El diagnóstico se escribirá aquí automáticamente..." class="finput" style="resize:none; margin-top:8px; background:white; font-size:12px;"></textarea>
-                            </div>
                             
                             <div style="margin-top:8px;">
                                 <label class="flabel" style="color:var(--accent-dark);">Indicadores de Salud Bucal</label>
@@ -845,10 +798,35 @@
 
                             <div style="margin-top: 10px;"><label class="flabel">CIE-10 Odontológico (Aprox)</label><input type="text" id="mspCie10" placeholder="Ej: K02.1" class="finput"></div>
                         </div>
-                        <textarea id="rxDiagnostico" class="hidden"></textarea>
                     </div>
                 </div>
+            </div>
 
+            <div id="tab-mapa" class="rx-tab-pane">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
+                            <label class="flabel" style="margin:0; color:var(--accent-dark);">Odontograma Interactivo</label>
+                            <button type="button" onclick="limpiarOdontograma()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                        </div>
+                        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:12px; position:relative;">
+                            <div class="odontograma-row" id="teeth-top"></div>
+                            <div class="odontograma-row" id="teeth-bottom" style="margin-bottom:0;"></div>
+                            
+                            <div id="toothSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:130px; transform: translateX(-50%); margin-top:5px;">
+                                <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Pieza <span id="selectedToothLabel" style="color:var(--txt1);"></span></div>
+                                <button type="button" onclick="marcarDiente('caries')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Caries</button>
+                                <button type="button" onclick="marcarDiente('extraccion')" style="font-size:11px; font-weight:700; color:#475569; background:#f1f5f9; border:none; padding:5px; border-radius:4px; cursor:pointer;">Extraída/Ausente</button>
+                                <button type="button" onclick="marcarDiente('corona')" style="font-size:11px; font-weight:700; color:#2563eb; background:#eff6ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Corona / Resina</button>
+                                <button type="button" onclick="marcarDiente('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Marcar Sano</button>
+                            </div>
+                        </div>
+                        <textarea id="mspOdontograma" rows="4" placeholder="El diagnóstico visual del Odontograma aparecerá aquí..." class="finput" style="resize:vertical; margin-top:8px; background:white; font-size:12px;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-plan" class="rx-tab-pane">
                 <div style="display:flex;flex-direction:column;gap:18px;">
 
                     <div class="panel">
@@ -904,6 +882,330 @@
                             Vincular cuenta
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-ft" style="flex-shrink:0; justify-content: flex-end;">
+            <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg">Cancelar</button>
+            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="min-width:140px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Guardar y Cobrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="billingModal" class="modal-wrap hidden" style="z-index:78;">
+    <div class="modal-box" style="width:100%;max-width:420px;">
+        <div class="modal-hd" style="background:#f0fdf4;">
+            <div>
+                <div class="modal-title">Registrar Cobro</div>
+                <div class="modal-sub">Atención a <strong id="billingPatName"></strong></div>
+            </div>
+            <button onclick="closeBillingModal()" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-bd">
+            <input type="hidden" id="billingAptId">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div>
+                    <label class="flabel">Subtotal ($)</label>
+                    <input type="number" id="billingSubtotal" step="0.01" min="0" class="finput" style="font-size:22px;font-weight:800;text-align:center;" oninput="calculateTotal()">
+                </div>
+                <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;cursor:pointer;">
+                    <input type="checkbox" id="billingIva" onchange="calculateTotal()" style="width:18px;height:18px;accent-color:var(--accent);">
+                    <span style="font-size:13px;font-weight:700;color:var(--txt1);">Añadir IVA (15%)</span>
+                </label>
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px;text-align:center;">
+                    <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#065f46;margin-bottom:6px;">Total a pagar</div>
+                    <div style="font-size:40px;font-weight:800;color:#15803d;" id="billingTotalDisplay">$0.00</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-ft">
+            <button onclick="closeBillingModal()" class="btn btn-secondary btn-lg" style="flex:1;">Cancelar</button>
+            <button id="btnFinalizarCobro" onclick="submitBilling()" class="btn btn-primary btn-lg" style="flex:2;background:#16a34a;">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                Finalizar y Enviar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="patientModal" class="modal-wrap hidden" style="z-index:82;">
+    <div class="modal-box" style="width:100%;max-width:420px;">
+        <div class="modal-hd">
+            <div class="modal-title" id="patientModalTitle">Registrar Paciente</div>
+            <button onclick="closePatientModal()" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-bd">
+            <input type="hidden" id="editPatientId">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div><label class="flabel">Cédula / RUC *</label><input type="text" id="patientCedula" class="finput"></div>
+                <div><label class="flabel">Nombre Completo *</label><input type="text" id="patientName" class="finput"></div>
+                <div><label class="flabel">WhatsApp *</label><input type="tel" id="patientPhone" placeholder="593..." class="finput"></div>
+                <div><label class="flabel">Email</label><input type="email" id="patientEmail" class="finput"></div>
+                <div><label class="flabel">Fecha de Nacimiento</label><input type="date" id="patientDob" class="finput"></div>
+            </div>
+        </div>
+        <div class="modal-ft">
+            <button onclick="closePatientModal()" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
+            <button id="savePatientBtn" onclick="submitPatient()" class="btn btn-primary btn-md" style="flex:1;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="payInstallmentModal" class="modal-wrap hidden" style="z-index:87;">
+    <div class="modal-box" style="width:100%;max-width:360px;">
+        <div class="modal-hd">
+            <div>
+                <div class="modal-title">Abonar a Cuenta</div>
+                <div class="modal-sub" id="installPatientName"></div>
+            </div>
+            <button onclick="document.getElementById('payInstallmentModal').classList.add('hidden')" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-bd">
+            <input type="hidden" id="installPlanId">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;text-align:center;">
+                    <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#991b1b;margin-bottom:4px;">Saldo Pendiente</div>
+                    <div style="font-size:32px;font-weight:800;color:#dc2626;" id="installSaldoDisplay">$0.00</div>
+                </div>
+                <div>
+                    <label class="flabel">Monto a Abonar ($)</label>
+                    <input type="number" id="installAmount" step="0.01" class="finput" style="font-size:22px;font-weight:800;text-align:center;">
+                </div>
+            </div>
+        </div>
+        <div class="modal-ft">
+            <button onclick="document.getElementById('payInstallmentModal').classList.add('hidden')" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
+            <button onclick="submitInstallmentPayment()" class="btn btn-primary btn-md" style="flex:1;">Registrar Pago</button>
+        </div>
+    </div>
+</div>
+
+<div id="historyModal" class="modal-wrap hidden" style="z-index:73;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
+    <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
+        <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
+            <div>
+                <div class="modal-title">Expediente Odontológico</div>
+                <div class="modal-sub" id="historyPatientInfo">Cargando...</div>
+            </div>
+            <button onclick="closeHistoryModal()" class="modal-close-btn">&times;</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:24px 26px;background:#f8fafc;" class="cs">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div class="panel">
+                        <div class="panel-head">
+                            <div class="panel-title" style="font-size:13px;">Radiografías / Imágenes</div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
+                                <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="btn btn-secondary btn-sm">
+                                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                    Subir archivo
+                                </button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="patientImagesGallery" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-height:400px;overflow-y:auto;" class="cs"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel" style="display:flex;flex-direction:column;overflow:hidden;">
+                    <div class="panel-head" style="flex-shrink:0;"><div class="panel-title" style="font-size:13px;">Historial de Consultas</div></div>
+                    <div id="historyTimeline" class="cs" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-ft" style="justify-content:flex-end;">
+            <button onclick="closeHistoryModal()" class="btn btn-secondary btn-md">Cerrar expediente</button>
+        </div>
+    </div>
+</div>
+
+<div id="addInsumoModal" class="modal-wrap hidden" style="z-index:82;">
+    <div class="modal-box" style="width:100%;max-width:380px;">
+        <div class="modal-hd">
+            <div class="modal-title">Agregar Insumo</div>
+            <button onclick="document.getElementById('addInsumoModal').classList.add('hidden')" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-bd">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div><label class="flabel">Nombre del insumo *</label><input type="text" id="insumoName" placeholder="Ej: Resina 3M" class="finput"></div>
+                <div><label class="flabel">Cantidad inicial</label><input type="number" id="insumoQty" class="finput"></div>
+                <div>
+                    <label class="flabel">Categoría</label>
+                    <select id="insumoCat" class="finput">
+                        <option value="Material Odontológico">Material Odontológico</option>
+                        <option value="Medicamento">Medicamento</option>
+                        <option value="Oficina">Oficina</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-ft">
+            <button onclick="document.getElementById('addInsumoModal').classList.add('hidden')" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
+            <button onclick="submitNewInsumo()" class="btn btn-primary btn-md" style="flex:1;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="birthdayModal" class="modal-wrap hidden" style="z-index:82;background:rgba(131,24,67,0.5);">
+    <div class="modal-box" style="width:100%;max-width:420px;">
+        <div class="modal-hd" style="background:#fdf2f8;border-bottom-color:#fbcfe8;">
+            <div>
+                <div class="modal-title" style="color:#9d174d;">Regalos Asistencitas</div>
+                <div class="modal-sub">Configura el regalo por defecto de cumpleaños</div>
+            </div>
+            <button onclick="document.getElementById('birthdayModal').classList.add('hidden')" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-bd">
+            <div style="text-align:center;margin-bottom:16px;">
+                <div style="width:56px;height:56px;background:#fdf2f8;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                    <svg width="26" height="26" fill="none" stroke="#be185d" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+                </div>
+            </div>
+            <textarea id="bdayGiftText" rows="4" placeholder="Ej: ¡Felicidades! Tienes una profilaxis con 50% OFF por tu cumpleaños..." class="finput" style="background:#fdf2f8;border-color:#fbcfe8;resize:none;"></textarea>
+        </div>
+        <div class="modal-ft">
+            <button onclick="document.getElementById('birthdayModal').classList.add('hidden')" class="btn btn-ghost btn-md" style="flex:1;">Cancelar</button>
+            <button onclick="saveBdayConfig()" class="btn btn-md btn-full" style="flex:2;background:#be185d;color:white;border:none;">Guardar regalo</button>
+        </div>
+    </div>
+</div>
+
+<div id="promotionsModal" class="modal-wrap hidden" style="z-index:82;">
+    <div class="modal-box" style="width:100%;max-width:420px;">
+        <div class="modal-hd" style="background:#fff7ed;">
+            <div>
+                <div class="modal-title" style="color:#c2410c;">Campaña IA</div>
+                <div class="modal-sub">Envío inteligente a tus pacientes</div>
+            </div>
+            <button onclick="closePromotionsModal()" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-bd">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div><label class="flabel">Instrucción de segmento</label><input type="text" id="promoTargeting" placeholder="Ej: Solo pacientes de ortodoncia" class="finput" style="border-color:#fed7aa;background:#fff7ed;"></div>
+                <div><label class="flabel">Mensaje base</label><textarea id="promoMessage" rows="5" class="finput" placeholder="Escribe el mensaje de la campaña..." style="border-color:#fed7aa;background:#fff7ed;resize:none;"></textarea></div>
+            </div>
+        </div>
+        <div class="modal-ft">
+            <button onclick="closePromotionsModal()" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
+            <button id="btnSendPromo" onclick="sendPromotion()" class="btn btn-md" style="flex:2;background:#c2410c;color:white;border:none;">Enviar Inteligente ✦</button>
+        </div>
+    </div>
+</div>
+
+<div id="metaModal" class="modal-wrap hidden" style="z-index:62;">
+    <div class="modal-box" style="width:100%;max-width:420px;">
+        <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));">
+            <div>
+                <div class="modal-title" style="color:white;">Meta Omnicanal</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">IA en todas tus redes</div>
+            </div>
+            <button onclick="closeMetaModal()" class="modal-close-btn" style="color:rgba(255,255,255,0.7);">&times;</button>
+        </div>
+        <div class="modal-bd" style="background:#f8fafc;">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="background:white;border:1px solid #bbf7d0;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:36px;height:36px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📱</div>
+                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">WhatsApp Business</span>
+                    </div>
+                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;">Conectado ✓</span>
+                </div>
+                <div style="background:white;border:1px solid #bfdbfe;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:36px;height:36px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">💬</div>
+                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Facebook Messenger</span>
+                    </div>
+                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">Conectado ✓</span>
+                </div>
+                <div style="background:white;border:1px solid #fecaca;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:36px;height:36px;background:#fef2f2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📸</div>
+                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Instagram Direct</span>
+                    </div>
+                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Desconectado</span>
+                </div>
+            </div>
+        </div>
+        <div style="padding:14px 26px;border-top:1px solid var(--border);background:white;">
+            <button id="btnMetaConnect" onclick="iniciarConexionMeta()" class="btn btn-primary btn-md btn-full">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                Vincular Facebook / WhatsApp
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="settingsModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
+    <div class="modal-box" style="width:100%;max-width:680px;max-height:95vh;display:flex;flex-direction:column;">
+        <div class="modal-hd" style="flex-shrink:0;">
+            <div class="modal-title">Configuración de Clínica Dental</div>
+            <button onclick="closeSettingsModal()" class="modal-close-btn">&times;</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
+            <div style="display:flex;flex-direction:column;gap:22px;">
+
+                <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;">
+                    <div>
+                        <div class="flabel" style="text-align:center;margin-bottom:8px;">Logo</div>
+                        <div style="width:100px;height:100px;background:#f8fafc;border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;" onclick="document.getElementById('clinicLogoInput').click()">
+                            <img id="clinicLogoPreview" src="img/logo.png" style="width:100%;height:100%;object-fit:contain;">
+                            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:800;" onmouseenter="this.style.display='flex'" onmouseleave="this.style.display='none'">CAMBIAR</div>
+                        </div>
+                        <input type="file" id="clinicLogoInput" class="hidden" accept="image/*" onchange="previewLogo(this)">
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <div><label class="flabel">Nombre Comercial</label><input type="text" id="clinicName" class="finput"></div>
+                        <div><label class="flabel">RUC</label><input type="text" id="clinicRuc" class="finput"></div>
+                        <div style="display:grid;grid-template-columns:1fr auto;gap:12px;">
+                            <div><label class="flabel">Teléfono</label><input type="tel" id="clinicPhone" class="finput"></div>
+                            <div>
+                                <label class="flabel">Color Marca</label>
+                                <input type="color" id="clinicColor" value="#0891b2" style="width:100%;height:42px;border:1px solid var(--border);border-radius:8px;padding:2px 4px;cursor:pointer;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="sep">
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div style="background:var(--accent-light);border:1px solid var(--accent);border-radius:10px;padding:16px;">
+                        <div class="panel-title" style="font-size:13px;margin-bottom:10px;color:var(--accent-dark);">Horario Laboral</div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <input type="time" id="hInicio" class="finput" style="flex:1;">
+                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">hasta</span>
+                            <input type="time" id="hFin" class="finput" style="flex:1;">
+                        </div>
+                    </div>
+                    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
+                        <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
+                        
+                        <div id="holidayCalendar" class="mt-2 bg-white border border-slate-200 rounded-lg p-3">
+                            <div class="flex justify-between items-center mb-3">
+                                <button type="button" onclick="changeCalMonth(-1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">◀</button>
+                                <span id="calMonthLabel" style="font-size:11px; font-weight:800; text-transform:uppercase;">Mes</span>
+                                <button type="button" onclick="changeCalMonth(1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">▶</button>
+                            </div>
+                            <div class="cal-grid" id="calDaysGrid"></div>
+                        </div>
+                        <p style="font-size:9.5px; color:var(--txt3); margin-top:8px; font-weight:600;">Haz clic en un día para marcarlo como feriado/vacaciones. La agenda bloqueará esos días.</p>
+                    </div>
+                </div>
+
+                <div><label class="flabel">Dirección Física</label><input type="text" id="clinicAddress" class="finput"></div>
+
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <div style="font-size:13.5px;font-weight:800;color:#1e40af;margin-bottom:3px;">Google Calendar</div>
+                        <div style="font-size:12px;color:#3b82f6;font-weight:500;">Vincula tu agenda para auto-agendar pacientes</div>
+                    </div>
+                    <button id="btnSyncCalendar" onclick="syncGoogleCalendar()" class="btn btn-md" style="background:white;color:#1d4ed8;border:1px solid #bfdbfe;white-space:nowrap;">
+                        Vincular cuenta
+                    </button>
                 </div>
             </div>
         </div>
@@ -1589,8 +1891,20 @@
     }
 
     // ── PRESCRIPTION (ODONTOLOGÍA + MSP033 + IA) ──
+    function switchRxTab(tabId, btn) {
+        document.querySelectorAll('.rx-tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.rx-tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(btn) btn.classList.add('active');
+    }
+
     function openPrescriptionModal(aptId) {
         initOdontograma();
+
+        // Resetea Tabs a la pestaña 1
+        const firstTabBtn = document.querySelector('.rx-tabs-nav .rx-tab-btn');
+        if(firstTabBtn) switchRxTab('tab-eval', firstTabBtn);
+
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
@@ -1688,6 +2002,80 @@
         document.getElementById('ceoTotal').value = cD + eD + oD;
     }
 
+    // ── LÓGICA DEL ODONTOGRAMA INTERACTIVO ──
+    let dienteActual = null;
+    let estadoDientes = {};
+
+    function initOdontograma() {
+        const topTeeth = [18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28];
+        const bottomTeeth = [48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38];
+        
+        const renderRow = (arr, containerId) => {
+            document.getElementById(containerId).innerHTML = arr.map(num => 
+                `<div id="tooth-${num}" class="tooth" onclick="abrirSelectorDiente(event, ${num})">${num}</div>`
+            ).join('');
+        };
+        renderRow(topTeeth, 'teeth-top');
+        renderRow(bottomTeeth, 'teeth-bottom');
+        estadoDientes = {}; // Reiniciamos memoria
+    }
+
+    function abrirSelectorDiente(e, num) {
+        dienteActual = num;
+        document.getElementById('selectedToothLabel').textContent = num;
+        const selector = document.getElementById('toothSelector');
+        selector.style.display = 'flex';
+        // Posicionar bajo el diente
+        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
+        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
+    }
+
+    function marcarDiente(estado) {
+        if(!dienteActual) return;
+        const el = document.getElementById(`tooth-${dienteActual}`);
+        el.classList.remove('caries', 'extraccion', 'corona');
+        
+        if(estado !== 'sano') {
+            el.classList.add(estado);
+            estadoDientes[dienteActual] = estado;
+        } else {
+            delete estadoDientes[dienteActual];
+        }
+        
+        document.getElementById('toothSelector').style.display = 'none';
+        actualizarTextoOdontograma();
+    }
+
+    function actualizarTextoOdontograma() {
+        let currentText = document.getElementById('mspOdontograma').value;
+        const regex = /\n\n--- HALLAZGOS DEL ODONTOGRAMA ---\n([\s\S]*?)--- FIN HALLAZGOS ---/g;
+        
+        // Limpiamos los hallazgos del mapa anteriores para no duplicarlos
+        currentText = currentText.replace(regex, '').trim();
+
+        if(Object.keys(estadoDientes).length > 0) {
+            const traduccion = { 'caries': 'Caries', 'extraccion': 'Pieza Ausente', 'corona': 'Corona/Resina' };
+            const textoGenerado = Object.keys(estadoDientes).map(num => `Pza.${num}: ${traduccion[estadoDientes[num]]}`).join('\n');
+            const nuevoBloque = `\n\n--- HALLAZGOS DEL ODONTOGRAMA ---\n${textoGenerado}\n--- FIN HALLAZGOS ---`;
+            document.getElementById('mspOdontograma').value = currentText + nuevoBloque;
+        } else {
+            document.getElementById('mspOdontograma').value = currentText;
+        }
+    }
+
+    function limpiarOdontograma() {
+        initOdontograma();
+        document.getElementById('mspOdontograma').value = '';
+    }
+
+    // Cerramos el pop-up si hacen clic fuera de los dientes
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.tooth') && !e.target.closest('#toothSelector')) {
+            const sel = document.getElementById('toothSelector');
+            if(sel) sel.style.display = 'none';
+        }
+    });
+
     async function procesarConIA() {
         const borrador = document.getElementById('rxBorrador').value.trim();
         if(!borrador) return alert("Escribe notas primero para que la IA pueda estructurarlas.");
@@ -1710,7 +2098,13 @@
             
             if(data.motivo_consulta) document.getElementById('mspMotivo').value = data.motivo_consulta;
             if(data.enfermedad_actual || data.diagnostico) document.getElementById('mspEnfermedad').value = data.enfermedad_actual || data.diagnostico;
-            if(data.odontograma || data.sistema_estomatognatico) document.getElementById('mspOdontograma').value = data.odontograma || data.sistema_estomatognatico;
+            
+            // Adjuntar IA al Odontograma si existe info
+            let currentDiag = document.getElementById('mspOdontograma').value;
+            if(data.odontograma || data.sistema_estomatognatico) {
+                const iaText = data.odontograma || data.sistema_estomatognatico;
+                document.getElementById('mspOdontograma').value = currentDiag ? currentDiag + "\n\n[Análisis IA]\n" + iaText : iaText;
+            }
             if(data.cie10) document.getElementById('mspCie10').value = data.cie10;
             
             if(Array.isArray(data.recomendaciones)) document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
@@ -1874,69 +2268,6 @@
         } catch(e) { alert('Error al generar la receta o enviar a WhatsApp.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
-
-    // ── LÓGICA DEL ODONTOGRAMA INTERACTIVO ──
-    let dienteActual = null;
-    let estadoDientes = {};
-
-    function initOdontograma() {
-        const topTeeth = [18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28];
-        const bottomTeeth = [48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38];
-        
-        const renderRow = (arr, containerId) => {
-            document.getElementById(containerId).innerHTML = arr.map(num => 
-                `<div id="tooth-${num}" class="tooth" onclick="abrirSelectorDiente(event, ${num})">${num}</div>`
-            ).join('');
-        };
-        renderRow(topTeeth, 'teeth-top');
-        renderRow(bottomTeeth, 'teeth-bottom');
-        estadoDientes = {}; // Reiniciamos memoria
-    }
-
-    function abrirSelectorDiente(e, num) {
-        dienteActual = num;
-        document.getElementById('selectedToothLabel').textContent = num;
-        const selector = document.getElementById('toothSelector');
-        selector.style.display = 'flex';
-        // Posicionar bajo el diente
-        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
-        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
-    }
-
-    function marcarDiente(estado) {
-        if(!dienteActual) return;
-        const el = document.getElementById(`tooth-${dienteActual}`);
-        el.classList.remove('caries', 'extraccion', 'corona');
-        
-        if(estado !== 'sano') {
-            el.classList.add(estado);
-            estadoDientes[dienteActual] = estado;
-        } else {
-            delete estadoDientes[dienteActual];
-        }
-        
-        document.getElementById('toothSelector').style.display = 'none';
-        actualizarTextoOdontograma();
-    }
-
-    function actualizarTextoOdontograma() {
-        const traduccion = { 'caries': 'Caries', 'extraccion': 'Pieza Ausente', 'corona': 'Corona/Resina' };
-        const textoGenerado = Object.keys(estadoDientes).map(num => `Pza.${num}: ${traduccion[estadoDientes[num]]}`).join(' | ');
-        document.getElementById('mspOdontograma').value = textoGenerado;
-    }
-
-    function limpiarOdontograma() {
-        initOdontograma();
-        document.getElementById('mspOdontograma').value = '';
-    }
-
-    // Cerramos el pop-up si hacen clic fuera de los dientes
-    document.addEventListener('click', (e) => {
-        if(!e.target.closest('.tooth') && !e.target.closest('#toothSelector')) {
-            const sel = document.getElementById('toothSelector');
-            if(sel) sel.style.display = 'none';
-        }
-    });
 
     // ── BILLING ──
     function calculateTotal() {
@@ -2226,7 +2557,6 @@
         
         const msgBox = document.getElementById('chatMessages');
         
-        // Simulación visual inicial de que cargan mensajes
         msgBox.innerHTML = `
             <div style="margin:auto; text-align:center;">
                 <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
@@ -2259,13 +2589,12 @@
         const msgBox = document.getElementById('chatMessages');
         const timeStr = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         
-        // Limpiamos el texto de "Chat vacío" si existe
         const emptyState = msgBox.querySelector('h3');
         if(emptyState && emptyState.textContent.includes('Chat con')) {
             msgBox.innerHTML = '';
         }
 
-        // Pintamos el globo verde/celeste del mensaje que acaba de enviar el doctor
+        // Pintamos el globo celeste del mensaje que acaba de enviar el doctor
         msgBox.innerHTML += `
             <div class="chat-bubble out slide-up">
                 ${msg}
@@ -2293,7 +2622,6 @@
         } catch(e) {
             mostrarMensaje('Error de red al enviar el mensaje de WhatsApp.', 'error');
             
-            // Pintamos error visual en el chat si falla
             msgBox.innerHTML += `
                 <div style="font-size:11px; color:#dc2626; text-align:right; margin-bottom:8px; font-weight:600;">
                     ❌ Falló el envío. Revisa tu conexión a Meta.
