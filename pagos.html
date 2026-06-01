@@ -197,12 +197,20 @@
                         
                         // Si el status es Approved o statusCode es 3 (Aprobado en PayPhone)
                         if (data.transactionStatus === "Approved" || data.statusCode === 3) {
-                            await db.collection('users').doc(currentUserUid).update({
+                            
+                            let updateData = {
                                 estadoSuscripcion: 'activo',
                                 suscripcionPayphone: true,
                                 payphoneTransaccionId: ppId,
                                 fechaUltimoCobro: firebase.firestore.FieldValue.serverTimestamp()
-                            });
+                            };
+                            
+                            // 🔥 ATRAPAMOS EL TOKEN DE LA TARJETA Y LO GUARDAMOS 🔥
+                            if (data.cardToken) {
+                                updateData.payphoneCardToken = data.cardToken;
+                            }
+
+                            await db.collection('users').doc(currentUserUid).update(updateData);
                             // Limpiamos la URL y mandamos al dashboard
                             window.location.href = 'index.html';
                             return; 
@@ -290,7 +298,8 @@
                             currency: "USD",
                             clientTransactionId: "sub_" + currentUserUid + "_" + Date.now(),
                             // Le decimos a Payphone que regrese obligatoriamente aquí si el navegador lo fuerza a abrir otra pestaña
-                            responseUrl: window.location.href.split('?')[0]
+                            responseUrl: window.location.href.split('?')[0],
+                            storeCard: true // 🔥 LE ORDENA A PAYPHONE TOKENIZAR LA TARJETA
                         });
                     },
                     onComplete: function(model, actions) {
@@ -302,13 +311,19 @@
                             alert("✅ Pago exitoso procesado por PayPhone.");
                             
                             try {
-                                await db.collection('users').doc(currentUserUid).update({
+                                let updateData = {
                                     estadoSuscripcion: 'activo',
                                     suscripcionPayphone: true,
                                     payphoneTransaccionId: model.id,
                                     fechaUltimoCobro: firebase.firestore.FieldValue.serverTimestamp()
-                                });
+                                };
 
+                                // 🔥 ATRAPAMOS EL TOKEN DESDE EL POPUP 🔥
+                                if (value.cardToken) {
+                                    updateData.payphoneCardToken = value.cardToken;
+                                }
+
+                                await db.collection('users').doc(currentUserUid).update(updateData);
                                 window.location.href = 'index.html'; 
                             } catch (e) {
                                 console.error("Error BD:", e);
