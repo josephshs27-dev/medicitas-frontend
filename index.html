@@ -14,23 +14,29 @@
         .animate-slideIn { animation: slideIn 0.3s ease-out; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-900 h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
+<body class="bg-slate-900 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white overflow-y-auto">
 
     <div id="loadingOverlay" class="hidden fixed inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center">
         <div class="spinner mb-4"></div>
         <p class="text-white font-bold text-xl animate-pulse">Iniciando sesión...</p>
-        <p class="text-slate-400 text-sm mt-2" id="redirectMsg">Verificando tu especialidad médica</p>
+        <p class="text-slate-400 text-sm mt-2" id="redirectMsg">Verificando seguridad y enrutando</p>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md animate-slideIn">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md animate-slideIn my-8">
         
         <div class="text-center mb-8">
             <span class="text-6xl mb-4 block">🏥</span>
-            <h2 class="text-3xl font-black text-slate-800 tracking-tight">MediCitas Pro</h2>
-            <p class="text-slate-500 font-medium mt-1">Gestión Médica con Inteligencia Artificial</p>
+            <h2 class="text-3xl font-black text-slate-800 tracking-tight">Asistencitas Pro</h2>
+            <p class="text-slate-500 font-medium mt-1">SaaS Médico Omnicanal</p>
         </div>
+
+        <div id="authSuccess" class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl hidden text-sm font-bold text-center"></div>
+        <div id="authError" class="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl hidden text-sm font-bold text-center"></div>
 
         <form id="loginForm" class="space-y-4">
             <div>
@@ -48,16 +54,16 @@
             <button id="toggleSignupBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors">Crear Nueva Cuenta Clínica</button>
         </div>
 
-        <div id="signupForm" class="hidden mt-6 space-y-4 pt-6 border-t border-slate-100">
-            <h3 class="text-xl font-black text-slate-800 mb-2">Registro de Especialidad</h3>
+        <div id="signupForm" class="hidden mt-6 space-y-4 pt-6 border-t border-slate-100 max-h-[65vh] overflow-y-auto custom-scroll pr-2">
+            <h3 class="text-xl font-black text-slate-800 mb-2">1. Datos de Acceso</h3>
             
-            <input type="text" id="signupName" placeholder="Nombre del Doctor o Clínica" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
-            <input type="email" id="signupEmail" placeholder="Email Profesional" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="signupName" placeholder="Nombre Comercial de la Clínica" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="email" id="signupEmail" placeholder="Email Profesional (Se verificará)" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
             <input type="password" id="signupPassword" placeholder="Crea una contraseña segura" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
             <input type="tel" id="signupPhone" placeholder="Teléfono / WhatsApp (099...)" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
             
-            <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-                <label class="block text-xs font-bold text-indigo-800 mb-1 ml-1">Selecciona tu Especialidad Base</label>
+            <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 mt-4">
+                <label class="block text-xs font-bold text-indigo-800 mb-1 ml-1">Especialidad del SaaS</label>
                 <select id="signupSpecialty" class="w-full px-3 py-2 border border-indigo-200 rounded-lg bg-white font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm text-sm">
                     <option value="medicina">Medicina General / Especialidades</option>
                     <option value="odontologia">Clínica Odontológica</option>
@@ -67,20 +73,33 @@
                 </select>
             </div>
 
-            <div>
+            <div class="mt-6 pt-4 border-t border-slate-200">
+                <h3 class="text-lg font-black text-slate-800 mb-1">2. Datos de Facturación (SRI)</h3>
+                <p class="text-xs text-slate-500 mb-3 font-medium">Requerido para la emisión de tus comprobantes electrónicos de pago.</p>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="signupRuc" placeholder="RUC o Cédula" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="signupRazonSocial" placeholder="Razón Social Legal" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <input type="text" id="signupDireccion" placeholder="Dirección Matriz (Calle y Ciudad)" class="w-full px-4 py-3 border rounded-xl bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-slate-200">
                 <label class="block text-xs font-bold text-slate-500 mb-1 ml-1">Vendedor / Referido (Opcional)</label>
                 <select id="signupVendedor" class="w-full px-4 py-3 border rounded-xl bg-slate-50 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">Compra directa en web</option>
                 </select>
             </div>
 
-            <div class="flex gap-3 mt-4">
+            <div class="flex gap-3 mt-6 pb-4">
                 <button type="button" id="toggleBackBtn" class="w-1/3 bg-slate-200 text-slate-700 hover:bg-slate-300 font-bold py-3 rounded-xl transition-colors">Volver</button>
-                <button type="button" id="submitSignupBtn" class="w-2/3 bg-green-600 text-white hover:bg-green-700 font-bold py-3 rounded-xl shadow-md transition-all active:scale-95">Completar Registro</button>
+                <button type="button" id="submitSignupBtn" class="w-2/3 bg-green-600 text-white hover:bg-green-700 font-bold py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Registrar Clínica
+                </button>
             </div>
         </div>
-
-        <div id="authError" class="mt-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl hidden text-sm font-bold text-center"></div>
         
         <div class="mt-8 text-center border-t border-slate-100 pt-6">
             <p class="text-xs text-slate-400 mb-2">Al iniciar sesión o registrarte, aceptas nuestras políticas.</p>
@@ -102,7 +121,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Normalizar teléfonos a formato internacional (593)
         function normalizarTelefono(phone) {
             if (!phone) return '';
             let cleaned = String(phone).replace(/\D/g, ''); 
@@ -112,8 +130,23 @@
             return cleaned; 
         }
 
+        function mostrarError(msg) {
+            const d = document.getElementById('authError');
+            document.getElementById('authSuccess').classList.add('hidden');
+            d.textContent = msg; 
+            d.classList.remove('hidden');
+            setTimeout(() => d.classList.add('hidden'), 6000);
+        }
+
+        function mostrarExito(msg) {
+            const d = document.getElementById('authSuccess');
+            document.getElementById('authError').classList.add('hidden');
+            d.textContent = msg; 
+            d.classList.remove('hidden');
+        }
+
         // ====================================================
-        // 🔥 ENRUTADOR INTELIGENTE (LA MAGIA DE REDIRECCIÓN) 🔥
+        // 🔥 ENRUTADOR INTELIGENTE (CON VERIFICACIÓN DE EMAIL) 🔥
         // ====================================================
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -121,6 +154,15 @@
                 document.getElementById('loadingOverlay').classList.remove('hidden');
                 
                 try {
+                    // 🔥 REGLA DE SEGURIDAD 1: EXIGIR EMAIL VERIFICADO 🔥
+                    // Excluimos a tu cuenta de SuperAdmin (para evitar bloquearte)
+                    if (!user.emailVerified && user.email !== 'admin@asistencitas.com') {
+                        await auth.signOut();
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                        mostrarError("⚠️ Seguridad: Debes verificar tu correo electrónico para ingresar. Revisa tu bandeja de entrada o SPAM e intenta de nuevo.");
+                        return;
+                    }
+
                     const userDoc = await db.collection('users').doc(user.uid).get();
                     
                     if (userDoc.exists) {
@@ -133,15 +175,13 @@
                         }
 
                         // Si es DOCTOR, buscamos su especialidad
-                        let especialidad = 'medicina'; // Default de seguridad
+                        let especialidad = 'medicina'; 
                         if (data.clinicInfo && data.clinicInfo.especialidad) {
                             especialidad = data.clinicInfo.especialidad;
                         }
 
-                        // Informar al usuario a dónde va
                         document.getElementById('redirectMsg').textContent = `Abriendo módulo especializado de ${especialidad.toUpperCase()}...`;
 
-                        // Mapeo seguro de URLs
                         const rutasPermitidas = {
                             'medicina': 'dashboard-medicina.html',
                             'odontologia': 'dashboard-odontologia.html',
@@ -151,12 +191,9 @@
                         };
 
                         const urlDestino = rutasPermitidas[especialidad] || 'dashboard-medicina.html';
-
-                        // Redirigir (Con un pequeño timeout estético para que se lea el mensaje)
                         setTimeout(() => { window.location.href = urlDestino; }, 800);
 
                     } else {
-                        // Error si no tiene documento en la base de datos
                         auth.signOut();
                         document.getElementById('loadingOverlay').classList.add('hidden');
                         mostrarError("Error: Perfil no encontrado en la base de datos.");
@@ -178,8 +215,23 @@
             btn.disabled = true;
 
             try {
-                await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
-                // Si es exitoso, el onAuthStateChanged toma el control y redirige automáticamente
+                const email = document.getElementById('loginEmail').value;
+                const pass = document.getElementById('loginPassword').value;
+                
+                const cred = await auth.signInWithEmailAndPassword(email, pass);
+                
+                // Si el correo NO está verificado, le mandamos otro email por si acaso y lo sacamos.
+                if (!cred.user.emailVerified && cred.user.email !== 'admin@asistencitas.com') {
+                    await cred.user.sendEmailVerification();
+                    await auth.signOut();
+                    btn.innerHTML = 'Ingresar al Sistema';
+                    btn.disabled = false;
+                    mostrarError("⚠️ Tu cuenta no está verificada. Te hemos reenviado el enlace a tu correo. Revísalo e intenta de nuevo.");
+                    return;
+                }
+
+                // Si está verificado, onAuthStateChanged tomará el control.
+
             } catch (error) { 
                 btn.innerHTML = 'Ingresar al Sistema';
                 btn.disabled = false;
@@ -188,7 +240,7 @@
         });
 
         // ====================================================
-        // LÓGICA DE REGISTRO
+        // LÓGICA DE REGISTRO (CON SRI Y VERIFICACIÓN)
         // ====================================================
         document.getElementById('toggleSignupBtn').onclick = () => {
             document.getElementById('signupForm').classList.remove('hidden');
@@ -206,40 +258,50 @@
         async function loadSellers() {
             try {
                 const vendSnap = await db.collection('users').where('rol', '==', 'vendedor').get();
-                let html = '<option value="">Compra directa en web (Sin vendedor)</option>';
-                vendSnap.forEach(doc => { html += `<option value="${doc.id}">Referido por: ${doc.data().nombre}</option>`; });
+                let html = '<option value="">Compra directa en web (Matriz)</option>';
+                vendSnap.forEach(doc => { html += `<option value="${doc.id}">Agente: ${doc.data().nombre}</option>`; });
                 document.getElementById('signupVendedor').innerHTML = html;
-            } catch(e) { console.log("Error cargando vendedores", e); }
+            } catch(e) {}
         }
 
         document.getElementById('submitSignupBtn').onclick = async () => {
             const btn = document.getElementById('submitSignupBtn');
+            
+            // Datos de Cuenta
             const name = document.getElementById('signupName').value.trim();
             const email = document.getElementById('signupEmail').value.trim();
             const pass = document.getElementById('signupPassword').value.trim();
             const phone = normalizarTelefono(document.getElementById('signupPhone').value.trim());
-            
-            // Capturar la especialidad seleccionada
             const especialidad = document.getElementById('signupSpecialty').value; 
             const vendedorId = document.getElementById('signupVendedor').value;
 
-            if (!name || !email || !pass || !phone) return mostrarError("Por favor, completa todos los campos requeridos.");
+            // Datos SRI
+            const ruc = document.getElementById('signupRuc').value.trim();
+            const razonSocial = document.getElementById('signupRazonSocial').value.trim();
+            const direccion = document.getElementById('signupDireccion').value.trim();
+
+            if (!name || !email || !pass || !phone || !ruc || !razonSocial || !direccion) {
+                return mostrarError("Por favor, completa todos los campos requeridos (Datos de Acceso y Facturación).");
+            }
             
-            btn.innerHTML = '⏳ Registrando...';
+            btn.innerHTML = '⏳ Creando Bóveda Segura...';
             btn.disabled = true;
 
             try {
                 // 1. Crear el usuario en Firebase Authentication
                 const cred = await auth.createUserWithEmailAndPassword(email, pass);
                 
-                // Asignar colores por defecto según la especialidad para mantener la estética
-                let colorBase = '#2563eb'; // Medicina
-                if(especialidad === 'odontologia') colorBase = '#0e7490';
-                if(especialidad === 'veterinaria') colorBase = '#4338ca';
-                if(especialidad === 'fisioterapia') colorBase = '#0f766e';
-                if(especialidad === 'nutricion') colorBase = '#047857';
+                // 🔥 2. ENVIAR CORREO DE VERIFICACIÓN AL INSTANTE 🔥
+                await cred.user.sendEmailVerification();
 
-                // 2. Crear su perfil en Firestore con la especialidad correcta
+                // Asignar colores por defecto según la especialidad
+                let colorBase = '#2563eb'; 
+                if(especialidad === 'odontologia') colorBase = '#0891b2';
+                if(especialidad === 'veterinaria') colorBase = '#4f46e5';
+                if(especialidad === 'fisioterapia') colorBase = '#0d9488';
+                if(especialidad === 'nutricion') colorBase = '#10b981';
+
+                // 3. Crear su perfil en Firestore incluyendo el módulo de facturación
                 await db.collection('users').doc(cred.user.uid).set({
                     userId: cred.user.uid, 
                     nombre: name, 
@@ -250,30 +312,38 @@
                     precioSuscripcion: 20, 
                     fechaRegistro: new Date(),
                     vendedorId: vendedorId || null,
+                    facturacionSRI: {
+                        ruc: ruc,
+                        razonSocial: razonSocial,
+                        direccion: direccion,
+                        correoFacturacion: email
+                    },
                     clinicInfo: { 
                         nombre: name, 
                         telefono: phone, 
-                        especialidad: especialidad, // 🔥 AQUÍ SE GUARDA LA ESPECIALIDAD QUE LO ENRUTARÁ DE POR VIDA
-                        color: colorBase
+                        especialidad: especialidad, 
+                        color: colorBase,
+                        direccion: direccion
                     }
                 });
                 
-                // 3. Forzar redirección al portal de pagos
-                window.location.href = 'pagos.html';
+                // 4. Cerrar sesión para obligarlo a verificar su correo y mostrar éxito
+                await auth.signOut();
+                
+                document.getElementById('signupForm').classList.add('hidden');
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('boxToggleSignup').classList.remove('hidden');
+                
+                mostrarExito("✅ ¡Clínica Registrada Exitosamente! Por tu seguridad, te hemos enviado un enlace de verificación a tu correo. Ábrelo para poder iniciar sesión y activar tu plan.");
+                btn.innerHTML = 'Registrar Clínica';
+                btn.disabled = false; 
 
             } catch (e) { 
-                mostrarError("Error en el registro: " + e.message); 
-                btn.innerHTML = 'Completar Registro';
+                mostrarError("Error en el registro: " + (e.message.includes('email-already-in-use') ? "El correo ya está registrado." : e.message)); 
+                btn.innerHTML = 'Registrar Clínica';
                 btn.disabled = false; 
             }
         };
-
-        function mostrarError(msg) {
-            const d = document.getElementById('authError');
-            d.textContent = msg; 
-            d.classList.remove('hidden');
-            setTimeout(() => d.classList.add('hidden'), 5000);
-        }
     </script>
 </body>
 </html>
