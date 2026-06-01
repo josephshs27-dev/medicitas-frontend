@@ -571,7 +571,7 @@
                                 <div class="avatar" style="background:var(--accent); width:42px; height:42px;">?</div>
                                 <div>
                                     <div style="font-weight:800; color:var(--txt1); font-size:15px;" id="chatActiveName">Selecciona un chat</div>
-                                    <div style="font-size:11.5px; color:var(--txt2); font-weight:600;" id="chatActivePhone">Panel Omnicanal conectado a n8n</div>
+                                    <div style="font-size:11.5px; color:var(--txt2); font-weight:600;" id="chatActivePhone">Panel Omnicanal conectado a Meta API</div>
                                 </div>
                             </div>
                             
@@ -580,13 +580,13 @@
                                     <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
                                         <svg width="28" height="28" fill="none" stroke="var(--txt3)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                                     </div>
-                                    <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Bandeja de Entrada Vacía</h3>
-                                    <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Aquí aparecerán los mensajes de tus pacientes en tiempo real cuando escriban a tu número vinculado.</p>
+                                    <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Bandeja de Entrada</h3>
+                                    <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Escribe un mensaje aquí abajo. Se enviará de forma real al WhatsApp del paciente.</p>
                                 </div>
                             </div>
 
                             <div style="padding:16px 24px; background:white; border-top:1px solid var(--border); display:flex; gap:12px; align-items:center;">
-                                <input type="text" id="chatInput" placeholder="Escribe un mensaje (la IA pausará su respuesta automática)..." class="finput" style="padding:12px 16px; font-size:13.5px;" disabled>
+                                <input type="text" id="chatInput" placeholder="Escribe un mensaje..." class="finput" style="padding:12px 16px; font-size:13.5px;" disabled>
                                 <button id="btnSendChat" class="btn btn-primary" style="padding:12px 24px; font-size:13.5px;" disabled>
                                     Enviar <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                                 </button>
@@ -763,27 +763,27 @@
                         <div style="position:relative;">
                             <div class="fisio-map">
                                 <div class="f-row">
-                                    <div id="part-Hombro_Izq" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Hombro Izquierdo')">H.I</div>
-                                    <div id="part-Cervical" class="f-part f-cervical" onclick="abrirSelectorFisio(event, 'Zona Cervical')">Cervical</div>
-                                    <div id="part-Hombro_Der" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Hombro Derecho')">H.D</div>
+                                    <div id="part-Hombro_Izquierdo" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Hombro_Izquierdo', 'Hombro Izquierdo')">H.I</div>
+                                    <div id="part-Zona_Cervical" class="f-part f-cervical" onclick="abrirSelectorFisio(event, 'Zona_Cervical', 'Zona Cervical')">Cervical</div>
+                                    <div id="part-Hombro_Derecho" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Hombro_Derecho', 'Hombro Derecho')">H.D</div>
                                 </div>
                                 <div class="f-row">
-                                    <div id="part-Brazo_Izq" class="f-part f-limb" onclick="abrirSelectorFisio(event, 'Brazo Izquierdo')">Br.I</div>
-                                    <div id="part-Dorsal" class="f-part f-dorsal" onclick="abrirSelectorFisio(event, 'Zona Dorsal')">Dorsal</div>
-                                    <div id="part-Brazo_Der" class="f-part f-limb" onclick="abrirSelectorFisio(event, 'Brazo Derecho')">Br.D</div>
+                                    <div id="part-Brazo_Izquierdo" class="f-part f-limb" onclick="abrirSelectorFisio(event, 'Brazo_Izquierdo', 'Brazo Izquierdo')">Br.I</div>
+                                    <div id="part-Zona_Dorsal" class="f-part f-dorsal" onclick="abrirSelectorFisio(event, 'Zona_Dorsal', 'Zona Dorsal')">Dorsal</div>
+                                    <div id="part-Brazo_Derecho" class="f-part f-limb" onclick="abrirSelectorFisio(event, 'Brazo_Derecho', 'Brazo Derecho')">Br.D</div>
                                 </div>
                                 <div class="f-row">
-                                    <div id="part-Lumbar" class="f-part f-lumbar" onclick="abrirSelectorFisio(event, 'Zona Lumbar')">Lumbar</div>
+                                    <div id="part-Zona_Lumbar" class="f-part f-lumbar" onclick="abrirSelectorFisio(event, 'Zona_Lumbar', 'Zona Lumbar')">Lumbar</div>
                                 </div>
                                 <div class="f-row" style="margin-top:4px;">
-                                    <div id="part-Rodilla_Izq" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Rodilla Izquierda')">Rod.I</div>
+                                    <div id="part-Rodilla_Izquierda" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Rodilla_Izquierda', 'Rodilla Izquierda')">Rod.I</div>
                                     <div style="width:45px;"></div>
-                                    <div id="part-Rodilla_Der" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Rodilla Derecha')">Rod.D</div>
+                                    <div id="part-Rodilla_Derecha" class="f-part f-joint" onclick="abrirSelectorFisio(event, 'Rodilla_Derecha', 'Rodilla Derecha')">Rod.D</div>
                                 </div>
                                 <div class="f-row">
-                                    <div id="part-Tobillo_Izq" class="f-part f-joint" style="width:30px; height:30px;" onclick="abrirSelectorFisio(event, 'Tobillo Izquierdo')">Tob.I</div>
+                                    <div id="part-Tobillo_Izquierdo" class="f-part f-joint" style="width:30px; height:30px;" onclick="abrirSelectorFisio(event, 'Tobillo_Izquierdo', 'Tobillo Izquierdo')">Tob.I</div>
                                     <div style="width:55px;"></div>
-                                    <div id="part-Tobillo_Der" class="f-part f-joint" style="width:30px; height:30px;" onclick="abrirSelectorFisio(event, 'Tobillo Derecho')">Tob.D</div>
+                                    <div id="part-Tobillo_Derecho" class="f-part f-joint" style="width:30px; height:30px;" onclick="abrirSelectorFisio(event, 'Tobillo_Derecho', 'Tobillo Derecho')">Tob.D</div>
                                 </div>
                             </div>
                             
@@ -1918,6 +1918,11 @@
             }
         }
 
+        // Recuperar diagnóstico si existe
+        if(apt && apt.diagnostico) {
+            document.getElementById('rxDiagnostico').value = apt.diagnostico;
+        }
+
         document.getElementById('rxNextDate').value = '';
         document.getElementById('rxNextTime').value = '';
         document.getElementById('checkTratamiento').checked = false;
@@ -1944,7 +1949,8 @@
     }
 
     // ── LÓGICA DEL MAPA FÍSICO (FISIOTERAPIA) ──
-    let parteFisioActual = null;
+    let parteFisioActualId = null;
+    let parteFisioActualName = null;
     let estadoFisio = {};
 
     function initMapaFisio() {
@@ -1953,9 +1959,10 @@
         document.getElementById('rxDiagnostico').value = '';
     }
 
-    function abrirSelectorFisio(e, parte) {
-        parteFisioActual = parte;
-        document.getElementById('selectedFisioPart').textContent = parte;
+    function abrirSelectorFisio(e, partId, partName) {
+        parteFisioActualId = partId;
+        parteFisioActualName = partName;
+        document.getElementById('selectedFisioPart').textContent = partName;
         const selector = document.getElementById('fisioSelector');
         selector.style.display = 'flex';
         selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
@@ -1963,16 +1970,15 @@
     }
 
     function marcarFisio(hallazgo) {
-        if(!parteFisioActual) return;
-        const partId = parteFisioActual.replace(/ /g, '_');
-        const el = document.getElementById(`part-${partId}`);
+        if(!parteFisioActualId) return;
+        const el = document.getElementById(`part-${parteFisioActualId}`);
         
         if(hallazgo !== 'sano') {
             el.classList.add('has-issue');
-            estadoFisio[parteFisioActual] = hallazgo;
+            estadoFisio[parteFisioActualName] = hallazgo;
         } else {
             el.classList.remove('has-issue');
-            delete estadoFisio[parteFisioActual];
+            delete estadoFisio[parteFisioActualName];
         }
         
         document.getElementById('fisioSelector').style.display = 'none';
@@ -1980,12 +1986,19 @@
     }
 
     function actualizarTextoFisio() {
-        if(Object.keys(estadoFisio).length === 0) {
-            document.getElementById('rxDiagnostico').value = '';
-            return;
+        let currentText = document.getElementById('rxDiagnostico').value;
+        const regex = /\n\n--- HALLAZGOS DEL MAPA ---\n([\s\S]*?)--- FIN HALLAZGOS ---/g;
+        
+        // Limpiamos los hallazgos del mapa anteriores para no duplicarlos
+        currentText = currentText.replace(regex, '').trim();
+
+        if(Object.keys(estadoFisio).length > 0) {
+            const textoGenerado = Object.keys(estadoFisio).map(parte => `• ${parte}: ${estadoFisio[parte]}`).join('\n');
+            const nuevoBloque = `\n\n--- HALLAZGOS DEL MAPA ---\n${textoGenerado}\n--- FIN HALLAZGOS ---`;
+            document.getElementById('rxDiagnostico').value = currentText + nuevoBloque;
+        } else {
+            document.getElementById('rxDiagnostico').value = currentText;
         }
-        const textoGenerado = Object.keys(estadoFisio).map(parte => `• ${parte}: ${estadoFisio[parte]}`).join('\n');
-        document.getElementById('rxDiagnostico').value = "Hallazgos Físicos y Diagnóstico:\n" + textoGenerado;
     }
 
     function limpiarMapaFisio() {
@@ -2029,7 +2042,7 @@
             
             let currentDiag = document.getElementById('rxDiagnostico').value;
             if(data.diagnostico) {
-                document.getElementById('rxDiagnostico').value = currentDiag ? currentDiag + "\n\n(IA): " + data.diagnostico : data.diagnostico;
+                document.getElementById('rxDiagnostico').value = currentDiag ? currentDiag + "\n\n[Análisis IA]\n" + data.diagnostico : data.diagnostico;
             }
             
             if(Array.isArray(data.recomendaciones)) document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
@@ -2413,15 +2426,12 @@
         listEl.innerHTML = '<div style="padding:40px;text-align:center;"><div class="spinner" style="margin:auto;"></div></div>';
         
         try {
-            // Cuando conectes a n8n, aquí harás un db.collection('conversaciones').where('doctorId','==', parentDoctorId)...
-            // Por ahora, leemos tus pacientes para simular la estructura
             setTimeout(() => {
                 if(patients.length === 0) {
                     listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px;font-weight:600;">No hay pacientes registrados aún.</div>';
                     return;
                 }
                 
-                // Muestra los pacientes que tienen teléfono registrado
                 const validPatients = patients.filter(p => p.telefonoWhatsApp);
                 
                 if(validPatients.length === 0) {
@@ -2439,7 +2449,7 @@
                                 <div style="font-weight:800; font-size:14px; color:var(--txt1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.nombre}</div>
                                 <div style="font-size:10px; color:white; font-weight:700; background:var(--accent); padding:2px 6px; border-radius:4px;">IA Activa</div>
                             </div>
-                            <div style="font-size:12.5px; color:var(--txt2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">Haga clic para ver o enviar mensajes</div>
+                            <div style="font-size:12.5px; color:var(--txt2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">Haga clic para enviar un mensaje</div>
                         </div>
                     </div>`;
                 }).join('');
@@ -2458,34 +2468,85 @@
         
         const msgBox = document.getElementById('chatMessages');
         
-        // Simulación visual de que cargan los chats que n8n o la API ya procesó
+        // Simulación visual inicial de que cargan mensajes
         msgBox.innerHTML = `
-            <div style="text-align:center; margin:10px 0;"><span style="background:white; border:1px solid var(--border); color:var(--txt2); padding:4px 12px; border-radius:99px; font-size:10.5px; font-weight:700;">Mensajes Recientes</span></div>
-            
-            <div class="chat-bubble in">
-                Hola, disculpe, ¿tienen disponibilidad para mañana en la tarde? Me duele la zona cervical.
-                <div class="chat-time">Ayer 15:30</div>
-            </div>
-            
-            <div class="chat-bubble out">
-                ¡Hola ${name}! Claro que sí, la IA le ha generado las siguientes opciones. Seleccione una:
-                <br><br>1. Mañana a las 14:00<br>2. Mañana a las 16:30
-                <div class="chat-time">Ayer 15:31</div>
-            </div>
-            
-            <div class="chat-bubble in">
-                La opción 2 por favor.
-                <div class="chat-time">Ayer 15:35</div>
-            </div>
-            
-            <div class="chat-bubble out">
-                ✅ Perfecto, su cita ha sido confirmada para mañana a las 16:30. ¡Lo esperamos!
-                <div class="chat-time">Ayer 15:35</div>
+            <div style="margin:auto; text-align:center;">
+                <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                    <svg width="28" height="28" fill="none" stroke="var(--accent)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                </div>
+                <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Chat con ${name}</h3>
+                <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Escribe un mensaje aquí abajo. Se enviará de forma real al WhatsApp del paciente mediante tu API.</p>
             </div>
         `;
-
-        // Scrollear siempre al fondo
         msgBox.scrollTop = msgBox.scrollHeight;
+        document.getElementById('chatInput').focus();
+    }
+
+    // Eventos para enviar el mensaje con clic o Enter
+    document.getElementById('btnSendChat').addEventListener('click', enviarMensajeChat);
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') enviarMensajeChat();
+    });
+
+    // Función real de envío conectada al Backend
+    async function enviarMensajeChat() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if(!msg || !activeChatPhone) return;
+
+        const btn = document.getElementById('btnSendChat');
+        btn.disabled = true;
+        input.disabled = true;
+
+        const msgBox = document.getElementById('chatMessages');
+        const timeStr = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        
+        // Limpiamos el texto de "Chat vacío" si existe
+        const emptyState = msgBox.querySelector('h3');
+        if(emptyState && emptyState.textContent.includes('Chat con')) {
+            msgBox.innerHTML = '';
+        }
+
+        // Pintamos el globo verde del mensaje que acaba de enviar el doctor
+        msgBox.innerHTML += `
+            <div class="chat-bubble out slide-up">
+                ${msg}
+                <div class="chat-time">Hoy ${timeStr}</div>
+            </div>
+        `;
+        msgBox.scrollTop = msgBox.scrollHeight;
+        input.value = '';
+
+        try {
+            // Mandamos la orden REAL al backend
+            const res = await fetch(`${API_BASE_URL}/send-message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    doctorId: parentDoctorId,
+                    phoneNumber: activeChatPhone,
+                    message: msg
+                })
+            });
+            const data = await res.json();
+            
+            if(!data.success) throw new Error(data.error || "Error de API");
+            
+        } catch(e) {
+            mostrarMensaje('Error de red al enviar el mensaje de WhatsApp.', 'error');
+            
+            // Pintamos error visual en el chat si falla
+            msgBox.innerHTML += `
+                <div style="font-size:11px; color:#dc2626; text-align:right; margin-bottom:8px; font-weight:600;">
+                    ❌ Falló el envío. Revisa tu conexión a Meta.
+                </div>
+            `;
+            msgBox.scrollTop = msgBox.scrollHeight;
+        } finally {
+            btn.disabled = false;
+            input.disabled = false;
+            input.focus();
+        }
     }
 
     // ── MENSAJES DEL SISTEMA (TOASTS) ──
