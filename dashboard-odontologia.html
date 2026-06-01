@@ -41,6 +41,7 @@
         /* ── Animations ── */
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         .slide-up { animation: slideUp 0.25s ease-out; }
 
         /* ── Loading overlay ── */
@@ -219,12 +220,12 @@
 
         /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
-        .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; }
-        .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
+        .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .modal-title { font-size: 16px; font-weight: 800; color: var(--txt1); }
         .modal-sub { font-size: 12.5px; color: var(--txt2); font-weight: 500; margin-top: 2px; }
-        .modal-bd { padding: 22px 26px; }
-        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; }
+        .modal-bd { padding: 22px 26px; overflow-y: auto; }
+        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; flex-shrink: 0; }
         .modal-close-btn { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: var(--txt2); font-size: 20px; line-height: 1; transition: background 0.15s; }
         .modal-close-btn:hover { background: #f1f5f9; color: var(--txt1); }
 
@@ -233,7 +234,12 @@
         .search-wrap { position: relative; }
         .search-wrap input { padding-left: 36px !important; }
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
-    .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
+    
+        /* Estilos del Chat */
+        .chat-bubble { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 8px; }
+        .chat-bubble.in { background: white; border: 1px solid var(--border); border-top-left-radius: 0; align-self: flex-start; color: var(--txt1); }
+        .chat-bubble.out { background: #ecfeff; border: 1px solid #a5f3fc; border-top-right-radius: 0; align-self: flex-end; color: #0891b2; }
+        .chat-time { font-size: 9px; margin-top: 4px; text-align: right; opacity: 0.7; }
 
         /* 📱 ── OPTIMIZACIÓN RESPONSIVE (MÓVILES) ── 📱 */
         @media (max-width: 768px) {
@@ -341,6 +347,12 @@
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 Pacientes
             </button>
+            
+            <button onclick="switchTab('chats')" id="tabBtnChats" class="nav-link">
+                <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                Bandeja Chats
+            </button>
+
             <button onclick="switchTab('finanzas')" id="tabBtnFinanzas" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                 Finanzas y Cuotas
@@ -446,7 +458,7 @@
 
                         <div class="kpi-card">
                             <div class="kpi-icon" style="background:#f0fdf4;">
-                                <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402-2.599-1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <div class="kpi-label">Ingresos reales</div>
                             <div class="kpi-value money" style="color:#16a34a;" id="kpiIngresos">$0.00</div>
@@ -578,6 +590,53 @@
                         </div>
                         <div style="padding:20px;">
                             <div id="patientsDirectoryList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabContentChats" class="hidden slide-up" style="height: calc(100vh - 120px);">
+                    <div style="display:flex; height:100%; background:white; border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+                        
+                        <div style="width:320px; border-right:1px solid var(--border); display:flex; flex-direction:column; background:white;">
+                            <div style="padding:16px; border-bottom:1px solid var(--border); background:#f8fafc;">
+                                <div style="font-weight:800; font-size:14px; color:var(--txt1); margin-bottom:12px;">Mensajes Recientes</div>
+                                <div class="search-wrap">
+                                    <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                    <input type="text" placeholder="Buscar conversación..." class="finput">
+                                </div>
+                            </div>
+                            <div id="chatList" style="flex:1; overflow-y:auto;" class="cs">
+                                <div style="padding:40px; text-align:center;">
+                                    <div class="spinner" style="margin:auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="flex:1; display:flex; flex-direction:column; background:var(--page);">
+                            <div id="chatHeader" style="padding:16px 24px; background:white; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px;">
+                                <div class="avatar" style="background:var(--accent); width:42px; height:42px;">?</div>
+                                <div>
+                                    <div style="font-weight:800; color:var(--txt1); font-size:15px;" id="chatActiveName">Selecciona un chat</div>
+                                    <div style="font-size:11.5px; color:var(--txt2); font-weight:600;" id="chatActivePhone">Panel Omnicanal conectado a Meta API</div>
+                                </div>
+                            </div>
+                            
+                            <div id="chatMessages" style="flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column;" class="cs">
+                                <div style="margin:auto; text-align:center;">
+                                    <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                                        <svg width="28" height="28" fill="none" stroke="var(--txt3)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                    </div>
+                                    <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Bandeja de Entrada</h3>
+                                    <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Escribe un mensaje aquí abajo. Se enviará de forma real al WhatsApp del paciente.</p>
+                                </div>
+                            </div>
+
+                            <div style="padding:16px 24px; background:white; border-top:1px solid var(--border); display:flex; gap:12px; align-items:center;">
+                                <input type="text" id="chatInput" placeholder="Escribe un mensaje..." class="finput" style="padding:12px 16px; font-size:13.5px;" disabled>
+                                <button id="btnSendChat" class="btn btn-primary" style="padding:12px 24px; font-size:13.5px;" disabled>
+                                    Enviar <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -836,340 +895,15 @@
                         </div>
                     </div>
 
-                    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;">
-                        <div style="font-size:13px;font-weight:800;color:#1e40af;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            Auto-Agendar Próxima Cita
+                    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <div style="font-size:13.5px;font-weight:800;color:#1e40af;margin-bottom:3px;">Google Calendar</div>
+                            <div style="font-size:12px;color:#3b82f6;font-weight:500;">Vincula tu agenda para auto-agendar pacientes</div>
                         </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                            <input type="date" id="rxNextDate" class="finput" style="border-color:#bfdbfe;">
-                            <input type="time" id="rxNextTime" class="finput" style="border-color:#bfdbfe;">
-                        </div>
-                        <p style="font-size:11px;color:#3b82f6;font-weight:600;margin:8px 0 0;">Al guardar, se creará el turno automáticamente en tu agenda y en Google Calendar.</p>
+                        <button id="btnSyncCalendar" onclick="syncGoogleCalendar()" class="btn btn-md" style="background:white;color:#1d4ed8;border:1px solid #bfdbfe;white-space:nowrap;">
+                            Vincular cuenta
+                        </button>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-ft" style="flex-shrink:0;">
-            <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg" style="flex:1;">Cancelar</button>
-            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="flex:2;">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Guardar y Cobrar
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="billingModal" class="modal-wrap hidden" style="z-index:78;">
-    <div class="modal-box" style="width:100%;max-width:420px;">
-        <div class="modal-hd" style="background:#f0fdf4;">
-            <div>
-                <div class="modal-title">Registrar Cobro</div>
-                <div class="modal-sub">Sesión a <strong id="billingPatName"></strong></div>
-            </div>
-            <button onclick="closeBillingModal()" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-bd">
-            <input type="hidden" id="billingAptId">
-            <div style="display:flex;flex-direction:column;gap:14px;">
-                <div>
-                    <label class="flabel">Subtotal ($)</label>
-                    <input type="number" id="billingSubtotal" step="0.01" min="0" class="finput" style="font-size:22px;font-weight:800;text-align:center;" oninput="calculateTotal()">
-                </div>
-                <label style="display:flex;align-items:center;gap:10px;padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;cursor:pointer;">
-                    <input type="checkbox" id="billingIva" onchange="calculateTotal()" style="width:18px;height:18px;accent-color:var(--accent);">
-                    <span style="font-size:13px;font-weight:700;color:var(--txt1);">Añadir IVA (15%)</span>
-                </label>
-                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:18px;text-align:center;">
-                    <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#065f46;margin-bottom:6px;">Total a pagar</div>
-                    <div style="font-size:40px;font-weight:800;color:#15803d;" id="billingTotalDisplay">$0.00</div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-ft">
-            <button onclick="closeBillingModal()" class="btn btn-secondary btn-lg" style="flex:1;">Cancelar</button>
-            <button id="btnFinalizarCobro" onclick="submitBilling()" class="btn btn-primary btn-lg" style="flex:2;background:#16a34a;">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                Finalizar y Enviar
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="patientModal" class="modal-wrap hidden" style="z-index:82;">
-    <div class="modal-box" style="width:100%;max-width:420px;">
-        <div class="modal-hd">
-            <div class="modal-title" id="patientModalTitle">Registrar Paciente</div>
-            <button onclick="closePatientModal()" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-bd">
-            <input type="hidden" id="editPatientId">
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <div><label class="flabel">Cédula / RUC *</label><input type="text" id="patientCedula" class="finput"></div>
-                <div><label class="flabel">Nombre Completo *</label><input type="text" id="patientName" class="finput"></div>
-                <div><label class="flabel">WhatsApp *</label><input type="tel" id="patientPhone" placeholder="593..." class="finput"></div>
-                <div><label class="flabel">Email</label><input type="email" id="patientEmail" class="finput"></div>
-                <div><label class="flabel">Fecha de Nacimiento</label><input type="date" id="patientDob" class="finput"></div>
-            </div>
-        </div>
-        <div class="modal-ft">
-            <button onclick="closePatientModal()" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
-            <button id="savePatientBtn" onclick="submitPatient()" class="btn btn-primary btn-md" style="flex:1;">Guardar</button>
-        </div>
-    </div>
-</div>
-
-<div id="payInstallmentModal" class="modal-wrap hidden" style="z-index:87;">
-    <div class="modal-box" style="width:100%;max-width:360px;">
-        <div class="modal-hd">
-            <div>
-                <div class="modal-title">Abonar a Cuenta</div>
-                <div class="modal-sub" id="installPatientName"></div>
-            </div>
-            <button onclick="document.getElementById('payInstallmentModal').classList.add('hidden')" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-bd">
-            <input type="hidden" id="installPlanId">
-            <div style="display:flex;flex-direction:column;gap:14px;">
-                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:16px;text-align:center;">
-                    <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#991b1b;margin-bottom:4px;">Saldo Pendiente</div>
-                    <div style="font-size:32px;font-weight:800;color:#dc2626;" id="installSaldoDisplay">$0.00</div>
-                </div>
-                <div>
-                    <label class="flabel">Monto a Abonar ($)</label>
-                    <input type="number" id="installAmount" step="0.01" class="finput" style="font-size:22px;font-weight:800;text-align:center;">
-                </div>
-            </div>
-        </div>
-        <div class="modal-ft">
-            <button onclick="document.getElementById('payInstallmentModal').classList.add('hidden')" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
-            <button onclick="submitInstallmentPayment()" class="btn btn-primary btn-md" style="flex:1;">Registrar Pago</button>
-        </div>
-    </div>
-</div>
-
-<div id="historyModal" class="modal-wrap hidden" style="z-index:73;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
-    <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
-        <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
-            <div>
-                <div class="modal-title">Expediente Odontológico</div>
-                <div class="modal-sub" id="historyPatientInfo">Cargando...</div>
-            </div>
-            <button onclick="closeHistoryModal()" class="modal-close-btn">&times;</button>
-        </div>
-        <div style="flex:1;overflow-y:auto;padding:24px 26px;background:#f8fafc;" class="cs">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-                <div style="display:flex;flex-direction:column;gap:16px;">
-                    <div class="panel">
-                        <div class="panel-head">
-                            <div class="panel-title" style="font-size:13px;">Radiografías / Imágenes</div>
-                            <div style="display:flex;align-items:center;gap:8px;">
-                                <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
-                                <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="btn btn-secondary btn-sm">
-                                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                    Subir archivo
-                                </button>
-                            </div>
-                        </div>
-                        <div class="panel-body">
-                            <div id="patientImagesGallery" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-height:400px;overflow-y:auto;" class="cs"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="panel" style="display:flex;flex-direction:column;overflow:hidden;">
-                    <div class="panel-head" style="flex-shrink:0;"><div class="panel-title" style="font-size:13px;">Historial de Consultas</div></div>
-                    <div id="historyTimeline" class="cs" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-ft" style="justify-content:flex-end;">
-            <button onclick="closeHistoryModal()" class="btn btn-secondary btn-md">Cerrar expediente</button>
-        </div>
-    </div>
-</div>
-
-<div id="addInsumoModal" class="modal-wrap hidden" style="z-index:82;">
-    <div class="modal-box" style="width:100%;max-width:380px;">
-        <div class="modal-hd">
-            <div class="modal-title">Agregar Insumo</div>
-            <button onclick="document.getElementById('addInsumoModal').classList.add('hidden')" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-bd">
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <div><label class="flabel">Nombre del insumo *</label><input type="text" id="insumoName" placeholder="Ej: Resina 3M" class="finput"></div>
-                <div><label class="flabel">Cantidad inicial</label><input type="number" id="insumoQty" class="finput"></div>
-                <div>
-                    <label class="flabel">Categoría</label>
-                    <select id="insumoCat" class="finput">
-                        <option value="Material Odontológico">Material Odontológico</option>
-                        <option value="Medicamento">Medicamento</option>
-                        <option value="Oficina">Oficina</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="modal-ft">
-            <button onclick="document.getElementById('addInsumoModal').classList.add('hidden')" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
-            <button onclick="submitNewInsumo()" class="btn btn-primary btn-md" style="flex:1;">Guardar</button>
-        </div>
-    </div>
-</div>
-
-<div id="birthdayModal" class="modal-wrap hidden" style="z-index:82;background:rgba(131,24,67,0.5);">
-    <div class="modal-box" style="width:100%;max-width:420px;">
-        <div class="modal-hd" style="background:#fdf2f8;border-bottom-color:#fbcfe8;">
-            <div>
-                <div class="modal-title" style="color:#9d174d;">Regalos Asistencitas</div>
-                <div class="modal-sub">Configura el regalo por defecto de cumpleaños</div>
-            </div>
-            <button onclick="document.getElementById('birthdayModal').classList.add('hidden')" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-bd">
-            <div style="text-align:center;margin-bottom:16px;">
-                <div style="width:56px;height:56px;background:#fdf2f8;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-                    <svg width="26" height="26" fill="none" stroke="#be185d" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
-                </div>
-            </div>
-            <textarea id="bdayGiftText" rows="4" placeholder="Ej: ¡Felicidades! Tienes una profilaxis con 50% OFF por tu cumpleaños..." class="finput" style="background:#fdf2f8;border-color:#fbcfe8;resize:none;"></textarea>
-        </div>
-        <div class="modal-ft">
-            <button onclick="document.getElementById('birthdayModal').classList.add('hidden')" class="btn btn-ghost btn-md" style="flex:1;">Cancelar</button>
-            <button onclick="saveBdayConfig()" class="btn btn-md btn-full" style="flex:2;background:#be185d;color:white;border:none;">Guardar regalo</button>
-        </div>
-    </div>
-</div>
-
-<div id="promotionsModal" class="modal-wrap hidden" style="z-index:82;">
-    <div class="modal-box" style="width:100%;max-width:420px;">
-        <div class="modal-hd" style="background:#fff7ed;">
-            <div>
-                <div class="modal-title" style="color:#c2410c;">Campaña IA</div>
-                <div class="modal-sub">Envío inteligente a tus pacientes</div>
-            </div>
-            <button onclick="closePromotionsModal()" class="modal-close-btn">&times;</button>
-        </div>
-        <div class="modal-bd">
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <div><label class="flabel">Instrucción de segmento</label><input type="text" id="promoTargeting" placeholder="Ej: Solo pacientes de ortodoncia" class="finput" style="border-color:#fed7aa;background:#fff7ed;"></div>
-                <div><label class="flabel">Mensaje base</label><textarea id="promoMessage" rows="5" class="finput" placeholder="Escribe el mensaje de la campaña..." style="border-color:#fed7aa;background:#fff7ed;resize:none;"></textarea></div>
-            </div>
-        </div>
-        <div class="modal-ft">
-            <button onclick="closePromotionsModal()" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
-            <button id="btnSendPromo" onclick="sendPromotion()" class="btn btn-md" style="flex:2;background:#c2410c;color:white;border:none;">Enviar Inteligente ✦</button>
-        </div>
-    </div>
-</div>
-
-<div id="metaModal" class="modal-wrap hidden" style="z-index:62;">
-    <div class="modal-box" style="width:100%;max-width:420px;">
-        <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));">
-            <div>
-                <div class="modal-title" style="color:white;">Meta Omnicanal</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">IA en todas tus redes</div>
-            </div>
-            <button onclick="closeMetaModal()" class="modal-close-btn" style="color:rgba(255,255,255,0.7);">&times;</button>
-        </div>
-        <div class="modal-bd" style="background:#f8fafc;">
-            <div style="display:flex;flex-direction:column;gap:10px;">
-                <div style="background:white;border:1px solid #bbf7d0;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📱</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">WhatsApp Business</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;">Conectado ✓</span>
-                </div>
-                <div style="background:white;border:1px solid #bfdbfe;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">💬</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Facebook Messenger</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">Conectado ✓</span>
-                </div>
-                <div style="background:white;border:1px solid #fecaca;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#fef2f2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📸</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Instagram Direct</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Desconectado</span>
-                </div>
-            </div>
-        </div>
-        <div style="padding:14px 26px;border-top:1px solid var(--border);background:white;">
-            <button id="btnMetaConnect" onclick="iniciarConexionMeta()" class="btn btn-primary btn-md btn-full">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                Vincular Facebook / WhatsApp
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="settingsModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
-    <div class="modal-box" style="width:100%;max-width:680px;max-height:95vh;display:flex;flex-direction:column;">
-        <div class="modal-hd" style="flex-shrink:0;">
-            <div class="modal-title">Configuración de Clínica Dental</div>
-            <button onclick="closeSettingsModal()" class="modal-close-btn">&times;</button>
-        </div>
-        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
-            <div style="display:flex;flex-direction:column;gap:22px;">
-
-                <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;">
-                    <div>
-                        <div class="flabel" style="text-align:center;margin-bottom:8px;">Logo</div>
-                        <div style="width:100px;height:100px;background:#f8fafc;border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;" onclick="document.getElementById('clinicLogoInput').click()">
-                            <img id="clinicLogoPreview" src="img/logo.png" style="width:100%;height:100%;object-fit:contain;">
-                            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:800;" onmouseenter="this.style.display='flex'" onmouseleave="this.style.display='none'">CAMBIAR</div>
-                        </div>
-                        <input type="file" id="clinicLogoInput" class="hidden" accept="image/*" onchange="previewLogo(this)">
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:12px;">
-                        <div><label class="flabel">Nombre Comercial</label><input type="text" id="clinicName" class="finput"></div>
-                        <div><label class="flabel">RUC</label><input type="text" id="clinicRuc" class="finput"></div>
-                        <div style="display:grid;grid-template-columns:1fr auto;gap:12px;">
-                            <div><label class="flabel">Teléfono</label><input type="tel" id="clinicPhone" class="finput"></div>
-                            <div>
-                                <label class="flabel">Color Marca</label>
-                                <input type="color" id="clinicColor" value="#0891b2" style="width:100%;height:42px;border:1px solid var(--border);border-radius:8px;padding:2px 4px;cursor:pointer;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="sep">
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                    <div style="background:var(--accent-light);border:1px solid var(--accent);border-radius:10px;padding:16px;">
-                        <div class="panel-title" style="font-size:13px;margin-bottom:10px;color:var(--accent-dark);">Horario Laboral</div>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <input type="time" id="hInicio" class="finput" style="flex:1;">
-                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">hasta</span>
-                            <input type="time" id="hFin" class="finput" style="flex:1;">
-                        </div>
-                    </div>
-                    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
-                        <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
-                        <div id="holidayCalendar" class="mt-2 bg-white border border-slate-200 rounded-lg p-3">
-                            <div class="flex justify-between items-center mb-3">
-                                <button type="button" onclick="changeCalMonth(-1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">◀</button>
-                                <span id="calMonthLabel" style="font-size:11px; font-weight:800; text-transform:uppercase;">Mes</span>
-                                <button type="button" onclick="changeCalMonth(1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">▶</button>
-                            </div>
-                            <div class="cal-grid" id="calDaysGrid"></div>
-                        </div>
-                        <p style="font-size:9.5px; color:var(--txt3); margin-top:8px; font-weight:600;">Haz clic en un día para marcarlo como feriado/vacaciones. La agenda bloqueará esos días.</p>
-                    </div>
-                </div>
-
-                <div><label class="flabel">Dirección Física</label><input type="text" id="clinicAddress" class="finput"></div>
-
-                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:space-between;">
-                    <div>
-                        <div style="font-size:13.5px;font-weight:800;color:#1e40af;margin-bottom:3px;">Google Calendar</div>
-                        <div style="font-size:12px;color:#3b82f6;font-weight:500;">Vincula tu agenda para auto-agendar pacientes</div>
-                    </div>
-                    <button id="btnSyncCalendar" onclick="syncGoogleCalendar()" class="btn btn-md" style="background:white;color:#1d4ed8;border:1px solid #bfdbfe;white-space:nowrap;">
-                        Vincular cuenta
-                    </button>
                 </div>
             </div>
         </div>
@@ -1307,6 +1041,9 @@
     // Variables Calendario Interactivo
     let holidays = [];
     let currentCalDate = new Date();
+    
+    // Variables Chat
+    let activeChatPhone = null;
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1415,7 +1152,7 @@
             <tr>
                 <td><span style="font-weight:700;color:#0f172a;">${i.nombre}</span>${i.categoria ? `<br><span style="font-size:11px;color:#94a3b8;font-weight:600;">${i.categoria}</span>` : ''}</td>
                 <td>
-                    <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;${i.stock < 10 ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;'}\">
+                    <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;${i.stock < 10 ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;'}">
                         ${i.stock} uds.${i.stock < 10 ? ' ⚠' : ''}
                     </span>
                 </td>
@@ -1505,11 +1242,12 @@
 
     // ── TABS ──
     function switchTab(tabId) {
-        const tabs = ['dashboard', 'agenda', 'pacientes', 'finanzas', 'insumos'];
+        const tabs = ['dashboard', 'agenda', 'pacientes', 'finanzas', 'insumos', 'chats'];
         const titles = {
             dashboard: 'Métricas y Estadísticas',
             agenda: 'Agenda Dental',
             pacientes: 'Directorio de Pacientes',
+            chats: 'Bandeja Omnicanal (IA)',
             finanzas: 'Finanzas y Cuotas',
             insumos: 'Inventario Clínico'
         };
@@ -1524,6 +1262,7 @@
         if(titleEl) titleEl.textContent = titles[tabId] || '';
         if(tabId === 'dashboard') updateDashboardStats();
         if(tabId === 'finanzas') renderPlanesPago();
+        if(tabId === 'chats') loadChats();
     }
 
     // ── PATIENTS ──
@@ -2439,7 +2178,136 @@
         navigator.clipboard.writeText(miLink).then(()=>mostrarMensaje('¡Enlace copiado al portapapeles!','success')).catch(()=>alert("Copia manually: "+miLink));
     }
 
-    // ── MENSAJES ──
+    // ── MENSAJES OMNICANAL O CHATS ──
+    async function loadChats() {
+        const listEl = document.getElementById('chatList');
+        listEl.innerHTML = '<div style="padding:40px;text-align:center;"><div class="spinner" style="margin:auto;"></div></div>';
+        
+        try {
+            setTimeout(() => {
+                if(patients.length === 0) {
+                    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px;font-weight:600;">No hay pacientes registrados aún.</div>';
+                    return;
+                }
+                
+                const validPatients = patients.filter(p => p.telefonoWhatsApp);
+                
+                if(validPatients.length === 0) {
+                    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px;font-weight:600;">Los pacientes necesitan un número de WhatsApp registrado.</div>';
+                    return;
+                }
+
+                listEl.innerHTML = validPatients.map(p => {
+                    const initials = p.nombre.substring(0,2).toUpperCase();
+                    return `
+                    <div onclick="openChat('${p.telefonoWhatsApp}', '${p.nombre}')" style="padding:16px 20px; border-bottom:1px solid var(--border); cursor:pointer; display:flex; gap:14px; align-items:center; transition:background 0.1s;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'">
+                        <div class="avatar" style="background:var(--accent); width:42px; height:42px; font-size:15px;">${initials}</div>
+                        <div style="flex:1; overflow:hidden;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="font-weight:800; font-size:14px; color:var(--txt1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.nombre}</div>
+                                <div style="font-size:10px; color:white; font-weight:700; background:var(--accent); padding:2px 6px; border-radius:4px;">IA Activa</div>
+                            </div>
+                            <div style="font-size:12.5px; color:var(--txt2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">Haga clic para enviar un mensaje</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }, 600);
+        } catch(e) {
+            listEl.innerHTML = '<div style="color:#dc2626; padding:20px; text-align:center; font-size:13px; font-weight:600;">Error al cargar bandeja</div>';
+        }
+    }
+
+    function openChat(phone, name) {
+        activeChatPhone = phone;
+        document.getElementById('chatActiveName').textContent = name;
+        document.getElementById('chatActivePhone').textContent = "WhatsApp: +" + phone;
+        document.getElementById('chatInput').disabled = false;
+        document.getElementById('btnSendChat').disabled = false;
+        
+        const msgBox = document.getElementById('chatMessages');
+        
+        // Simulación visual inicial de que cargan mensajes
+        msgBox.innerHTML = `
+            <div style="margin:auto; text-align:center;">
+                <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                    <svg width="28" height="28" fill="none" stroke="var(--accent)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                </div>
+                <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Chat con ${name}</h3>
+                <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Escribe un mensaje aquí abajo. Se enviará de forma real al WhatsApp del paciente mediante tu API.</p>
+            </div>
+        `;
+        msgBox.scrollTop = msgBox.scrollHeight;
+        document.getElementById('chatInput').focus();
+    }
+
+    // Eventos para enviar el mensaje con clic o Enter
+    document.getElementById('btnSendChat').addEventListener('click', enviarMensajeChat);
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') enviarMensajeChat();
+    });
+
+    // Función real de envío conectada al Backend
+    async function enviarMensajeChat() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if(!msg || !activeChatPhone) return;
+
+        const btn = document.getElementById('btnSendChat');
+        btn.disabled = true;
+        input.disabled = true;
+
+        const msgBox = document.getElementById('chatMessages');
+        const timeStr = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        
+        // Limpiamos el texto de "Chat vacío" si existe
+        const emptyState = msgBox.querySelector('h3');
+        if(emptyState && emptyState.textContent.includes('Chat con')) {
+            msgBox.innerHTML = '';
+        }
+
+        // Pintamos el globo verde/celeste del mensaje que acaba de enviar el doctor
+        msgBox.innerHTML += `
+            <div class="chat-bubble out slide-up">
+                ${msg}
+                <div class="chat-time">Hoy ${timeStr}</div>
+            </div>
+        `;
+        msgBox.scrollTop = msgBox.scrollHeight;
+        input.value = '';
+
+        try {
+            // Mandamos la orden REAL al backend
+            const res = await fetch(`${API_BASE_URL}/send-message`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    doctorId: parentDoctorId,
+                    phoneNumber: activeChatPhone,
+                    message: msg
+                })
+            });
+            const data = await res.json();
+            
+            if(!data.success) throw new Error(data.error || "Error de API");
+            
+        } catch(e) {
+            mostrarMensaje('Error de red al enviar el mensaje de WhatsApp.', 'error');
+            
+            // Pintamos error visual en el chat si falla
+            msgBox.innerHTML += `
+                <div style="font-size:11px; color:#dc2626; text-align:right; margin-bottom:8px; font-weight:600;">
+                    ❌ Falló el envío. Revisa tu conexión a Meta.
+                </div>
+            `;
+            msgBox.scrollTop = msgBox.scrollHeight;
+        } finally {
+            btn.disabled = false;
+            input.disabled = false;
+            input.focus();
+        }
+    }
+
+    // ── MENSAJES DEL SISTEMA (TOASTS) ──
     function mostrarMensaje(msg, type='success') {
         const d = document.getElementById('formMessage');
         const isSuccess = type === 'success';
@@ -2448,6 +2316,7 @@
         d.classList.remove('hidden');
         setTimeout(()=>d.classList.add('hidden'), 3500);
     }
+
     // 📱 ── INYECCIÓN JS: MENÚ RESPONSIVE MÓVIL ── 📱
     (function initMobileUI() {
         // 1. Agregar el botón hamburguesa a la barra superior
