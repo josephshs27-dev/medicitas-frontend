@@ -168,7 +168,6 @@
         const auth = firebase.auth(); 
         const db = firebase.firestore();
 
-        // 🔥 ESTE TOKEN DEBE SER EL DE PRODUCCIÓN DE PAYPHONE 🔥
         const PAYPHONE_TOKEN = "WUPQ68USXcdiO_ZIUY-D2gQMKDyZ7ZNJmMgw__Yr8ISbV55fB4S6G-AVsfgSr_q_2ZjRZMC3-tJseaQO4vbuSUH50_M67MSYVIqwEcqmu00rORvVdnI3eDZlkDTcBtnoLf5JUI2ojuUQEDEJ4cXiWNymaPPiY22nro-H9CXrXc1t3JCsO__wjXF_xrHCC5UUnWCX0mT0qjxeXVjt1UwV6f73106FyjmHoh9mjgFRnqKDRII4BZc1_KeW0FUatBNn3KoH6kNPpIc7z4B3RZCCOTmKNjNt-Pg9oZdrgQeMST5lLrwKBxRl-BRAJsdHiu9U4CvNAQ";
 
         let currentUserUid = null;
@@ -248,13 +247,10 @@
                             amountWithoutTax: amountInCents,
                             currency: "USD",
                             clientTransactionId: "sub_" + currentUserUid + "_" + Date.now(),
-                            // 🔥 AQUÍ ESTÁ LA MAGIA: Le decimos al pop-up que se vaya a nuestra ruta trasera, no a esta misma página 🔥
                             storeCard: true 
                         });
                     },
                     onComplete: function(model, actions) {
-                        // El código dentro de onComplete se ejecuta en esta misma ventana
-                        // MIENTRAS que el pop-up se va a ir a /payphone/respuesta y se cerrará.
                         actions.confirm({
                             id: model.id,
                             clientTxId: model.clientTxId
@@ -275,7 +271,6 @@
                                 }
 
                                 await db.collection('users').doc(currentUserUid).update(updateData);
-                                // Refrescamos la página para que lo lleve al panel
                                 window.location.href = 'index.html'; 
                             } catch (e) {
                                 console.error("Error BD:", e);
