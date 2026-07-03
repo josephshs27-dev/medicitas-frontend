@@ -12,6 +12,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
     <style>
         *, *::before, *::after { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         :root {
@@ -223,6 +226,14 @@
         .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
         .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
 
+        /* FullCalendar Custom Overrides */
+        .fc { font-family: 'Plus Jakarta Sans', sans-serif !important; }
+        .fc-toolbar-title { font-size: 16px !important; font-weight: 800 !important; color: var(--txt1); }
+        .fc-button { background: var(--accent) !important; border-color: var(--accent) !important; font-weight: 600 !important; text-transform: capitalize !important; }
+        .fc-button:hover { background: var(--accent-dark) !important; border-color: var(--accent-dark) !important; }
+        .fc-event { border: none !important; border-radius: 4px !important; padding: 2px 4px !important; cursor: pointer; }
+        .fc-timegrid-slot-label-cushion { font-size: 11px; font-weight: 600; color: var(--txt2); }
+
         /* 📱 RESPONSIVE 📱 */
         @media (max-width: 768px) {
             :root { --sidebar-w: 0px; }
@@ -251,12 +262,6 @@
         .mobile-menu-btn { display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--txt1); margin-right: 12px; align-items: center; justify-content: center; padding: 0; }
         #mobileOverlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 90; backdrop-filter: blur(2px); }
         #mobileOverlay.show { display: block; animation: fadeIn 0.2s ease-out; }
-
-        /* Estilos del Chat */
-        .chat-bubble { padding: 10px 14px; border-radius: 12px; max-width: 80%; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 8px; }
-        .chat-bubble.in { background: white; border: 1px solid var(--border); border-top-left-radius: 0; align-self: flex-start; color: var(--txt1); }
-        .chat-bubble.out { background: #e0f2fe; border: 1px solid #bfdbfe; border-top-right-radius: 0; align-self: flex-end; color: #1e3a8a; }
-        .chat-time { font-size: 9px; margin-top: 4px; text-align: right; opacity: 0.7; }
     </style>
 </head>
 <body>
@@ -294,16 +299,17 @@
             </button>
             <button onclick="switchTab('agenda')" id="tabBtnAgenda" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                Agenda
+                Agenda Lista
             </button>
+            
+            <button onclick="switchTab('calendario')" id="tabBtnCalendario" class="nav-link">
+                <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM16 3v4M8 3v4M4 11h16M10 15h4M12 13v4"/></svg>
+                Calendario Visual
+            </button>
+
             <button onclick="switchTab('pacientes')" id="tabBtnPacientes" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 Pacientes
-            </button>
-            
-            <button onclick="switchTab('chats')" id="tabBtnChats" class="nav-link">
-                <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                Bandeja Chats
             </button>
 
             <button onclick="switchTab('finanzas')" id="tabBtnFinanzas" class="nav-link">
@@ -509,7 +515,7 @@
                             <div class="panel-head" style="flex-shrink:0;">
                                 <div>
                                     <div class="panel-title">Agenda de Fisioterapia</div>
-                                    <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Sesiones programadas</div>
+                                    <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Sesiones programadas en lista</div>
                                 </div>
                                 <select id="filterAppointmentStatus" onchange="renderAppointments()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:white;font-size:12.5px;font-weight:700;color:var(--txt1);outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">
                                     <option value="activas" selected>Citas activas</option>
@@ -520,6 +526,20 @@
                             <div id="appointmentsList" class="cs" style="flex:1;overflow-y:auto;padding:16px;">
                                 <div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabContentCalendario" class="hidden slide-up">
+                    <div class="panel" style="height: calc(100vh - 120px); display: flex; flex-direction: column;">
+                        <div class="panel-head" style="flex-shrink: 0;">
+                            <div>
+                                <div class="panel-title">Calendario de Turnos</div>
+                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Visión gráfica general</div>
+                            </div>
+                        </div>
+                        <div class="panel-body cs" style="flex: 1; padding: 20px; overflow-y: auto;">
+                            <div id="calendarDiv" style="height: 100%; min-height: 500px;"></div>
                         </div>
                     </div>
                 </div>
@@ -544,53 +564,6 @@
                         </div>
                         <div style="padding:20px;">
                             <div id="patientsDirectoryList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tabContentChats" class="hidden slide-up" style="height: calc(100vh - 120px);">
-                    <div style="display:flex; height:100%; background:white; border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-                        
-                        <div style="width:320px; border-right:1px solid var(--border); display:flex; flex-direction:column; background:white;">
-                            <div style="padding:16px; border-bottom:1px solid var(--border); background:#f8fafc;">
-                                <div style="font-weight:800; font-size:14px; color:var(--txt1); margin-bottom:12px;">Mensajes Recientes</div>
-                                <div class="search-wrap">
-                                    <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                                    <input type="text" placeholder="Buscar conversación..." class="finput">
-                                </div>
-                            </div>
-                            <div id="chatList" style="flex:1; overflow-y:auto;" class="cs">
-                                <div style="padding:40px; text-align:center;">
-                                    <div class="spinner" style="margin:auto;"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="flex:1; display:flex; flex-direction:column; background:var(--page);">
-                            <div id="chatHeader" style="padding:16px 24px; background:white; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px;">
-                                <div class="avatar" style="background:var(--accent); width:42px; height:42px;">?</div>
-                                <div>
-                                    <div style="font-weight:800; color:var(--txt1); font-size:15px;" id="chatActiveName">Selecciona un chat</div>
-                                    <div style="font-size:11.5px; color:var(--txt2); font-weight:600;" id="chatActivePhone">Panel Omnicanal conectado a Meta API</div>
-                                </div>
-                            </div>
-                            
-                            <div id="chatMessages" style="flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column;" class="cs">
-                                <div style="margin:auto; text-align:center;">
-                                    <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-                                        <svg width="28" height="28" fill="none" stroke="var(--txt3)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                                    </div>
-                                    <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Bandeja de Entrada</h3>
-                                    <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Escribe un mensaje aquí abajo. Se enviará de forma real al WhatsApp del paciente.</p>
-                                </div>
-                            </div>
-
-                            <div style="padding:16px 24px; background:white; border-top:1px solid var(--border); display:flex; gap:12px; align-items:center;">
-                                <input type="text" id="chatInput" placeholder="Escribe un mensaje..." class="finput" style="padding:12px 16px; font-size:13.5px;" disabled>
-                                <button id="btnSendChat" class="btn btn-primary" style="padding:12px 24px; font-size:13.5px;" disabled>
-                                    Enviar <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-left:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -853,7 +826,11 @@
             </div>
             
         </div>
-        <div class="modal-ft" style="flex-shrink:0; justify-content: flex-end;">
+        <div class="modal-ft" style="flex-shrink:0; justify-content: flex-end; align-items: center;">
+            <button onclick="imprimirPlanFisio()" class="btn btn-ghost btn-lg" style="margin-right:auto; color: #475569;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Imprimir
+            </button>
             <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg">Cancelar</button>
             <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="min-width: 180px;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -986,12 +963,18 @@
                     </div>
                 </div>
                 <div class="panel" style="display:flex;flex-direction:column;overflow:hidden;">
-                    <div class="panel-head" style="flex-shrink:0;"><div class="panel-title" style="font-size:13px;">Historial de Terapias</div></div>
+                    <div class="panel-head" style="flex-shrink:0;">
+                        <div class="panel-title" style="font-size:13px;">Historial de Terapias</div>
+                    </div>
                     <div id="historyTimeline" class="cs" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;"></div>
                 </div>
             </div>
         </div>
-        <div class="modal-ft" style="justify-content:flex-end;">
+        <div class="modal-ft" style="justify-content:flex-end; align-items: center;">
+            <button onclick="imprimirExpedienteCompleto()" class="btn btn-ghost btn-md" style="margin-right:auto; color: #475569;">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Imprimir Expediente
+            </button>
             <button onclick="closeHistoryModal()" class="btn btn-secondary btn-md">Cerrar expediente</button>
         </div>
     </div>
@@ -1189,7 +1172,6 @@
     </div>
 </div>
 
-
 <script>
     // Set today date in topbar
     (function() {
@@ -1219,33 +1201,32 @@
     }(document, 'script', 'facebook-jssdk'));
 
     function iniciarConexionMeta() {
-    const btn = document.getElementById('btnMetaConnect');
-    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
-    btn.disabled = true;
+        const btn = document.getElementById('btnMetaConnect');
+        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
+        btn.disabled = true;
 
-    FB.login(function(response) {
-        if (response.authResponse && response.authResponse.code) {
-            const codigoOauth = response.authResponse.code;
-            guardarCredencialesMetaEnBackend(codigoOauth);
-        } else {
-            mostrarMensaje('Conexión cancelada por el usuario.', 'error');
-            btn.innerHTML = 'Vincular Facebook / WhatsApp';
-            btn.disabled = false;
-        }
-    }, {
-        config_id: '4347842542212616', // Asegúrate de que este es el ID configurado en Meta
-        response_type: 'code',
-        override_default_response_type: true,
-        extras: { 
-            setup: {
-                // OPCIONAL: Esto le ahorra a la clínica tener que escribir su nombre en Meta
-                prefetched_profile: {
-                    name: document.getElementById('clinicName').value || 'Clínica Veterinaria'
-                }
-            } 
-        }
-    });
-}
+        FB.login(function(response) {
+            if (response.authResponse && response.authResponse.code) {
+                const codigoOauth = response.authResponse.code;
+                guardarCredencialesMetaEnBackend(codigoOauth);
+            } else {
+                mostrarMensaje('Conexión cancelada por el usuario.', 'error');
+                btn.innerHTML = 'Vincular Facebook / WhatsApp';
+                btn.disabled = false;
+            }
+        }, {
+            config_id: '4347842542212616', // Asegúrate de que este es el ID configurado en Meta
+            response_type: 'code',
+            override_default_response_type: true,
+            extras: { 
+                setup: {
+                    prefetched_profile: {
+                        name: document.getElementById('clinicName').value || 'Clínica Veterinaria'
+                    }
+                } 
+            }
+        });
+    }
 
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
         const btn = document.getElementById('btnMetaConnect');
@@ -1286,14 +1267,12 @@
         appId: "1:310910036460:web:1a979471880251173838c9"
     };
     
-    // FIREBASE INIT LIBRE
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     const storage = firebase.storage();
 
-    // FORZADOR ANTI-CUELGUE (OCULTA LA PANTALLA EN 3.5 SEGS PASE LO QUE PASE)
     setTimeout(() => {
         const overlay = document.getElementById('authCheckOverlay');
         if(overlay) overlay.style.display = 'none';
@@ -1309,12 +1288,11 @@
     let vitalsChartInstance = null;
     let editPatientId = null;
     
-    // Variables Calendario
     let holidays = [];
     let currentCalDate = new Date();
 
-    // Variables Chat
-    let activeChatPhone = null;
+    // Variable global para la instancia de FullCalendar
+    let calendarInstance = null;
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1332,7 +1310,7 @@
             if (userDoc.exists) {
                 const data = userDoc.data();
                 
-                // 🔥 LÓGICA DE AUTO-SUSPENSIÓN 🔥
+                // LÓGICA DE AUTO-SUSPENSIÓN
                 if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
                     const ahora = new Date();
                     const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
@@ -1344,7 +1322,6 @@
                         return;
                     }
                     
-                    // Mostrar Fecha en Sidebar
                     const fechaVence = new Date(fechaPago);
                     fechaVence.setDate(fechaVence.getDate() + 30);
                     document.getElementById('uiNextBillingDate').textContent = fechaVence.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -1513,12 +1490,12 @@
 
     // ── TABS ──
     function switchTab(tabId) {
-        const tabs = ['dashboard', 'agenda', 'pacientes', 'finanzas', 'insumos', 'chats'];
+        const tabs = ['dashboard', 'agenda', 'calendario', 'pacientes', 'finanzas', 'insumos'];
         const titles = {
             dashboard: 'Métricas y Estadísticas',
             agenda: 'Agenda de Sesiones',
+            calendario: 'Calendario Visual',
             pacientes: 'Directorio de Pacientes',
-            chats: 'Bandeja Omnicanal (IA)',
             finanzas: 'Finanzas y Cuotas',
             insumos: 'Inventario de Insumos'
         };
@@ -1531,9 +1508,15 @@
         });
         const titleEl = document.getElementById('pageTitle');
         if(titleEl) titleEl.textContent = titles[tabId] || '';
+        
         if(tabId === 'dashboard') updateDashboardStats();
         if(tabId === 'finanzas') renderPlanesPago();
-        if(tabId === 'chats') loadChats(); // Carga los chats simulados/reales al entrar a la pestaña
+        if(tabId === 'calendario') {
+            // FullCalendar needs a tiny delay to render correctly when its parent div unhides
+            setTimeout(() => {
+                renderFullCalendar();
+            }, 50);
+        }
     }
 
     // ── PATIENTS ──
@@ -1551,6 +1534,74 @@
         appointments = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderAppointments();
         updateDashboardStats();
+        
+        // Re-render calendar if we are currently looking at it
+        if (!document.getElementById('tabContentCalendario').classList.contains('hidden')) {
+            renderFullCalendar();
+        }
+    }
+
+    // ── NUEVO: FULLCALENDAR INTEGRATION ──
+    function renderFullCalendar() {
+        const calendarEl = document.getElementById('calendarDiv');
+        if (!calendarEl) return;
+
+        // Convertir nuestras citas al formato de FullCalendar
+        const calendarEvents = appointments.map(apt => {
+            const pat = patients.find(p => p.id === apt.patientId);
+            const name = pat ? pat.nombre : 'Desconocido';
+            const startTime = `${apt.fecha}T${apt.hora}:00`;
+            
+            // Asignar color dependiendo del estado
+            let eventColor = '#3b82f6'; // Azul por defecto (pendiente)
+            if (apt.estado === 'confirmada') eventColor = '#10b981'; // Verde
+            if (apt.estado === 'completada') eventColor = '#1e40af'; // Azul oscuro
+            if (apt.estado === 'cancelada') eventColor = '#ef4444'; // Rojo
+            if (apt.estado === 'pendiente_confirmacion_paciente') eventColor = '#8b5cf6'; // Morado IA
+
+            return {
+                id: apt.id,
+                title: `${name} ${apt.motivo ? `(${apt.motivo})` : ''}`,
+                start: startTime,
+                color: eventColor,
+                extendedProps: { estado: apt.estado }
+            };
+        });
+
+        if (calendarInstance) {
+            calendarInstance.destroy();
+        }
+
+        calendarInstance = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            buttonText: {
+                today: 'Hoy',
+                month: 'Mes',
+                week: 'Semana',
+                day: 'Día'
+            },
+            allDaySlot: false,
+            slotMinTime: clinicDataGlobal?.horarioInicio || '07:00:00',
+            slotMaxTime: clinicDataGlobal?.horarioFin || '20:00:00',
+            events: calendarEvents,
+            height: '100%',
+            eventClick: function(info) {
+                // Al hacer clic en un evento del calendario, abrimos el Historial o Triaje (puedes personalizar)
+                const aptId = info.event.id;
+                const apt = appointments.find(a => a.id === aptId);
+                if(apt && apt.patientId) {
+                    openHistoryModal(apt.patientId);
+                }
+            }
+        });
+
+        calendarInstance.render();
     }
 
     // ── PLANES Y CUOTAS ──
@@ -2162,6 +2213,129 @@
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
 
+    // ── FUNCIONES DE IMPRESIÓN ──
+    function imprimirPlanFisio() {
+        const patientName = document.getElementById('rxPatientName').textContent;
+        const diag = document.getElementById('rxDiagnostico').value || 'Sin diagnóstico ingresado.';
+        const recs = document.getElementById('rxRecomendaciones').value || 'Sin recomendaciones adicionales.';
+        
+        let medsHtml = '';
+        document.querySelectorAll('#medicinesContainer > div').forEach(r => {
+             const n = r.querySelector('.med-name').value;
+             const d = r.querySelector('.med-dose').value;
+             if(n) medsHtml += `<li style="margin-bottom: 8px;"><b>${n}</b><br><span style="color:#4b5563;">Indicación: ${d}</span></li>`;
+        });
+        if(medsHtml === '') medsHtml = '<li>No se han especificado técnicas o ejercicios para esta sesión.</li>';
+
+        const printWindow = window.open('', '_blank', 'width=800,height=800');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Plan Fisioterapéutico - ${patientName}</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #1f2937; line-height: 1.6; }
+                    .header { text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px; }
+                    h1 { color: #0f766e; margin: 0 0 10px 0; font-size: 24px; }
+                    h2 { color: #0d9488; font-size: 18px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-top: 30px; }
+                    .meta-info { display: flex; justify-content: space-between; font-size: 14px; color: #4b5563; font-weight: bold; }
+                    .content-section { margin-bottom: 20px; }
+                    .signature { margin-top: 80px; text-align: center; color: #6b7280; font-size: 14px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${clinicDataGlobal?.nombre || 'Centro de Fisioterapia'}</h1>
+                    <p style="margin:0; color:#6b7280; font-size: 12px;">${clinicDataGlobal?.direccion || ''} | Tel: ${clinicDataGlobal?.telefono || ''}</p>
+                </div>
+                
+                <div class="meta-info">
+                    <span>Paciente: ${patientName}</span>
+                    <span>Fecha: ${new Date().toLocaleDateString('es-ES')}</span>
+                </div>
+
+                <h2>Evaluación y Diagnóstico Clínico</h2>
+                <div class="content-section">
+                    <p>${diag.replace(/\n/g, '<br>')}</p>
+                </div>
+
+                <h2>Plan de Rehabilitación / Ejercicios</h2>
+                <div class="content-section">
+                    <ul style="padding-left: 20px;">
+                        ${medsHtml}
+                    </ul>
+                </div>
+
+                <h2>Recomendaciones en Casa</h2>
+                <div class="content-section">
+                    <p>${recs.replace(/\n/g, '<br>')}</p>
+                </div>
+
+                <div class="signature">
+                    __________________________________________<br><br>
+                    Firma del Especialista Tratante
+                </div>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
+    function imprimirExpedienteCompleto() {
+        const patientName = document.getElementById('historyPatientInfo').textContent;
+        const timelineContent = document.getElementById('historyTimeline').innerHTML;
+        
+        if (timelineContent.includes('Sin historial clínico')) {
+            alert('No hay historial clínico para imprimir.');
+            return;
+        }
+
+        const printWindow = window.open('', '_blank', 'width=800,height=800');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Expediente Clínico - ${patientName}</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #1f2937; line-height: 1.5; }
+                    .header { text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px; }
+                    h1 { color: #0f766e; margin: 0 0 10px 0; font-size: 24px; }
+                    .meta-info { font-size: 16px; color: #111827; font-weight: bold; margin-bottom: 30px; }
+                    .history-card { border: 1px solid #e2e8f0; border-left: 4px solid #0d9488; padding: 15px; margin-bottom: 20px; border-radius: 4px; page-break-inside: avoid; }
+                    .date { font-weight: bold; color: #0d9488; margin-bottom: 8px; font-size: 14px; }
+                    .text-content { font-size: 13px; color: #374151; }
+                    .recs-box { background: #fdf8f6; padding: 10px; margin-top: 10px; border: 1px dashed #fed7aa; border-radius: 4px; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${clinicDataGlobal?.nombre || 'Centro de Fisioterapia'}</h1>
+                    <p style="margin:0; color:#6b7280; font-size: 12px;">Reporte Completo de Evolución Clínica</p>
+                </div>
+                
+                <div class="meta-info">
+                    Paciente: ${patientName}
+                </div>
+
+                <h3>Historial de Sesiones</h3>
+                ${timelineContent.replace(/style="[^"]*"/g, function(match) {
+                    // Mantenemos solo el estilo esencial para que no rompa el diseño impreso
+                    if(match.includes('border-left')) return 'class="history-card"';
+                    if(match.includes('📅')) return 'class="date"';
+                    if(match.includes('Recomendaciones')) return 'class="recs-box"';
+                    return 'class="text-content"';
+                })}
+
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
     // ── BILLING ──
     function calculateTotal() {
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
@@ -2235,7 +2409,7 @@
                     
                     let diagHtml=(d.diagnostico||'Sin diagnóstico.').replace(/\n/g,'<br>');
                     
-                    timelineHtml+=`<div style="background:white;border:1px solid #e2e8f0;border-left:3px solid #0d9488;border-radius:0 8px 8px 0;padding:14px 16px;">
+                    timelineHtml+=`<div style="background:white;border:1px solid #e2e8f0;border-left:3px solid #0d9488;border-radius:0 8px 8px 0;padding:14px 16px; margin-bottom:10px;">
                         <div style="font-size:12px;font-weight:700;color:#0d9488;margin-bottom:6px;">📅 ${dateStr}</div>
                         <div style="font-size:13px;color:#374151;font-weight:600;line-height:1.5;">${diagHtml}</div>
                         ${vStr?`<div style="font-size:11.5px;color:#64748b;font-weight:700;margin-top:6px;">${vStr}</div>`:''}
@@ -2418,135 +2592,6 @@
         const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
         const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
         navigator.clipboard.writeText(miLink).then(()=>mostrarMensaje('¡Enlace copiado al portapapeles!','success')).catch(()=>alert("Copia manualmente: "+miLink));
-    }
-
-    // ── MENSAJES OMNICANAL O CHATS ──
-    async function loadChats() {
-        const listEl = document.getElementById('chatList');
-        listEl.innerHTML = '<div style="padding:40px;text-align:center;"><div class="spinner" style="margin:auto;"></div></div>';
-        
-        try {
-            setTimeout(() => {
-                if(patients.length === 0) {
-                    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px;font-weight:600;">No hay pacientes registrados aún.</div>';
-                    return;
-                }
-                
-                const validPatients = patients.filter(p => p.telefonoWhatsApp);
-                
-                if(validPatients.length === 0) {
-                    listEl.innerHTML = '<div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px;font-weight:600;">Los pacientes necesitan un número de WhatsApp registrado.</div>';
-                    return;
-                }
-
-                listEl.innerHTML = validPatients.map(p => {
-                    const initials = p.nombre.substring(0,2).toUpperCase();
-                    return `
-                    <div onclick="openChat('${p.telefonoWhatsApp}', '${p.nombre}')" style="padding:16px 20px; border-bottom:1px solid var(--border); cursor:pointer; display:flex; gap:14px; align-items:center; transition:background 0.1s;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'">
-                        <div class="avatar" style="background:var(--accent); width:42px; height:42px; font-size:15px;">${initials}</div>
-                        <div style="flex:1; overflow:hidden;">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <div style="font-weight:800; font-size:14px; color:var(--txt1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.nombre}</div>
-                                <div style="font-size:10px; color:white; font-weight:700; background:var(--accent); padding:2px 6px; border-radius:4px;">IA Activa</div>
-                            </div>
-                            <div style="font-size:12.5px; color:var(--txt2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">Haga clic para enviar un mensaje</div>
-                        </div>
-                    </div>`;
-                }).join('');
-            }, 600);
-        } catch(e) {
-            listEl.innerHTML = '<div style="color:#dc2626; padding:20px; text-align:center; font-size:13px; font-weight:600;">Error al cargar bandeja</div>';
-        }
-    }
-
-    function openChat(phone, name) {
-        activeChatPhone = phone;
-        document.getElementById('chatActiveName').textContent = name;
-        document.getElementById('chatActivePhone').textContent = "WhatsApp: +" + phone;
-        document.getElementById('chatInput').disabled = false;
-        document.getElementById('btnSendChat').disabled = false;
-        
-        const msgBox = document.getElementById('chatMessages');
-        
-        // Simulación visual inicial de que cargan mensajes
-        msgBox.innerHTML = `
-            <div style="margin:auto; text-align:center;">
-                <div style="width:60px;height:60px;background:white;border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-                    <svg width="28" height="28" fill="none" stroke="var(--accent)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                </div>
-                <h3 style="color:var(--txt1);font-weight:800;font-size:15px;margin-bottom:6px;">Chat con ${name}</h3>
-                <p style="color:var(--txt2);font-size:13px;max-width:300px;margin:0 auto;">Escribe un mensaje aquí abajo. Se enviará de forma real al WhatsApp del paciente mediante tu API.</p>
-            </div>
-        `;
-        msgBox.scrollTop = msgBox.scrollHeight;
-        document.getElementById('chatInput').focus();
-    }
-
-    // Eventos para enviar el mensaje con clic o Enter
-    document.getElementById('btnSendChat').addEventListener('click', enviarMensajeChat);
-    document.getElementById('chatInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') enviarMensajeChat();
-    });
-
-    // Función real de envío conectada al Backend
-    async function enviarMensajeChat() {
-        const input = document.getElementById('chatInput');
-        const msg = input.value.trim();
-        if(!msg || !activeChatPhone) return;
-
-        const btn = document.getElementById('btnSendChat');
-        btn.disabled = true;
-        input.disabled = true;
-
-        const msgBox = document.getElementById('chatMessages');
-        const timeStr = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-        
-        // Limpiamos el texto de "Chat vacío" si existe
-        const emptyState = msgBox.querySelector('h3');
-        if(emptyState && emptyState.textContent.includes('Chat con')) {
-            msgBox.innerHTML = '';
-        }
-
-        // Pintamos el globo verde del mensaje que acaba de enviar el doctor
-        msgBox.innerHTML += `
-            <div class="chat-bubble out slide-up">
-                ${msg}
-                <div class="chat-time">Hoy ${timeStr}</div>
-            </div>
-        `;
-        msgBox.scrollTop = msgBox.scrollHeight;
-        input.value = '';
-
-        try {
-            // Mandamos la orden REAL al backend
-            const res = await fetch(`${API_BASE_URL}/send-message`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    doctorId: parentDoctorId,
-                    phoneNumber: activeChatPhone,
-                    message: msg
-                })
-            });
-            const data = await res.json();
-            
-            if(!data.success) throw new Error(data.error || "Error de API");
-            
-        } catch(e) {
-            mostrarMensaje('Error de red al enviar el mensaje de WhatsApp.', 'error');
-            
-            // Pintamos error visual en el chat si falla
-            msgBox.innerHTML += `
-                <div style="font-size:11px; color:#dc2626; text-align:right; margin-bottom:8px; font-weight:600;">
-                    ❌ Falló el envío. Revisa tu conexión a Meta.
-                </div>
-            `;
-            msgBox.scrollTop = msgBox.scrollHeight;
-        } finally {
-            btn.disabled = false;
-            input.disabled = false;
-            input.focus();
-        }
     }
 
     // ── MENSAJES DEL SISTEMA (TOASTS) ──
