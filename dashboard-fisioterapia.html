@@ -18,7 +18,7 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         :root {
-            --sidebar-bg: #0d1b2a;
+            var(--sidebar-bg): #0d1b2a;
             --sidebar-hover: rgba(13,148,136,0.12);
             --sidebar-active: rgba(13,148,136,0.18);
             --sidebar-sep: rgba(255,255,255,0.07);
@@ -127,8 +127,7 @@
         .content-area { flex: 1; overflow-y: auto; padding: 28px 32px; }
 
         /* ── KPI Cards ── */
-        .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; margin-bottom: 28px; }
-        @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 28px; }
         .kpi-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; position: relative; overflow: hidden; transition: box-shadow 0.2s; }
         .kpi-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
         .kpi-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
@@ -139,11 +138,11 @@
         .kpi-accent-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
 
         /* ── Panel card ── */
-        .panel { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-        .panel-head { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fafbfc; }
+        .panel { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; height: 100%; display: flex; flex-direction: column; }
+        .panel-head { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #fafbfc; flex-shrink: 0; }
         .panel-title { font-size: 14px; font-weight: 800; color: var(--txt1); }
-        .panel-body { padding: 20px 22px; }
-        .panel-body-np { padding: 0; }
+        .panel-body { padding: 20px 22px; flex: 1; overflow-y: auto;}
+        .panel-body-np { padding: 0; flex: 1; overflow-y: auto;}
 
         /* ── Forms ── */
         .finput { width: 100%; padding: 9px 13px; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; font-size: 13px; font-weight: 600; color: var(--txt1); outline: none; transition: border-color 0.15s, box-shadow 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -151,7 +150,7 @@
         .flabel { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--txt2); margin-bottom: 5px; }
 
         /* ── Buttons ── */
-        .btn { display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; border-radius: 8px; transition: all 0.15s; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; border-radius: 8px; transition: all 0.15s; }
         .btn:active { transform: scale(0.97); }
         .btn-sm { font-size: 12px; padding: 6px 12px; }
         .btn-md { font-size: 13px; padding: 9px 18px; }
@@ -166,7 +165,7 @@
 
         /* ── Table ── */
         .dtable { width: 100%; border-collapse: collapse; }
-        .dtable thead th { background: #f8fafc; color: var(--txt2); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 11px 20px; border-bottom: 1px solid var(--border); text-align: left; }
+        .dtable thead th { background: #f8fafc; color: var(--txt2); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 11px 20px; border-bottom: 1px solid var(--border); text-align: left; position: sticky; top: 0; z-index: 10; }
         .dtable tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
         .dtable tbody tr:hover { background: #f8fafc; }
         .dtable tbody td { padding: 13px 20px; font-size: 13.5px; color: var(--txt1); }
@@ -175,14 +174,16 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
-        /* ── Modals ── */
+        /* ── Modals (Ampliados) ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
+        .modal-box-large { width: 100%; max-width: 1000px !important; }
+        .modal-box-xl { width: 100%; max-width: 1200px !important; }
         .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .modal-title { font-size: 16px; font-weight: 800; color: var(--txt1); }
         .modal-sub { font-size: 12.5px; color: var(--txt2); font-weight: 500; margin-top: 2px; }
         .modal-bd { padding: 22px 26px; overflow-y: auto; }
-        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; flex-shrink: 0; }
+        .modal-ft { padding: 14px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f8fafc; flex-shrink: 0; align-items: center; }
         .modal-close-btn { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: var(--txt2); font-size: 20px; line-height: 1; transition: background 0.15s; }
         .modal-close-btn:hover { background: #f1f5f9; color: var(--txt1); }
 
@@ -219,20 +220,23 @@
         .eva-slider::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%); border-radius: 99px; }
         .eva-slider::-webkit-slider-thumb { height: 22px; width: 22px; border-radius: 50%; background: white; cursor: pointer; -webkit-appearance: none; margin-top: -7px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid var(--txt2); transition: 0.1s; }
 
-        /* 🔥 CALENDARIO INTERACTIVO 🔥 */
+        /* 🔥 FULLCALENDAR OVERRIDES 🔥 */
+        .fc { font-family: 'Plus Jakarta Sans', sans-serif !important; }
+        .fc-toolbar-title { font-size: 18px !important; font-weight: 800 !important; color: var(--txt1); text-transform: capitalize; }
+        .fc-button { background: var(--accent) !important; border-color: var(--accent) !important; font-weight: 700 !important; text-transform: capitalize !important; border-radius: 8px !important; padding: 6px 12px !important; }
+        .fc-button:hover { background: var(--accent-dark) !important; border-color: var(--accent-dark) !important; }
+        .fc-button-active { background: var(--accent-dark) !important; }
+        .fc-event { border: none !important; border-radius: 6px !important; padding: 3px 6px !important; cursor: pointer; font-size: 11.5px !important; font-weight: 700 !important; }
+        .fc-timegrid-slot-label-cushion { font-size: 12px; font-weight: 600; color: var(--txt2); }
+        .fc-theme-standard th { background: #f8fafc; padding: 8px 0; color: var(--txt2); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
+        .fc-scrollgrid { border-color: var(--border) !important; }
+
+        /* 🔥 CALENDARIO INTERACTIVO (DÍAS NO LABORABLES) 🔥 */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
         .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
         .cal-day.is-holiday { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
         .cal-header { font-size: 10px; font-weight: 800; color: var(--txt3); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
-
-        /* FullCalendar Custom Overrides */
-        .fc { font-family: 'Plus Jakarta Sans', sans-serif !important; }
-        .fc-toolbar-title { font-size: 16px !important; font-weight: 800 !important; color: var(--txt1); }
-        .fc-button { background: var(--accent) !important; border-color: var(--accent) !important; font-weight: 600 !important; text-transform: capitalize !important; }
-        .fc-button:hover { background: var(--accent-dark) !important; border-color: var(--accent-dark) !important; }
-        .fc-event { border: none !important; border-radius: 4px !important; padding: 2px 4px !important; cursor: pointer; }
-        .fc-timegrid-slot-label-cushion { font-size: 11px; font-weight: 600; color: var(--txt2); }
 
         /* 📱 RESPONSIVE 📱 */
         @media (max-width: 768px) {
@@ -563,7 +567,7 @@
                             </div>
                         </div>
                         <div style="padding:20px;">
-                            <div id="patientsDirectoryList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;"></div>
+                            <div id="patientsDirectoryList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;"></div>
                         </div>
                     </div>
                 </div>
@@ -651,7 +655,7 @@
 </div>
 
 <div id="prescriptionModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
-    <div class="modal-box" style="width:100%;max-width:850px;max-height:95vh;display:flex;flex-direction:column;">
+    <div class="modal-box modal-box-large" style="display:flex;flex-direction:column;">
         <div class="modal-hd" style="background:#f0fdfa;flex-shrink:0;">
             <div>
                 <div class="modal-title">Plan Fisioterapéutico Especializado</div>
@@ -929,7 +933,7 @@
 </div>
 
 <div id="historyModal" class="modal-wrap hidden" style="z-index:73;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
-    <div class="modal-box" style="width:100%;max-width:1100px;max-height:95vh;display:flex;flex-direction:column;">
+    <div class="modal-box modal-box-xl" style="display:flex;flex-direction:column;">
         <div class="modal-hd" style="background:#f0fdfa;flex-shrink:0;">
             <div>
                 <div class="modal-title">Expediente Fisioterapéutico</div>
@@ -1055,7 +1059,7 @@
 
 <div id="metaModal" class="modal-wrap hidden" style="z-index:62;">
     <div class="modal-box" style="width:100%;max-width:420px;">
-        <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),#10b981);">
+        <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));">
             <div>
                 <div class="modal-title" style="color:white;">Meta Omnicanal</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">IA en todas tus redes</div>
@@ -1172,6 +1176,7 @@
     </div>
 </div>
 
+
 <script>
     // Set today date in topbar
     (function() {
@@ -1215,13 +1220,13 @@
                 btn.disabled = false;
             }
         }, {
-            config_id: '4347842542212616', // Asegúrate de que este es el ID configurado en Meta
+            config_id: '4347842542212616', 
             response_type: 'code',
             override_default_response_type: true,
             extras: { 
                 setup: {
                     prefetched_profile: {
-                        name: document.getElementById('clinicName').value || 'Clínica Veterinaria'
+                        name: document.getElementById('clinicName').value || 'Clínica'
                     }
                 } 
             }
@@ -1276,7 +1281,7 @@
     setTimeout(() => {
         const overlay = document.getElementById('authCheckOverlay');
         if(overlay) overlay.style.display = 'none';
-    }, 3500);
+    }, 3000);
 
     let parentDoctorId = null;
     let clinicDataGlobal = null;
@@ -1290,9 +1295,7 @@
     
     let holidays = [];
     let currentCalDate = new Date();
-
-    // Variable global para la instancia de FullCalendar
-    let calendarInstance = null;
+    let calendarInstance = null; 
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1382,6 +1385,41 @@
         }
     }
 
+    // ── TABS NAVEGACIÓN ──
+    function switchTab(tabId) {
+        const tabs = ['dashboard', 'agenda', 'calendario', 'pacientes', 'finanzas', 'insumos'];
+        const titles = {
+            dashboard: 'Métricas y Estadísticas',
+            agenda: 'Agenda de Sesiones',
+            calendario: 'Calendario Visual',
+            pacientes: 'Directorio de Pacientes',
+            finanzas: 'Finanzas y Cuotas',
+            insumos: 'Inventario de Insumos'
+        };
+        tabs.forEach(t => {
+            const cap = t.charAt(0).toUpperCase() + t.slice(1);
+            const el = document.getElementById(`tabContent${cap}`);
+            if(el) el.classList.toggle('hidden', t !== tabId);
+            const btn = document.getElementById(`tabBtn${cap}`);
+            if(btn) btn.className = (t === tabId) ? 'nav-link nav-link--active' : 'nav-link';
+        });
+        const titleEl = document.getElementById('pageTitle');
+        if(titleEl) titleEl.textContent = titles[tabId] || '';
+        
+        if(tabId === 'dashboard') updateDashboardStats();
+        if(tabId === 'finanzas') renderPlanesPago();
+        if(tabId === 'calendario') {
+            setTimeout(() => { renderFullCalendar(); }, 50); 
+        }
+    }
+
+    function switchRxTab(tabId, btn) {
+        document.querySelectorAll('.rx-tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.rx-tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(btn) btn.classList.add('active');
+    }
+
     // ── INVENTARIO ──
     async function loadInsumos() {
         const snap = await db.collection('insumos').where('doctorId', '==', parentDoctorId).get();
@@ -1427,7 +1465,7 @@
             document.getElementById('insumoQty').value = '';
             mostrarMensaje("Insumo agregado correctamente.", "success");
             loadInsumos();
-        } catch(e) { alert("Error al guardar insumo."); }
+        } catch(e) { alert("Error al guardar."); }
     }
 
     async function updateStock(id, diff) {
@@ -1488,37 +1526,6 @@
         } catch(e) { alert("Error conectando con API de Google Calendar: " + e.message); }
     }
 
-    // ── TABS ──
-    function switchTab(tabId) {
-        const tabs = ['dashboard', 'agenda', 'calendario', 'pacientes', 'finanzas', 'insumos'];
-        const titles = {
-            dashboard: 'Métricas y Estadísticas',
-            agenda: 'Agenda de Sesiones',
-            calendario: 'Calendario Visual',
-            pacientes: 'Directorio de Pacientes',
-            finanzas: 'Finanzas y Cuotas',
-            insumos: 'Inventario de Insumos'
-        };
-        tabs.forEach(t => {
-            const cap = t.charAt(0).toUpperCase() + t.slice(1);
-            const el = document.getElementById(`tabContent${cap}`);
-            if(el) el.classList.toggle('hidden', t !== tabId);
-            const btn = document.getElementById(`tabBtn${cap}`);
-            if(btn) btn.className = (t === tabId) ? 'nav-link nav-link--active' : 'nav-link';
-        });
-        const titleEl = document.getElementById('pageTitle');
-        if(titleEl) titleEl.textContent = titles[tabId] || '';
-        
-        if(tabId === 'dashboard') updateDashboardStats();
-        if(tabId === 'finanzas') renderPlanesPago();
-        if(tabId === 'calendario') {
-            // FullCalendar needs a tiny delay to render correctly when its parent div unhides
-            setTimeout(() => {
-                renderFullCalendar();
-            }, 50);
-        }
-    }
-
     // ── PATIENTS ──
     async function loadPatients() {
         const snap = await db.collection('patients').where('doctorId', '==', parentDoctorId).get();
@@ -1535,7 +1542,6 @@
         renderAppointments();
         updateDashboardStats();
         
-        // Re-render calendar if we are currently looking at it
         if (!document.getElementById('tabContentCalendario').classList.contains('hidden')) {
             renderFullCalendar();
         }
@@ -1546,18 +1552,16 @@
         const calendarEl = document.getElementById('calendarDiv');
         if (!calendarEl) return;
 
-        // Convertir nuestras citas al formato de FullCalendar
         const calendarEvents = appointments.map(apt => {
             const pat = patients.find(p => p.id === apt.patientId);
             const name = pat ? pat.nombre : 'Desconocido';
             const startTime = `${apt.fecha}T${apt.hora}:00`;
             
-            // Asignar color dependiendo del estado
-            let eventColor = '#3b82f6'; // Azul por defecto (pendiente)
-            if (apt.estado === 'confirmada') eventColor = '#10b981'; // Verde
-            if (apt.estado === 'completada') eventColor = '#1e40af'; // Azul oscuro
-            if (apt.estado === 'cancelada') eventColor = '#ef4444'; // Rojo
-            if (apt.estado === 'pendiente_confirmacion_paciente') eventColor = '#8b5cf6'; // Morado IA
+            let eventColor = '#0d9488'; // Teal pendiente
+            if (apt.estado === 'confirmada') eventColor = '#0f766e'; 
+            if (apt.estado === 'completada') eventColor = '#115e59'; 
+            if (apt.estado === 'cancelada') eventColor = '#ef4444'; 
+            if (apt.estado === 'pendiente_confirmacion_paciente') eventColor = '#8b5cf6'; 
 
             return {
                 id: apt.id,
@@ -1580,19 +1584,13 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-            buttonText: {
-                today: 'Hoy',
-                month: 'Mes',
-                week: 'Semana',
-                day: 'Día'
-            },
+            buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
             allDaySlot: false,
             slotMinTime: clinicDataGlobal?.horarioInicio || '07:00:00',
             slotMaxTime: clinicDataGlobal?.horarioFin || '20:00:00',
             events: calendarEvents,
             height: '100%',
             eventClick: function(info) {
-                // Al hacer clic en un evento del calendario, abrimos el Historial o Triaje (puedes personalizar)
                 const aptId = info.event.id;
                 const apt = appointments.find(a => a.id === aptId);
                 if(apt && apt.patientId) {
@@ -1626,7 +1624,7 @@
             return `<tr>
                 <td>
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <div class="avatar" style="background:#0d9488;font-size:12px;">${initials}</div>
+                        <div class="avatar" style="background:var(--accent);font-size:12px;">${initials}</div>
                         <span style="font-weight:800;">${p?.nombre || 'Desconocido'}</span>
                     </div>
                 </td>
@@ -1634,7 +1632,7 @@
                 <td>
                     <div style="display:flex;align-items:center;gap:10px;">
                         <div style="flex:1;height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden;min-width:60px;">
-                            <div style="height:100%;background:#0d9488;border-radius:99px;width:${progress}%;"></div>
+                            <div style="height:100%;background:var(--accent);border-radius:99px;width:${progress}%;"></div>
                         </div>
                         <span style="font-size:11.5px;font-weight:700;color:#64748b;white-space:nowrap;">${plan.cuotasPagadas}/${plan.totalCuotas}</span>
                     </div>
@@ -1767,7 +1765,7 @@
                 <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
                     ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
                     <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Triaje</button>
-                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#0d9488;color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Terapia</button>
+                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Terapia</button>
                     <button onclick="openHistoryModal('${p?.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
             </div>`;
@@ -1787,7 +1785,7 @@
                         <div style="font-size:11.5px;color:#64748b;font-weight:600;margin-top:1px;">CI: ${p.cedula||'N/A'}</div>
                     </div>
                 </div>
-                <div style="font-size:12.5px;color:#0d9488;font-weight:700;margin-bottom:4px;">📱 ${p.telefonoWhatsApp||'—'}</div>
+                <div style="font-size:12.5px;color:var(--accent);font-weight:700;margin-bottom:4px;">📱 ${p.telefonoWhatsApp||'—'}</div>
                 ${p.fechaNacimiento ? `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#fdf2f8;border-radius:99px;font-size:10.5px;color:#9d174d;font-weight:700;margin-top:4px;">🎂 ${p.fechaNacimiento}</div>` : ''}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;">
                     <button onclick="openEditPatientModal('${p.id}')" style="padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✏️ Editar</button>
@@ -1832,7 +1830,7 @@
         try {
             if(editPatientId) {
                 await db.collection('patients').doc(editPatientId).update({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob });
-                mostrarMensaje("Paciente actualizado con éxito.", "success");
+                mostrarMensaje("Registro actualizado con éxito.", "success");
             } else {
                 const exist = await db.collection('patients').where('doctorId','==',parentDoctorId).where('cedula','==',cedula).get();
                 if(!exist.empty) { btn.disabled=false; btn.textContent="Guardar"; return alert("Esta cédula ya está registrada."); }
@@ -1937,7 +1935,6 @@
     function openPrescriptionModal(aptId) {
         initMapaFisio(); // Inicializa el mapa físico
 
-        // Resetea Tabs a la pestaña 1
         const firstTabBtn = document.querySelector('.rx-tabs-nav .rx-tab-btn');
         if(firstTabBtn) switchRxTab('tab-eval', firstTabBtn);
 
@@ -1948,7 +1945,6 @@
         document.getElementById('rxRecomendaciones').value = apt?.recomendaciones?.join('\n') || '';
         document.getElementById('rxBorrador').value = '';
         
-        // Limpiar campos
         ['rxEdad', 'rxPeso', 'rxAltura', 'rxFuerza', 'rxROM'].forEach(id => {
             document.getElementById(id).value = '';
         });
@@ -1956,7 +1952,6 @@
         document.getElementById('rxDolorSlider').value = 0;
         updateDolorLabel(0);
 
-        // Cargar datos previos si existen
         if(apt && apt.triaje) {
             if(apt.triaje.edad) document.getElementById('rxEdad').value = apt.triaje.edad;
             if(apt.triaje.peso) document.getElementById('rxPeso').value = apt.triaje.peso;
@@ -1969,7 +1964,6 @@
             }
         }
 
-        // Recuperar diagnóstico si existe
         if(apt && apt.diagnostico) {
             document.getElementById('rxDiagnostico').value = apt.diagnostico;
         }
@@ -1982,6 +1976,7 @@
         addMedicineRow();
         document.getElementById('prescriptionModal').classList.remove('hidden');
     }
+    
     function closePrescriptionModal() { document.getElementById('prescriptionModal').classList.add('hidden'); }
 
     function addMedicineRow(med=null) {
@@ -2040,7 +2035,6 @@
         let currentText = document.getElementById('rxDiagnostico').value;
         const regex = /\n\n--- HALLAZGOS DEL MAPA ---\n([\s\S]*?)--- FIN HALLAZGOS ---/g;
         
-        // Limpiamos los hallazgos del mapa anteriores para no duplicarlos
         currentText = currentText.replace(regex, '').trim();
 
         if(Object.keys(estadoFisio).length > 0) {
@@ -2209,7 +2203,7 @@
 
             await loadAppointments();
             await loadPlanesPago();
-        } catch(e) { alert('Error al generar la receta o enviar a WhatsApp.'); }
+        } catch(e) { alert('Error al generar el plan o enviar a WhatsApp.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
 
@@ -2320,7 +2314,6 @@
 
                 <h3>Historial de Sesiones</h3>
                 ${timelineContent.replace(/style="[^"]*"/g, function(match) {
-                    // Mantenemos solo el estilo esencial para que no rompa el diseño impreso
                     if(match.includes('border-left')) return 'class="history-card"';
                     if(match.includes('📅')) return 'class="date"';
                     if(match.includes('Recomendaciones')) return 'class="recs-box"';
@@ -2511,11 +2504,8 @@
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        // Cabecera
         ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
-        // Espacios
         for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
-        // Días
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isHoliday = holidays.includes(dateStr);
@@ -2545,7 +2535,7 @@
         document.getElementById('clinicColor').value = clinicDataGlobal?.color||'#0f766e';
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
-        renderHolidayCalendar(); // Renderiza el calendario al abrir modal
+        renderHolidayCalendar(); 
         document.getElementById('settingsModal').classList.remove('hidden');
     }
 
@@ -2574,7 +2564,7 @@
             color: document.getElementById('clinicColor').value,
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
-            diasNoLaborables: holidays, // Guardamos los holidays del calendario visual
+            diasNoLaborables: holidays, 
             logo: logoUrl
         };
         try {
@@ -2586,7 +2576,6 @@
         } catch(e) { alert('Error guardando configuración.'); }
     }
 
-    // ── LINK ──
     function copiarMiLink() {
         const currentPath = window.location.href.split('?')[0];
         const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
@@ -2594,7 +2583,6 @@
         navigator.clipboard.writeText(miLink).then(()=>mostrarMensaje('¡Enlace copiado al portapapeles!','success')).catch(()=>alert("Copia manualmente: "+miLink));
     }
 
-    // ── MENSAJES DEL SISTEMA (TOASTS) ──
     function mostrarMensaje(msg, type='success') {
         const d = document.getElementById('formMessage');
         const isSuccess = type === 'success';
@@ -2604,9 +2592,7 @@
         setTimeout(()=>d.classList.add('hidden'), 3500);
     }
 
-    // 📱 ── INYECCIÓN JS: MENÚ RESPONSIVE MÓVIL ── 📱
     (function initMobileUI() {
-        // 1. Agregar el botón hamburguesa a la barra superior
         const topbarContainer = document.querySelector('.topbar > div:first-child');
         if (topbarContainer && !document.getElementById('mobileMenuBtn')) {
             const btn = document.createElement('button');
@@ -2620,7 +2606,6 @@
             topbarContainer.insertBefore(btn, topbarContainer.firstChild);
         }
 
-        // 2. Agregar overlay oscuro para cerrar el menú al tocar afuera
         if (!document.getElementById('mobileOverlay')) {
             const overlay = document.createElement('div');
             overlay.id = 'mobileOverlay';
@@ -2628,7 +2613,6 @@
             document.body.appendChild(overlay);
         }
         
-        // 3. Cerrar el menú automáticamente al hacer clic en cualquier opción (solo en móviles)
         document.querySelectorAll('.nav-link, .sb-action').forEach(link => {
             link.addEventListener('click', () => {
                 if (window.innerWidth <= 768) { toggleMobileMenu(); }
