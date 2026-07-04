@@ -111,7 +111,15 @@
         .sb-action.danger:hover { background: rgba(220,38,38,0.15); color: #fca5a5; }
 
         /* ── Main ── */
-        #appMain { margin-left: var(--sidebar-w); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        #appMain { 
+            margin-left: var(--sidebar-w); 
+            flex: 1; /* Obliga a usar todo el espacio */
+            width: calc(100% - var(--sidebar-w)); /* Fuerza el ancho exacto */
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
 
         .topbar {
             background: white; border-bottom: 1px solid var(--border);
