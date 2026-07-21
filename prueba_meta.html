@@ -60,21 +60,19 @@
 
             FB.login(function(response) {
                 if (response.authResponse) {
-                    console.log("Autorización exitosa:", response);
-                    alert("¡Conectado con éxito! Revisa la consola.");
+                    const code = response.authResponse.code;
+                    console.log("Código de autorización obtenido:", code);
+                    alert("¡Conectado con éxito! Código obtenido en consola.");
                 } else {
                     console.log('El usuario canceló el flujo.');
                 }
             }, {
                 config_id: '1020182057736220', // Tu ID de configuración de Meta
-                override_default_response_type: 'code',
+                response_type: 'code',           // 👈 ESTO ES LO QUE FALTABA Y SOLUCIONA EL ERROR
+                override_default_response_type: true, // 👈 FUERZA A META A IGNORAR EL TOKEN POR DEFECTO
                 extras: {
                     featureType: 'whatsapp_business_app_onboarding',
                     sessionInfoVersion: '3'
                 }
             });
         }
-    </script>
-
-</body>
-</html>
