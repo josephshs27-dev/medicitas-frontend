@@ -20,70 +20,74 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .btn-whatsapp:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .btn-whatsapp:hover:not(:disabled) {
+        .btn-whatsapp:hover {
             background-color: #128C7E;
+        }
+        .error-favicon {
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
     <h1>Prueba de Registro Integrado (Embedded Signup)</h1>
-    <p id="estado-sdk">Cargando SDK de Facebook, por favor espera...</p>
+    <p>Haz clic en el botón para inicializar y lanzar el flujo de Meta directamente.</p>
     <br>
     
-    <!-- Botón inicialmente bloqueado -->
-    <button id="btn-conectar" class="btn-whatsapp" onclick="launchWhatsAppSignup()" disabled>Conectar WhatsApp Business</button>
+    <!-- Botón siempre activo -->
+    <button class="btn-whatsapp" onclick="launchWhatsAppSignup()">Conectar WhatsApp Business</button>
+
+    <div class="error-favicon">* Nota: El error de favicon.ico en la consola es solo estফtico (falta la imagen del ícono en tu PC) y no afecta en nada a la prueba.</div>
 
     <script>
-        // 1. Inicializar el SDK de Facebook correctamente al cargar la página
-        window.fbAsyncInit = function() {
-            FB.init({
-                appId      : '', // Puedes dejarlo vacío para pruebas locales con config_id
-                cookie     : true,
-                xfbml      : true,
-                version    : 'v18.0'
-            });
-
-            // Una vez inicializado, habilitamos el botón y actualizamos el texto
-            document.getElementById('btn-conectar').disabled = false;
-            document.getElementById('estado-sdk').innerText = 'SDK listo. Ya puedes hacer clic.';
-        };
-
-        // Cargar el SDK de forma asíncrona
-        (function(d, s, id){
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {return;}
-            js = d.createElement(s); js.id = id;
-            js.src = "https://connect.facebook.net/es_LA/sdk.js";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
-
-        // 2. Función que lanza la ventana emergente con el parámetro correcto
-        function launchWhatsAppSignup() {
-            if (typeof FB === 'undefined') {
-                alert("El SDK de Facebook aún no se ha cargado. Espera un segundo más.");
+        // Función autoejecutable para precargar el script de Facebook si no existe
+        function loadSdk(callback) {
+            if (typeof FB !== 'undefined') {
+                callback();
                 return;
             }
+            
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId      : '', // Vacío para pruebas locales con config_id
+                    cookie     : true,
+                    xfbml      : true,
+                    version    : 'v18.0'
+                });
+                callback();
+            };
 
-            FB.login(function(response) {
-                if (response.authResponse) {
-                    const code = response.authResponse.code;
-                    console.log("Código de autorización obtenido:", code);
-                    alert("¡Autorización exitosa! Código obtenido en consola.");
-                } else {
-                    console.log('El usuario canceló el flujo o no autorizó.');
-                }
-            }, {
-                config_id: '1020182057736220', // 👈 REEMPLAZA ESTO CON EL ID QUE COPIASTE DE META
-                override_default_response_type: 'code',
-                extras: {
-                    featureType: 'whatsapp_business_app_onboarding',
-                    sessionInfoVersion: '3'
-                }
+            // Inyectar el script si no está cargado
+            if (!document.getElementById('facebook-jssdk')) {
+                var js, fjs = document.getElementsByTagName('script')[0];
+                js = document.createElement('script'); js.id = 'facebook-jssdk';
+                js.src = "https://connect.facebook.net/es_LA/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            }
+        }
+
+        // Función que se ejecuta al hacer clic
+        function launchWhatsAppSignup() {
+            // Aseguramos que el SDK esté inicializado justo en el evento de clic
+            loadSdk(function() {
+                FB.login(function(response) {
+                    if (response.authResponse) {
+                        const code = response.authResponse.code;
+                        console.log("Código de autorización obtenido:", code);
+                        alert("¡Autorización exitosa! Código obtenido en consola.");
+                    } else {
+                        console.log('El usuario canceló el flujo o no autorizó.');
+                    }
+                }, {
+                    config_id: '1020182057736220', // 👈 REEMPLAZA ESTO CON EL ID QUE COPIASTE DE META
+                    override_default_response_type: 'code',
+                    extras: {
+                        featureType: 'whatsapp_business_app_onboarding',
+                        sessionInfoVersion: '3'
+                    }
+                });
             });
         }
     </script>
