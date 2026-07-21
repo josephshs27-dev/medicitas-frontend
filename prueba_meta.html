@@ -23,72 +23,33 @@
         .btn-whatsapp:hover {
             background-color: #128C7E;
         }
-        .error-favicon {
-            color: #999;
-            font-size: 12px;
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
 
-    <h1>Prueba de Registro Integrado (Embedded Signup)</h1>
-    <p>Haz clic en el botón para inicializar y lanzar el flujo de Meta directamente.</p>
+    <h1>Prueba de Registro Integrado (Embedded Signup por URL)</h1>
+    <p>Haz clic para abrir el asistente oficial de Meta sin errores de SDK.</p>
     <br>
     
-    <!-- Botón siempre activo -->
-    <button class="btn-whatsapp" onclick="launchWhatsAppSignup()">Conectar WhatsApp Business</button>
-
-    <div class="error-favicon">* Nota: El error de favicon.ico en la consola es solo estফtico (falta la imagen del ícono en tu PC) y no afecta en nada a la prueba.</div>
+    <!-- Botón que redirige de forma nativa -->
+    <button class="btn-whatsapp" onclick="launchWhatsAppDirect()">Conectar WhatsApp Business</button>
 
     <script>
-        // Función autoejecutable para precargar el script de Facebook si no existe
-        function loadSdk(callback) {
-            if (typeof FB !== 'undefined') {
-                callback();
-                return;
-            }
+        function launchWhatsAppDirect() {
+            // Reemplaza con tu App ID real de Facebook Developers
+            const appId = '2479673065791422'; 
             
-            window.fbAsyncInit = function() {
-                FB.init({
-                    appId      : '', // Vacío para pruebas locales con config_id
-                    cookie     : true,
-                    xfbml      : true,
-                    version    : 'v18.0'
-                });
-                callback();
-            };
+            // Reemplaza con el ID de configuración que creamos en el panel
+            const configId = '1020182057736220'; 
+            
+            // La URL de redirección actual (puede ser localhost o tu dominio de pruebas)
+            const redirectUri = window.location.href.split('?')[0];
 
-            // Inyectar el script si no está cargado
-            if (!document.getElementById('facebook-jssdk')) {
-                var js, fjs = document.getElementsByTagName('script')[0];
-                js = document.createElement('script'); js.id = 'facebook-jssdk';
-                js.src = "https://connect.facebook.net/es_LA/sdk.js";
-                fjs.parentNode.insertBefore(js, fjs);
-            }
-        }
+            // Construimos la URL oficial del Embedded Signup de Meta
+            const fbLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=whatsapp_business_management,whatsapp_business_messaging&config_id=${configId}&extras=${encodeURIComponent(JSON.stringify({ featureType: 'whatsapp_business_app_onboarding', sessionInfoVersion: '3' }))}`;
 
-        // Función que se ejecuta al hacer clic
-        function launchWhatsAppSignup() {
-            // Aseguramos que el SDK esté inicializado justo en el evento de clic
-            loadSdk(function() {
-                FB.login(function(response) {
-                    if (response.authResponse) {
-                        const code = response.authResponse.code;
-                        console.log("Código de autorización obtenido:", code);
-                        alert("¡Autorización exitosa! Código obtenido en consola.");
-                    } else {
-                        console.log('El usuario canceló el flujo o no autorizó.');
-                    }
-                }, {
-                    config_id: '1020182057736220', // 👈 REEMPLAZA ESTO CON EL ID QUE COPIASTE DE META
-                    override_default_response_type: 'code',
-                    extras: {
-                        featureType: 'whatsapp_business_app_onboarding',
-                        sessionInfoVersion: '3'
-                    }
-                });
-            });
+            // Redirigimos al usuario al flujo oficial de Meta
+            window.location.href = fbLoginUrl;
         }
     </script>
 
