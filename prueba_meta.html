@@ -24,11 +24,38 @@
             background-color: #128C7E;
         }
     </style>
+    <script>
+        // Declaramos la función globalmente primero para que el botón la encuentre sin excusas
+        function launchWhatsAppSignup() {
+            if (typeof FB === 'undefined') {
+                alert("El SDK de Facebook aún está cargando. Espera un segundo e inténtalo de nuevo.");
+                return;
+            }
+
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    const code = response.authResponse.code;
+                    console.log("Código de autorización obtenido:", code);
+                    alert("¡Conectado con éxito! Código obtenido en consola.");
+                } else {
+                    console.log('El usuario canceló el flujo.');
+                }
+            }, {
+                config_id: '1020182057736220', // 👈 REEMPLAZA ESTO CON TU ID DE CONFIGURACIÓN DE META
+                response_type: 'code',
+                override_default_response_type: true,
+                extras: {
+                    featureType: 'whatsapp_business_app_onboarding',
+                    sessionInfoVersion: '3'
+                }
+            });
+        }
+    </script>
 </head>
 <body>
 
     <h1>Prueba de Registro Integrado (Embedded Signup Oficial)</h1>
-    <p>Haz clic en el botón para abrir el asistente mediante el SDK de Facebook.</p>
+    <p>Haz clic en el botón para abrir el asistente mediante el SDK.</p>
     <br>
     
     <button class="btn-whatsapp" onclick="launchWhatsAppSignup()">Conectar WhatsApp Business</button>
@@ -37,7 +64,7 @@
         // Carga asíncrona oficial del SDK de Facebook
         window.fbAsyncInit = function() {
             FB.init({
-                appId      : '2479673065791422', // Reemplaza con tu App ID de Meta
+                appId      : '2479673065791422', // 👈 REEMPLAZA ESTO CON TU APP ID DE META
                 cookie     : true,
                 xfbml      : true,
                 version    : 'v18.0'
@@ -51,28 +78,7 @@
             js.src = "https://connect.facebook.net/es_LA/sdk.js";
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
+    </script>
 
-        function launchWhatsAppSignup() {
-            if (typeof FB === 'undefined') {
-                alert("El SDK aún está cargando. Espera un segundo.");
-                return;
-            }
-
-            FB.login(function(response) {
-                if (response.authResponse) {
-                    const code = response.authResponse.code;
-                    console.log("Código de autorización obtenido:", code);
-                    alert("¡Conectado con éxito! Código obtenido en consola.");
-                } else {
-                    console.log('El usuario canceló el flujo.');
-                }
-            }, {
-                config_id: '1020182057736220', // Tu ID de configuración de Meta
-                response_type: 'code',           // 👈 ESTO ES LO QUE FALTABA Y SOLUCIONA EL ERROR
-                override_default_response_type: true, // 👈 FUERZA A META A IGNORAR EL TOKEN POR DEFECTO
-                extras: {
-                    featureType: 'whatsapp_business_app_onboarding',
-                    sessionInfoVersion: '3'
-                }
-            });
-        }
+</body>
+</html>
