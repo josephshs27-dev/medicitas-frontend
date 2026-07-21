@@ -20,7 +20,11 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .btn-whatsapp:hover {
+        .btn-whatsapp:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .btn-whatsapp:hover:not(:disabled) {
             background-color: #128C7E;
         }
     </style>
@@ -28,21 +32,25 @@
 <body>
 
     <h1>Prueba de Registro Integrado (Embedded Signup)</h1>
-    <p>Haz clic en el botón para iniciar el asistente de Meta y verificar si genera el código QR de coexistencia.</p>
+    <p id="estado-sdk">Cargando SDK de Facebook, por favor espera...</p>
     <br>
     
-    <!-- Botón que dispara el flujo de Meta -->
-    <button class="btn-whatsapp" onclick="launchWhatsAppSignup()">Conectar WhatsApp Business</button>
+    <!-- Botón inicialmente bloqueado -->
+    <button id="btn-conectar" class="btn-whatsapp" onclick="launchWhatsAppSignup()" disabled>Conectar WhatsApp Business</button>
 
     <script>
-        // 1. Inicializar el SDK de Facebook
+        // 1. Inicializar el SDK de Facebook correctamente al cargar la página
         window.fbAsyncInit = function() {
             FB.init({
-                appId      : 'TUS_DATOS_O_APP_ID', // (Opcional para la prueba, pero requerido por el SDK)
+                appId      : '', // Puedes dejarlo vacío para pruebas locales con config_id
                 cookie     : true,
                 xfbml      : true,
                 version    : 'v18.0'
             });
+
+            // Una vez inicializado, habilitamos el botón y actualizamos el texto
+            document.getElementById('btn-conectar').disabled = false;
+            document.getElementById('estado-sdk').innerText = 'SDK listo. Ya puedes hacer clic.';
         };
 
         // Cargar el SDK de forma asíncrona
@@ -56,6 +64,11 @@
 
         // 2. Función que lanza la ventana emergente con el parámetro correcto
         function launchWhatsAppSignup() {
+            if (typeof FB === 'undefined') {
+                alert("El SDK de Facebook aún no se ha cargado. Espera un segundo más.");
+                return;
+            }
+
             FB.login(function(response) {
                 if (response.authResponse) {
                     const code = response.authResponse.code;
