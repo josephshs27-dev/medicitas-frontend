@@ -2468,9 +2468,8 @@
     }
 
     function launchMetaEmbeddedSignup() {
-        // Escudo: Si el archivo de Meta no se pudo descargar por error de red
         if (typeof FB === 'undefined') {
-            mostrarMensaje('Error de red: No se pudo conectar con Meta. Revisa tu conexión o desactiva tu AdBlocker.', 'error');
+            mostrarMensaje('Tu red o navegador está bloqueando el script de Facebook. Verifica tu conexión.', 'error');
             return;
         }
 
@@ -2489,9 +2488,11 @@
                 btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
             }
         }, {
-            config_id: '1020182057736220', // Tu Configuration ID
+            config_id: '1020182057736220', // Reemplaza con tu ID real
             response_type: 'code',
             override_default_response_type: true,
+            // 🔥 AQUÍ ESTÁ LA MAGIA: Pedimos los permisos explícitos 🔥
+            scope: 'whatsapp_business_management,whatsapp_business_messaging', 
             extras: {
                 featureType: 'whatsapp_business_app_onboarding',
                 sessionInfoVersion: '3'
