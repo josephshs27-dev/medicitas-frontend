@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
     <style>
@@ -183,7 +182,7 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
-        /* ── Modals (Ampliados) ── */
+        /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
         .modal-box-large { width: 100%; max-width: 1000px !important; }
@@ -633,7 +632,9 @@
                     </div>
                 </div>
 
-            </div></div></main>
+            </div>
+        </div>
+    </main>
 </div>
 
 <div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
@@ -1066,12 +1067,13 @@
     </div>
 </div>
 
+<!-- 🔥 NUEVO MODAL META CLOUD API 🔥 -->
 <div id="metaModal" class="modal-wrap hidden" style="z-index:62;">
     <div class="modal-box" style="width:100%;max-width:420px;">
         <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));">
             <div>
                 <div class="modal-title" style="color:white;">WhatsApp Asistencitas IA</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">Conecta tu número personal o clínica</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">Conexión directa vía Meta Cloud API</div>
             </div>
             <button onclick="closeMetaModal()" class="modal-close-btn" style="color:rgba(255,255,255,0.7);">&times;</button>
         </div>
@@ -1079,22 +1081,20 @@
         <div class="modal-bd" style="background:#f8fafc; text-align:center;">
             
             <div id="waDisconnectedView" style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-                <p style="font-size:13px; color:var(--txt2); font-weight:600; margin:0;">Escanea el código QR desde tu celular para que la Inteligencia Artificial pueda interactuar con tus pacientes.</p>
+                <p style="font-size:13px; color:var(--txt2); font-weight:600; margin:0; text-align:center;">
+                    Conecta tu número directamente con los servidores de WhatsApp para activar la IA.
+                </p>
                 
-                <div id="qrBox" style="width:240px; height:240px; background:white; border:2px dashed var(--border); border-radius:16px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                    <span id="qrPlaceholder" style="color:var(--txt3); font-weight:700; font-size:13px;">Haz clic en Generar QR</span>
-                    
-                    <div id="qrLoader" class="hidden" style="display:none; flex-direction:column; align-items:center; gap:10px;">
-                        <div class="spinner"></div>
-                        <span style="font-size:12px; color:var(--accent); font-weight:700;">Conectando...</span>
-                    </div>
-                    
-                    <img id="qrImage" src="" class="hidden" style="display:none; width:100%; height:100%; object-fit:contain;">
+                <div style="width:240px; height:180px; background:white; border:2px dashed var(--border); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
+                    <svg width="40" height="40" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    <span style="color:var(--txt3); font-weight:700; font-size:12px; text-align:center; padding:0 10px;">
+                        Soporte oficial Cloud API (Embedded Signup)
+                    </span>
                 </div>
 
-                <button id="btnGenerateQR" onclick="iniciarConexionWa()" class="btn btn-primary btn-md btn-full" style="max-width:240px;">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Generar Código QR
+                <button id="btnConectarMeta" onclick="launchMetaEmbeddedSignup()" class="btn btn-primary btn-md btn-full" style="max-width:240px; background:#10b981; border-color:#059669;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    Vincular WhatsApp
                 </button>
             </div>
 
@@ -1104,10 +1104,10 @@
                 </div>
                 <div>
                     <h3 style="font-size:16px; font-weight:800; color:var(--txt1); margin:0 0 4px;">WhatsApp Vinculado</h3>
-                    <p style="font-size:13px; color:var(--txt2); margin:0;">El asistente de Inteligencia Artificial está operando correctamente en este número.</p>
+                    <p style="font-size:13px; color:var(--txt2); margin:0;">El asistente de Inteligencia Artificial está operando de forma estable vía Cloud API.</p>
                 </div>
                 <button onclick="desvincularWa()" class="btn btn-secondary btn-md" style="color:#dc2626; border-color:#fecaca; background:#fef2f2; margin-top:8px;">
-                    Desvincular Dispositivo
+                    Desvincular Integración
                 </button>
             </div>
 
@@ -1236,7 +1236,6 @@
     let holidays = [];
     let currentCalDate = new Date();
     let calendarInstance = null; 
-    let waPollingInterval = null; // Para el monitoreo del QR de WhatsApp
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1254,7 +1253,6 @@
             if (userDoc.exists) {
                 const data = userDoc.data();
                 
-                // LÓGICA DE AUTO-SUSPENSIÓN
                 if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
                     const ahora = new Date();
                     const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
@@ -1278,6 +1276,9 @@
                 }
                 parentDoctorId = user.uid;
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'fisioterapia' };
+                // Garantizamos que el estado de Meta se preserve localmente
+                clinicDataGlobal.metaPhoneId = data.metaPhoneId;
+                clinicDataGlobal.fbPageToken = data.fbPageToken;
                 holidays = clinicDataGlobal.diasNoLaborables || [];
 
                 if (data.estadoSuscripcion === 'suspendido') {
@@ -1867,7 +1868,7 @@
     }
 
     function openPrescriptionModal(aptId) {
-        initMapaFisio(); // Inicializa el mapa físico
+        initMapaFisio(); 
 
         const firstTabBtn = document.querySelector('.rx-tabs-nav .rx-tab-btn');
         if(firstTabBtn) switchRxTab('tab-eval', firstTabBtn);
@@ -2420,91 +2421,124 @@
         finally { btn.textContent='Enviar Inteligente ✦'; btn.disabled=false; }
     }
 
-    // ── MOTOR HÍBRIDO BAILEYS (WHATSAPP IA) ──
+    // ── META CLOUD API (NUEVA INTEGRACIÓN OFICIAL) ──
+    
+    // Iniciar SDK de Facebook
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId            : '[PEGA_AQUÍ_TU_APP_ID]', // <-- REEMPLAZA
+            autoLogAppEvents : true,
+            xfbml            : true,
+            version          : 'v18.0'
+        });
+    };
+
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
     function openMetaModal() { 
         document.getElementById('metaModal').classList.remove('hidden'); 
-        checkWhatsappStatus(); // Comprobar estado al abrir
+        checkWhatsappStatus(); 
     }
     
     function closeMetaModal() { 
         document.getElementById('metaModal').classList.add('hidden'); 
-        if(waPollingInterval) { clearInterval(waPollingInterval); waPollingInterval = null; }
     }
 
     async function checkWhatsappStatus() {
         if(!parentDoctorId) return;
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/qr/status?doctorId=${parentDoctorId}`);
-            const data = await res.json();
-            actualizarUiWa(data.connected);
-        } catch(e) {
-            console.error("Error comprobando estado WA:", e);
-        }
+        // Evaluar si ya tiene el ID de Meta guardado en la DB de forma local
+        const isConnected = clinicDataGlobal && clinicDataGlobal.metaPhoneId;
+        actualizarUiWa(isConnected);
     }
 
     function actualizarUiWa(isConnected) {
         const vDisc = document.getElementById('waDisconnectedView');
         const vConn = document.getElementById('waConnectedView');
+        const btn = document.getElementById('btnConectarMeta');
         
         if(isConnected) {
             vDisc.style.display = 'none';
             vConn.style.display = 'flex';
-            if(waPollingInterval) { clearInterval(waPollingInterval); waPollingInterval = null; }
         } else {
             vDisc.style.display = 'flex';
             vConn.style.display = 'none';
-            document.getElementById('qrPlaceholder').style.display = 'block';
-            document.getElementById('qrLoader').style.display = 'none';
-            document.getElementById('qrImage').style.display = 'none';
-            document.getElementById('btnGenerateQR').disabled = false;
+            if(btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
+            }
         }
     }
 
-    async function iniciarConexionWa() {
-        const btn = document.getElementById('btnGenerateQR');
-        const placeholder = document.getElementById('qrPlaceholder');
-        const loader = document.getElementById('qrLoader');
-        const img = document.getElementById('qrImage');
-
+    function launchMetaEmbeddedSignup() {
+        const btn = document.getElementById('btnConectarMeta');
         btn.disabled = true;
-        placeholder.style.display = 'none';
-        img.style.display = 'none';
-        loader.style.display = 'flex';
+        btn.innerHTML = 'Abriendo ventana...';
+
+        FB.login(function(response) {
+            if (response.authResponse && response.authResponse.code) {
+                const authCode = response.authResponse.code;
+                console.log("Código de Meta obtenido, enviando al backend...");
+                enviarCodigoAlBackend(authCode);
+            } else {
+                console.warn("Usuario canceló o hubo un error.");
+                btn.disabled = false;
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
+            }
+        }, {
+            config_id: '[PEGA_AQUÍ_TU_CONFIGURATION_ID]', // <-- REEMPLAZA
+            response_type: 'code',
+            override_default_response_type: true,
+            extras: {
+                featureType: 'whatsapp_business_app_onboarding',
+                sessionInfoVersion: '3'
+            }
+        });
+    }
+
+    async function enviarCodigoAlBackend(code) {
+        const btn = document.getElementById('btnConectarMeta');
+        btn.innerHTML = 'Configurando servidor...';
 
         try {
-            const res = await fetch(`${API_BASE_URL}/api/qr/conectar?doctorId=${parentDoctorId}`);
+            const res = await fetch(`${API_BASE_URL}/api/meta/exchange-code`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ doctorId: parentDoctorId, authCode: code })
+            });
+            
             const data = await res.json();
-
-            if(data.status === 'connected') {
-                actualizarUiWa(true);
-            } else if(data.status === 'qr_ready') {
-                loader.style.display = 'none';
-                img.src = data.qrImage;
-                img.style.display = 'block';
-                
-                // Iniciar polling para ver si el usuario escaneó
-                if(waPollingInterval) clearInterval(waPollingInterval);
-                waPollingInterval = setInterval(checkWhatsappStatus, 3000);
+            if (data.success) {
+                mostrarMensaje('¡WhatsApp vinculado exitosamente con Cloud API!', 'success');
+                clinicDataGlobal.metaPhoneId = data.metaPhoneId; 
+                clinicDataGlobal.fbPageToken = data.fbPageToken;
+                actualizarUiWa(true); 
             } else {
-                throw new Error(data.error || "Error desconocido");
+                throw new Error(data.error);
             }
-        } catch(e) {
-            mostrarMensaje('Error generando QR: ' + e.message, 'error');
+        } catch (error) {
+            mostrarMensaje('Error al vincular: ' + error.message, 'error');
             btn.disabled = false;
-            loader.style.display = 'none';
-            placeholder.style.display = 'block';
+            btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
         }
     }
 
     async function desvincularWa() {
         if(!confirm("¿Seguro que deseas desvincular la Inteligencia Artificial de tu WhatsApp?")) return;
         try {
-            await fetch(`${API_BASE_URL}/api/qr/desvincular`, {
+            await fetch(`${API_BASE_URL}/api/meta/desvincular`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ doctorId: parentDoctorId })
             });
-            mostrarMensaje('Dispositivo desvinculado.', 'success');
+            mostrarMensaje('Integración desvinculada.', 'success');
+            clinicDataGlobal.metaPhoneId = null;
+            clinicDataGlobal.fbPageToken = null;
             actualizarUiWa(false);
         } catch(e) {
             mostrarMensaje('Error al desvincular.', 'error');
