@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Prueba Coexistencia WhatsApp - Asistencitas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+            background-color: #f4f6f8;
+        }
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-whatsapp:hover {
+            background-color: #128C7E;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Prueba de Registro Integrado (Embedded Signup)</h1>
+    <p>Haz clic en el botón para iniciar el asistente de Meta y verificar si genera el código QR de coexistencia.</p>
+    <br>
+    
+    <!-- Botón que dispara el flujo de Meta -->
+    <button class="btn-whatsapp" onclick="launchWhatsAppSignup()">Conectar WhatsApp Business</button>
+
+    <script>
+        // 1. Inicializar el SDK de Facebook
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : 'TUS_DATOS_O_APP_ID', // (Opcional para la prueba, pero requerido por el SDK)
+                cookie     : true,
+                xfbml      : true,
+                version    : 'v18.0'
+            });
+        };
+
+        // Cargar el SDK de forma asíncrona
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/es_LA/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        // 2. Función que lanza la ventana emergente con el parámetro correcto
+        function launchWhatsAppSignup() {
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    const code = response.authResponse.code;
+                    console.log("Código de autorización obtenido:", code);
+                    alert("¡Autorización exitosa! Código obtenido en consola.");
+                } else {
+                    console.log('El usuario canceló el flujo o no autorizó.');
+                }
+            }, {
+                config_id: '1020182057736220', // 👈 REEMPLAZA ESTO CON EL ID QUE COPIASTE DE META
+                override_default_response_type: 'code',
+                extras: {
+                    featureType: 'whatsapp_business_app_onboarding',
+                    sessionInfoVersion: '3'
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
