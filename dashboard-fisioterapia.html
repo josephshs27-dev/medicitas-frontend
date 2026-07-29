@@ -1156,6 +1156,23 @@
                             <span style="font-size:12px;font-weight:700;color:var(--txt2);">hasta</span>
                             <input type="time" id="hFin" class="finput" style="flex:1;">
                         </div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">Almuerzo:</span>
+                            <input type="time" id="hAlmuerzoInicio" class="finput" style="flex:1;" title="Inicio de almuerzo">
+                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">a</span>
+                            <input type="time" id="hAlmuerzoFin" class="finput" style="flex:1;" title="Fin de almuerzo">
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label class="flabel" style="color:var(--accent-dark);">Duración por Cita</label>
+                            <select id="duracionCita" class="finput">
+                                <option value="15">15 minutos</option>
+                                <option value="30">30 minutos</option>
+                                <option value="45">45 minutos</option>
+                                <option value="60">1 hora</option>
+                                <option value="90">1 hora y media</option>
+                                <option value="120">2 horas</option>
+                            </select>
+                        </div>
                     </div>
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
@@ -1597,15 +1614,18 @@
         document.getElementById('payInstallmentModal').classList.remove('hidden');
     }
 
+    // 🔥 PAGO DESDE FINANZAS (ACTUALIZADO CON MENSAJE WA) 🔥
     async function submitInstallmentPayment() {
         const planId = document.getElementById('installPlanId').value;
         const amount = parseFloat(document.getElementById('installAmount').value);
         if(!amount || amount <= 0) return alert("Ingresa un monto válido.");
         const plan = planesPago.find(x => x.id === planId);
         if(amount > plan.saldoPendiente) return alert("El monto no puede ser mayor al saldo.");
+        
         const nuevoSaldo = plan.saldoPendiente - amount;
         const nuevasCuotas = plan.cuotasPagadas + 1;
         const estado = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
+        
         try {
             await db.collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
             await db.collection('appointments').add({
@@ -1615,6 +1635,22 @@
                 motivo: `Abono Cuota ${nuevasCuotas}/${plan.totalCuotas}`,
                 monto: amount, estado: 'completada', fechaCreacion: new Date()
             });
+            
+            const p = patients.find(x => x.id === plan.patientId);
+            const pName = p ? p.nombre : 'Paciente';
+            
+            // Generar Comprobante de Abono en PDF
+            imprimirComprobantePago(pName, amount, `Abono de plan (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
+
+            // Notificar por WhatsApp sobre el descuento de deuda
+            if(p && p.telefonoWhatsApp) {
+                const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+                await fetch(`${API_BASE_URL}/send-message`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
+                });
+            }
+
             document.getElementById('payInstallmentModal').classList.add('hidden');
             mostrarMensaje(`Abono de $${amount.toFixed(2)} registrado exitosamente.`, 'success');
             await loadPlanesPago();
@@ -2143,6 +2179,52 @@
     }
 
     // ── FUNCIONES DE IMPRESIÓN ──
+    function imprimirComprobantePago(patientName, total, motivo) {
+        const printWindow = window.open('', '_blank', 'width=400,height=600');
+        const fechaStr = new Date().toLocaleDateString('es-ES') + ' ' + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Comprobante de Pago - ${patientName}</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px; color: #1f2937; line-height: 1.5; font-size: 14px; text-align: center; }
+                    .header { border-bottom: 2px dashed #e5e7eb; padding-bottom: 15px; margin-bottom: 15px; }
+                    h1 { color: #0f172a; margin: 0 0 5px 0; font-size: 18px; text-transform: uppercase; }
+                    .details { text-align: left; margin-bottom: 20px; }
+                    .details div { margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+                    .total { font-size: 20px; font-weight: 800; color: #16a34a; margin: 20px 0; border: 2px solid #16a34a; padding: 10px; border-radius: 8px; }
+                    .footer { font-size: 11px; color: #64748b; margin-top: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${clinicDataGlobal?.nombre || 'Clínica'}</h1>
+                    <div>RUC: ${clinicDataGlobal?.ruc || 'N/A'}</div>
+                    <div>${clinicDataGlobal?.direccion || ''}</div>
+                    <div>Tel: ${clinicDataGlobal?.telefono || ''}</div>
+                </div>
+                <h2>COMPROBANTE DE PAGO</h2>
+                <div class="details">
+                    <div><b>Fecha:</b> ${fechaStr}</div>
+                    <div><b>Paciente:</b> ${patientName}</div>
+                    <div><b>Concepto:</b> ${motivo || 'Sesión Médica'}</div>
+                </div>
+                <div class="total">
+                    TOTAL: $${Number(total).toFixed(2)}
+                </div>
+                <div class="footer">
+                    ¡Gracias por su confianza!<br>
+                    Este documento es un comprobante de abono/pago de servicios.
+                </div>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
     function imprimirPlanFisio() {
         const patientName = document.getElementById('rxPatientName').textContent;
         const diag = document.getElementById('rxDiagnostico').value || 'Sin diagnóstico ingresado.';
@@ -2264,15 +2346,7 @@
         printWindow.document.close();
     }
 
-    // ── BILLING ──
-    function calculateTotal() {
-        const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
-        const iva = document.getElementById('billingIva').checked ? sub*0.15 : 0;
-        document.getElementById('billingTotalDisplay').textContent = `$${(sub+iva).toFixed(2)}`;
-    }
-
-    function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
-
+    // 🔥 COBRO DESDE LA AGENDA (ACTUALIZADO CON DESCUENTO DE DEUDA AUTOMÁTICO) 🔥
     async function submitBilling() {
         const aptId = document.getElementById('billingAptId').value;
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
@@ -2280,21 +2354,48 @@
         const total = sub+iva;
         const btn = document.getElementById('btnFinalizarCobro');
         btn.disabled=true; btn.textContent='Enviando Comprobante...';
+        
         try {
             await db.collection('appointments').doc(aptId).update({ estado:'completada', monto: total, fechaCobro: new Date() });
             
             const apt = appointments.find(a=>a.id===aptId);
             const p = patients.find(x=>x.id===apt?.patientId);
+            
+            // 💡 MAGIA: BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO)
+            const planActivo = planesPago.find(x => x.patientId === p.id && x.estado === 'activo');
+            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
+            
+            if (planActivo) {
+                // Si tiene deuda, la descontamos automáticamente
+                const nuevoSaldo = Math.max(0, planActivo.saldoPendiente - total);
+                const estadoPlan = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
+                const nuevasCuotas = planActivo.cuotasPagadas + 1;
+                
+                await db.collection('planes_pago').doc(planActivo.id).update({
+                    saldoPendiente: nuevoSaldo,
+                    cuotasPagadas: nuevasCuotas,
+                    estado: estadoPlan
+                });
+                
+                // Mensaje WA modificado para deuda
+                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+            }
+
+            // Abrir el Comprobante de Pago en PDF
+            imprimirComprobantePago(p.nombre, total, apt.motivo);
+
+            // Enviar WhatsApp oficial
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.` })
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
             }
             
             closeBillingModal();
             mostrarMensaje(`Cobro de $${total.toFixed(2)} registrado. Comprobante enviado.`, 'success');
             await loadAppointments();
+            if (planActivo) await loadPlanesPago(); // Actualizar finanzas en tiempo real
         } catch(e) { alert('Error registrando cobro.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Finalizar y Enviar`; }
     }
@@ -2433,7 +2534,7 @@
         });
     };
 
-        function openMetaModal() { 
+    function openMetaModal() { 
         document.getElementById('metaModal').classList.remove('hidden'); 
         checkWhatsappStatus(); 
     }
@@ -2589,6 +2690,13 @@
         document.getElementById('clinicColor').value = clinicDataGlobal?.color||'#0f766e';
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
+        
+        // NUEVO
+        document.getElementById('hAlmuerzoInicio').value = clinicDataGlobal?.almuerzoInicio||'13:00';
+        document.getElementById('hAlmuerzoFin').value = clinicDataGlobal?.almuerzoFin||'14:00';
+        document.getElementById('duracionCita').value = clinicDataGlobal?.duracionCita||'30';
+        // FIN NUEVO
+        
         renderHolidayCalendar(); 
         document.getElementById('settingsModal').classList.remove('hidden');
     }
@@ -2618,6 +2726,13 @@
             color: document.getElementById('clinicColor').value,
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
+            
+            // NUEVO
+            almuerzoInicio: document.getElementById('hAlmuerzoInicio').value,
+            almuerzoFin: document.getElementById('hAlmuerzoFin').value,
+            duracionCita: document.getElementById('duracionCita').value,
+            // FIN NUEVO
+            
             diasNoLaborables: holidays, 
             logo: logoUrl
         };
