@@ -113,8 +113,8 @@
         /* ── Main ── */
         #appMain { 
             margin-left: var(--sidebar-w); 
-            flex: 1; /* Obliga a usar todo el espacio */
-            width: calc(100% - var(--sidebar-w)); /* Fuerza el ancho exacto */
+            flex: 1; 
+            width: calc(100% - var(--sidebar-w)); 
             height: 100vh; 
             display: flex; 
             flex-direction: column; 
@@ -372,7 +372,7 @@
                 Configuración
             </button>
             <button onclick="auth.signOut()" class="sb-action danger">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013-3v1"/></svg>
                 Cerrar Sesión
             </button>
         </div>
@@ -387,7 +387,7 @@
             <div style="display:flex;align-items:center;gap:12px;">
                 <span class="topbar-tag">
                     <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    Módulo Odontológico
+                    Módulo Odontología
                 </span>
                 <span class="topbar-meta" id="topbarDate"></span>
             </div>
@@ -1092,41 +1092,41 @@
     <div class="modal-box" style="width:100%;max-width:420px;">
         <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));">
             <div>
-                <div class="modal-title" style="color:white;">Meta Omnicanal</div>
-                <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">IA en todas tus redes</div>
+                <div class="modal-title" style="color:white;">WhatsApp Asistencitas IA</div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">Conexión directa vía Meta Cloud API</div>
             </div>
             <button onclick="closeMetaModal()" class="modal-close-btn" style="color:rgba(255,255,255,0.7);">&times;</button>
         </div>
-        <div class="modal-bd" style="background:#f8fafc;">
-            <div style="display:flex;flex-direction:column;gap:10px;">
-                <div style="background:white;border:1px solid #bbf7d0;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📱</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">WhatsApp Business</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;">Conectado ✓</span>
+        
+        <div class="modal-bd" style="background:#f8fafc; text-align:center;">
+            <div id="waDisconnectedView" style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+                <p style="font-size:13px; color:var(--txt2); font-weight:600; margin:0; text-align:center;">
+                    Conecta tu número directamente con los servidores de WhatsApp para activar la IA.
+                </p>
+                <div style="width:240px; height:180px; background:white; border:2px dashed var(--border); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
+                    <svg width="40" height="40" fill="none" stroke="#06b6d4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    <span style="color:var(--txt3); font-weight:700; font-size:12px; text-align:center; padding:0 10px;">
+                        Soporte oficial Cloud API (Embedded Signup)
+                    </span>
                 </div>
-                <div style="background:white;border:1px solid #bfdbfe;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">💬</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Facebook Messenger</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">Conectado ✓</span>
-                </div>
-                <div style="background:white;border:1px solid #fecaca;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#fef2f2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📸</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Instagram Direct</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Desconectado</span>
-                </div>
+                <button id="btnConectarMeta" onclick="launchMetaEmbeddedSignup()" class="btn btn-primary btn-md btn-full" style="max-width:240px;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    Vincular WhatsApp
+                </button>
             </div>
-        </div>
-        <div style="padding:14px 26px;border-top:1px solid var(--border);background:white;">
-            <button id="btnMetaConnect" onclick="iniciarConexionMeta()" class="btn btn-primary btn-md btn-full">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                Vincular Facebook / WhatsApp
-            </button>
+
+            <div id="waConnectedView" class="hidden" style="display:none; flex-direction:column; align-items:center; gap:16px;">
+                <div style="width:64px; height:64px; background:#ecfeff; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #a5f3fc;">
+                    <svg width="32" height="32" fill="none" stroke="#0891b2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:var(--txt1); margin:0 0 4px;">WhatsApp Vinculado</h3>
+                    <p style="font-size:13px; color:var(--txt2); margin:0;">El asistente de Inteligencia Artificial está operando de forma estable vía Cloud API.</p>
+                </div>
+                <button onclick="desvincularWa()" class="btn btn-secondary btn-md" style="color:#dc2626; border-color:#fecaca; background:#fef2f2; margin-top:8px;">
+                    Desvincular Integración
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -1171,6 +1171,23 @@
                             <input type="time" id="hInicio" class="finput" style="flex:1;">
                             <span style="font-size:12px;font-weight:700;color:var(--txt2);">hasta</span>
                             <input type="time" id="hFin" class="finput" style="flex:1;">
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">Almuerzo:</span>
+                            <input type="time" id="hAlmuerzoInicio" class="finput" style="flex:1;" title="Inicio de almuerzo">
+                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">a</span>
+                            <input type="time" id="hAlmuerzoFin" class="finput" style="flex:1;" title="Fin de almuerzo">
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label class="flabel" style="color:var(--accent-dark);">Duración por Cita</label>
+                            <select id="duracionCita" class="finput">
+                                <option value="15">15 minutos</option>
+                                <option value="30">30 minutos</option>
+                                <option value="45">45 minutos</option>
+                                <option value="60">1 hora</option>
+                                <option value="90">1 hora y media</option>
+                                <option value="120">2 horas</option>
+                            </select>
                         </div>
                     </div>
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
@@ -1217,8 +1234,8 @@
             el.textContent = d.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
         }
     })();
-    // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
 
+    // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
     window.fbAsyncInit = function() {
         FB.init({
             appId      : '2479673065791422', 
@@ -1228,16 +1245,13 @@
         });
     };
 
-    (function(d, s, id){
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {return;}
-        js = d.createElement(s); js.id = id;
-        js.src = "https://connect.facebook.net/es_LA/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
+    function launchMetaEmbeddedSignup() {
+        if (typeof FB === 'undefined') {
+            mostrarMensaje('El script de Meta no se ha cargado. Revisa tu conexión a internet o bloqueador de anuncios.', 'error');
+            return;
+        }
 
-    function iniciarConexionMeta() {
-        const btn = document.getElementById('btnMetaConnect');
+        const btn = document.getElementById('btnConectarMeta');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
         btn.disabled = true;
 
@@ -1247,17 +1261,20 @@
                 guardarCredencialesMetaEnBackend(codigoOauth);
             } else {
                 mostrarMensaje('Conexión cancelada por el usuario.', 'error');
-                btn.innerHTML = 'Vincular Facebook / WhatsApp';
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
                 btn.disabled = false;
             }
         }, {
-            config_id: '4347842542212616', 
+            config_id: '1020182057736220', 
             response_type: 'code',
             override_default_response_type: true,
+            scope: 'whatsapp_business_management,whatsapp_business_messaging', 
             extras: { 
+                featureType: 'whatsapp_business_app_onboarding',
+                sessionInfoVersion: '3',
                 setup: {
                     prefetched_profile: {
-                        name: document.getElementById('clinicName').value || 'Clínica Veterinaria'
+                        name: document.getElementById('clinicName').value || 'Clínica Odontológica'
                     }
                 } 
             }
@@ -1265,31 +1282,83 @@
     }
     
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
-        const btn = document.getElementById('btnMetaConnect');
+        const btn = document.getElementById('btnConectarMeta');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
         
         try {
-            const res = await fetch(`${API_BASE_URL}/api/meta/oauth`, {
+            const res = await fetch(`${API_BASE_URL}/api/meta/exchange-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ doctorId: parentDoctorId, code: codigoOauth })
+                body: JSON.stringify({ doctorId: parentDoctorId, authCode: codigoOauth })
             });
             const data = await res.json();
             
             if(data.success) {
-                mostrarMensaje('¡Cuentas de Meta vinculadas con éxito!', 'success');
-                closeMetaModal();
+                mostrarMensaje('¡WhatsApp vinculado exitosamente con Cloud API!', 'success');
+                clinicDataGlobal.metaPhoneId = data.metaPhoneId; 
+                clinicDataGlobal.fbPageToken = data.fbPageToken;
+                actualizarUiWa(true); 
             } else {
                 throw new Error(data.error);
             }
         } catch(e) {
             mostrarMensaje('Error guardando credenciales: ' + e.message, 'error');
-        } finally {
-            btn.innerHTML = 'Vincular Facebook / WhatsApp';
+            btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
             btn.disabled = false;
         }
     }
 
+    async function desvincularWa() {
+        if(!confirm("¿Seguro que deseas desvincular la Inteligencia Artificial de tu WhatsApp?")) return;
+        try {
+            await fetch(`${API_BASE_URL}/api/meta/desvincular`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ doctorId: parentDoctorId })
+            });
+            mostrarMensaje('Integración desvinculada.', 'success');
+            clinicDataGlobal.metaPhoneId = null;
+            clinicDataGlobal.fbPageToken = null;
+            actualizarUiWa(false);
+        } catch(e) {
+            mostrarMensaje('Error al desvincular.', 'error');
+        }
+    }
+
+    function openMetaModal() { 
+        document.getElementById('metaModal').classList.remove('hidden'); 
+        checkWhatsappStatus(); 
+    }
+    
+    function closeMetaModal() { 
+        document.getElementById('metaModal').classList.add('hidden'); 
+    }
+
+    async function checkWhatsappStatus() {
+        if(!parentDoctorId) return;
+        const isConnected = clinicDataGlobal && clinicDataGlobal.metaPhoneId;
+        actualizarUiWa(isConnected);
+    }
+
+    function actualizarUiWa(isConnected) {
+        const vDisc = document.getElementById('waDisconnectedView');
+        const vConn = document.getElementById('waConnectedView');
+        const btn = document.getElementById('btnConectarMeta');
+        
+        if(isConnected) {
+            vDisc.style.display = 'none';
+            vConn.style.display = 'flex';
+        } else {
+            vDisc.style.display = 'flex';
+            vConn.style.display = 'none';
+            if(btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
+            }
+        }
+    }
+
+    // ── CONFIGURACIÓN FIREBASE ──
     const API_BASE_URL = "https://api.asistencitas.com";
     const firebaseConfig = {
         apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc",
@@ -1340,6 +1409,7 @@
             if (userDoc.exists) {
                 const data = userDoc.data();
                 
+                // LÓGICA DE AUTO-SUSPENSIÓN Y BADGE
                 if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
                     const ahora = new Date();
                     const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
@@ -1363,6 +1433,8 @@
                 }
                 parentDoctorId = user.uid;
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'odontologia' };
+                clinicDataGlobal.metaPhoneId = data.metaPhoneId;
+                clinicDataGlobal.fbPageToken = data.fbPageToken;
                 holidays = clinicDataGlobal.diasNoLaborables || [];
 
                 if (data.estadoSuscripcion === 'suspendido') {
@@ -1566,7 +1638,7 @@
         }
     }
 
-    // ── NUEVO: FULLCALENDAR INTEGRATION ──
+    // ── FULLCALENDAR INTEGRATION ──
     function renderFullCalendar() {
         const calendarEl = document.getElementById('calendarDiv');
         if (!calendarEl) return;
@@ -1674,15 +1746,18 @@
         document.getElementById('payInstallmentModal').classList.remove('hidden');
     }
 
+    // 🔥 PAGO DESDE FINANZAS (CON COMPROBANTE PDF Y WA) 🔥
     async function submitInstallmentPayment() {
         const planId = document.getElementById('installPlanId').value;
         const amount = parseFloat(document.getElementById('installAmount').value);
         if(!amount || amount <= 0) return alert("Ingresa un monto válido.");
         const plan = planesPago.find(x => x.id === planId);
         if(amount > plan.saldoPendiente) return alert("El monto no puede ser mayor al saldo.");
+        
         const nuevoSaldo = plan.saldoPendiente - amount;
         const nuevasCuotas = plan.cuotasPagadas + 1;
         const estado = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
+        
         try {
             await db.collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
             await db.collection('appointments').add({
@@ -1692,6 +1767,21 @@
                 motivo: `Abono Cuota ${nuevasCuotas}/${plan.totalCuotas}`,
                 monto: amount, estado: 'completada', fechaCreacion: new Date()
             });
+
+            const p = patients.find(x => x.id === plan.patientId);
+            const pName = p ? p.nombre : 'Paciente';
+            
+            // Generar Comprobante PDF
+            imprimirComprobantePago(pName, amount, `Abono de tratamiento (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
+
+            if(p && p.telefonoWhatsApp) {
+                const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Dental'}\n\n👤 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+                await fetch(`${API_BASE_URL}/send-message`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
+                });
+            }
+
             document.getElementById('payInstallmentModal').classList.add('hidden');
             mostrarMensaje(`Abono de $${amount.toFixed(2)} registrado exitosamente.`, 'success');
             await loadPlanesPago();
@@ -2297,7 +2387,53 @@
         finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
 
-    // ── FUNCIONES DE IMPRESIÓN ──
+    // ── FUNCIONES DE IMPRESIÓN PDF / RECIBOS ──
+    function imprimirComprobantePago(patientName, total, motivo) {
+        const printWindow = window.open('', '_blank', 'width=400,height=600');
+        const fechaStr = new Date().toLocaleDateString('es-ES') + ' ' + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Comprobante de Pago - ${patientName}</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px; color: #1f2937; line-height: 1.5; font-size: 14px; text-align: center; }
+                    .header { border-bottom: 2px dashed #e5e7eb; padding-bottom: 15px; margin-bottom: 15px; }
+                    h1 { color: #0891b2; margin: 0 0 5px 0; font-size: 18px; text-transform: uppercase; }
+                    .details { text-align: left; margin-bottom: 20px; }
+                    .details div { margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+                    .total { font-size: 20px; font-weight: 800; color: #06b6d4; margin: 20px 0; border: 2px solid #06b6d4; padding: 10px; border-radius: 8px; }
+                    .footer { font-size: 11px; color: #64748b; margin-top: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${clinicDataGlobal?.nombre || 'Clínica Dental'}</h1>
+                    <div>RUC: ${clinicDataGlobal?.ruc || 'N/A'}</div>
+                    <div>${clinicDataGlobal?.direccion || ''}</div>
+                    <div>Tel: ${clinicDataGlobal?.telefono || ''}</div>
+                </div>
+                <h2>COMPROBANTE DE CAJA</h2>
+                <div class="details">
+                    <div><b>Fecha:</b> ${fechaStr}</div>
+                    <div><b>Paciente:</b> ${patientName}</div>
+                    <div><b>Concepto:</b> ${motivo || 'Servicios Odontológicos'}</div>
+                </div>
+                <div class="total">
+                    TOTAL: $${Number(total).toFixed(2)}
+                </div>
+                <div class="footer">
+                    ¡Gracias por su confianza!<br>
+                    Este documento es un comprobante de abono/pago de servicios.
+                </div>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
     function imprimirRecetaDental() {
         const patientName = document.getElementById('rxPatientName').textContent;
         const motivo = document.getElementById('mspMotivo').value || '';
@@ -2421,15 +2557,7 @@
         printWindow.document.close();
     }
 
-    // ── BILLING ──
-    function calculateTotal() {
-        const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
-        const iva = document.getElementById('billingIva').checked ? sub*0.15 : 0;
-        document.getElementById('billingTotalDisplay').textContent = `$${(sub+iva).toFixed(2)}`;
-    }
-
-    function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
-
+    // 🔥 COBRO DESDE AGENDA MÉDICA CON DESCUENTO DE DEUDAS AUTOMÁTICO 🔥
     async function submitBilling() {
         const aptId = document.getElementById('billingAptId').value;
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
@@ -2437,170 +2565,53 @@
         const total = sub+iva;
         const btn = document.getElementById('btnFinalizarCobro');
         btn.disabled=true; btn.textContent='Enviando Comprobante...';
+        
         try {
             await db.collection('appointments').doc(aptId).update({ estado:'completada', monto: total, fechaCobro: new Date() });
             
             const apt = appointments.find(a=>a.id===aptId);
             const p = patients.find(x=>x.id===apt?.patientId);
+            
+            // BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO - ej. ORTODONCIA)
+            const planActivo = planesPago.find(x => x.patientId === p.id && x.estado === 'activo');
+            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Dental'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
+            
+            if (planActivo) {
+                // Si tiene deuda, la descontamos automáticamente
+                const nuevoSaldo = Math.max(0, planActivo.saldoPendiente - total);
+                const estadoPlan = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
+                const nuevasCuotas = planActivo.cuotasPagadas + 1;
+                
+                await db.collection('planes_pago').doc(planActivo.id).update({
+                    saldoPendiente: nuevoSaldo,
+                    cuotasPagadas: nuevasCuotas,
+                    estado: estadoPlan
+                });
+                
+                // Mensaje WA modificado para deuda
+                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Dental'}\n\n👤 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+            }
+
+            // Abrir el Comprobante de Pago en PDF
+            imprimirComprobantePago(p.nombre, total, apt.motivo);
+
+            // Enviar WhatsApp oficial
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Dental'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.` })
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
             }
             
             closeBillingModal();
             mostrarMensaje(`Cobro de $${total.toFixed(2)} registrado. Comprobante enviado.`, 'success');
             await loadAppointments();
+            if (planActivo) await loadPlanesPago(); // Actualizar finanzas en tiempo real
         } catch(e) { alert('Error registrando cobro.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Finalizar y Enviar`; }
     }
 
-    // ── HISTORY ──
-    async function openHistoryModal(patientId) {
-        if(!patientId) return;
-        currentPatientIdForImages = patientId;
-        const p = patients.find(x=>x.id===patientId);
-        document.getElementById('historyPatientInfo').textContent = `${p?.nombre||''} · CI: ${p?.cedula||'N/A'}`;
-        document.getElementById('historyModal').classList.remove('hidden');
-        document.getElementById('historyTimeline').innerHTML = '<div style="display:flex;justify-content:center;padding:32px;"><div class="spinner"></div></div>';
-        try {
-            const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
-            if(snap.empty) {
-                document.getElementById('historyTimeline').innerHTML = '<p style="text-align:center;color:#94a3b8;font-weight:600;font-size:13px;padding:32px;">Sin historial clínico registrado.</p>';
-            } else {
-                const docs = snap.docs;
-                let timelineHtml = '';
-                for(let i=docs.length-1;i>=0;i--) {
-                    const d = docs[i].data();
-                    const dateObj = d.fecha.toDate ? d.fecha.toDate() : new Date(d.fecha);
-                    const dateStr = dateObj.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
-                    
-                    let vStr='';
-                    if(d.pieza) vStr+=`Pieza Dental: ${d.pieza} | `;
-                    if(d.alergias) vStr+=`Alergias: ${d.alergias}`;
-                    
-                    let recsHtml='';
-                    if(d.recomendaciones&&d.recomendaciones.length>0) {
-                        recsHtml=`<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;margin-top:10px;">
-                            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:#c2410c;margin-bottom:5px;">Recomendaciones / Plan</div>
-                            ${d.recomendaciones.map(r=>`<div style="font-size:12px;color:#92400e;font-weight:600;margin-bottom:2px;">• ${r}</div>`).join('')}
-                        </div>`;
-                    }
-                    
-                    let diagHtml=(d.diagnostico||'Sin registro.').replace(/\n/g,'<br>');
-                    
-                    timelineHtml+=`<div style="background:white;border:1px solid #e2e8f0;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 16px; margin-bottom:10px;">
-                        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;">📅 ${dateStr}</div>
-                        <div style="font-size:13px;color:#374151;font-weight:600;line-height:1.5;">${diagHtml}</div>
-                        ${vStr?`<div style="font-size:11.5px;color:#64748b;font-weight:700;margin-top:6px;">${vStr}</div>`:''}
-                        ${recsHtml}
-                    </div>`;
-                }
-                document.getElementById('historyTimeline').innerHTML = timelineHtml;
-            }
-        } catch(e) { document.getElementById('historyTimeline').innerHTML='<p style="text-align:center;color:#dc2626;font-weight:600;">Error cargando historial.</p>'; }
-        loadPatientImages(patientId);
-    }
-
-    function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); }
-
-    async function uploadPatientImage(input) {
-        const file = input.files[0]; if(!file||!currentPatientIdForImages) return;
-        const btn = document.getElementById('btnUploadImg'); btn.textContent='Subiendo...'; btn.disabled=true;
-        try {
-            const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
-            await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
-            await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({ url, nombre: file.name, fechaCreacion: new Date() });
-            loadPatientImages(currentPatientIdForImages);
-        } catch(e) { alert('Error subiendo archivo'); }
-        finally { btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Subir archivo'; btn.disabled=false; input.value=''; }
-    }
-
-    async function loadPatientImages(pid) {
-        const gal = document.getElementById('patientImagesGallery');
-        gal.innerHTML = '<div style="display:flex;justify-content:center;grid-column:span 3;padding:16px;"><div class="spinner"></div></div>';
-        try {
-            const snap = await db.collection('patients').doc(pid).collection('images').orderBy('fechaCreacion','desc').get();
-            if(snap.empty) return gal.innerHTML='<p style="font-size:12px;color:#94a3b8;font-weight:600;grid-column:span 3;text-align:center;padding:16px;">No hay archivos adjuntos.</p>';
-            gal.innerHTML = snap.docs.map(doc => {
-                const data=doc.data(); const isPDF=data.nombre.toLowerCase().endsWith('.pdf');
-                return isPDF
-                    ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;text-align:center;cursor:pointer;" onclick="window.open('${data.url}')"><div style="font-size:26px;">📄</div><div style="font-size:9px;font-weight:700;color:#dc2626;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;">${data.nombre}</div></div>`
-                    : `<div style="cursor:pointer;overflow:hidden;border-radius:8px;border:1px solid #e2e8f0;" onclick="window.open('${data.url}')"><img src="${data.url}" style="width:100%;height:70px;object-fit:cover;display:block;"></div>`;
-            }).join('');
-        } catch(e) { gal.innerHTML='<p style="font-size:12px;color:#dc2626;font-weight:600;">Error al cargar archivos.</p>'; }
-    }
-
-    // ── PROMOTIONS ──
-    function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
-    function closePromotionsModal() { document.getElementById('promotionsModal').classList.add('hidden'); }
-
-    async function sendPromotion() {
-        const targeting = document.getElementById('promoTargeting').value || 'A todos';
-        const message = document.getElementById('promoMessage').value;
-        if(!message) return alert("Escribe un mensaje publicitario.");
-        
-        const btn = document.getElementById('btnSendPromo');
-        btn.textContent='Enviando...'; btn.disabled=true;
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({ doctorId: parentDoctorId, mensajePromocion: message, instruccionesIA: targeting })
-            });
-            const data = await res.json();
-            if(data.success) {
-                mostrarMensaje(`Campaña enviada a ${data.enviados} pacientes exitosamente.`, 'success');
-                closePromotionsModal();
-            } else {
-                throw new Error(data.error);
-            }
-        } catch(e) { alert('Error enviando campaña: ' + e.message); }
-        finally { btn.textContent='Enviar Inteligente ✦'; btn.disabled=false; }
-    }
-
-    // ── META ──
-    function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
-    function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
-
-    // ── CALENDARIO DIDÁCTICO Y SETTINGS ──
-    function renderHolidayCalendar() {
-        const grid = document.getElementById('calDaysGrid');
-        const monthLabel = document.getElementById('calMonthLabel');
-        if(!grid) return;
-        grid.innerHTML = '';
-        
-        const year = currentCalDate.getFullYear();
-        const month = currentCalDate.getMonth();
-        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
-        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const isHoliday = holidays.includes(dateStr);
-            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
-        }
-    }
-
-    function toggleHoliday(dateStr) {
-        if (holidays.includes(dateStr)) {
-            holidays = holidays.filter(d => d !== dateStr);
-        } else {
-            holidays.push(dateStr);
-        }
-        renderHolidayCalendar();
-    }
-
-    function changeCalMonth(dir) {
-        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
-        renderHolidayCalendar();
-    }
-
+    // ── CONFIGURACIÓN (CON HORARIOS NUEVOS) ──
     function openSettingsModal() {
         document.getElementById('clinicName').value = clinicDataGlobal?.nombre||'';
         document.getElementById('clinicRuc').value = clinicDataGlobal?.ruc||'';
@@ -2609,6 +2620,12 @@
         document.getElementById('clinicColor').value = clinicDataGlobal?.color||'#0891b2';
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
+        
+        // 💡 NUEVOS CAMPOS CARGADOS DESDE FIREBASE
+        document.getElementById('hAlmuerzoInicio').value = clinicDataGlobal?.almuerzoInicio||'13:00';
+        document.getElementById('hAlmuerzoFin').value = clinicDataGlobal?.almuerzoFin||'14:00';
+        document.getElementById('duracionCita').value = clinicDataGlobal?.duracionCita||'30';
+        
         renderHolidayCalendar(); 
         document.getElementById('settingsModal').classList.remove('hidden');
     }
@@ -2638,6 +2655,12 @@
             color: document.getElementById('clinicColor').value,
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
+            
+            // 💡 NUEVOS CAMPOS ENVIADOS A FIREBASE
+            almuerzoInicio: document.getElementById('hAlmuerzoInicio').value,
+            almuerzoFin: document.getElementById('hAlmuerzoFin').value,
+            duracionCita: document.getElementById('duracionCita').value,
+            
             diasNoLaborables: holidays, 
             logo: logoUrl
         };
