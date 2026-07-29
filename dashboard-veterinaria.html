@@ -179,7 +179,7 @@
 
         /* ── Table ── */
         .dtable { width: 100%; border-collapse: collapse; }
-        .dtable thead th { background: #f8fafc; color: var(--txt2); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 11px 20px; border-bottom: 1px solid var(--border); text-align: left; position: sticky; top: 0; z-index: 10; }
+        .dtable thead th { background: #f8fafc; color: var(--txt2); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 11px 20px; border-bottom: 1px solid var(--border); text-align: left; position: sticky; top: 0; z-index: 10;}
         .dtable tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
         .dtable tbody tr:hover { background: #f8fafc; }
         .dtable tbody td { padding: 13px 20px; font-size: 13.5px; color: var(--txt1); }
@@ -246,7 +246,7 @@
         .fc-theme-standard th { background: #f8fafc; padding: 8px 0; color: var(--txt2); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
         .fc-scrollgrid { border-color: var(--border) !important; }
 
-        /* 🔥 ESTILOS CALENDARIO INTERACTIVO 🔥 */
+        /* 🔥 ESTILOS CALENDARIO INTERACTIVO (DÍAS NO LABORABLES) 🔥 */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
         .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
@@ -366,7 +366,7 @@
                 Mi Link de Reservas
             </button>
             <button onclick="openSettingsModal()" class="sb-action">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
                 Configuración
             </button>
             <button onclick="auth.signOut()" class="sb-action danger">
@@ -1092,35 +1092,34 @@
             <button onclick="closeMetaModal()" class="modal-close-btn" style="color:rgba(255,255,255,0.7);">&times;</button>
         </div>
         <div class="modal-bd" style="background:#f8fafc;">
-            <div style="display:flex;flex-direction:column;gap:10px;">
-                <div style="background:white;border:1px solid #bbf7d0;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📱</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">WhatsApp Business</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;">Conectado ✓</span>
+            <div id="waDisconnectedView" style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+                <p style="font-size:13px; color:var(--txt2); font-weight:600; margin:0; text-align:center;">
+                    Conecta tu número directamente con los servidores de WhatsApp para activar la IA.
+                </p>
+                <div style="width:240px; height:180px; background:white; border:2px dashed var(--border); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
+                    <svg width="40" height="40" fill="none" stroke="#4f46e5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    <span style="color:var(--txt3); font-weight:700; font-size:12px; text-align:center; padding:0 10px;">
+                        Soporte oficial Cloud API (Embedded Signup)
+                    </span>
                 </div>
-                <div style="background:white;border:1px solid #bfdbfe;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">💬</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Facebook Messenger</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">Conectado ✓</span>
-                </div>
-                <div style="background:white;border:1px solid #fecaca;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#fef2f2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📸</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Instagram Direct</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Desconectado</span>
-                </div>
+                <button id="btnConectarMeta" onclick="launchMetaEmbeddedSignup()" class="btn btn-primary btn-md btn-full" style="max-width:240px;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    Vincular WhatsApp
+                </button>
             </div>
-        </div>
-        <div style="padding:14px 26px;border-top:1px solid var(--border);background:white;">
-            <button id="btnMetaConnect" onclick="iniciarConexionMeta()" class="btn btn-primary btn-md btn-full">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                Vincular Facebook / WhatsApp
-            </button>
+
+            <div id="waConnectedView" class="hidden" style="display:none; flex-direction:column; align-items:center; gap:16px;">
+                <div style="width:64px; height:64px; background:#e0e7ff; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #c7d2fe;">
+                    <svg width="32" height="32" fill="none" stroke="#4338ca" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:var(--txt1); margin:0 0 4px;">WhatsApp Vinculado</h3>
+                    <p style="font-size:13px; color:var(--txt2); margin:0;">El asistente de Inteligencia Artificial está operando de forma estable vía Cloud API.</p>
+                </div>
+                <button onclick="desvincularWa()" class="btn btn-secondary btn-md" style="color:#dc2626; border-color:#fecaca; background:#fef2f2; margin-top:8px;">
+                    Desvincular Integración
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -1166,9 +1165,27 @@
                             <span style="font-size:12px;font-weight:700;color:var(--txt2);">hasta</span>
                             <input type="time" id="hFin" class="finput" style="flex:1;">
                         </div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">Almuerzo:</span>
+                            <input type="time" id="hAlmuerzoInicio" class="finput" style="flex:1;" title="Inicio de almuerzo">
+                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">a</span>
+                            <input type="time" id="hAlmuerzoFin" class="finput" style="flex:1;" title="Fin de almuerzo">
+                        </div>
+                        <div style="margin-top:10px;">
+                            <label class="flabel" style="color:var(--accent-dark);">Duración por Cita</label>
+                            <select id="duracionCita" class="finput">
+                                <option value="15">15 minutos</option>
+                                <option value="30">30 minutos</option>
+                                <option value="45">45 minutos</option>
+                                <option value="60">1 hora</option>
+                                <option value="90">1 hora y media</option>
+                                <option value="120">2 horas</option>
+                            </select>
+                        </div>
                     </div>
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
+                        
                         <div id="holidayCalendar" class="mt-2 bg-white border border-slate-200 rounded-lg p-3">
                             <div class="flex justify-between items-center mb-3">
                                 <button type="button" onclick="changeCalMonth(-1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">◀</button>
@@ -1222,7 +1239,7 @@
     // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
     window.fbAsyncInit = function() {
         FB.init({
-            appId      : '2479673065791422', // ⚠️ PON AQUÍ EL ID DE TU APP DE META
+            appId      : '2479673065791422', 
             cookie     : true,
             xfbml      : true,
             version    : 'v18.0'
@@ -1248,14 +1265,17 @@
                 guardarCredencialesMetaEnBackend(codigoOauth);
             } else {
                 mostrarMensaje('Conexión cancelada por el usuario.', 'error');
-                btn.innerHTML = 'Vincular Facebook / WhatsApp';
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
                 btn.disabled = false;
             }
         }, {
             config_id: '4347842542212616', 
             response_type: 'code',
             override_default_response_type: true,
+            scope: 'whatsapp_business_management,whatsapp_business_messaging',
             extras: { 
+                featureType: 'whatsapp_business_app_onboarding',
+                sessionInfoVersion: '3',
                 setup: {
                     prefetched_profile: {
                         name: document.getElementById('clinicName').value || 'Clínica Veterinaria'
@@ -1270,27 +1290,75 @@
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
         
         try {
-            const res = await fetch(`${API_BASE_URL}/api/meta/oauth`, {
+            const res = await fetch(`${API_BASE_URL}/api/meta/exchange-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    doctorId: parentDoctorId,
-                    code: codigoOauth
-                })
+                body: JSON.stringify({ doctorId: parentDoctorId, authCode: codigoOauth })
             });
             const data = await res.json();
             
             if(data.success) {
-                mostrarMensaje('¡Cuentas de Meta vinculadas con éxito!', 'success');
-                closeMetaModal();
+                mostrarMensaje('¡WhatsApp vinculado exitosamente con Cloud API!', 'success');
+                clinicDataGlobal.metaPhoneId = data.metaPhoneId; 
+                clinicDataGlobal.fbPageToken = data.fbPageToken;
+                actualizarUiWa(true); 
             } else {
                 throw new Error(data.error);
             }
         } catch(e) {
             mostrarMensaje('Error guardando credenciales: ' + e.message, 'error');
-        } finally {
-            btn.innerHTML = 'Vincular Facebook / WhatsApp';
+            btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
             btn.disabled = false;
+        }
+    }
+
+    async function desvincularWa() {
+        if(!confirm("¿Seguro que deseas desvincular la Inteligencia Artificial de tu WhatsApp?")) return;
+        try {
+            await fetch(`${API_BASE_URL}/api/meta/desvincular`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ doctorId: parentDoctorId })
+            });
+            mostrarMensaje('Integración desvinculada.', 'success');
+            clinicDataGlobal.metaPhoneId = null;
+            clinicDataGlobal.fbPageToken = null;
+            actualizarUiWa(false);
+        } catch(e) {
+            mostrarMensaje('Error al desvincular.', 'error');
+        }
+    }
+
+    function openMetaModal() { 
+        document.getElementById('metaModal').classList.remove('hidden'); 
+        checkWhatsappStatus(); 
+    }
+    
+    function closeMetaModal() { 
+        document.getElementById('metaModal').classList.add('hidden'); 
+    }
+
+    async function checkWhatsappStatus() {
+        if(!parentDoctorId) return;
+        const isConnected = clinicDataGlobal && clinicDataGlobal.metaPhoneId;
+        actualizarUiWa(isConnected);
+    }
+
+    function actualizarUiWa(isConnected) {
+        const vDisc = document.getElementById('waDisconnectedView');
+        const vConn = document.getElementById('waConnectedView');
+        const btn = document.getElementById('btnConectarMeta');
+        
+        if(isConnected) {
+            vDisc.style.display = 'none';
+            vConn.style.display = 'flex';
+        } else {
+            vDisc.style.display = 'flex';
+            vConn.style.display = 'none';
+            if(btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
+            }
         }
     }
 
@@ -1313,7 +1381,7 @@
     setTimeout(() => {
         const overlay = document.getElementById('authCheckOverlay');
         if(overlay) overlay.style.display = 'none';
-    }, 3500);
+    }, 3000);
 
     let parentDoctorId = null;
     let clinicDataGlobal = null;
@@ -1324,10 +1392,10 @@
     let currentPatientIdForImages = null;
     let vitalsChartInstance = null;
     let editPatientId = null;
-    
+
     let holidays = [];
     let currentCalDate = new Date();
-    let calendarInstance = null; 
+    let calendarInstance = null; // FullCalendar
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1416,7 +1484,7 @@
         }
     }
 
-    // ── TABS ──
+    // ── TABS NAVEGACIÓN ──
     function switchTab(tabId) {
         const tabs = ['dashboard', 'agenda', 'calendario', 'pacientes', 'finanzas', 'insumos'];
         const titles = {
@@ -1440,8 +1508,114 @@
         if(tabId === 'dashboard') updateDashboardStats();
         if(tabId === 'finanzas') renderPlanesPago();
         if(tabId === 'calendario') {
-            setTimeout(() => { renderFullCalendar(); }, 50); 
+            setTimeout(() => { renderFullCalendar(); }, 50);
         }
+    }
+
+    // ── INVENTARIO ──
+    async function loadInsumos() {
+        const snap = await db.collection('insumos').where('doctorId', '==', parentDoctorId).get();
+        insumos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderInsumos();
+    }
+
+    function renderInsumos() {
+        const body = document.getElementById('insumosTableBody');
+        if(!body) return;
+        if(insumos.length === 0) {
+            body.innerHTML = '<tr><td colspan="3" style="padding:32px;text-align:center;color:#94a3b8;font-weight:600;">No hay insumos registrados.</td></tr>';
+            return;
+        }
+        body.innerHTML = insumos.map(i => `
+            <tr>
+                <td><span style="font-weight:700;color:#0f172a;">${i.nombre}</span>${i.categoria ? `<br><span style="font-size:11px;color:#94a3b8;font-weight:600;">${i.categoria}</span>` : ''}</td>
+                <td>
+                    <span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;${i.stock < 10 ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;'}">
+                        ${i.stock} uds.${i.stock < 10 ? ' ⚠' : ''}
+                    </span>
+                </td>
+                <td>
+                    <div style="display:flex;gap:6px;">
+                        <button onclick="updateStock('${i.id}', 1)" style="width:30px;height:30px;border-radius:7px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;cursor:pointer;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Plus Jakarta Sans',sans-serif;">+</button>
+                        <button onclick="updateStock('${i.id}', -1)" style="width:30px;height:30px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'Plus Jakarta Sans',sans-serif;">−</button>
+                    </div>
+                </td>
+            </tr>`).join('');
+    }
+
+    function openAddInsumoModal() { document.getElementById('addInsumoModal').classList.remove('hidden'); }
+
+    async function submitNewInsumo() {
+        const name = document.getElementById('insumoName').value.trim();
+        const qty = parseInt(document.getElementById('insumoQty').value) || 0;
+        const cat = document.getElementById('insumoCat').value;
+        if(!name) return alert("Ingresa el nombre del insumo.");
+        try {
+            await db.collection('insumos').add({ doctorId: parentDoctorId, nombre: name, stock: qty, categoria: cat });
+            document.getElementById('addInsumoModal').classList.add('hidden');
+            document.getElementById('insumoName').value = '';
+            document.getElementById('insumoQty').value = '';
+            mostrarMensaje("Insumo agregado correctamente.", "success");
+            loadInsumos();
+        } catch(e) { alert("Error al guardar."); }
+    }
+
+    async function updateStock(id, diff) {
+        const insumo = insumos.find(i => i.id === id);
+        if(!insumo) return;
+        let newStock = insumo.stock + diff;
+        if(newStock < 0) newStock = 0;
+        try {
+            await db.collection('insumos').doc(id).update({ stock: newStock });
+            loadInsumos();
+        } catch(e) {}
+    }
+
+    // ── CUMPLEAÑOS ──
+    function checkBirthdays() {
+        const today = new Date().toISOString().slice(5, 10);
+        const bdays = patients.filter(p => p.fechaNacimiento && p.fechaNacimiento.slice(5, 10) === today);
+        const container = document.getElementById('birthdayList');
+        if(container) {
+            if(bdays.length > 0) {
+                container.innerHTML = bdays.map(p => `<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;font-size:13px;font-weight:700;color:#be185d;">🎁 ${p.nombre}</div>`).join('');
+            } else {
+                container.innerHTML = "<span style='color:#94a3b8;font-weight:500;font-size:13px;'>Ninguno hoy</span>";
+            }
+        }
+    }
+
+    function openBirthdayConfig() {
+        document.getElementById('bdayGiftText').value = clinicDataGlobal.bdayGift || '';
+        document.getElementById('birthdayModal').classList.remove('hidden');
+    }
+
+    async function saveBdayConfig() {
+        const gift = document.getElementById('bdayGiftText').value;
+        await db.collection('users').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift });
+        clinicDataGlobal.bdayGift = gift;
+        mostrarMensaje("Regalo de cumpleaños configurado.", "success");
+        document.getElementById('birthdayModal').classList.add('hidden');
+    }
+
+    async function syncGoogleCalendar() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl?doctorId=${parentDoctorId}`);
+            const data = await res.json();
+            if(!res.ok) throw new Error(data.error || "Fallo en el servidor");
+            window.open(data.url, 'GoogleAuth', 'width=600,height=700');
+            mostrarMensaje('Autoriza en la ventana emergente. Guardaremos la sesión automáticamente.', 'success');
+            const checkInterval = setInterval(async () => {
+                const doc = await db.collection('users').doc(parentDoctorId).get();
+                const gToken = doc.data().clinicInfo?.gCalendarToken;
+                if(gToken && gToken !== clinicDataGlobal.gCalendarToken) {
+                    clearInterval(checkInterval);
+                    clinicDataGlobal.gCalendarToken = gToken;
+                    checkCalendarSyncUI();
+                    mostrarMensaje("¡Google Calendar vinculado con éxito!", "success");
+                }
+            }, 3000);
+        } catch(e) { alert("Error conectando con API de Google Calendar: " + e.message); }
     }
 
     // ── PATIENTS ──
@@ -1465,7 +1639,7 @@
         }
     }
 
-    // ── NUEVO: FULLCALENDAR INTEGRATION ──
+    // ── FULLCALENDAR INTEGRATION ──
     function renderFullCalendar() {
         const calendarEl = document.getElementById('calendarDiv');
         if (!calendarEl) return;
@@ -1573,15 +1747,18 @@
         document.getElementById('payInstallmentModal').classList.remove('hidden');
     }
 
+    // 🔥 PAGO DESDE FINANZAS (CON RECIBO PDF Y MENSAJE DE DEUDA WA) 🔥
     async function submitInstallmentPayment() {
         const planId = document.getElementById('installPlanId').value;
         const amount = parseFloat(document.getElementById('installAmount').value);
         if(!amount || amount <= 0) return alert("Ingresa un monto válido.");
         const plan = planesPago.find(x => x.id === planId);
         if(amount > plan.saldoPendiente) return alert("El monto no puede ser mayor al saldo.");
+        
         const nuevoSaldo = plan.saldoPendiente - amount;
         const nuevasCuotas = plan.cuotasPagadas + 1;
         const estado = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
+        
         try {
             await db.collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
             await db.collection('appointments').add({
@@ -1591,6 +1768,21 @@
                 motivo: `Abono Cuota ${nuevasCuotas}/${plan.totalCuotas}`,
                 monto: amount, estado: 'completada', fechaCreacion: new Date()
             });
+
+            const p = patients.find(x => x.id === plan.patientId);
+            const pName = p ? p.nombre : 'Paciente';
+            
+            // Generar Comprobante PDF
+            imprimirComprobantePago(pName, amount, `Abono de plan/tratamiento (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
+
+            if(p && p.telefonoWhatsApp) {
+                const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+                await fetch(`${API_BASE_URL}/send-message`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
+                });
+            }
+
             document.getElementById('payInstallmentModal').classList.add('hidden');
             mostrarMensaje(`Abono de $${amount.toFixed(2)} registrado exitosamente.`, 'success');
             await loadPlanesPago();
@@ -1700,11 +1892,11 @@
                     <div style="width:42px;height:42px;border-radius:10px;background:${avatarBg};display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:15px;flex-shrink:0;">${initials}</div>
                     <div>
                         <div style="font-weight:800;font-size:14px;color:#0f172a;">${p.nombre}</div>
-                        <div style="font-size:11.5px;color:#64748b;font-weight:600;margin-top:1px;">CI: ${p.cedula||'N/A'}</div>
+                        <div style="font-size:11.5px;color:#64748b;font-weight:600;margin-top:1px;">CI Dueño: ${p.cedula||'N/A'}</div>
                     </div>
                 </div>
                 <div style="font-size:12.5px;color:var(--accent);font-weight:700;margin-bottom:4px;">📱 ${p.telefonoWhatsApp||'—'}</div>
-                ${p.fechaNacimiento ? `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#fdf2f8;border-radius:99px;font-size:10.5px;color:#9d174d;font-weight:700;margin-top:4px;">🎂 ${p.fechaNacimiento}</div>` : ''}
+                ${p.fechaNacimiento ? `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#fdf2f8;border-radius:99px;font-size:10.5px;color:#9d174d;font-weight:700;margin-top:4px;">🎂 Nac: ${p.fechaNacimiento}</div>` : ''}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;">
                     <button onclick="openEditPatientModal('${p.id}')" style="padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✏️ Editar</button>
                     <button onclick="openHistoryModal('${p.id}')" style="padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
@@ -2239,15 +2431,54 @@
         printWindow.document.close();
     }
 
-    // ── BILLING ──
-    function calculateTotal() {
-        const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
-        const iva = document.getElementById('billingIva').checked ? sub*0.15 : 0;
-        document.getElementById('billingTotalDisplay').textContent = `$${(sub+iva).toFixed(2)}`;
+    // ── FUNCION DE IMPRESIÓN COMPROBANTE ──
+    function imprimirComprobantePago(patientName, total, motivo) {
+        const printWindow = window.open('', '_blank', 'width=400,height=600');
+        const fechaStr = new Date().toLocaleDateString('es-ES') + ' ' + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Comprobante de Pago - ${patientName}</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px; color: #1f2937; line-height: 1.5; font-size: 14px; text-align: center; }
+                    .header { border-bottom: 2px dashed #e5e7eb; padding-bottom: 15px; margin-bottom: 15px; }
+                    h1 { color: #0f172a; margin: 0 0 5px 0; font-size: 18px; text-transform: uppercase; }
+                    .details { text-align: left; margin-bottom: 20px; }
+                    .details div { margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+                    .total { font-size: 20px; font-weight: 800; color: #4f46e5; margin: 20px 0; border: 2px solid #4f46e5; padding: 10px; border-radius: 8px; }
+                    .footer { font-size: 11px; color: #64748b; margin-top: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}</h1>
+                    <div>RUC: ${clinicDataGlobal?.ruc || 'N/A'}</div>
+                    <div>${clinicDataGlobal?.direccion || ''}</div>
+                    <div>Tel: ${clinicDataGlobal?.telefono || ''}</div>
+                </div>
+                <h2>COMPROBANTE DE CAJA</h2>
+                <div class="details">
+                    <div><b>Fecha:</b> ${fechaStr}</div>
+                    <div><b>Paciente:</b> ${patientName}</div>
+                    <div><b>Concepto:</b> ${motivo || 'Servicios Veterinarios'}</div>
+                </div>
+                <div class="total">
+                    TOTAL: $${Number(total).toFixed(2)}
+                </div>
+                <div class="footer">
+                    ¡Gracias por su confianza!<br>
+                    Este documento es un comprobante de abono/pago de servicios.
+                </div>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
     }
 
-    function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
-
+    // 🔥 COBRO DESDE AGENDA MÉDICA CON DESCUENTO DE DEUDAS AUTOMÁTICO 🔥
     async function submitBilling() {
         const aptId = document.getElementById('billingAptId').value;
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
@@ -2255,188 +2486,53 @@
         const total = sub+iva;
         const btn = document.getElementById('btnFinalizarCobro');
         btn.disabled=true; btn.textContent='Enviando Comprobante...';
+        
         try {
             await db.collection('appointments').doc(aptId).update({ estado:'completada', monto: total, fechaCobro: new Date() });
             
             const apt = appointments.find(a=>a.id===aptId);
             const p = patients.find(x=>x.id===apt?.patientId);
+            
+            // BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO - ej. CIRUGÍAS/VACUNAS)
+            const planActivo = planesPago.find(x => x.patientId === p.id && x.estado === 'activo');
+            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
+            
+            if (planActivo) {
+                // Si tiene deuda, la descontamos automáticamente
+                const nuevoSaldo = Math.max(0, planActivo.saldoPendiente - total);
+                const estadoPlan = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
+                const nuevasCuotas = planActivo.cuotasPagadas + 1;
+                
+                await db.collection('planes_pago').doc(planActivo.id).update({
+                    saldoPendiente: nuevoSaldo,
+                    cuotasPagadas: nuevasCuotas,
+                    estado: estadoPlan
+                });
+                
+                // Mensaje WA modificado para deuda
+                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+            }
+
+            // Abrir el Comprobante de Pago en PDF
+            imprimirComprobantePago(p.nombre, total, apt.motivo);
+
+            // Enviar WhatsApp oficial
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.` })
+                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
             }
             
             closeBillingModal();
             mostrarMensaje(`Cobro de $${total.toFixed(2)} registrado. Comprobante enviado.`, 'success');
             await loadAppointments();
+            if (planActivo) await loadPlanesPago(); // Actualizar finanzas en tiempo real
         } catch(e) { alert('Error registrando cobro.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Finalizar y Enviar`; }
     }
 
-    // ── HISTORY ──
-    async function openHistoryModal(patientId) {
-        if(!patientId) return;
-        currentPatientIdForImages = patientId;
-        const p = patients.find(x=>x.id===patientId);
-        document.getElementById('historyPatientInfo').textContent = `${p?.nombre||''} · CI Dueño: ${p?.cedula||'N/A'}`;
-        document.getElementById('historyModal').classList.remove('hidden');
-        document.getElementById('historyTimeline').innerHTML = '<div style="display:flex;justify-content:center;padding:32px;"><div class="spinner"></div></div>';
-        try {
-            const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
-            if(snap.empty) {
-                document.getElementById('historyTimeline').innerHTML = '<p style="text-align:center;color:#94a3b8;font-weight:600;font-size:13px;padding:32px;">Sin historial clínico registrado.</p>';
-                document.getElementById('chartContainer').classList.add('hidden');
-                if(vitalsChartInstance) vitalsChartInstance.destroy();
-            } else {
-                const docs = snap.docs;
-                let timelineHtml = '';
-                const labels=[], dataPeso=[];
-                for(let i=docs.length-1;i>=0;i--) {
-                    const d = docs[i].data();
-                    const dateObj = d.fecha.toDate ? d.fecha.toDate() : new Date(d.fecha);
-                    const dateStr = dateObj.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
-                    
-                    let vStr='';
-                    if(d.peso) vStr+=`Peso: ${d.peso}kg | `;
-                    if(d.temp) vStr+=`Temp: ${d.temp}°C | `;
-                    if(d.ritmo) vStr+=`FC: ${d.ritmo} bpm`;
-                    
-                    let recsHtml='';
-                    if(d.recomendaciones&&d.recomendaciones.length>0) {
-                        recsHtml=`<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;margin-top:10px;">
-                            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:#c2410c;margin-bottom:5px;">Recomendaciones</div>
-                            ${d.recomendaciones.map(r=>`<div style="font-size:12px;color:#92400e;font-weight:600;margin-bottom:2px;">• ${r}</div>`).join('')}
-                        </div>`;
-                    }
-                    
-                    let diagHtml=(d.diagnostico||'Sin análisis.').replace(/\n/g,'<br>');
-                    
-                    timelineHtml+=`<div style="background:white;border:1px solid #e2e8f0;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 16px; margin-bottom:10px;">
-                        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;">📅 ${dateStr}</div>
-                        <div style="font-size:13px;color:#374151;font-weight:600;line-height:1.5;">${diagHtml}</div>
-                        ${vStr?`<div style="font-size:11.5px;color:#64748b;font-weight:700;margin-top:6px;">${vStr}</div>`:''}
-                        ${recsHtml}
-                    </div>`;
-                    
-                    labels.unshift(dateStr);
-                    if(d.peso) dataPeso.unshift(parseFloat(d.peso));
-                }
-                document.getElementById('historyTimeline').innerHTML = timelineHtml;
-                
-                const ctx = document.getElementById('vitalsChartCanvas');
-                if(vitalsChartInstance) vitalsChartInstance.destroy();
-                if(dataPeso.length>0) {
-                    document.getElementById('chartContainer').classList.remove('hidden');
-                    vitalsChartInstance = new Chart(ctx, {
-                        type:'line',
-                        data:{ labels, datasets:[{ label:'Evolución de Peso (kg)', data:dataPeso, borderColor:'#4f46e5', backgroundColor:'rgba(79, 70, 229, 0.08)', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#4f46e5' }] },
-                        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ y:{ min:0, grid:{ color:'#f1f5f9' } }, x:{ grid:{ display:false } } } }
-                    });
-                } else { document.getElementById('chartContainer').classList.add('hidden'); }
-            }
-        } catch(e) { document.getElementById('historyTimeline').innerHTML='<p style="text-align:center;color:#dc2626;font-weight:600;">Error cargando historial.</p>'; }
-        loadPatientImages(patientId);
-    }
-
-    function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); if(vitalsChartInstance) vitalsChartInstance.destroy(); }
-
-    async function uploadPatientImage(input) {
-        const file = input.files[0]; if(!file||!currentPatientIdForImages) return;
-        const btn = document.getElementById('btnUploadImg'); btn.textContent='Subiendo...'; btn.disabled=true;
-        try {
-            const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
-            await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
-            await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({ url, nombre: file.name, fechaCreacion: new Date() });
-            loadPatientImages(currentPatientIdForImages);
-        } catch(e) { alert('Error subiendo archivo'); }
-        finally { btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Subir archivo'; btn.disabled=false; input.value=''; }
-    }
-
-    async function loadPatientImages(pid) {
-        const gal = document.getElementById('patientImagesGallery');
-        gal.innerHTML = '<div style="display:flex;justify-content:center;grid-column:span 3;padding:16px;"><div class="spinner"></div></div>';
-        try {
-            const snap = await db.collection('patients').doc(pid).collection('images').orderBy('fechaCreacion','desc').get();
-            if(snap.empty) return gal.innerHTML='<p style="font-size:12px;color:#94a3b8;font-weight:600;grid-column:span 3;text-align:center;padding:16px;">No hay archivos adjuntos.</p>';
-            gal.innerHTML = snap.docs.map(doc => {
-                const data=doc.data(); const isPDF=data.nombre.toLowerCase().endsWith('.pdf');
-                return isPDF
-                    ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;text-align:center;cursor:pointer;" onclick="window.open('${data.url}')"><div style="font-size:26px;">📄</div><div style="font-size:9px;font-weight:700;color:#dc2626;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;">${data.nombre}</div></div>`
-                    : `<div style="cursor:pointer;overflow:hidden;border-radius:8px;border:1px solid #e2e8f0;" onclick="window.open('${data.url}')"><img src="${data.url}" style="width:100%;height:70px;object-fit:cover;display:block;"></div>`;
-            }).join('');
-        } catch(e) { gal.innerHTML='<p style="font-size:12px;color:#dc2626;font-weight:600;">Error al cargar archivos.</p>'; }
-    }
-
-    // ── PROMOTIONS ──
-    function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
-    function closePromotionsModal() { document.getElementById('promotionsModal').classList.add('hidden'); }
-
-    async function sendPromotion() {
-        const targeting = document.getElementById('promoTargeting').value || 'A todos';
-        const message = document.getElementById('promoMessage').value;
-        if(!message) return alert("Escribe un mensaje publicitario.");
-        
-        const btn = document.getElementById('btnSendPromo');
-        btn.textContent='Enviando...'; btn.disabled=true;
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({ doctorId: parentDoctorId, mensajePromocion: message, instruccionesIA: targeting })
-            });
-            const data = await res.json();
-            if(data.success) {
-                mostrarMensaje(`Campaña enviada a ${data.enviados} pacientes exitosamente.`, 'success');
-                closePromotionsModal();
-            } else {
-                throw new Error(data.error);
-            }
-        } catch(e) { alert('Error enviando campaña: ' + e.message); }
-        finally { btn.textContent='Enviar Inteligente ✦'; btn.disabled=false; }
-    }
-
-    // ── META ──
-    function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
-    function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
-
-    // ── CALENDARIO DIDÁCTICO Y SETTINGS ──
-    function renderHolidayCalendar() {
-        const grid = document.getElementById('calDaysGrid');
-        const monthLabel = document.getElementById('calMonthLabel');
-        if(!grid) return;
-        grid.innerHTML = '';
-        
-        const year = currentCalDate.getFullYear();
-        const month = currentCalDate.getMonth();
-        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
-        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const isHoliday = holidays.includes(dateStr);
-            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
-        }
-    }
-
-    function toggleHoliday(dateStr) {
-        if (holidays.includes(dateStr)) {
-            holidays = holidays.filter(d => d !== dateStr);
-        } else {
-            holidays.push(dateStr);
-        }
-        renderHolidayCalendar();
-    }
-
-    function changeCalMonth(dir) {
-        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
-        renderHolidayCalendar();
-    }
-
+    // ── CONFIGURACIÓN (CON HORARIOS NUEVOS) ──
     function openSettingsModal() {
         document.getElementById('clinicName').value = clinicDataGlobal?.nombre||'';
         document.getElementById('clinicRuc').value = clinicDataGlobal?.ruc||'';
@@ -2445,6 +2541,12 @@
         document.getElementById('clinicColor').value = clinicDataGlobal?.color||'#4f46e5';
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
+        
+        // 💡 NUEVOS CAMPOS CARGADOS DESDE FIREBASE
+        document.getElementById('hAlmuerzoInicio').value = clinicDataGlobal?.almuerzoInicio||'13:00';
+        document.getElementById('hAlmuerzoFin').value = clinicDataGlobal?.almuerzoFin||'14:00';
+        document.getElementById('duracionCita').value = clinicDataGlobal?.duracionCita||'30';
+        
         renderHolidayCalendar(); 
         document.getElementById('settingsModal').classList.remove('hidden');
     }
@@ -2474,6 +2576,12 @@
             color: document.getElementById('clinicColor').value,
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
+            
+            // 💡 NUEVOS CAMPOS ENVIADOS A FIREBASE
+            almuerzoInicio: document.getElementById('hAlmuerzoInicio').value,
+            almuerzoFin: document.getElementById('hAlmuerzoFin').value,
+            duracionCita: document.getElementById('duracionCita').value,
+            
             diasNoLaborables: holidays, 
             logo: logoUrl
         };
