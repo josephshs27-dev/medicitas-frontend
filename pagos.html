@@ -182,6 +182,7 @@
                 const ppId = urlParams.get('id');
                 const clientTxId = urlParams.get('clientTransactionId');
 
+                // ── FLUJO 1: RETORNO DE PAYPHONE (PROCESAMIENTO) ──
                 if (ppId && clientTxId) {
                     document.querySelector('.loader-text').textContent = "Confirmando tu pago con el banco, no cierres esta ventana...";
                     
@@ -198,7 +199,6 @@
                         const data = await response.json();
                         
                         if (data.transactionStatus === "Approved" || data.statusCode === 3) {
-                            
                             let updateData = {
                                 estadoSuscripcion: 'activo',
                                 suscripcionPayphone: true,
@@ -210,7 +210,10 @@
                                 updateData.payphoneCardToken = data.cardToken;
                             }
 
-                            await db.collection('users').doc(currentUserUid).update(updateData);
+                            // 🔥 ACTUALIZAR EL MODELO MULTI-TENANT
+                            try { await db.collection('clinics').doc(currentUserUid).update(updateData); } catch(e){}
+                            try { await db.collection('users').doc(currentUserUid).update(updateData); } catch(e){}
+
                             window.location.href = 'index.html';
                             return; 
                         } else {
@@ -226,8 +229,14 @@
                     }
                 }
 
+                // ── FLUJO 2: CARGA NORMAL DE LA VISTA ──
                 try {
-                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    // 🔥 BUSCAMOS PRIMERO EN CLINICS (SaaS), LUEGO EN USERS (Legacy)
+                    let userDoc = await db.collection('clinics').doc(user.uid).get();
+                    if(!userDoc.exists) {
+                        userDoc = await db.collection('users').doc(user.uid).get();
+                    }
+
                     if (userDoc.exists && userDoc.data().rol === 'doctor') {
                         const userData = userDoc.data();
                         
@@ -295,7 +304,6 @@
                             amountWithoutTax: amountInCents,
                             currency: "USD",
                             clientTransactionId: "sub_" + currentUserUid + "_" + Date.now(),
-                            // LÍNEA ELIMINADA PARA EVITAR EL BUCLE DE REDIRECCIÓN
                             storeCard: true 
                         });
                     },
@@ -319,7 +327,10 @@
                                     updateData.payphoneCardToken = value.cardToken;
                                 }
 
-                                await db.collection('users').doc(currentUserUid).update(updateData);
+                                // 🔥 ACTUALIZAR EL MODELO MULTI-TENANT
+                                try { await db.collection('clinics').doc(currentUserUid).update(updateData); } catch(e){}
+                                try { await db.collection('users').doc(currentUserUid).update(updateData); } catch(e){}
+                                
                                 window.location.href = 'index.html'; 
                             } catch (e) {
                                 console.error("Error BD:", e);
@@ -347,10 +358,10 @@
         async function cancelSubscription() {
             if(confirm("⚠️ ¿Estás totalmente seguro de cancelar tu suscripción?\nPerderás el acceso a la Inteligencia Artificial y la integración con WhatsApp de inmediato.")) {
                 try {
-                    await db.collection('users').doc(currentUserUid).update({
-                        estadoSuscripcion: 'suspendido',
-                        suscripcionPayphone: false
-                    });
+                    // 🔥 ACTUALIZAR EL MODELO MULTI-TENANT
+                    try { await db.collection('clinics').doc(currentUserUid).update({ estadoSuscripcion: 'suspendido', suscripcionPayphone: false }); } catch(e){}
+                    try { await db.collection('users').doc(currentUserUid).update({ estadoSuscripcion: 'suspendido', suscripcionPayphone: false }); } catch(e){}
+                    
                     alert("Suscripción suspendida.");
                     window.location.reload();
                 } catch(e) {
