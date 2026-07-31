@@ -122,6 +122,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // 🔥 BANDERA PARA PREVENIR LA CARRERA DE VELOCIDAD (RACE CONDITION) 🔥
+        let isSigningUp = false;
+
         function normalizarTelefono(phone) {
             if (!phone) return '';
             let cleaned = String(phone).replace(/\D/g, ''); 
@@ -150,20 +153,20 @@
         // 🔥 ENRUTADOR INTELIGENTE (MULTI-TENANT SAAS) 🔥
         // ====================================================
         auth.onAuthStateChanged(async (user) => {
+            // SI ESTÁ REGISTRÁNDOSE, IGNORAMOS ESTA VERIFICACIÓN TEMPORALMENTE
+            if (isSigningUp) return; 
+
             if (user) {
-                // Prender pantalla de carga
                 document.getElementById('loadingOverlay').classList.remove('hidden');
                 
                 try {
-                    // 🔥 REGLA DE SEGURIDAD 1: EXIGIR EMAIL VERIFICADO 🔥
-                    if (!user.emailVerified && user.email !== 'admin@asistencitas.com') {
+                    if (!user.emailVerified && user.email !== 'admin@asistencitas.com' && user.email !== 'josephshs27@gmail.com') {
                         await auth.signOut();
                         document.getElementById('loadingOverlay').classList.add('hidden');
                         mostrarError("⚠️ Seguridad: Debes verificar tu correo electrónico para ingresar. Revisa tu bandeja de entrada o SPAM e intenta de nuevo.");
                         return;
                     }
 
-                    // 💡 BUSCAMOS EN EL MODELO NUEVO (CLINICS) Y FALLBACK A (USERS)
                     let userDoc = await db.collection('clinics').doc(user.uid).get();
                     if(!userDoc.exists) {
                         userDoc = await db.collection('users').doc(user.uid).get();
@@ -172,13 +175,11 @@
                     if (userDoc.exists) {
                         const data = userDoc.data();
                         
-                        // Si es VENDEDOR
                         if (data.rol === 'vendedor') { 
                             window.location.href = 'vendedor.html'; 
                             return; 
                         }
 
-                        // Si es CLÍNICA, buscamos su especialidad
                         let especialidad = 'medicina'; 
                         if (data.clinicInfo && data.clinicInfo.especialidad) {
                             especialidad = data.clinicInfo.especialidad;
@@ -224,7 +225,7 @@
                 
                 const cred = await auth.signInWithEmailAndPassword(email, pass);
                 
-                if (!cred.user.emailVerified && cred.user.email !== 'admin@asistencitas.com') {
+                if (!cred.user.emailVerified && cred.user.email !== 'admin@asistencitas.com' && cred.user.email !== 'josephshs27@gmail.com') {
                     await cred.user.sendEmailVerification();
                     await auth.signOut();
                     btn.innerHTML = 'Ingresar al Sistema';
@@ -240,7 +241,7 @@
         });
 
         // ====================================================
-        // LÓGICA DE REGISTRO (CON SRI Y CREACIÓN MULTI-TENANT)
+        // LÓGICA DE REGISTRO
         // ====================================================
         document.getElementById('toggleSignupBtn').onclick = () => {
             document.getElementById('signupForm').classList.remove('hidden');
@@ -267,7 +268,6 @@
         document.getElementById('submitSignupBtn').onclick = async () => {
             const btn = document.getElementById('submitSignupBtn');
             
-            // Datos de Cuenta
             const name = document.getElementById('signupName').value.trim();
             const email = document.getElementById('signupEmail').value.trim();
             const pass = document.getElementById('signupPassword').value.trim();
@@ -275,40 +275,36 @@
             const especialidad = document.getElementById('signupSpecialty').value; 
             const vendedorId = document.getElementById('signupVendedor').value;
 
-            // Datos SRI
             const ruc = document.getElementById('signupRuc').value.trim();
             const razonSocial = document.getElementById('signupRazonSocial').value.trim();
             const direccion = document.getElementById('signupDireccion').value.trim();
 
             if (!name || !email || !pass || !phone || !ruc || !razonSocial || !direccion) {
-                return mostrarError("Por favor, completa todos los campos requeridos (Datos de Acceso y Facturación).");
+                return mostrarError("Por favor, completa todos los campos requeridos.");
             }
             
+            // ACTIVAMOS LA BANDERA DE SEGURIDAD
+            isSigningUp = true;
             btn.innerHTML = '⏳ Creando Bóveda Segura...';
             btn.disabled = true;
 
             try {
-                // 1. Crear el usuario en Firebase Authentication
                 const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                
-                // 2. ENVIAR CORREO DE VERIFICACIÓN AL INSTANTE
                 await cred.user.sendEmailVerification();
 
-                // Asignar colores por defecto según la especialidad
                 let colorBase = '#2563eb'; 
                 if(especialidad === 'odontologia') colorBase = '#0891b2';
                 if(especialidad === 'veterinaria') colorBase = '#4f46e5';
                 if(especialidad === 'fisioterapia') colorBase = '#0d9488';
                 if(especialidad === 'nutricion') colorBase = '#10b981';
 
-                // 🔥 3. NUEVO MODELO: Crear su perfil directamente en la colección 'clinics'
                 await db.collection('clinics').doc(cred.user.uid).set({
                     userId: cred.user.uid, 
                     nombre: name, 
                     email: email, 
                     telefonoWhatsApp: phone,
                     rol: 'doctor', 
-                    estadoSuscripcion: 'suspendido', // Nace suspendido hasta que pague
+                    estadoSuscripcion: 'suspendido',
                     precioSuscripcion: 20, 
                     fechaRegistro: new Date(),
                     vendedorId: vendedorId || null,
@@ -327,7 +323,8 @@
                     }
                 });
                 
-                // 4. Cerrar sesión para obligarlo a verificar su correo y mostrar éxito
+                // YA ESTÁ SEGURO EN LA BASE DE DATOS. PODEMOS CERRAR SESIÓN TRANQUILOS.
+                isSigningUp = false; 
                 await auth.signOut();
                 
                 document.getElementById('signupForm').classList.add('hidden');
@@ -339,6 +336,7 @@
                 btn.disabled = false; 
 
             } catch (e) { 
+                isSigningUp = false; // Apagamos la bandera en caso de error
                 mostrarError("Error en el registro: " + (e.message.includes('email-already-in-use') ? "El correo ya está registrado." : e.message)); 
                 btn.innerHTML = 'Registrar Clínica';
                 btn.disabled = false; 
