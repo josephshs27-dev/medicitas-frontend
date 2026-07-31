@@ -113,8 +113,8 @@
         /* ── Main ── */
         #appMain { 
             margin-left: var(--sidebar-w); 
-            flex: 1; /* Obliga a usar todo el espacio */
-            width: calc(100% - var(--sidebar-w)); /* Fuerza el ancho exacto */
+            flex: 1;
+            width: calc(100% - var(--sidebar-w));
             height: 100vh; 
             display: flex; 
             flex-direction: column; 
@@ -183,11 +183,11 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
-        /* ── Modals (Ampliados para usar más espacio visual) ── */
+        /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
-        .modal-box-large { width: 100%; max-width: 1000px !important; } /* Modal ampliado para receta */
-        .modal-box-xl { width: 100%; max-width: 1200px !important; } /* Modal ampliado para expediente */
+        .modal-box-large { width: 100%; max-width: 1000px !important; }
+        .modal-box-xl { width: 100%; max-width: 1200px !important; }
         .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .modal-title { font-size: 16px; font-weight: 800; color: var(--txt1); }
         .modal-sub { font-size: 12.5px; color: var(--txt2); font-weight: 500; margin-top: 2px; }
@@ -214,7 +214,7 @@
         .b-arm { width: 30px; height: 80px; border-radius: 15px; }
         .b-leg { width: 35px; height: 90px; border-radius: 10px; }
 
-        /* 🔥 PESTAÑAS (TABS) PARA OPTIMIZAR ESPACIO 🔥 */
+        /* 🔥 PESTAÑAS (TABS) 🔥 */
         .rx-tabs-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding: 0 26px; background: #fafbfc; overflow-x: auto; flex-shrink: 0; }
         .rx-tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
         .rx-tab-btn:hover { color: var(--txt1); }
@@ -344,11 +344,11 @@
                 Mi Link de Reservas
             </button>
             <button onclick="openSettingsModal()" class="sb-action">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37-2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
                 Configuración
             </button>
             <button onclick="auth.signOut()" class="sb-action danger">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"/></svg>
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3v1"/></svg>
                 Cerrar Sesión
             </button>
         </div>
@@ -1198,32 +1198,36 @@
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
 
-    // 3. Función que se dispara al dar clic en el botón
+    // 3. Función que se dispara al dar clic en el botón (MODIFICADA CON COEXISTENCIA)
     function iniciarConexionMeta() {
+        if (typeof FB === 'undefined') {
+            mostrarMensaje('Tu red o navegador está bloqueando el script de Facebook. Verifica tu conexión.', 'error');
+            return;
+        }
+
         const btn = document.getElementById('btnMetaConnect');
-        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
         btn.disabled = true;
+        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
 
         FB.login(function(response) {
             if (response.authResponse && response.authResponse.code) {
-                const codigoOauth = response.authResponse.code;
-                guardarCredencialesMetaEnBackend(codigoOauth);
+                const authCode = response.authResponse.code;
+                console.log("Código de Meta obtenido, enviando al backend...");
+                guardarCredencialesMetaEnBackend(authCode);
             } else {
-                mostrarMensaje('Conexión cancelada por el usuario.', 'error');
-                btn.innerHTML = 'Vincular Facebook / WhatsApp';
+                console.warn("Usuario canceló o hubo un error.");
                 btn.disabled = false;
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp Oficial`;
+                mostrarMensaje('Conexión cancelada por el usuario.', 'error');
             }
         }, {
-            config_id: '1020182057736220', // Asegúrate de que este es el ID configurado en Meta
+            config_id: '1020182057736220', // Tu ID de configuración de Embedded Signup
             response_type: 'code',
             override_default_response_type: true,
             scope: 'whatsapp_business_management,whatsapp_business_messaging', 
-            extras: { 
-                setup: {
-                    prefetched_profile: {
-                        name: document.getElementById('clinicName').value || 'Clínica Médica'
-                    }
-                } 
+            extras: {
+                featureType: 'whatsapp_business_app_onboarding', // <-- CLAVE PARA COEXISTENCIA
+                sessionInfoVersion: '3'                          // <-- VERSIÓN 3 DEL ONBOARDING
             }
         });
     }
@@ -1255,7 +1259,7 @@
             }
         } catch(e) {
             mostrarMensaje('Error guardando credenciales: ' + e.message, 'error');
-            btn.innerHTML = 'Vincular Facebook / WhatsApp';
+            btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp Oficial`;
             btn.disabled = false;
         } 
     }
