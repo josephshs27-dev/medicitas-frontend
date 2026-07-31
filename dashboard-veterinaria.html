@@ -113,8 +113,8 @@
         /* ── Main ── */
         #appMain { 
             margin-left: var(--sidebar-w); 
-            flex: 1; /* Obliga a usar todo el espacio */
-            width: calc(100% - var(--sidebar-w)); /* Fuerza el ancho exacto */
+            flex: 1; 
+            width: calc(100% - var(--sidebar-w)); 
             height: 100vh; 
             display: flex; 
             flex-direction: column; 
@@ -366,11 +366,11 @@
                 Mi Link de Reservas
             </button>
             <button onclick="openSettingsModal()" class="sb-action">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37-2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
                 Configuración
             </button>
             <button onclick="auth.signOut()" class="sb-action danger">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013-3v1"/></svg>
                 Cerrar Sesión
             </button>
         </div>
@@ -638,7 +638,9 @@
                     </div>
                 </div>
 
-            </div></div></main>
+            </div>
+        </div>
+    </main>
 </div>
 
 <div id="triageModal" class="modal-wrap hidden" style="z-index:75;">
@@ -1179,7 +1181,7 @@
                                 <option value="45">45 minutos</option>
                                 <option value="60">1 hora</option>
                                 <option value="90">1 hora y media</option>
-                                <option value="120">2 horas</option>
+                                <option value="120">2 hours</option>
                             </select>
                         </div>
                     </div>
@@ -1269,7 +1271,7 @@
                 btn.disabled = false;
             }
         }, {
-            config_id: '4347842542212616', 
+            config_id: '1020182057736220', 
             response_type: 'code',
             override_default_response_type: true,
             scope: 'whatsapp_business_management,whatsapp_business_messaging',
@@ -1286,14 +1288,14 @@
     }
 
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
-        const btn = document.getElementById('btnMetaConnect');
+        const btn = document.getElementById('btnConectarMeta');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
         
         try {
             const res = await fetch(`${API_BASE_URL}/api/meta/exchange-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ doctorId: parentDoctorId, authCode: codigoOauth })
+                body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, authCode: codigoOauth })
             });
             const data = await res.json();
             
@@ -1318,7 +1320,7 @@
             await fetch(`${API_BASE_URL}/api/meta/desvincular`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ doctorId: parentDoctorId })
+                body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId })
             });
             mostrarMensaje('Integración desvinculada.', 'success');
             clinicDataGlobal.metaPhoneId = null;
@@ -1362,6 +1364,7 @@
         }
     }
 
+    // ── CONFIGURACIÓN FIREBASE ──
     const API_BASE_URL = "https://api.asistencitas.com";
     const firebaseConfig = {
         apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc",
@@ -1383,14 +1386,13 @@
         if(overlay) overlay.style.display = 'none';
     }, 3000);
 
-    let parentDoctorId = null;
+    let parentDoctorId = null; // clinicId
     let clinicDataGlobal = null;
     let patients = [];
     let appointments = [];
     let planesPago = [];
     let insumos = [];
     let currentPatientIdForImages = null;
-    let vitalsChartInstance = null;
     let editPatientId = null;
 
     let holidays = [];
@@ -1409,17 +1411,24 @@
     auth.onAuthStateChanged(async (user) => {
         if (!user) { window.location.href = 'index.html'; return; }
         try {
-            const userDoc = await db.collection('users').doc(user.uid).get();
+            // 🔥 Multi-Tenant: Buscar en clinics, fallback a users
+            let userDoc = await db.collection('clinics').doc(user.uid).get();
+            if(!userDoc.exists) {
+                userDoc = await db.collection('users').doc(user.uid).get();
+            }
+
             if (userDoc.exists) {
                 const data = userDoc.data();
                 
+                // LÓGICA DE AUTO-SUSPENSIÓN Y BADGE
                 if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
                     const ahora = new Date();
                     const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
                     const diferenciaDias = (ahora - fechaPago) / (1000 * 60 * 60 * 24);
 
                     if (diferenciaDias > 31) {
-                        await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
+                        try{ await db.collection('clinics').doc(user.uid).update({ estadoSuscripcion: 'suspendido' }); }catch(e){}
+                        try{ await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' }); }catch(e){}
                         window.location.reload(); 
                         return;
                     }
@@ -1434,8 +1443,10 @@
                 if (esp !== 'veterinaria' && data.rol !== 'vendedor') {
                     window.location.href = `dashboard-${esp}.html`; return;
                 }
-                parentDoctorId = user.uid;
+                parentDoctorId = user.uid; // Esta es la bóveda de la clínica
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'veterinaria' };
+                clinicDataGlobal.metaPhoneId = data.metaPhoneId;
+                clinicDataGlobal.fbPageToken = data.fbPageToken;
                 holidays = clinicDataGlobal.diasNoLaborables || [];
 
                 if (data.estadoSuscripcion === 'suspendido') {
@@ -1512,9 +1523,9 @@
         }
     }
 
-    // ── INVENTARIO ──
+    // ── INVENTARIO (Multi-Tenant) ──
     async function loadInsumos() {
-        const snap = await db.collection('insumos').where('doctorId', '==', parentDoctorId).get();
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('insumos').get();
         insumos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderInsumos();
     }
@@ -1551,7 +1562,7 @@
         const cat = document.getElementById('insumoCat').value;
         if(!name) return alert("Ingresa el nombre del insumo.");
         try {
-            await db.collection('insumos').add({ doctorId: parentDoctorId, nombre: name, stock: qty, categoria: cat });
+            await db.collection('clinics').doc(parentDoctorId).collection('insumos').add({ nombre: name, stock: qty, categoria: cat });
             document.getElementById('addInsumoModal').classList.add('hidden');
             document.getElementById('insumoName').value = '';
             document.getElementById('insumoQty').value = '';
@@ -1566,7 +1577,7 @@
         let newStock = insumo.stock + diff;
         if(newStock < 0) newStock = 0;
         try {
-            await db.collection('insumos').doc(id).update({ stock: newStock });
+            await db.collection('clinics').doc(parentDoctorId).collection('insumos').doc(id).update({ stock: newStock });
             loadInsumos();
         } catch(e) {}
     }
@@ -1592,7 +1603,8 @@
 
     async function saveBdayConfig() {
         const gift = document.getElementById('bdayGiftText').value;
-        await db.collection('users').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift });
+        try{ await db.collection('clinics').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift }); }catch(e){}
+        try{ await db.collection('users').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift }); }catch(e){}
         clinicDataGlobal.bdayGift = gift;
         mostrarMensaje("Regalo de cumpleaños configurado.", "success");
         document.getElementById('birthdayModal').classList.add('hidden');
@@ -1600,13 +1612,15 @@
 
     async function syncGoogleCalendar() {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl?doctorId=${parentDoctorId}`);
+            const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl?clinicId=${parentDoctorId}`);
             const data = await res.json();
             if(!res.ok) throw new Error(data.error || "Fallo en el servidor");
             window.open(data.url, 'GoogleAuth', 'width=600,height=700');
             mostrarMensaje('Autoriza en la ventana emergente. Guardaremos la sesión automáticamente.', 'success');
             const checkInterval = setInterval(async () => {
-                const doc = await db.collection('users').doc(parentDoctorId).get();
+                let doc = await db.collection('clinics').doc(parentDoctorId).get();
+                if(!doc.exists) doc = await db.collection('users').doc(parentDoctorId).get();
+
                 const gToken = doc.data().clinicInfo?.gCalendarToken;
                 if(gToken && gToken !== clinicDataGlobal.gCalendarToken) {
                     clearInterval(checkInterval);
@@ -1618,18 +1632,18 @@
         } catch(e) { alert("Error conectando con API de Google Calendar: " + e.message); }
     }
 
-    // ── PATIENTS ──
+    // ── PATIENTS (Multi-Tenant) ──
     async function loadPatients() {
-        const snap = await db.collection('patients').where('doctorId', '==', parentDoctorId).get();
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').get();
         patients = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
         document.getElementById('patientSelect').innerHTML = '<option value="">Seleccionar paciente...</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
         renderPatientsDirectory(patients);
         if(document.getElementById('kpiPacientes')) document.getElementById('kpiPacientes').textContent = patients.length;
     }
 
-    // ── APPOINTMENTS ──
+    // ── APPOINTMENTS (Multi-Tenant) ──
     async function loadAppointments() {
-        const snap = await db.collection('appointments').where('doctorId', '==', parentDoctorId).orderBy('fecha', 'desc').orderBy('hora', 'desc').get();
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('appointments').orderBy('fecha', 'desc').orderBy('hora', 'desc').get();
         appointments = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderAppointments();
         updateDashboardStats();
@@ -1694,9 +1708,9 @@
         calendarInstance.render();
     }
 
-    // ── PLANES Y CUOTAS ──
+    // ── PLANES Y CUOTAS (Multi-Tenant) ──
     async function loadPlanesPago() {
-        const snap = await db.collection('planes_pago').where('doctorId', '==', parentDoctorId).where('estado', '==', 'activo').get();
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').where('estado', '==', 'activo').get();
         planesPago = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderPlanesPago();
     }
@@ -1747,7 +1761,7 @@
         document.getElementById('payInstallmentModal').classList.remove('hidden');
     }
 
-    // 🔥 PAGO DESDE FINANZAS (CON RECIBO PDF Y MENSAJE DE DEUDA WA) 🔥
+    // 🔥 PAGO DESDE FINANZAS (CON RECIBO PDF Y MENSAJE DE DEUDA WA, MULTI-TENANT) 🔥
     async function submitInstallmentPayment() {
         const planId = document.getElementById('installPlanId').value;
         const amount = parseFloat(document.getElementById('installAmount').value);
@@ -1760,9 +1774,9 @@
         const estado = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
         
         try {
-            await db.collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
-            await db.collection('appointments').add({
-                doctorId: parentDoctorId, patientId: plan.patientId,
+            await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
+                patientId: plan.patientId,
                 fecha: new Date().toISOString().split('T')[0],
                 hora: new Date().toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit', hour12:false }),
                 motivo: `Abono Cuota ${nuevasCuotas}/${plan.totalCuotas}`,
@@ -1779,7 +1793,7 @@
                 const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
+                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
             }
 
@@ -1812,7 +1826,7 @@
     async function deleteAppointment(id) {
         if(!confirm("⚠️ ¿Estás seguro de eliminar este turno?")) return;
         try {
-            await db.collection('appointments').doc(id).delete();
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(id).delete();
             mostrarMensaje('Cita eliminada correctamente.', 'success');
             await loadAppointments();
         } catch(e) { alert("Error al eliminar."); }
@@ -1873,9 +1887,9 @@
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
-                    ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
-                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Constantes</button>
-                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🐾 Atender</button>
+                    ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#cffafe;color:#164e63;border:1px solid #a5f3fc;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
+                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Triaje</button>
+                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Atender</button>
                     <button onclick="openHistoryModal('${p?.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
             </div>`;
@@ -1939,12 +1953,12 @@
         btn.disabled = true; btn.textContent = "Guardando...";
         try {
             if(editPatientId) {
-                await db.collection('patients').doc(editPatientId).update({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob });
+                await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(editPatientId).update({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob });
                 mostrarMensaje("Registro actualizado con éxito.", "success");
             } else {
-                const exist = await db.collection('patients').where('doctorId','==',parentDoctorId).where('cedula','==',cedula).get();
+                const exist = await db.collection('clinics').doc(parentDoctorId).collection('patients').where('cedula','==',cedula).get();
                 if(!exist.empty) { btn.disabled=false; btn.textContent="Guardar"; return alert("Esta cédula ya está registrada."); }
-                await db.collection('patients').add({ doctorId: parentDoctorId, nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob, fechaRegistro: new Date(), activo: true });
+                await db.collection('clinics').doc(parentDoctorId).collection('patients').add({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob, fechaRegistro: new Date(), activo: true });
                 mostrarMensaje("Mascota registrada exitosamente.", "success");
             }
             closePatientModal();
@@ -1957,9 +1971,8 @@
     document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
-            await db.collection('appointments').add({
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
                 patientId: document.getElementById('patientSelect').value,
-                doctorId: parentDoctorId,
                 fecha: document.getElementById('appointmentDate').value,
                 hora: document.getElementById('appointmentTime').value,
                 motivo: document.getElementById('appointmentReason').value,
@@ -1981,7 +1994,7 @@
 
     async function confirmAppointmentManually(id) {
         try {
-            await db.collection('appointments').doc(id).update({ estado: 'confirmada' });
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(id).update({ estado: 'confirmada' });
             mostrarMensaje('Cita confirmada.', 'success');
             await loadAppointments();
         } catch(e) { alert("Error confirmando."); }
@@ -2017,7 +2030,7 @@
             ritmo: document.getElementById('triRitmo').value,
         };
         try {
-            await db.collection('appointments').doc(aptId).update({ triaje: data });
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ triaje: data });
             mostrarMensaje('Constantes guardadas.', 'success');
             closeTriageModal();
             await loadAppointments();
@@ -2239,8 +2252,8 @@
             recList.push(`⚠️ Plan Financiero: Diferido en ${cuotas} cuota(s). Monto Total: $${montoTotalPlan.toFixed(2)}`);
 
             if(cuotas > 1 && montoTotalPlan > 0) {
-                await db.collection('planes_pago').add({
-                    doctorId: parentDoctorId, patientId: p.id,
+                await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').add({
+                    patientId: p.id,
                     fechaInicio: new Date().toISOString().split('T')[0],
                     totalCuotas: cuotas, cuotasPagadas: 0,
                     montoTotal: montoTotalPlan, saldoPendiente: montoTotalPlan,
@@ -2254,8 +2267,8 @@
         if(nextDate && nextTime) {
             recList.push(`📅 Recordatorio: Próximo control o refuerzo de vacuna programado para: ${nextDate} a las ${nextTime}`);
 
-            await db.collection('appointments').add({
-                doctorId: parentDoctorId, patientId: p.id,
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
+                patientId: p.id,
                 fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
                 motivo: 'Control / Refuerzo de Vacuna (Auto-Agendado)', fechaCreacion: new Date()
             });
@@ -2263,19 +2276,19 @@
             if(clinicDataGlobal.gCalendarToken) {
                 fetch(`${API_BASE_URL}/api/calendar/create-event`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control / Vacuna', tokenGCalendar: clinicDataGlobal.gCalendarToken })
+                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control / Vacuna', tokenGCalendar: clinicDataGlobal.gCalendarToken })
                 });
             }
         }
 
         try {
             if(diagFinal || meds.length > 0 || customVitalsStr.length > 0) {
-                await db.collection('patients').doc(p.id).collection('vitals').add({
+                await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(p.id).collection('vitals').add({
                     fecha: new Date(), diagnostico: diagFinal, recomendaciones: recList, ...vitalsObj
                 });
             }
 
-            await db.collection('appointments').doc(aptId).update({ 
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ 
                 diagnostico: diagFinal, 
                 mspMotivo, mspAnamnesis, mspExamen,
                 recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() 
@@ -2284,7 +2297,7 @@
             await fetch(`${API_BASE_URL}/send-prescription`, {
                 method:'POST', headers: {'Content-Type': 'application/json'},
                 body:JSON.stringify({
-                    doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
+                    clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
                     diagnostico: diagFinal, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal
                 })
             });
@@ -2488,7 +2501,7 @@
         btn.disabled=true; btn.textContent='Enviando Comprobante...';
         
         try {
-            await db.collection('appointments').doc(aptId).update({ estado:'completada', monto: total, fechaCobro: new Date() });
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ estado:'completada', monto: total, fechaCobro: new Date() });
             
             const apt = appointments.find(a=>a.id===aptId);
             const p = patients.find(x=>x.id===apt?.patientId);
@@ -2503,7 +2516,7 @@
                 const estadoPlan = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
                 const nuevasCuotas = planActivo.cuotasPagadas + 1;
                 
-                await db.collection('planes_pago').doc(planActivo.id).update({
+                await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').doc(planActivo.id).update({
                     saldoPendiente: nuevoSaldo,
                     cuotasPagadas: nuevasCuotas,
                     estado: estadoPlan
@@ -2520,7 +2533,7 @@
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
+                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
             }
             
@@ -2577,7 +2590,6 @@
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
             
-            // 💡 NUEVOS CAMPOS ENVIADOS A FIREBASE
             almuerzoInicio: document.getElementById('hAlmuerzoInicio').value,
             almuerzoFin: document.getElementById('hAlmuerzoFin').value,
             duracionCita: document.getElementById('duracionCita').value,
@@ -2586,7 +2598,8 @@
             logo: logoUrl
         };
         try {
-            await db.collection('users').doc(parentDoctorId).update({ clinicInfo: { ...clinicDataGlobal, ...newData } });
+            await db.collection('clinics').doc(parentDoctorId).update({ clinicInfo: { ...clinicDataGlobal, ...newData } });
+            try{ await db.collection('users').doc(parentDoctorId).update({ clinicInfo: { ...clinicDataGlobal, ...newData } }); }catch(e){}
             clinicDataGlobal = { ...clinicDataGlobal, ...newData };
             applyClinicBranding();
             closeSettingsModal();
