@@ -444,12 +444,12 @@
                         </div>
 
                         <div class="kpi-card">
-                            <div class="kpi-icon" style="background:#fdf4ff;">
-                                <svg width="20" height="20" fill="none" stroke="#c026d3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <div class="kpi-icon" style="background:#eff6ff;">
+                                <svg width="20" height="20" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </div>
                             <div class="kpi-label">Total pacientes</div>
-                            <div class="kpi-value" style="color:#c026d3;" id="kpiPacientes">0</div>
-                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#c026d3,#d946ef);"></div>
+                            <div class="kpi-value" style="color:#2563eb;" id="kpiPacientes">0</div>
+                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#2563eb,#60a5fa);"></div>
                         </div>
 
                         <div class="kpi-card">
@@ -833,7 +833,7 @@
                         <div id="divCuotas" class="hidden" style="margin-top:14px;display:none;">
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                                 <div>
-                                    <label class="flabel">N° Cuotas/Abonos</label>
+                                    <label class="flabel">N° Sesiones / Cuotas</label>
                                     <input type="number" id="numCuotas" value="1" min="1" class="finput" style="font-size:18px;font-weight:800;text-align:center;">
                                 </div>
                                 <div>
@@ -1256,8 +1256,14 @@
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
 
-    function iniciarConexionMeta() {
-        const btn = document.getElementById('btnMetaConnect');
+    // 🔥 MODIFICADA: COMPROBACIÓN DE SDK + COEXISTENCIA CLOUD API v3 🔥
+    function launchMetaEmbeddedSignup() {
+        if (typeof FB === 'undefined') {
+            mostrarMensaje('El script de Meta no se ha cargado. Revisa tu conexión a internet o bloqueador de anuncios.', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('btnConectarMeta');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
         btn.disabled = true;
 
@@ -1276,8 +1282,8 @@
             override_default_response_type: true,
             scope: 'whatsapp_business_management,whatsapp_business_messaging',
             extras: { 
-                featureType: 'whatsapp_business_app_onboarding',
-                sessionInfoVersion: '3',
+                featureType: 'whatsapp_business_app_onboarding', // <-- HABILITA COEXISTENCIA WPP BUSINESS
+                sessionInfoVersion: '3',                         // <-- VERSIÓN 3
                 setup: {
                     prefetched_profile: {
                         name: document.getElementById('clinicName').value || 'Clínica Veterinaria'
@@ -1398,6 +1404,7 @@
     let holidays = [];
     let currentCalDate = new Date();
     let calendarInstance = null; // FullCalendar
+    let vitalsChartInstance = null; // Chart de Historial
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1787,7 +1794,7 @@
             const pName = p ? p.nombre : 'Paciente';
             
             // Generar Comprobante PDF
-            imprimirComprobantePago(pName, amount, `Abono de plan/tratamiento (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
+            imprimirComprobantePago(pName, amount, `Abono de tratamiento (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
 
             if(p && p.telefonoWhatsApp) {
                 const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
@@ -1887,8 +1894,8 @@
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
-                    ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#cffafe;color:#164e63;border:1px solid #a5f3fc;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
-                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Triaje</button>
+                    ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
+                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Constantes</button>
                     <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Atender</button>
                     <button onclick="openHistoryModal('${p?.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
@@ -2284,7 +2291,7 @@
         try {
             if(diagFinal || meds.length > 0 || customVitalsStr.length > 0) {
                 await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(p.id).collection('vitals').add({
-                    fecha: new Date(), diagnostico: diagFinal, recomendaciones: recList, ...vitalsObj
+                    fecha: new Date(), diagnostico: diagFinal, recommendations: recList, ...vitalsObj
                 });
             }
 
@@ -2511,7 +2518,6 @@
             let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
             
             if (planActivo) {
-                // Si tiene deuda, la descontamos automáticamente
                 const nuevoSaldo = Math.max(0, planActivo.saldoPendiente - total);
                 const estadoPlan = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
                 const nuevasCuotas = planActivo.cuotasPagadas + 1;
@@ -2522,14 +2528,11 @@
                     estado: estadoPlan
                 });
                 
-                // Mensaje WA modificado para deuda
                 msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
             }
 
-            // Abrir el Comprobante de Pago en PDF
             imprimirComprobantePago(p.nombre, total, apt.motivo);
 
-            // Enviar WhatsApp oficial
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
@@ -2555,7 +2558,6 @@
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
         
-        // 💡 NUEVOS CAMPOS CARGADOS DESDE FIREBASE
         document.getElementById('hAlmuerzoInicio').value = clinicDataGlobal?.almuerzoInicio||'13:00';
         document.getElementById('hAlmuerzoFin').value = clinicDataGlobal?.almuerzoFin||'14:00';
         document.getElementById('duracionCita').value = clinicDataGlobal?.duracionCita||'30';
@@ -2571,6 +2573,43 @@
         const reader = new FileReader();
         reader.onload = e => { document.getElementById('clinicLogoPreview').src = e.target.result; };
         reader.readAsDataURL(file);
+    }
+
+    // 🔥 MODIFICADA: CALENDARIO INTERACTIVO (DÍAS NO LABORABLES) EXPUESTO AL MODAL 🔥
+    function renderHolidayCalendar() {
+        const grid = document.getElementById('calDaysGrid');
+        const monthLabel = document.getElementById('calMonthLabel');
+        if(!grid) return;
+        grid.innerHTML = '';
+        
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isHoliday = holidays.includes(dateStr);
+            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
+        }
+    }
+
+    function toggleHoliday(dateStr) {
+        if (holidays.includes(dateStr)) {
+            holidays = holidays.filter(d => d !== dateStr);
+        } else {
+            holidays.push(dateStr);
+        }
+        renderHolidayCalendar();
+    }
+
+    function changeCalMonth(dir) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+        renderHolidayCalendar();
     }
 
     async function saveClinicSettings() {
@@ -2621,6 +2660,127 @@
         d.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg>${msg}`;
         d.classList.remove('hidden');
         setTimeout(()=>d.classList.add('hidden'), 3500);
+    }
+
+    // 🔥 MODIFICADA: IMPLEMENTACIÓN DE CHART.JS PARA EVOLUCIÓN DE PESO DE MASCOTAS 🔥
+    async function openHistoryModal(patientId) {
+        if(!patientId) return;
+        currentPatientIdForImages = patientId;
+        const p = patients.find(x=>x.id===patientId);
+        document.getElementById('historyPatientInfo').textContent = `${p?.nombre||''} · CI: ${p?.cedula||'N/A'}`;
+        document.getElementById('historyModal').classList.remove('hidden');
+        document.getElementById('historyTimeline').innerHTML = '<div style="display:flex;justify-content:center;padding:32px;"><div class="spinner"></div></div>';
+        try {
+            const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
+            if(snap.empty) {
+                document.getElementById('historyTimeline').innerHTML = '<p style="text-align:center;color:#94a3b8;font-weight:600;font-size:13px;padding:32px;">Sin historial clínico registrado.</p>';
+                document.getElementById('chartContainer').classList.add('hidden');
+                if(vitalsChartInstance) vitalsChartInstance.destroy();
+            } else {
+                const docs = snap.docs;
+                let timelineHtml = '';
+                const labels=[], dataPeso=[];
+                for(let i=docs.length-1;i>=0;i--) {
+                    const d = docs[i].data();
+                    const dateObj = d.fecha.toDate ? d.fecha.toDate() : new Date(d.fecha);
+                    const dateStr = dateObj.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
+                    
+                    let vStr='';
+                    if(d.peso) {
+                        vStr += `Peso: ${d.peso}kg | `;
+                        dataPeso.unshift(parseFloat(d.peso));
+                    } else {
+                        dataPeso.unshift(null);
+                    }
+                    if(d.temp) vStr+=`Temp: ${d.temp}°C | `;
+                    if(d.ritmo) vStr+=`FC: ${d.ritmo} bpm`;
+                    
+                    let recsHtml='';
+                    if(d.recomendaciones&&d.recomendaciones.length>0) {
+                        recsHtml=`<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;margin-top:10px;">
+                            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:#c2410c;margin-bottom:5px;">Recomendaciones / Plan</div>
+                            ${d.recomendaciones.map(r=>`<div style="font-size:12px;color:#92400e;font-weight:600;margin-bottom:2px;">• ${r}</div>`).join('')}
+                        </div>`;
+                    }
+                    
+                    let diagHtml=(d.diagnostico||'Sin diagnóstico.').replace(/\n/g,'<br>');
+                    
+                    timelineHtml+=`<div style="background:white;border:1px solid #e2e8f0;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 16px; margin-bottom:10px;">
+                        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;">📅 ${dateStr}</div>
+                        <div style="font-size:13px;color:#374151;font-weight:600;line-height:1.5;">${diagHtml}</div>
+                        ${vStr?`<div style="font-size:11.5px;color:#64748b;font-weight:700;margin-top:6px;">${vStr}</div>`:''}
+                        ${recsHtml}
+                    </div>`;
+                    
+                    labels.unshift(dateStr);
+                }
+                document.getElementById('historyTimeline').innerHTML = timelineHtml;
+                
+                const ctx = document.getElementById('vitalsChartCanvas');
+                if(vitalsChartInstance) vitalsChartInstance.destroy();
+                
+                const validWeights = dataPeso.filter(v => v !== null && !isNaN(v));
+                if(validWeights.length > 0) {
+                    document.getElementById('chartContainer').classList.remove('hidden');
+                    vitalsChartInstance = new Chart(ctx, {
+                        type:'line',
+                        data:{ 
+                            labels, 
+                            datasets:[{ 
+                                label:'Peso de Mascota (kg)', 
+                                data: dataPeso, 
+                                borderColor:'#4f46e5', 
+                                backgroundColor:'rgba(79,70,229,0.08)', 
+                                fill:true, 
+                                tension:0.4, 
+                                pointRadius:4, 
+                                pointBackgroundColor:'#4f46e5' 
+                            }] 
+                        },
+                        options:{ 
+                            responsive:true, 
+                            maintainAspectRatio:false, 
+                            plugins:{ legend:{display:false} }, 
+                            scales:{ 
+                                y:{ min:0, grid:{ color:'#f1f5f9' } }, 
+                                x:{ grid:{ display:false } } 
+                            } 
+                        }
+                    });
+                } else { 
+                    document.getElementById('chartContainer').classList.add('hidden'); 
+                }
+            }
+        } catch(e) { document.getElementById('historyTimeline').innerHTML='<p style="text-align:center;color:#dc2626;font-weight:600;">Error cargando historial.</p>'; }
+        loadPatientImages(patientId);
+    }
+
+    async function uploadPatientImage(input) {
+        const file = input.files[0]; if(!file||!currentPatientIdForImages) return;
+        const btn = document.getElementById('btnUploadImg'); btn.textContent='Subiendo...'; btn.disabled=true;
+        try {
+            const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
+            await storageRef.put(file);
+            const url = await storageRef.getDownloadURL();
+            await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(currentPatientIdForImages).collection('images').add({ url, nombre: file.name, fechaCreacion: new Date() });
+            loadPatientImages(currentPatientIdForImages);
+        } catch(e) { alert('Error subiendo archivo'); }
+        finally { btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Subir archivo'; btn.disabled=false; input.value=''; }
+    }
+
+    async function loadPatientImages(pid) {
+        const gal = document.getElementById('patientImagesGallery');
+        gal.innerHTML = '<div style="display:flex;justify-content:center;grid-column:span 3;padding:16px;"><div class="spinner"></div></div>';
+        try {
+            const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(pid).collection('images').orderBy('fechaCreacion','desc').get();
+            if(snap.empty) return gal.innerHTML='<p style="font-size:12px;color:#94a3b8;font-weight:600;grid-column:span 3;text-align:center;padding:16px;">No hay archivos adjuntos.</p>';
+            gal.innerHTML = snap.docs.map(doc => {
+                const data=doc.data(); const isPDF=data.nombre.toLowerCase().endsWith('.pdf');
+                return isPDF
+                    ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;text-align:center;cursor:pointer;" onclick="window.open('${data.url}')"><div style="font-size:26px;">📄</div><div style="font-size:9px;font-weight:700;color:#dc2626;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;">${data.nombre}</div></div>`
+                    : `<div style="cursor:pointer;overflow:hidden;border-radius:8px;border:1px solid #e2e8f0;" onclick="window.open('${data.url}')"><img src="${data.url}" style="width:100%;height:70px;object-fit:cover;display:block;"></div>`;
+            }).join('');
+        } catch(e) { gal.innerHTML='<p style="font-size:12px;color:#dc2626;font-weight:600;">Error al cargar archivos.</p>'; }
     }
 
     (function initMobileUI() {
