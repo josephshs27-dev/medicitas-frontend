@@ -348,7 +348,7 @@
                 Configuración
             </button>
             <button onclick="auth.signOut()" class="sb-action danger">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"/></svg>
                 Cerrar Sesión
             </button>
         </div>
@@ -931,7 +931,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                 <div style="display:flex;flex-direction:column;gap:16px;">
                     <div id="chartContainer" class="panel hidden" style="height:220px;">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución Clínica (Peso)</div></div>
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución Clínico (Peso y Presión)</div></div>
                         <div style="padding:16px;height:calc(100% - 53px);">
                             <canvas id="vitalsChartCanvas"></canvas>
                         </div>
@@ -1057,28 +1057,17 @@
                         <div style="width:36px;height:36px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📱</div>
                         <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">WhatsApp Business</span>
                     </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;">Conectado ✓</span>
-                </div>
-                <div style="background:white;border:1px solid #bfdbfe;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">💬</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Facebook Messenger</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">Conectado ✓</span>
-                </div>
-                <div style="background:white;border:1px solid #fecaca;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#fef2f2;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📸</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">Instagram Direct</span>
-                    </div>
-                    <span style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Desconectado</span>
+                    <span id="waStatusBadge" style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Desconectado</span>
                 </div>
             </div>
         </div>
-        <div style="padding:14px 26px;border-top:1px solid var(--border);background:white;">
+        <div class="modal-ft" style="padding:14px 26px;border-top:1px solid var(--border);background:white;">
             <button id="btnMetaConnect" onclick="iniciarConexionMeta()" class="btn btn-primary btn-md btn-full">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                Vincular Facebook / WhatsApp
+                Vincular WhatsApp Oficial
+            </button>
+            <button id="btnMetaDisconnect" onclick="desvincularWa()" class="btn btn-secondary btn-md btn-full hidden" style="color:#dc2626; border-color:#fecaca; background:#fef2f2; margin-top:8px;">
+                Desvincular Integración
             </button>
         </div>
     </div>
@@ -1193,7 +1182,7 @@
     // 1. Inicializar el SDK de Facebook
     window.fbAsyncInit = function() {
         FB.init({
-            appId      : '2479673065791422', // ⚠️ PON AQUÍ EL ID DE TU APP DE META
+            appId      : '2479673065791422', // ⚠️ ID DE TU APP DE META
             cookie     : true,
             xfbml      : true,
             version    : 'v18.0'
@@ -1211,63 +1200,118 @@
 
     // 3. Función que se dispara al dar clic en el botón
     function iniciarConexionMeta() {
-    const btn = document.getElementById('btnMetaConnect');
-    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
-    btn.disabled = true;
+        const btn = document.getElementById('btnMetaConnect');
+        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
+        btn.disabled = true;
 
-    FB.login(function(response) {
-        if (response.authResponse && response.authResponse.code) {
-            const codigoOauth = response.authResponse.code;
-            guardarCredencialesMetaEnBackend(codigoOauth);
-        } else {
-            mostrarMensaje('Conexión cancelada por el usuario.', 'error');
-            btn.innerHTML = 'Vincular Facebook / WhatsApp';
-            btn.disabled = false;
-        }
-    }, {
-        config_id: '4347842542212616', // Asegúrate de que este es el ID configurado en Meta
-        response_type: 'code',
-        override_default_response_type: true,
-        extras: { 
-            setup: {
-                // OPCIONAL: Esto le ahorra a la clínica tener que escribir su nombre en Meta
-                prefetched_profile: {
-                    name: document.getElementById('clinicName').value || 'Clínica Médica'
-                }
-            } 
-        }
-    });
-}
-    // 4. Función para enviar el código a tu servidor (wpp.js)
+        FB.login(function(response) {
+            if (response.authResponse && response.authResponse.code) {
+                const codigoOauth = response.authResponse.code;
+                guardarCredencialesMetaEnBackend(codigoOauth);
+            } else {
+                mostrarMensaje('Conexión cancelada por el usuario.', 'error');
+                btn.innerHTML = 'Vincular Facebook / WhatsApp';
+                btn.disabled = false;
+            }
+        }, {
+            config_id: '1020182057736220', // Asegúrate de que este es el ID configurado en Meta
+            response_type: 'code',
+            override_default_response_type: true,
+            scope: 'whatsapp_business_management,whatsapp_business_messaging', 
+            extras: { 
+                setup: {
+                    prefetched_profile: {
+                        name: document.getElementById('clinicName').value || 'Clínica Médica'
+                    }
+                } 
+            }
+        });
+    }
+
+    // 4. Función para enviar el código a tu servidor
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
         const btn = document.getElementById('btnMetaConnect');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
         
         try {
-            // Llama a la ruta que crearemos en wpp.js
-            const res = await fetch(`${API_BASE_URL}/api/meta/oauth`, {
+            const res = await fetch(`${API_BASE_URL}/api/meta/exchange-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    clinicId: parentDoctorId, 
                     doctorId: parentDoctorId,
-                    code: codigoOauth
+                    authCode: codigoOauth
                 })
             });
             const data = await res.json();
             
             if(data.success) {
                 mostrarMensaje('¡Cuentas de Meta vinculadas con éxito!', 'success');
-                closeMetaModal();
+                clinicDataGlobal.metaPhoneId = data.metaPhoneId; 
+                clinicDataGlobal.fbPageToken = data.fbPageToken;
+                actualizarUiWa(true); 
             } else {
                 throw new Error(data.error);
             }
         } catch(e) {
             mostrarMensaje('Error guardando credenciales: ' + e.message, 'error');
-        } finally {
             btn.innerHTML = 'Vincular Facebook / WhatsApp';
             btn.disabled = false;
+        } 
+    }
+
+    async function desvincularWa() {
+        if(!confirm("¿Seguro que deseas desvincular la Inteligencia Artificial de tu WhatsApp?")) return;
+        try {
+            await fetch(`${API_BASE_URL}/api/meta/desvincular`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId })
+            });
+            mostrarMensaje('Integración desvinculada.', 'success');
+            clinicDataGlobal.metaPhoneId = null;
+            clinicDataGlobal.fbPageToken = null;
+            actualizarUiWa(false);
+        } catch(e) {
+            mostrarMensaje('Error al desvincular.', 'error');
         }
     }
+
+    function actualizarUiWa(isConnected) {
+        const badge = document.getElementById('waStatusBadge');
+        const btnConnect = document.getElementById('btnMetaConnect');
+        const btnDisconnect = document.getElementById('btnMetaDisconnect');
+
+        if(isConnected) {
+            badge.textContent = "Conectado ✓";
+            badge.style.background = "#f0fdf4";
+            badge.style.color = "#16a34a";
+            badge.style.borderColor = "#bbf7d0";
+            
+            btnConnect.classList.add('hidden');
+            btnDisconnect.classList.remove('hidden');
+        } else {
+            badge.textContent = "Desconectado";
+            badge.style.background = "#fef2f2";
+            badge.style.color = "#dc2626";
+            badge.style.borderColor = "#fecaca";
+
+            btnConnect.classList.remove('hidden');
+            btnConnect.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp Oficial`;
+            btnConnect.disabled = false;
+            btnDisconnect.classList.add('hidden');
+        }
+    }
+
+    function openMetaModal() { 
+        document.getElementById('metaModal').classList.remove('hidden'); 
+        actualizarUiWa(!!clinicDataGlobal?.metaPhoneId);
+    }
+    
+    function closeMetaModal() { 
+        document.getElementById('metaModal').classList.add('hidden'); 
+    }
+
 
     const API_BASE_URL = "https://api.asistencitas.com";
     const firebaseConfig = {
@@ -1292,7 +1336,7 @@
         if(overlay) overlay.style.display = 'none';
     }, 3000);
 
-    let parentDoctorId = null;
+    let parentDoctorId = null; // Este es nuestro clinicId en SaaS
     let clinicDataGlobal = null;
     let patients = [];
     let appointments = [];
@@ -1319,7 +1363,12 @@
     auth.onAuthStateChanged(async (user) => {
         if (!user) { window.location.href = 'index.html'; return; }
         try {
-            const userDoc = await db.collection('users').doc(user.uid).get();
+            // 🔥 SaaS: Buscar en clinics, fallback a users
+            let userDoc = await db.collection('clinics').doc(user.uid).get();
+            if(!userDoc.exists) {
+                userDoc = await db.collection('users').doc(user.uid).get();
+            }
+
             if (userDoc.exists) {
                 const data = userDoc.data();
                 
@@ -1330,7 +1379,8 @@
                     const diferenciaDias = (ahora - fechaPago) / (1000 * 60 * 60 * 24);
 
                     if (diferenciaDias > 31) {
-                        await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' });
+                        try { await db.collection('clinics').doc(user.uid).update({ estadoSuscripcion: 'suspendido' }); } catch(e){}
+                        try { await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' }); } catch(e){}
                         window.location.reload(); 
                         return;
                     }
@@ -1346,9 +1396,13 @@
                 if (esp !== 'medicina' && data.rol !== 'vendedor') {
                     window.location.href = `dashboard-${esp}.html`; return;
                 }
-                parentDoctorId = user.uid;
+                parentDoctorId = user.uid; // Esta es tu bóveda
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'medicina' };
-                holidays = clinicDataGlobal.diasNoLaborables || []; // Cargamos feriados
+                holidays = clinicDataGlobal.diasNoLaborables || []; 
+
+                // Garantizamos que el estado de Meta se preserve localmente
+                clinicDataGlobal.metaPhoneId = data.metaPhoneId;
+                clinicDataGlobal.fbPageToken = data.fbPageToken;
 
                 if (data.estadoSuscripcion === 'suspendido') {
                     document.getElementById('dashboardView').classList.add('hidden');
@@ -1474,9 +1528,9 @@
         }
     }
 
-    // ── INVENTARIO ──
+    // ── INVENTARIO (Multi-Tenant) ──
     async function loadInsumos() {
-        const snap = await db.collection('insumos').where('doctorId', '==', parentDoctorId).get();
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('insumos').get();
         insumos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderInsumos();
     }
@@ -1513,7 +1567,7 @@
         const cat = document.getElementById('insumoCat').value;
         if(!name) return alert("Ingresa el nombre del insumo.");
         try {
-            await db.collection('insumos').add({ doctorId: parentDoctorId, nombre: name, stock: qty, categoria: cat });
+            await db.collection('clinics').doc(parentDoctorId).collection('insumos').add({ nombre: name, stock: qty, categoria: cat });
             document.getElementById('addInsumoModal').classList.add('hidden');
             document.getElementById('insumoName').value = '';
             document.getElementById('insumoQty').value = '';
@@ -1528,7 +1582,7 @@
         let newStock = insumo.stock + diff;
         if(newStock < 0) newStock = 0;
         try {
-            await db.collection('insumos').doc(id).update({ stock: newStock });
+            await db.collection('clinics').doc(parentDoctorId).collection('insumos').doc(id).update({ stock: newStock });
             loadInsumos();
         } catch(e) {}
     }
@@ -1554,7 +1608,8 @@
 
     async function saveBdayConfig() {
         const gift = document.getElementById('bdayGiftText').value;
-        await db.collection('users').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift });
+        try { await db.collection('clinics').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift }); } catch(e){}
+        try { await db.collection('users').doc(parentDoctorId).update({ "clinicInfo.bdayGift": gift }); } catch(e){}
         clinicDataGlobal.bdayGift = gift;
         mostrarMensaje("Regalo de cumpleaños configurado.", "success");
         document.getElementById('birthdayModal').classList.add('hidden');
@@ -1562,13 +1617,15 @@
 
     async function syncGoogleCalendar() {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl?doctorId=${parentDoctorId}`);
+            const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl?clinicId=${parentDoctorId}`);
             const data = await res.json();
             if(!res.ok) throw new Error(data.error || "Fallo en el servidor");
             window.open(data.url, 'GoogleAuth', 'width=600,height=700');
             mostrarMensaje('Autoriza en la ventana emergente. Guardaremos la cita automáticamente.', 'success');
             const checkInterval = setInterval(async () => {
-                const doc = await db.collection('users').doc(parentDoctorId).get();
+                let doc = await db.collection('clinics').doc(parentDoctorId).get();
+                if(!doc.exists) doc = await db.collection('users').doc(parentDoctorId).get();
+
                 const gToken = doc.data().clinicInfo?.gCalendarToken;
                 if(gToken && gToken !== clinicDataGlobal.gCalendarToken) {
                     clearInterval(checkInterval);
@@ -1580,18 +1637,18 @@
         } catch(e) { alert("Error conectando con API de Google Calendar: " + e.message); }
     }
 
-    // ── PATIENTS ──
+    // ── PATIENTS (Multi-Tenant) ──
     async function loadPatients() {
-        const snap = await db.collection('patients').where('doctorId', '==', parentDoctorId).get();
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').get();
         patients = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
         document.getElementById('patientSelect').innerHTML = '<option value="">Seleccionar paciente...</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
         renderPatientsDirectory(patients);
         if(document.getElementById('kpiPacientes')) document.getElementById('kpiPacientes').textContent = patients.length;
     }
 
-    // ── APPOINTMENTS ──
+    // ── APPOINTMENTS (Multi-Tenant) ──
     async function loadAppointments() {
-        const snap = await db.collection('appointments').where('doctorId', '==', parentDoctorId).orderBy('fecha', 'desc').orderBy('hora', 'desc').get();
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('appointments').orderBy('fecha', 'desc').orderBy('hora', 'desc').get();
         appointments = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderAppointments();
         updateDashboardStats();
@@ -1601,7 +1658,7 @@
         }
     }
 
-    // ── NUEVO: FULLCALENDAR INTEGRATION ──
+    // ── FULLCALENDAR INTEGRATION ──
     function renderFullCalendar() {
         const calendarEl = document.getElementById('calendarDiv');
         if (!calendarEl) return;
@@ -1656,9 +1713,9 @@
         calendarInstance.render();
     }
 
-    // ── PLANES Y CUOTAS ──
+    // ── PLANES Y CUOTAS (Multi-Tenant) ──
     async function loadPlanesPago() {
-        const snap = await db.collection('planes_pago').where('doctorId', '==', parentDoctorId).where('estado', '==', 'activo').get();
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').where('estado', '==', 'activo').get();
         planesPago = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderPlanesPago();
     }
@@ -1709,7 +1766,7 @@
         document.getElementById('payInstallmentModal').classList.remove('hidden');
     }
 
-    // 🔥 PAGO DESDE FINANZAS (CON RECIBO PDF Y MENSAJE DE DEUDA WA) 🔥
+    // 🔥 PAGO DESDE FINANZAS (CON RECIBO PDF Y MENSAJE DE DEUDA WA Y MULTI-TENANT) 🔥
     async function submitInstallmentPayment() {
         const planId = document.getElementById('installPlanId').value;
         const amount = parseFloat(document.getElementById('installAmount').value);
@@ -1722,9 +1779,9 @@
         const estado = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
         
         try {
-            await db.collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
-            await db.collection('appointments').add({
-                doctorId: parentDoctorId, patientId: plan.patientId,
+            await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
+                patientId: plan.patientId,
                 fecha: new Date().toISOString().split('T')[0],
                 hora: new Date().toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit', hour12:false }),
                 motivo: `Abono Cuota ${nuevasCuotas}/${plan.totalCuotas}`,
@@ -1742,7 +1799,7 @@
                 const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Médica'}\n\n👤 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
+                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
             }
 
@@ -1775,7 +1832,7 @@
     async function deleteAppointment(id) {
         if(!confirm("⚠️ ¿Estás seguro de eliminar este turno?")) return;
         try {
-            await db.collection('appointments').doc(id).delete();
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(id).delete();
             mostrarMensaje('Cita eliminada correctamente.', 'success');
             await loadAppointments();
         } catch(e) { alert("Error al eliminar."); }
@@ -1902,12 +1959,12 @@
         btn.disabled = true; btn.textContent = "Guardando...";
         try {
             if(editPatientId) {
-                await db.collection('patients').doc(editPatientId).update({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob });
+                await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(editPatientId).update({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob });
                 mostrarMensaje("Registro actualizado con éxito.", "success");
             } else {
-                const exist = await db.collection('patients').where('doctorId','==',parentDoctorId).where('cedula','==',cedula).get();
+                const exist = await db.collection('clinics').doc(parentDoctorId).collection('patients').where('cedula','==',cedula).get();
                 if(!exist.empty) { btn.disabled=false; btn.textContent="Guardar"; return alert("Esta cédula ya está registrada."); }
-                await db.collection('patients').add({ doctorId: parentDoctorId, nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob, fechaRegistro: new Date(), activo: true });
+                await db.collection('clinics').doc(parentDoctorId).collection('patients').add({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob, fechaRegistro: new Date(), activo: true });
                 mostrarMensaje("Paciente registrado exitosamente.", "success");
             }
             closePatientModal();
@@ -1920,9 +1977,8 @@
     document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
-            await db.collection('appointments').add({
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
                 patientId: document.getElementById('patientSelect').value,
-                doctorId: parentDoctorId,
                 fecha: document.getElementById('appointmentDate').value,
                 hora: document.getElementById('appointmentTime').value,
                 motivo: document.getElementById('appointmentReason').value,
@@ -1944,7 +2000,7 @@
 
     async function confirmAppointmentManually(id) {
         try {
-            await db.collection('appointments').doc(id).update({ estado: 'confirmada' });
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(id).update({ estado: 'confirmada' });
             mostrarMensaje('Cita confirmada.', 'success');
             await loadAppointments();
         } catch(e) { alert("Error confirmando."); }
@@ -1976,7 +2032,7 @@
             altura: document.getElementById('triAltura').value,
         };
         try {
-            await db.collection('appointments').doc(aptId).update({ triaje: data });
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ triaje: data });
             mostrarMensaje('Constantes guardadas.', 'success');
             closeTriageModal();
             await loadAppointments();
@@ -2206,8 +2262,8 @@
             recList.push(`⚠️ Plan Financiero: Diferido en ${cuotas} cuota(s). Monto Total: $${montoTotalPlan.toFixed(2)}`);
 
             if(cuotas > 1 && montoTotalPlan > 0) {
-                await db.collection('planes_pago').add({
-                    doctorId: parentDoctorId, patientId: p.id,
+                await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').add({
+                    patientId: p.id,
                     fechaInicio: new Date().toISOString().split('T')[0],
                     totalCuotas: cuotas, cuotasPagadas: 0,
                     montoTotal: montoTotalPlan, saldoPendiente: montoTotalPlan,
@@ -2221,8 +2277,8 @@
         if(nextDate && nextTime) {
             recList.push(`📅 Tu próximo control queda agendado para: ${nextDate} a las ${nextTime}`);
 
-            await db.collection('appointments').add({
-                doctorId: parentDoctorId, patientId: p.id,
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
+                patientId: p.id,
                 fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
                 motivo: 'Control Médico (Auto-Agendado)', fechaCreacion: new Date()
             });
@@ -2230,19 +2286,19 @@
             if(clinicDataGlobal.gCalendarToken) {
                 fetch(`${API_BASE_URL}/api/calendar/create-event`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control Médico', tokenGCalendar: clinicDataGlobal.gCalendarToken })
+                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control Médico', tokenGCalendar: clinicDataGlobal.gCalendarToken })
                 });
             }
         }
 
         try {
             if(diagFinal || meds.length > 0 || customVitalsStr.length > 0) {
-                await db.collection('patients').doc(p.id).collection('vitals').add({
+                await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(p.id).collection('vitals').add({
                     fecha: new Date(), diagnostico: diagFinal, recomendaciones: recList, ...vitalsObj
                 });
             }
 
-            await db.collection('appointments').doc(aptId).update({ 
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ 
                 diagnostico: diagFinal, 
                 mspMotivo, mspEnfermedad, mspAntecedentes, mspExamen, rxRiesgoCV,
                 recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() 
@@ -2251,7 +2307,7 @@
             await fetch(`${API_BASE_URL}/send-prescription`, {
                 method:'POST', headers: {'Content-Type': 'application/json'},
                 body:JSON.stringify({
-                    doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
+                    clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
                     diagnostico: diagFinal, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal
                 })
             });
@@ -2452,7 +2508,7 @@
         btn.disabled=true; btn.textContent='Enviando Comprobante...';
         
         try {
-            await db.collection('appointments').doc(aptId).update({ estado:'completada', monto: total, fechaCobro: new Date() });
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ estado:'completada', monto: total, fechaCobro: new Date() });
             
             const apt = appointments.find(a=>a.id===aptId);
             const p = patients.find(x=>x.id===apt?.patientId);
@@ -2467,7 +2523,7 @@
                 const estadoPlan = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
                 const nuevasCuotas = planActivo.cuotasPagadas + 1;
                 
-                await db.collection('planes_pago').doc(planActivo.id).update({
+                await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').doc(planActivo.id).update({
                     saldoPendiente: nuevoSaldo,
                     cuotasPagadas: nuevasCuotas,
                     estado: estadoPlan
@@ -2484,7 +2540,7 @@
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
+                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
             }
             
@@ -2496,7 +2552,7 @@
         finally { btn.disabled=false; btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Finalizar y Enviar`; }
     }
 
-    // ── HISTORY ──
+    // ── HISTORY (Multi-Tenant) ──
     async function openHistoryModal(patientId) {
         if(!patientId) return;
         currentPatientIdForImages = patientId;
@@ -2505,7 +2561,7 @@
         document.getElementById('historyModal').classList.remove('hidden');
         document.getElementById('historyTimeline').innerHTML = '<div style="display:flex;justify-content:center;padding:32px;"><div class="spinner"></div></div>';
         try {
-            const snap = await db.collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
+            const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
             if(snap.empty) {
                 document.getElementById('historyTimeline').innerHTML = '<p style="text-align:center;color:#94a3b8;font-weight:600;font-size:13px;padding:32px;">Sin historial clínico registrado.</p>';
                 document.getElementById('chartContainer').classList.add('hidden');
@@ -2581,7 +2637,7 @@
             const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
             await storageRef.put(file);
             const url = await storageRef.getDownloadURL();
-            await db.collection('patients').doc(currentPatientIdForImages).collection('images').add({ url, nombre: file.name, fechaCreacion: new Date() });
+            await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(currentPatientIdForImages).collection('images').add({ url, nombre: file.name, fechaCreacion: new Date() });
             loadPatientImages(currentPatientIdForImages);
         } catch(e) { alert('Error subiendo archivo'); }
         finally { btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Subir archivo'; btn.disabled=false; input.value=''; }
@@ -2591,7 +2647,7 @@
         const gal = document.getElementById('patientImagesGallery');
         gal.innerHTML = '<div style="display:flex;justify-content:center;grid-column:span 3;padding:16px;"><div class="spinner"></div></div>';
         try {
-            const snap = await db.collection('patients').doc(pid).collection('images').orderBy('fechaCreacion','desc').get();
+            const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(pid).collection('images').orderBy('fechaCreacion','desc').get();
             if(snap.empty) return gal.innerHTML='<p style="font-size:12px;color:#94a3b8;font-weight:600;grid-column:span 3;text-align:center;padding:16px;">No hay archivos adjuntos.</p>';
             gal.innerHTML = snap.docs.map(doc => {
                 const data=doc.data(); const isPDF=data.nombre.toLowerCase().endsWith('.pdf');
@@ -2616,7 +2672,7 @@
         try {
             const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({ doctorId: parentDoctorId, mensajePromocion: message, instruccionesIA: targeting })
+                body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, mensajePromocion: message, instruccionesIA: targeting })
             });
             const data = await res.json();
             if(data.success) {
@@ -2629,85 +2685,6 @@
         finally { btn.textContent='Enviar Inteligente ✦'; btn.disabled=false; }
     }
 
-    // ── META CLOUD API ──
-    
-    window.fbAsyncInit = function() {
-        FB.init({
-            appId      : '2479673065791422', // ⚠️ PON AQUÍ EL ID DE TU APP DE META
-            cookie     : true,
-            xfbml      : true,
-            version    : 'v18.0'
-        });
-    };
-
-    (function(d, s, id){
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {return;}
-        js = d.createElement(s); js.id = id;
-        js.src = "https://connect.facebook.net/es_LA/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-
-    function iniciarConexionMeta() {
-        const btn = document.getElementById('btnMetaConnect');
-        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
-        btn.disabled = true;
-
-        FB.login(function(response) {
-            if (response.authResponse && response.authResponse.code) {
-                const codigoOauth = response.authResponse.code;
-                guardarCredencialesMetaEnBackend(codigoOauth);
-            } else {
-                mostrarMensaje('Conexión cancelada por el usuario.', 'error');
-                btn.innerHTML = 'Vincular Facebook / WhatsApp';
-                btn.disabled = false;
-            }
-        }, {
-            config_id: '4347842542212616', 
-            response_type: 'code',
-            override_default_response_type: true,
-            extras: { 
-                setup: {
-                    prefetched_profile: {
-                        name: document.getElementById('clinicName').value || 'Clínica Médica'
-                    }
-                } 
-            }
-        });
-    }
-
-    async function guardarCredencialesMetaEnBackend(codigoOauth) {
-        const btn = document.getElementById('btnMetaConnect');
-        btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
-        
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/meta/oauth`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    doctorId: parentDoctorId,
-                    code: codigoOauth
-                })
-            });
-            const data = await res.json();
-            
-            if(data.success) {
-                mostrarMensaje('¡Cuentas de Meta vinculadas con éxito!', 'success');
-                closeMetaModal();
-            } else {
-                throw new Error(data.error);
-            }
-        } catch(e) {
-            mostrarMensaje('Error guardando credenciales: ' + e.message, 'error');
-        } finally {
-            btn.innerHTML = 'Vincular Facebook / WhatsApp';
-            btn.disabled = false;
-        }
-    }
-
-    function openMetaModal() { document.getElementById('metaModal').classList.remove('hidden'); }
-    function closeMetaModal() { document.getElementById('metaModal').classList.add('hidden'); }
-
     // ── CONFIGURACIÓN (CON HORARIOS NUEVOS) ──
     function openSettingsModal() {
         document.getElementById('clinicName').value = clinicDataGlobal?.nombre||'';
@@ -2718,7 +2695,6 @@
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
         
-        // 💡 NUEVOS CAMPOS CARGADOS DESDE FIREBASE
         document.getElementById('hAlmuerzoInicio').value = clinicDataGlobal?.almuerzoInicio||'13:00';
         document.getElementById('hAlmuerzoFin').value = clinicDataGlobal?.almuerzoFin||'14:00';
         document.getElementById('duracionCita').value = clinicDataGlobal?.duracionCita||'30';
@@ -2753,7 +2729,6 @@
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
             
-            // 💡 NUEVOS CAMPOS ENVIADOS A FIREBASE
             almuerzoInicio: document.getElementById('hAlmuerzoInicio').value,
             almuerzoFin: document.getElementById('hAlmuerzoFin').value,
             duracionCita: document.getElementById('duracionCita').value,
@@ -2762,7 +2737,8 @@
             logo: logoUrl
         };
         try {
-            await db.collection('users').doc(parentDoctorId).update({ clinicInfo: { ...clinicDataGlobal, ...newData } });
+            await db.collection('clinics').doc(parentDoctorId).update({ clinicInfo: { ...clinicDataGlobal, ...newData } });
+            try { await db.collection('users').doc(parentDoctorId).update({ clinicInfo: { ...clinicDataGlobal, ...newData } }); } catch(e){}
             clinicDataGlobal = { ...clinicDataGlobal, ...newData };
             applyClinicBranding();
             closeSettingsModal();
