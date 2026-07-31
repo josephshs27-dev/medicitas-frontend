@@ -328,8 +328,14 @@
         auth.onAuthStateChanged(async (user) => {
             if(user) {
                 try {
+                    // Validamos que NO sea ni clínica ni vendedor para dejarlo entrar al SuperAdmin
+                    let isRestricted = false;
+                    
+                    const clinicDoc = await db.collection('clinics').doc(user.uid).get();
+                    if(clinicDoc.exists) isRestricted = true;
+                    
                     const userDoc = await db.collection('users').doc(user.uid).get();
-                    const isRestricted = userDoc.exists && (userDoc.data().rol === 'doctor' || userDoc.data().rol === 'vendedor');
+                    if(userDoc.exists && (userDoc.data().rol === 'doctor' || userDoc.data().rol === 'vendedor')) isRestricted = true;
 
                     if (isRestricted) {
                         await auth.signOut();
@@ -365,9 +371,9 @@
             }
         }
 
-        // ── CARGA DE DATOS (CON SOLUCIÓN FIREBASE) ──
+        // ── CARGA DE DATOS MULTI-TENANT ──
         async function loadGlobalData() {
-            // Cargar Vendedores
+            // Cargar Vendedores (Aún en Users)
             try {
                 const vendSnap = await db.collection('users').where('rol', '==', 'vendedor').get();
                 mapaVendedores = {};
@@ -395,15 +401,30 @@
                 document.getElementById('kpiTotalVendedores').textContent = vendSnap.size;
             } catch (e) { console.error(e); }
 
-            // Cargar Clínicas
+            // Cargar Clínicas (Desde la colección Clinics + Legacy Users)
             const tbody = document.getElementById('clinicsTableBody');
             try {
-                // Quitamos el orderBy de Firebase y obtenemos todos
-                const snapshot = await db.collection('users').where('rol', '==', 'doctor').get();
+                // Buscamos en clinics (Nuevo Modelo)
+                const snapshotClinics = await db.collection('clinics').get();
+                // Buscamos en users (Modelo viejo por si queda alguna rezagada)
+                const snapshotUsers = await db.collection('users').where('rol', '==', 'doctor').get();
                 
-                // Ordenamos mediante JavaScript para evadir el bloqueo
                 let clinicsArray = [];
-                snapshot.forEach(doc => clinicsArray.push({ id: doc.id, data: doc.data() }));
+                let registeredIds = new Set();
+
+                // Unificamos evitando duplicados
+                snapshotClinics.forEach(doc => {
+                    clinicsArray.push({ id: doc.id, data: doc.data() });
+                    registeredIds.add(doc.id);
+                });
+
+                snapshotUsers.forEach(doc => {
+                    if(!registeredIds.has(doc.id)){
+                        clinicsArray.push({ id: doc.id, data: doc.data() });
+                    }
+                });
+
+                // Ordenamos mediante JavaScript para evadir el bloqueo de índices
                 clinicsArray.sort((a, b) => {
                     const timeA = (a.data.fechaRegistro && a.data.fechaRegistro.toDate) ? a.data.fechaRegistro.toDate().getTime() : 0;
                     const timeB = (b.data.fechaRegistro && b.data.fechaRegistro.toDate) ? b.data.fechaRegistro.toDate().getTime() : 0;
@@ -485,7 +506,7 @@
                 const pasarela = ingresosTotalesMensuales * 0.06;
                 const neto = ingresosTotalesMensuales - iva - pasarela - comisionVendedoresMensual - comisionSocioMensual;
 
-                document.getElementById('kpiTotalClinics').textContent = snapshot.size;
+                document.getElementById('kpiTotalClinics').textContent = clinicsArray.length;
                 document.getElementById('kpiActiveClinics').textContent = activas;
                 document.getElementById('kpiBruto').textContent = '$' + ingresosTotalesMensuales.toFixed(2);
                 document.getElementById('kpiIva').textContent = '$' + iva.toFixed(2);
@@ -504,11 +525,11 @@
             btn.disabled = true;
 
             try {
-                const snapshot = await db.collection('users').where('rol', '==', 'doctor').get();
+                const snapshotClinics = await db.collection('clinics').get();
                 let csvContent = "\ufeff"; 
                 csvContent += "RUC / Cedula,Razon Social,Direccion,Correo Facturacion,Monto Cobrado,Fecha Ultimo Pago,Estado\n";
 
-                snapshot.forEach(doc => {
+                snapshotClinics.forEach(doc => {
                     const data = doc.data();
                     if (data.estadoSuscripcion === 'activo') { 
                         const sri = data.facturacionSRI || {};
@@ -555,8 +576,10 @@
             if(!confirm(`¿Seguro de eliminar al agente ${nombre}?\n\nSu cuenta será borrada y sus clínicas afiliadas pasarán a la Matriz.`)) return;
             try {
                 const batch = db.batch();
-                const doctoresSnap = await db.collection('users').where('vendedorId', '==', vendedorId).get();
-                doctoresSnap.forEach(doc => { batch.update(db.collection('users').doc(doc.id), { vendedorId: null }); });
+                // Buscar clínicas asociadas y quitarles el vendedor
+                const clinicsSnap = await db.collection('clinics').where('vendedorId', '==', vendedorId).get();
+                clinicsSnap.forEach(doc => { batch.update(db.collection('clinics').doc(doc.id), { vendedorId: null }); });
+                
                 batch.delete(db.collection('users').doc(vendedorId));
                 await batch.commit();
                 alert(`✅ Agente eliminado y cartera reasignada.`);
@@ -567,7 +590,8 @@
         async function deleteClinic(id, nombre) {
             if(confirm(`⚠️ ¿Deseas ELIMINAR PERMANENTEMENTE a ${nombre}?\n\nNo se puede deshacer.`)) {
                 try {
-                    await db.collection('users').doc(id).delete();
+                    try { await db.collection('clinics').doc(id).delete(); } catch(e){}
+                    try { await db.collection('users').doc(id).delete(); } catch(e){}
                     alert("✅ Clínica destruida exitosamente.");
                     loadGlobalData();
                 } catch(e) { alert("Error de servidor."); }
@@ -577,23 +601,27 @@
         async function updatePlan(id) {
             const nuevoPrecio = parseFloat(document.getElementById(`plan_${id}`).value);
             if (isNaN(nuevoPrecio) || nuevoPrecio <= 0) return alert("Ingresa un precio válido.");
-            await db.collection('users').doc(id).update({ precioSuscripcion: nuevoPrecio });
+            try { await db.collection('clinics').doc(id).update({ precioSuscripcion: nuevoPrecio }); } catch(e){}
+            try { await db.collection('users').doc(id).update({ precioSuscripcion: nuevoPrecio }); } catch(e){}
             alert("✅ Tarifa actualizada.");
             loadGlobalData();
         }
 
         async function updateSocials(id) {
-            await db.collection('users').doc(id).update({ 
+            const payload = { 
                 metaPhoneId: document.getElementById(`meta_${id}`).value.trim(),
                 fbPageId: document.getElementById(`fb_${id}`).value.trim(),
                 igAccountId: document.getElementById(`ig_${id}`).value.trim(),
                 fbPageToken: document.getElementById(`token_${id}`).value.trim()
-            });
+            };
+            try { await db.collection('clinics').doc(id).update(payload); } catch(e){}
+            try { await db.collection('users').doc(id).update(payload); } catch(e){}
             alert("✅ Credenciales Meta Omnicanal Guardadas.");
         }
 
         async function toggleSuscripcion(id, estado) {
-            await db.collection('users').doc(id).update({ estadoSuscripcion: estado });
+            try { await db.collection('clinics').doc(id).update({ estadoSuscripcion: estado }); } catch(e){}
+            try { await db.collection('users').doc(id).update({ estadoSuscripcion: estado }); } catch(e){}
             loadGlobalData();
         }
 
