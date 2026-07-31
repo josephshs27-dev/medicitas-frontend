@@ -241,8 +241,8 @@
         /* ── Modals (Ampliados para usar más espacio visual) ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
-        .modal-box-large { width: 100%; max-width: 1000px !important; } /* Modal ampliado para receta */
-        .modal-box-xl { width: 100%; max-width: 1200px !important; } /* Modal ampliado para expediente */
+        .modal-box-large { width: 100%; max-width: 1000px !important; }
+        .modal-box-xl { width: 100%; max-width: 1200px !important; }
         .modal-hd { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .modal-title { font-size: 16px; font-weight: 800; color: var(--txt1); }
         .modal-sub { font-size: 12.5px; color: var(--txt2); font-weight: 500; margin-top: 2px; }
@@ -368,7 +368,7 @@
                 Mi Link de Reservas
             </button>
             <button onclick="openSettingsModal()" class="sb-action">
-                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37-2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
                 Configuración
             </button>
             <button onclick="auth.signOut()" class="sb-action danger">
@@ -985,6 +985,12 @@
         <div style="flex:1;overflow-y:auto;padding:24px 26px;background:#f8fafc;" class="cs">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                 <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div id="chartContainer" class="panel hidden" style="height:230px;">
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución Índice CPO-D (Piezas Tratadas)</div></div>
+                        <div style="padding:16px;height:calc(100% - 53px);">
+                            <canvas id="vitalsChartCanvas"></canvas>
+                        </div>
+                    </div>
                     <div class="panel">
                         <div class="panel-head">
                             <div class="panel-title" style="font-size:13px;">Radiografías / Imágenes</div>
@@ -1247,6 +1253,15 @@
         });
     };
 
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/es_LA/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    // 🔥 MODIFICADA: VERIFICACIÓN DEL SDK Y SOPORTE DE COEXISTENCIA v3 🔥
     function launchMetaEmbeddedSignup() {
         if (typeof FB === 'undefined') {
             mostrarMensaje('El script de Meta no se ha cargado. Revisa tu conexión a internet o bloqueador de anuncios.', 'error');
@@ -1272,8 +1287,8 @@
             override_default_response_type: true,
             scope: 'whatsapp_business_management,whatsapp_business_messaging', 
             extras: { 
-                featureType: 'whatsapp_business_app_onboarding',
-                sessionInfoVersion: '3',
+                featureType: 'whatsapp_business_app_onboarding', // <-- HABILITA COEXISTENCIA WPP BUSINESS
+                sessionInfoVersion: '3',                         // <-- ONBOARDING VERSIÓN 3
                 setup: {
                     prefetched_profile: {
                         name: document.getElementById('clinicName').value || 'Clínica Odontológica'
@@ -1393,7 +1408,8 @@
 
     let holidays = [];
     let currentCalDate = new Date();
-    let calendarInstance = null; // FullCalendar
+    let calendarInstance = null;
+    let vitalsChartInstance = null; // Instancia de gráfico en historial
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1407,7 +1423,6 @@
     auth.onAuthStateChanged(async (user) => {
         if (!user) { window.location.href = 'index.html'; return; }
         try {
-            // 🔥 Multi-Tenant
             let userDoc = await db.collection('clinics').doc(user.uid).get();
             if(!userDoc.exists) {
                 userDoc = await db.collection('users').doc(user.uid).get();
@@ -1416,7 +1431,6 @@
             if (userDoc.exists) {
                 const data = userDoc.data();
                 
-                // LÓGICA DE AUTO-SUSPENSIÓN Y BADGE
                 if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
                     const ahora = new Date();
                     const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
@@ -2627,7 +2641,6 @@
         document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
         document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
         
-        // 💡 NUEVOS CAMPOS CARGADOS DESDE FIREBASE
         document.getElementById('hAlmuerzoInicio').value = clinicDataGlobal?.almuerzoInicio||'13:00';
         document.getElementById('hAlmuerzoFin').value = clinicDataGlobal?.almuerzoFin||'14:00';
         document.getElementById('duracionCita').value = clinicDataGlobal?.duracionCita||'30';
@@ -2643,6 +2656,43 @@
         const reader = new FileReader();
         reader.onload = e => { document.getElementById('clinicLogoPreview').src = e.target.result; };
         reader.readAsDataURL(file);
+    }
+
+    // 🔥 MODIFICADA: CALENDARIO INTERACTIVO (DÍAS NO LABORABLES) EXPUESTO AL MODAL 🔥
+    function renderHolidayCalendar() {
+        const grid = document.getElementById('calDaysGrid');
+        const monthLabel = document.getElementById('calMonthLabel');
+        if(!grid) return;
+        grid.innerHTML = '';
+        
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isHoliday = holidays.includes(dateStr);
+            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
+        }
+    }
+
+    function toggleHoliday(dateStr) {
+        if (holidays.includes(dateStr)) {
+            holidays = holidays.filter(d => d !== dateStr);
+        } else {
+            holidays.push(dateStr);
+        }
+        renderHolidayCalendar();
+    }
+
+    function changeCalMonth(dir) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+        renderHolidayCalendar();
     }
 
     async function saveClinicSettings() {
@@ -2693,6 +2743,127 @@
         d.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg>${msg}`;
         d.classList.remove('hidden');
         setTimeout(()=>d.classList.add('hidden'), 3500);
+    }
+
+    // 🔥 MODIFICADA: IMPLEMENTACIÓN DE CHART.JS PARA CPO-D EN EXPEDIENTE DENTAL 🔥
+    async function openHistoryModal(patientId) {
+        if(!patientId) return;
+        currentPatientIdForImages = patientId;
+        const p = patients.find(x=>x.id===patientId);
+        document.getElementById('historyPatientInfo').textContent = `${p?.nombre||''} · CI: ${p?.cedula||'N/A'}`;
+        document.getElementById('historyModal').classList.remove('hidden');
+        document.getElementById('historyTimeline').innerHTML = '<div style="display:flex;justify-content:center;padding:32px;"><div class="spinner"></div></div>';
+        try {
+            const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
+            if(snap.empty) {
+                document.getElementById('historyTimeline').innerHTML = '<p style="text-align:center;color:#94a3b8;font-weight:600;font-size:13px;padding:32px;">Sin historial clínico registrado.</p>';
+                document.getElementById('chartContainer').classList.add('hidden');
+                if(vitalsChartInstance) vitalsChartInstance.destroy();
+            } else {
+                const docs = snap.docs;
+                let timelineHtml = '';
+                const labels=[], dataCpo=[];
+                for(let i=docs.length-1;i>=0;i--) {
+                    const d = docs[i].data();
+                    const dateObj = d.fecha.toDate ? d.fecha.toDate() : new Date(d.fecha);
+                    const dateStr = dateObj.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
+                    
+                    let vStr='';
+                    if(d.indicadoresBucales && d.indicadoresBucales.cpo) {
+                        const total = d.indicadoresBucales.cpo.total || 0;
+                        vStr += `CPO-D: ${total} | `;
+                        dataCpo.unshift(parseInt(total));
+                    } else {
+                        dataCpo.unshift(null);
+                    }
+                    if(d.pieza) vStr+=`Pieza: ${d.pieza}`;
+                    
+                    let recsHtml='';
+                    if(d.recomendaciones&&d.recomendaciones.length>0) {
+                        recsHtml=`<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;margin-top:10px;">
+                            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:#c2410c;margin-bottom:5px;">Recomendaciones / Plan</div>
+                            ${d.recomendaciones.map(r=>`<div style="font-size:12px;color:#92400e;font-weight:600;margin-bottom:2px;">• ${r}</div>`).join('')}
+                        </div>`;
+                    }
+                    
+                    let diagHtml=(d.diagnostico||'Sin diagnóstico.').replace(/\n/g,'<br>');
+                    
+                    timelineHtml+=`<div style="background:white;border:1px solid #e2e8f0;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 16px; margin-bottom:10px;">
+                        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;">📅 ${dateStr}</div>
+                        <div style="font-size:13px;color:#374151;font-weight:600;line-height:1.5;">${diagHtml}</div>
+                        ${vStr?`<div style="font-size:11.5px;color:#64748b;font-weight:700;margin-top:6px;">${vStr}</div>`:''}
+                        ${recsHtml}
+                    </div>`;
+                    
+                    labels.unshift(dateStr);
+                }
+                document.getElementById('historyTimeline').innerHTML = timelineHtml;
+                
+                const ctx = document.getElementById('vitalsChartCanvas');
+                if(vitalsChartInstance) vitalsChartInstance.destroy();
+                
+                const validCpo = dataCpo.filter(v => v !== null);
+                if(validCpo.length > 0) {
+                    document.getElementById('chartContainer').classList.remove('hidden');
+                    vitalsChartInstance = new Chart(ctx, {
+                        type:'line',
+                        data:{ 
+                            labels, 
+                            datasets:[{ 
+                                label:'Índice CPO-D Total', 
+                                data: dataCpo, 
+                                borderColor:'#06b6d4', 
+                                backgroundColor:'rgba(6,182,212,0.08)', 
+                                fill:true, 
+                                tension:0.4, 
+                                pointRadius:4, 
+                                pointBackgroundColor:'#06b6d4' 
+                            }] 
+                        },
+                        options:{ 
+                            responsive:true, 
+                            maintainAspectRatio:false, 
+                            plugins:{ legend:{display:false} }, 
+                            scales:{ 
+                                y:{ min:0, grid:{ color:'#f1f5f9' } }, 
+                                x:{ grid:{ display:false } } 
+                            } 
+                        }
+                    });
+                } else { 
+                    document.getElementById('chartContainer').classList.add('hidden'); 
+                }
+            }
+        } catch(e) { document.getElementById('historyTimeline').innerHTML='<p style="text-align:center;color:#dc2626;font-weight:600;">Error cargando historial.</p>'; }
+        loadPatientImages(patientId);
+    }
+
+    async function uploadPatientImage(input) {
+        const file = input.files[0]; if(!file||!currentPatientIdForImages) return;
+        const btn = document.getElementById('btnUploadImg'); btn.textContent='Subiendo...'; btn.disabled=true;
+        try {
+            const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
+            await storageRef.put(file);
+            const url = await storageRef.getDownloadURL();
+            await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(currentPatientIdForImages).collection('images').add({ url, nombre: file.name, fechaCreacion: new Date() });
+            loadPatientImages(currentPatientIdForImages);
+        } catch(e) { alert('Error subiendo archivo'); }
+        finally { btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Subir archivo'; btn.disabled=false; input.value=''; }
+    }
+
+    async function loadPatientImages(pid) {
+        const gal = document.getElementById('patientImagesGallery');
+        gal.innerHTML = '<div style="display:flex;justify-content:center;grid-column:span 3;padding:16px;"><div class="spinner"></div></div>';
+        try {
+            const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(pid).collection('images').orderBy('fechaCreacion','desc').get();
+            if(snap.empty) return gal.innerHTML='<p style="font-size:12px;color:#94a3b8;font-weight:600;grid-column:span 3;text-align:center;padding:16px;">No hay archivos adjuntos.</p>';
+            gal.innerHTML = snap.docs.map(doc => {
+                const data=doc.data(); const isPDF=data.nombre.toLowerCase().endsWith('.pdf');
+                return isPDF
+                    ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;text-align:center;cursor:pointer;" onclick="window.open('${data.url}')"><div style="font-size:26px;">📄</div><div style="font-size:9px;font-weight:700;color:#dc2626;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;">${data.nombre}</div></div>`
+                    : `<div style="cursor:pointer;overflow:hidden;border-radius:8px;border:1px solid #e2e8f0;" onclick="window.open('${data.url}')"><img src="${data.url}" style="width:100%;height:70px;object-fit:cover;display:block;"></div>`;
+            }).join('');
+        } catch(e) { gal.innerHTML='<p style="font-size:12px;color:#dc2626;font-weight:600;">Error al cargar archivos.</p>'; }
     }
 
     (function initMobileUI() {
