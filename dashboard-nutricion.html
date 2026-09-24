@@ -1222,7 +1222,7 @@
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
         
         try {
-            const res = await fetch(`${API_BASE_URL}/api/meta/exchange-code`, {
+            const res = await authenticatedApiFetch(`${API_BASE_URL}/api/meta/exchange-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, authCode: codigoOauth })
@@ -1232,7 +1232,6 @@
             if(data.success) {
                 mostrarMensaje('¡WhatsApp vinculado exitosamente con Cloud API!', 'success');
                 clinicDataGlobal.metaPhoneId = data.metaPhoneId; 
-                clinicDataGlobal.fbPageToken = data.fbPageToken;
                 actualizarUiWa(true); 
             } else {
                 throw new Error(data.error);
@@ -1247,7 +1246,7 @@
     async function desvincularWa() {
         if(!confirm("¿Seguro que deseas desvincular la Inteligencia Artificial de tu WhatsApp?")) return;
         try {
-            await fetch(`${API_BASE_URL}/api/meta/desvincular`, {
+            await authenticatedApiFetch(`${API_BASE_URL}/api/meta/desvincular`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId })
@@ -1307,6 +1306,20 @@
     
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+
+    async function authenticatedApiFetch(url, options = {}) {
+        const currentUser = auth.currentUser;
+        if (!currentUser) throw new Error('Tu sesión expiró. Inicia sesión nuevamente.');
+        const idToken = await currentUser.getIdToken();
+        const headers = new Headers(options.headers || {});
+        headers.set('Authorization', `Bearer ${idToken}`);
+        const response = await fetch(url, { ...options, headers });
+        if (!response.ok) {
+            const result = await response.clone().json().catch(() => ({}));
+            throw new Error(result.error || `La solicitud falló (${response.status}).`);
+        }
+        return response;
+    }
     const db = firebase.firestore();
     db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     const storage = firebase.storage();
@@ -1383,7 +1396,6 @@
                 parentDoctorId = user.uid; // Esta es la bóveda de la clínica
                 clinicDataGlobal = data.clinicInfo || { especialidad: 'nutricion' };
                 clinicDataGlobal.metaPhoneId = data.metaPhoneId;
-                clinicDataGlobal.fbPageToken = data.fbPageToken;
                 holidays = clinicDataGlobal.diasNoLaborables || [];
 
                 if (data.estadoSuscripcion === 'suspendido') {
@@ -1639,7 +1651,7 @@
 
     async function syncGoogleCalendar() {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/calendar/authUrl?clinicId=${parentDoctorId}`);
+            const res = await authenticatedApiFetch(`${API_BASE_URL}/api/calendar/authUrl?clinicId=${parentDoctorId}`);
             const data = await res.json();
             if(!res.ok) throw new Error(data.error || "Fallo en el servidor");
             if (!data.url) throw new Error('La respuesta no contiene el enlace de autorización.');
@@ -1852,7 +1864,7 @@
 
             if(p?.telefonoWhatsApp) {
                 const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica de Nutrición'}\n\n🥗 Paciente: ${pName}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
-                await fetch(`${API_BASE_URL}/send-message`, {
+                await authenticatedApiFetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
                     body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
@@ -2210,7 +2222,7 @@
             });
             const contextoClinico = datosExtras.length > 0 ? "Datos del paciente: " + datosExtras.join(', ') : "";
 
-            const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, {
+            const res = await authenticatedApiFetch(`${API_BASE_URL}/api/ia-copilot`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({ notasBorrador: borrador, especialidad: 'nutricion', contextoClinico })
             });
@@ -2315,7 +2327,7 @@
             });
 
             if(clinicDataGlobal.gCalendarToken) {
-                fetch(`${API_BASE_URL}/api/calendar/create-event`, {
+                authenticatedApiFetch(`${API_BASE_URL}/api/calendar/create-event`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control nutricional', tokenGCalendar: clinicDataGlobal.gCalendarToken })
                 });
@@ -2336,7 +2348,7 @@
             });
 
             if(p?.telefonoWhatsApp) {
-                await fetch(`${API_BASE_URL}/send-prescription`, {
+                await authenticatedApiFetch(`${API_BASE_URL}/send-prescription`, {
                     method:'POST', headers: {'Content-Type': 'application/json'},
                     body:JSON.stringify({
                         clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
@@ -2576,7 +2588,7 @@
             imprimirComprobantePago(p?.nombre || 'Paciente', total, apt?.motivo);
 
             if(p?.telefonoWhatsApp) {
-                await fetch(`${API_BASE_URL}/send-message`, {
+                await authenticatedApiFetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
                     body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
                 });
@@ -2765,7 +2777,7 @@
         button.disabled = true;
         button.textContent = 'Enviando…';
         try {
-            const response = await fetch(`${API_BASE_URL}/api/promotions/send`, {
+            const response = await authenticatedApiFetch(`${API_BASE_URL}/api/promotions/send`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, mensajePromocion: message, instruccionesIA: document.getElementById('promoTargeting').value.trim() || 'A todos' })
