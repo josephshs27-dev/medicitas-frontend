@@ -561,7 +561,7 @@
                         <div class="panel-head">
                             <div>
                                 <div class="panel-title">Directorio de Pacientes</div>
-                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Historiales de rehabilitación y datos personales</div>
+                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Historiales clínicos y datos personales</div>
                             </div>
                             <div style="display:flex;gap:8px;align-items:center;">
                                 <div class="search-wrap">
@@ -2373,8 +2373,8 @@
             const p = patients.find(x=>x.id===apt?.patientId);
             
             // 💡 MAGIA: BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO)
-            const planActivo = planesPago.find(x => x.patientId === p.id && x.estado === 'activo');
-            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
+            const planActivo = p ? planesPago.find(x => x.patientId === p.id && x.estado === 'activo') : null;
+            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p?.nombre || 'Paciente'}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
             
             if (planActivo) {
                 // Si tiene deuda, la descontamos automáticamente
@@ -2389,14 +2389,14 @@
                 });
                 
                 // Mensaje WA modificado para deuda
-                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${p?.nombre || 'Paciente'}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
             }
 
             // Abrir el Comprobante de Pago en PDF
-            imprimirComprobantePago(p.nombre, total, apt.motivo);
+            imprimirComprobantePago(p?.nombre || 'Paciente', total, apt.motivo);
 
             // Enviar WhatsApp oficial
-            if(p?.telefonoWhatsApp) {
+            if(p && p.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
                     body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
@@ -2658,7 +2658,7 @@
     function renderHolidayCalendar() {
         const grid = document.getElementById('calDaysGrid');
         const monthLabel = document.getElementById('calMonthLabel');
-        if(!grid) return;
+        if(!grid || !monthLabel) return;
         grid.innerHTML = '';
         
         const year = currentCalDate.getFullYear();
@@ -2666,10 +2666,11 @@
         monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
 
         const firstDay = new Date(year, month, 1).getDay();
+        const startOffset = firstDay === 0 ? 6 : firstDay - 1; 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
-        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+        ['L','M','M','J','V','S','D'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+        for (let i = 0; i < startOffset; i++) grid.innerHTML += `<div></div>`;
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isHoliday = holidays.includes(dateStr);
@@ -2799,8 +2800,15 @@
         sidebar.classList.toggle('open');
         overlay.classList.toggle('show');
     }
+
+    // 2. Cargar el script de Facebook asíncronamente
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/es_LA/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
 </script>
-<!-- Carga directa del SDK de Meta -->
-<script src="https://connect.facebook.net/es_LA/sdk.js"></script>
 </body>
 </html>
