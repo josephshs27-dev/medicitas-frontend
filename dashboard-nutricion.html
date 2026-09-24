@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
     <style>
@@ -182,7 +181,7 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
-        /* ── Modals (Ampliados para diseño visual) ── */
+        /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
         .modal-box-large { width: 100%; max-width: 1000px !important; }
@@ -1038,6 +1037,7 @@
     </div>
 </div>
 
+<!-- 🔥 NUEVO MODAL META CLOUD API 🔥 -->
 <div id="metaModal" class="modal-wrap hidden" style="z-index:62;">
     <div class="modal-box" style="width:100%;max-width:420px;">
         <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));">
@@ -1131,7 +1131,6 @@
                     </div>
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
-                        
                         <div id="holidayCalendar" class="mt-2 bg-white border border-slate-200 rounded-lg p-3">
                             <div class="flex justify-between items-center mb-3">
                                 <button type="button" onclick="changeCalMonth(-1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">◀</button>
@@ -1675,7 +1674,7 @@
 
             return {
                 id: apt.id,
-                title: `${name} ${apt.motivo ? `(${apt.motivo})` : ''}`,
+                title: `${name} ${apt.motivo ? \`(\${apt.motivo})\` : ''}`,
                 start: startTime,
                 color: eventColor,
                 extendedProps: { estado: apt.estado }
@@ -1749,7 +1748,7 @@
                 </td>
                 <td><span style="font-weight:800;color:#dc2626;font-size:15px;">$${saldo}</span></td>
                 <td>
-                    <button onclick="openPayInstallment('${plan.id}', '${p?.nombre}')" class="btn btn-primary btn-sm">💳 Abonar</button>
+                    <button onclick="openPayInstallment('${plan.id}', '${p?.nombre || 'Paciente'}')" class="btn btn-primary btn-sm">💳 Abonar</button>
                 </td>
             </tr>`;
         }).join('');
@@ -1788,14 +1787,14 @@
             });
 
             const p = patients.find(x => x.id === plan.patientId);
-            const pName = p ? p.nombre : 'Paciente';
+            const pName = p?.nombre || 'Paciente';
             
             // Generar Comprobante de Abono en PDF
             imprimirComprobantePago(pName, amount, `Abono de plan nutricional (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
 
             // Notificar por WhatsApp sobre el descuento de deuda
-            if(p && p.telefonoWhatsApp) {
-                const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+            if(p?.telefonoWhatsApp) {
+                const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${pName}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
                     body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
@@ -1861,7 +1860,7 @@
             'pendiente': { label:'Pendiente', bg:'#fef3c7', color:'#92400e' },
             'pendiente_confirmacion_paciente': { label:'Propuesta IA', bg:'#ede9fe', color:'#5b21b6' },
             'confirmada': { label:'Confirmada', bg:'#d1fae5', color:'#065f46' },
-            'completada': { label:'Completada', bg:'#e0f2fe', color:'#1e40af' },
+            'completada': { label:'Completada', bg:'#dbeafe', color:'#1e40af' },
         };
         const avatarPalette = ['#10b981','#059669','#34d399','#047857','#059669'];
 
@@ -2182,7 +2181,7 @@
             let montoTotalPlan = parseFloat(document.getElementById('montoTotalPlan').value) || 0;
             recList.push(`⚠️ Plan Nutricional Financiero: Paquete de ${cuotas} controles/cuotas. Monto Total: $${montoTotalPlan.toFixed(2)}`);
 
-            if(cuotas > 1 && montoTotalPlan > 0) {
+            if(cuotas > 1 && montoTotalPlan > 0 && p) {
                 await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').add({
                     patientId: p.id,
                     fechaInicio: new Date().toISOString().split('T')[0],
@@ -2198,29 +2197,35 @@
         if(nextDate && nextTime) {
             recList.push(`📅 Tu próximo control nutricional queda agendado para: ${nextDate} a las ${nextTime}`);
 
-            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
-                patientId: p.id,
-                fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
-                motivo: 'Control Nutricional (Auto-Agendado)', fechaCreacion: new Date()
-            });
-
-            if(clinicDataGlobal.gCalendarToken) {
-                fetch(`${API_BASE_URL}/api/calendar/create-event`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control Nutricional', tokenGCalendar: clinicDataGlobal.gCalendarToken })
+            if(p) {
+                await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
+                    patientId: p.id,
+                    fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
+                    motivo: 'Control Nutricional (Auto-Agendado)', fechaCreacion: new Date()
                 });
+
+                if(clinicDataGlobal.gCalendarToken) {
+                    fetch(`${API_BASE_URL}/api/calendar/create-event`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control Nutricional', tokenGCalendar: clinicDataGlobal.gCalendarToken })
+                    });
+                }
             }
         }
 
-        try {
-            if(diag || meds.length > 0 || customVitalsStr.length > 0) {
-                await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(p.id).collection('vitals').add({
-                    fecha: new Date(), diagnostico: diag, recomendaciones: recList, ...vitalsObj
-                });
-            }
+        if (p) {
+            try {
+                if(diag || meds.length > 0 || customVitalsStr.length > 0) {
+                    await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(p.id).collection('vitals').add({
+                        fecha: new Date(), diagnostico: diag, recomendaciones: recList, ...vitalsObj
+                    });
+                }
+            } catch(e) {}
+        }
 
-            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ diagnostico: diag, recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() });
+        await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ diagnostico: diag, recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() });
 
+        if(p?.telefonoWhatsApp) {
             await fetch(`${API_BASE_URL}/send-prescription`, {
                 method:'POST', headers: {'Content-Type': 'application/json'},
                 body:JSON.stringify({
@@ -2228,19 +2233,20 @@
                     diagnostico: diag, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal
                 })
             });
+        }
 
-            closePrescriptionModal();
-            document.getElementById('billingAptId').value = aptId;
-            document.getElementById('billingPatName').textContent = p.nombre;
-            document.getElementById('billingSubtotal').value = '';
-            document.getElementById('billingTotalDisplay').textContent = '$0.00';
-            document.getElementById('billingIva').checked = false;
-            document.getElementById('billingModal').classList.remove('hidden');
+        closePrescriptionModal();
+        document.getElementById('billingAptId').value = aptId;
+        document.getElementById('billingPatName').textContent = p?.nombre || 'Paciente';
+        document.getElementById('billingSubtotal').value = '';
+        document.getElementById('billingTotalDisplay').textContent = '$0.00';
+        document.getElementById('billingIva').checked = false;
+        document.getElementById('billingModal').classList.remove('hidden');
 
-            await loadAppointments();
-            await loadPlanesPago();
-        } catch(e) { alert('Error al generar el plan o enviar a WhatsApp.'); }
-        finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
+        await loadAppointments();
+        await loadPlanesPago();
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; 
     }
 
     // ── FUNCIONES DE IMPRESIÓN NUTRICIONAL ──
@@ -2427,8 +2433,8 @@
             const p = patients.find(x=>x.id===apt?.patientId);
             
             // 💡 MAGIA: BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO)
-            const planActivo = planesPago.find(x => x.patientId === p.id && x.estado === 'activo');
-            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
+            const planActivo = p ? planesPago.find(x => x.patientId === p.id && x.estado === 'activo') : null;
+            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${p?.nombre || 'Paciente'}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
             
             if (planActivo) {
                 // Si tiene deuda, la descontamos automáticamente
@@ -2443,11 +2449,11 @@
                 });
                 
                 // Mensaje WA modificado para deuda
-                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${p?.nombre || 'Paciente'}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
             }
 
             // Abrir el Comprobante de Pago en PDF
-            imprimirComprobantePago(p.nombre, total, apt.motivo);
+            imprimirComprobantePago(p?.nombre || 'Paciente', total, apt?.motivo);
 
             // Enviar WhatsApp oficial
             if(p?.telefonoWhatsApp) {
@@ -2620,7 +2626,54 @@
         finally { btn.textContent='Enviar Inteligente ✦'; btn.disabled=false; }
     }
 
-    // ── CONFIGURACIÓN (CON HORARIOS NUEVOS) ──
+    // ── META CLOUD API (NUEVA INTEGRACIÓN OFICIAL) ──
+    function openMetaModal() { 
+        document.getElementById('metaModal').classList.remove('hidden'); 
+        actualizarUiWa(!!clinicDataGlobal?.metaPhoneId);
+    }
+    
+    function closeMetaModal() { 
+        document.getElementById('metaModal').classList.add('hidden'); 
+    }
+
+    // ── CALENDARIO DIDÁCTICO Y SETTINGS ──
+    function renderHolidayCalendar() {
+        const grid = document.getElementById('calDaysGrid');
+        const monthLabel = document.getElementById('calMonthLabel');
+        if(!grid || !monthLabel) return;
+        grid.innerHTML = '';
+        
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const startOffset = firstDay === 0 ? 6 : firstDay - 1; 
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        ['L','M','M','J','V','S','D'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+        for (let i = 0; i < startOffset; i++) grid.innerHTML += `<div></div>`;
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isHoliday = holidays.includes(dateStr);
+            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
+        }
+    }
+
+    function toggleHoliday(dateStr) {
+        if (holidays.includes(dateStr)) {
+            holidays = holidays.filter(d => d !== dateStr);
+        } else {
+            holidays.push(dateStr);
+        }
+        renderHolidayCalendar();
+    }
+
+    function changeCalMonth(dir) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+        renderHolidayCalendar();
+    }
+
     function openSettingsModal() {
         document.getElementById('clinicName').value = clinicDataGlobal?.nombre||'';
         document.getElementById('clinicRuc').value = clinicDataGlobal?.ruc||'';
@@ -2663,11 +2716,9 @@
             color: document.getElementById('clinicColor').value,
             horarioInicio: document.getElementById('hInicio').value,
             horarioFin: document.getElementById('hFin').value,
-            
             almuerzoInicio: document.getElementById('hAlmuerzoInicio').value,
             almuerzoFin: document.getElementById('hAlmuerzoFin').value,
             duracionCita: document.getElementById('duracionCita').value,
-            
             diasNoLaborables: holidays, 
             logo: logoUrl
         };
