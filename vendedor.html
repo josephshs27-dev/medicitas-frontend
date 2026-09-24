@@ -35,6 +35,8 @@
                 </div>
                 <button type="submit" id="btnSubmitLogin" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl transition-all shadow-lg active:scale-95">Iniciar Sesión</button>
             </form>
+
+            <a href="demo.html" class="mt-5 w-full flex items-center justify-center gap-2 border border-indigo-100 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition-colors text-sm">✨ Abrir demo para presentar a clínicas</a>
             
             <div id="authError" class="mt-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg hidden text-sm font-bold text-center"></div>
         </div>
@@ -47,7 +49,7 @@
                 <img src="img/logo.png" alt="Agendacitas" class="h-8 w-auto object-contain" onerror="this.outerHTML='<span class=\\'text-2xl\\'>💼</span>'">
                 <h1 class="text-xl font-black text-slate-800">Agendacitas <span class="text-indigo-600">Partners</span></h1>
             </div>
-            <button onclick="logout()" class="text-slate-500 hover:text-red-500 font-bold text-sm transition-colors">Cerrar Sesión</button>
+            <div class="flex items-center gap-4"><a href="demo.html" class="text-indigo-600 hover:text-indigo-800 font-bold text-sm transition-colors">✨ Presentar demo</a><button onclick="logout()" class="text-slate-500 hover:text-red-500 font-bold text-sm transition-colors">Cerrar Sesión</button></div>
         </nav>
 
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
