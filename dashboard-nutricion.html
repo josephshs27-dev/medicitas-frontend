@@ -1679,9 +1679,34 @@
     }
 
     // ── APPOINTMENTS (Multi-Tenant) ──
+    function sortAppointmentsByTimeWithinDate(rows) {
+        const sameDate = (left, right) => {
+            const first = left.fecha;
+            const second = right.fecha;
+            if (first === second) return true;
+            if (first instanceof Date && second instanceof Date) return first.getTime() === second.getTime();
+            if (first && second && typeof first.isEqual === "function") return first.isEqual(second);
+            return Boolean(first && second && typeof first.toMillis === "function" && typeof second.toMillis === "function" && first.toMillis() === second.toMillis());
+        };
+
+        for (let start = 0; start < rows.length;) {
+            let end = start + 1;
+            while (end < rows.length && sameDate(rows[start], rows[end])) end++;
+            if (end - start > 1) {
+                const group = rows.slice(start, end).sort((left, right) => String(right.hora ?? "").localeCompare(String(left.hora ?? "")));
+                for (let index = 0; index < group.length; index++) rows[start + index] = group[index];
+            }
+            start = end;
+        }
+        return rows;
+    }
+
     async function loadAppointments() {
-        const snap = await db.collection('clinics').doc(parentDoctorId).collection('appointments').orderBy('fecha', 'desc').orderBy('hora', 'desc').get();
-        appointments = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const snap = await db.collection('clinics').doc(parentDoctorId).collection('appointments').orderBy('fecha', 'desc').get();
+        const appointmentRows = snap.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(appointment => Object.prototype.hasOwnProperty.call(appointment, "hora"));
+        appointments = sortAppointmentsByTimeWithinDate(appointmentRows);
         renderAppointments();
         updateDashboardStats();
         
