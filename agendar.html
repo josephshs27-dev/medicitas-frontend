@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agendar Cita Médica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar una cita</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
@@ -107,6 +107,21 @@
         let doctorId = null;
         let clinicConfig = null;
         let bookedTimesForDate = [];
+        let availableTimesForDate = [];
+        let availabilityRequestId = 0;
+
+        function getLocalDateString(date = new Date()) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function clearSelectedTime() {
+            document.getElementById('selectedTime').value = '';
+            document.getElementById('formStep').classList.add('opacity-50', 'pointer-events-none');
+            availableTimesForDate = [];
+        }
 
         // 🔥 FUNCIÓN PARA UNIFICAR FORMATO DE NÚMEROS A 593 🔥
         function normalizarTelefono(phone) {
@@ -122,11 +137,19 @@
             if (especialidad === 'veterinaria') {
                 document.getElementById('lblPatCedula').textContent = 'Cédula del Dueño';
                 document.getElementById('lblPatName').textContent = 'Nombre de la Mascota';
+                document.getElementById('pReason').placeholder = 'Ej.: control de rutina';
                 document.getElementById('divPatOwner').classList.remove('hidden');
                 document.getElementById('pOwner').required = true;
             } else {
                 document.getElementById('lblPatCedula').textContent = 'Cédula / RUC';
                 document.getElementById('lblPatName').textContent = 'Nombre Completo';
+                document.getElementById('pReason').placeholder = especialidad === 'nutricion'
+                    ? 'Ej.: asesoría nutricional'
+                    : especialidad === 'fisioterapia'
+                        ? 'Ej.: terapia de rehabilitación'
+                        : especialidad === 'odontologia'
+                            ? 'Ej.: revisión dental'
+                            : 'Ej.: chequeo general';
                 document.getElementById('divPatOwner').classList.add('hidden');
                 document.getElementById('pOwner').required = false;
             }
@@ -142,7 +165,8 @@
             }
 
             try {
-                const docSnap = await db.collection('users').doc(doctorId).get();
+                let docSnap = await db.collection('clinics').doc(doctorId).get();
+                if (!docSnap.exists) docSnap = await db.collection('users').doc(doctorId).get();
                 if (!docSnap.exists) throw new Error("Doctor no encontrado");
                 
                 const doctorData = docSnap.data();
@@ -151,44 +175,70 @@
                 if(!clinicConfig.horarioInicio) clinicConfig.horarioInicio = "08:00";
                 if(!clinicConfig.horarioFin) clinicConfig.horarioFin = "17:00";
                 if(!clinicConfig.duracionCita) clinicConfig.duracionCita = 30;
-                if(!clinicConfig.diasBloqueados) clinicConfig.diasBloqueados = [];
+                clinicConfig.diasBloqueados = clinicConfig.diasBloqueados || clinicConfig.diasNoLaborables || [];
 
                 adaptarUI(clinicConfig.especialidad || 'medicina');
 
-                document.getElementById('docName').textContent = clinicConfig.nombre || doctorData.nombre;
+                const displayName = clinicConfig.nombre || doctorData.nombre || 'Profesional de salud';
+                document.title = `Agendar cita · ${displayName}`;
+                document.getElementById('docName').textContent = displayName;
                 document.getElementById('docAddress').textContent = clinicConfig.direccion || "Consultorio";
                 if(clinicConfig.logo) {
                     document.getElementById('docLogo').src = clinicConfig.logo;
                     document.getElementById('docLogoContainer').classList.remove('hidden');
                 }
 
-                const today = new Date().toISOString().split('T')[0];
+                const today = getLocalDateString();
                 document.getElementById('selectedDate').setAttribute('min', today);
 
                 document.getElementById('loadingView').style.display = 'none';
                 document.getElementById('bookingApp').style.display = 'block';
 
             } catch (error) {
-                document.getElementById('loadingView').innerHTML = `<p class="text-red-500 font-bold text-center">${error.message}</p>`;
+                const errorMessage = document.createElement('p');
+                errorMessage.className = 'text-red-500 font-bold text-center';
+                errorMessage.textContent = error.message || 'No se pudo cargar la información del profesional.';
+                document.getElementById('loadingView').replaceChildren(errorMessage);
             }
         };
 
         document.getElementById('selectedDate').addEventListener('change', async (e) => {
             const date = e.target.value;
             const errorLabel = document.getElementById('dateError');
-            
+            const requestId = ++availabilityRequestId;
+            const timeStep = document.getElementById('timeStep');
+            const timeSlots = document.getElementById('timeSlots');
+
+            clearSelectedTime();
+            bookedTimesForDate = [];
+            timeStep.classList.add('opacity-50', 'pointer-events-none');
+            timeSlots.innerHTML = '<p class="col-span-3 text-sm text-slate-400 text-center py-4">Consultando disponibilidad…</p>';
+
+            if (!date) {
+                timeSlots.innerHTML = '<p class="col-span-3 text-sm text-slate-400 text-center py-4">Selecciona una fecha primero</p>';
+                errorLabel.classList.add('hidden');
+                return;
+            }
+
+            if (date < getLocalDateString()) {
+                errorLabel.textContent = 'Selecciona una fecha de hoy o posterior.';
+                errorLabel.classList.remove('hidden');
+                timeSlots.innerHTML = '<p class="col-span-3 text-sm text-slate-400 text-center py-4">La fecha ya pasó.</p>';
+                return;
+            }
+
             if(clinicConfig.diasBloqueados.includes(date)) {
                 errorLabel.textContent = "El doctor no atiende en esta fecha (Feriado).";
                 errorLabel.classList.remove('hidden');
-                document.getElementById('timeStep').classList.add('opacity-50', 'pointer-events-none');
+                timeSlots.innerHTML = '<p class="col-span-3 text-sm text-slate-400 text-center py-4">No hay atención en esta fecha.</p>';
                 return;
             }
             
             errorLabel.classList.add('hidden');
-            document.getElementById('timeSlots').innerHTML = '<div class="col-span-3 flex justify-center py-2"><div class="spinner"></div></div>';
             
             try {
                 const aptsSnap = await db.collection('appointments').where('doctorId', '==', doctorId).where('fecha', '==', date).get();
+                if (requestId !== availabilityRequestId || document.getElementById('selectedDate').value !== date) return;
                 
                 bookedTimesForDate = [];
                 aptsSnap.forEach(doc => {
@@ -198,9 +248,11 @@
                 });
 
                 generarCuadriculaHorarios();
-                document.getElementById('timeStep').classList.remove('opacity-50', 'pointer-events-none');
+                timeStep.classList.remove('opacity-50', 'pointer-events-none');
             } catch(error) {
                 console.error("Error obteniendo citas:", error);
+                if (requestId !== availabilityRequestId) return;
+                timeSlots.innerHTML = '<div class="col-span-3 text-center py-4"><p class="text-sm text-red-600 mb-2">No se pudo consultar la disponibilidad.</p><button type="button" class="text-indigo-700 font-bold underline" onclick="document.getElementById(\'selectedDate\').dispatchEvent(new Event(\'change\'))">Reintentar</button></div>';
             }
         });
 
@@ -209,19 +261,30 @@
             container.innerHTML = '';
             document.getElementById('formStep').classList.add('opacity-50', 'pointer-events-none');
             document.getElementById('selectedTime').value = '';
+            availableTimesForDate = [];
 
             const startMin = timeToMinutes(clinicConfig.horarioInicio);
             const endMin = timeToMinutes(clinicConfig.horarioFin);
             const dur = parseInt(clinicConfig.duracionCita);
 
+            if (!Number.isFinite(startMin) || !Number.isFinite(endMin) || !Number.isFinite(dur) || dur <= 0 || startMin >= endMin) {
+                container.innerHTML = '<p class="col-span-3 text-sm text-red-500 text-center">El profesional aún no tiene horarios válidos configurados.</p>';
+                return;
+            }
+
             let slots = [];
-            for(let m = startMin; m < endMin; m += dur) {
+            const selectedDate = document.getElementById('selectedDate').value;
+            const today = getLocalDateString();
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            for(let m = startMin; m + dur <= endMin; m += dur) {
+                if (selectedDate === today && m <= currentMinutes) continue;
                 let timeString = minutesToTime(m);
                 slots.push(timeString);
             }
 
             if(slots.length === 0) {
-                container.innerHTML = '<p class="col-span-3 text-sm text-red-500 text-center">No hay horarios configurados.</p>';
+                container.innerHTML = `<p class="col-span-3 text-sm text-slate-500 text-center">${selectedDate === today ? 'No quedan horarios disponibles para hoy.' : 'No hay horarios disponibles para esta fecha.'}</p>`;
                 return;
             }
 
@@ -235,6 +298,7 @@
                     btn.className = 'py-3 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed line-through text-sm font-bold';
                     btn.disabled = true;
                 } else {
+                    availableTimesForDate.push(time);
                     btn.className = 'time-btn py-3 rounded-xl border border-indigo-200 bg-white text-indigo-700 font-bold text-sm hover:bg-indigo-50 active:bg-indigo-100 transition-colors';
                     btn.onclick = () => seleccionarHora(time, btn);
                 }
@@ -261,27 +325,44 @@
             const time = document.getElementById('selectedTime').value;
             const date = document.getElementById('selectedDate').value;
             
-            if(!time) return alert("Por favor, selecciona una hora.");
+            if(!date || date < getLocalDateString() || !availableTimesForDate.includes(time) || clinicConfig.diasBloqueados.includes(date)) {
+                clearSelectedTime();
+                return alert("Vuelve a seleccionar una fecha y una hora disponible.");
+            }
 
             btn.innerHTML = '<div class="spinner border-white border-t-indigo-200 w-5 h-5"></div> Procesando...';
             btn.disabled = true;
+            document.getElementById('selectedDate').disabled = true;
 
             // 🔥 APLICAMOS EL FILTRO AL NÚMERO DE TELÉFONO 🔥
             const phone = normalizarTelefono(document.getElementById('pPhone').value);
-            const cedula = document.getElementById('pCedula').value;
-            const name = document.getElementById('pName').value;
-            const reason = document.getElementById('pReason').value;
+            const cedula = document.getElementById('pCedula').value.trim();
+            const name = document.getElementById('pName').value.trim();
+            const reason = document.getElementById('pReason').value.trim();
             
             const ownerEl = document.getElementById('pOwner');
             const owner = ownerEl ? ownerEl.value : '';
 
             try {
+                const latestAppointments = await db.collection('appointments').where('doctorId', '==', doctorId).where('fecha', '==', date).get();
+                const timeWasTaken = latestAppointments.docs.some(doc => doc.data().estado !== 'cancelada' && doc.data().hora === time);
+                if (timeWasTaken) {
+                    clearSelectedTime();
+                    document.getElementById('selectedDate').disabled = false;
+                    btn.textContent = 'Confirmar solicitud';
+                    btn.disabled = false;
+                    alert('Ese horario acaba de ocuparse. Selecciona otro horario disponible.');
+                    document.getElementById('selectedDate').dispatchEvent(new Event('change'));
+                    return;
+                }
+
                 const patQuery = await db.collection('patients')
                     .where('doctorId', '==', doctorId)
                     .where('cedula', '==', cedula)
                     .get();
 
                 let patientIdToUse = null;
+                const writeBatch = db.batch();
 
                 // 1. Crear paciente si es nuevo
                 if(patQuery.empty) {
@@ -295,14 +376,16 @@
                     };
                     if(owner) newPatData.dueno = owner; 
 
-                    const newPatRef = await db.collection('patients').add(newPatData);
+                    const newPatRef = db.collection('patients').doc();
                     patientIdToUse = newPatRef.id;
+                    writeBatch.set(newPatRef, newPatData);
                 } else {
                     patientIdToUse = patQuery.docs[0].id;
                 }
 
-                // 2. Crear la Cita Directamente (Sin Tokens)
-                await db.collection('appointments').add({
+                // Guardar paciente nuevo y cita en una sola operación atómica.
+                const appointmentRef = db.collection('appointments').doc();
+                writeBatch.set(appointmentRef, {
                     doctorId: doctorId,
                     patientId: patientIdToUse,
                     fecha: date,
@@ -313,6 +396,7 @@
                     notas: 'Agendado por el paciente vía Web',
                     fechaCreacion: new Date()
                 });
+                await writeBatch.commit();
 
                 document.getElementById('bookingApp').style.display = 'none';
                 
@@ -337,8 +421,9 @@
             } catch (error) {
                 alert("Hubo un error de conexión al agendar. Intenta de nuevo.");
                 console.error(error);
-                btn.innerHTML = 'Confirmar Cita Médica';
+                btn.textContent = 'Confirmar solicitud';
                 btn.disabled = false;
+                document.getElementById('selectedDate').disabled = false;
             }
         });
 

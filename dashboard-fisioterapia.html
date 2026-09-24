@@ -1254,6 +1254,10 @@
     let currentCalDate = new Date();
     let calendarInstance = null; 
 
+    function getLocalDateString(date = new Date()) {
+        return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+    }
+
     function normalizarTelefono(phone) {
         if (!phone) return '';
         let cleaned = String(phone).replace(/\D/g, '');
@@ -1449,7 +1453,7 @@
 
     // ── CUMPLEAÑOS ──
     function checkBirthdays() {
-        const today = new Date().toISOString().slice(5, 10);
+        const today = getLocalDateString().slice(5, 10);
         const bdays = patients.filter(p => p.fechaNacimiento && p.fechaNacimiento.slice(5, 10) === today);
         const container = document.getElementById('birthdayList');
         if(container) {
@@ -1642,7 +1646,7 @@
             await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
             await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
                 patientId: plan.patientId,
-                fecha: new Date().toISOString().split('T')[0],
+                fecha: getLocalDateString(),
                 hora: new Date().toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit', hour12:false }),
                 motivo: `Abono Cuota ${nuevasCuotas}/${plan.totalCuotas}`,
                 monto: amount, estado: 'completada', fechaCreacion: new Date()
@@ -1702,7 +1706,7 @@
         const container = document.getElementById('appointmentsList');
         if(!container) return;
         const sFilter = document.getElementById('filterAppointmentStatus').value;
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalDateString();
         let filtered = appointments;
         if(sFilter === 'activas') filtered = appointments.filter(a => a.estado !== 'completada' && a.estado !== 'cancelada');
         else if(sFilter === 'hoy') filtered = appointments.filter(a => a.fecha === todayStr);
@@ -2131,7 +2135,7 @@
             if(cuotas > 1 && montoTotalPlan > 0) {
                 await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').add({
                     patientId: p.id,
-                    fechaInicio: new Date().toISOString().split('T')[0],
+                    fechaInicio: getLocalDateString(),
                     totalCuotas: cuotas, cuotasPagadas: 0,
                     montoTotal: montoTotalPlan, saldoPendiente: montoTotalPlan,
                     estado: 'activo'
@@ -2358,6 +2362,14 @@
     }
 
     // 🔥 COBRO DESDE LA AGENDA (ACTUALIZADO CON DESCUENTO DE DEUDA Y MULTI-TENANT) 🔥
+    function calculateTotal() {
+        const subtotal = Math.max(0, Number.parseFloat(document.getElementById('billingSubtotal').value) || 0);
+        const iva = document.getElementById('billingIva').checked ? subtotal * 0.15 : 0;
+        document.getElementById('billingTotalDisplay').textContent = `$${(subtotal + iva).toFixed(2)}`;
+    }
+
+    function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
+
     async function submitBilling() {
         const aptId = document.getElementById('billingAptId').value;
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;

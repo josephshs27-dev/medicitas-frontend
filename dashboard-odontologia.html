@@ -840,6 +840,14 @@
                         <textarea id="rxRecomendaciones" rows="4" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
                     </div>
 
+                    <section style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;padding:16px;">
+                        <div class="panel-title" style="font-size:13px;color:#0f766e;margin-bottom:10px;">Programar próximo control</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div><label for="rxNextDate" class="flabel">Fecha</label><input type="date" id="rxNextDate" class="finput"></div>
+                            <div><label for="rxNextTime" class="flabel">Hora</label><input type="time" id="rxNextTime" class="finput"></div>
+                        </div>
+                    </section>
+
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:0;">
                             <input type="checkbox" id="checkTratamiento" onchange="toggleCuotas()" style="width:18px;height:18px;accent-color:var(--accent);">
@@ -864,7 +872,7 @@
                             <div style="font-size:13.5px;font-weight:800;color:#1e40af;margin-bottom:3px;">Google Calendar</div>
                             <div style="font-size:12px;color:#3b82f6;font-weight:500;">Vincula tu agenda para auto-agendar pacientes</div>
                         </div>
-                        <button id="btnSyncCalendar" onclick="syncGoogleCalendar()" class="btn btn-md" style="background:white;color:#1d4ed8;border:1px solid #bfdbfe;white-space:nowrap;">
+                        <button id="btnSyncCalendarPrescription" onclick="syncGoogleCalendar()" class="btn btn-md" style="background:white;color:#1d4ed8;border:1px solid #bfdbfe;white-space:nowrap;">
                             Vincular cuenta
                         </button>
                     </div>
@@ -1411,6 +1419,10 @@
     let calendarInstance = null;
     let vitalsChartInstance = null; 
 
+    function getLocalDateString(date = new Date()) {
+        return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+    }
+
     function normalizarTelefono(phone) {
         if (!phone) return '';
         let cleaned = String(phone).replace(/\D/g, '');
@@ -1494,14 +1506,15 @@
 
     function checkCalendarSyncUI() {
         if(clinicDataGlobal && clinicDataGlobal.gCalendarToken) {
-            const btn = document.getElementById('btnSyncCalendar');
-            if(btn) {
+            ['btnSyncCalendar', 'btnSyncCalendarPrescription'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
                 btn.textContent = '✓ Calendario Sincronizado';
                 btn.style.background = '#f0fdf4';
                 btn.style.color = '#16a34a';
                 btn.style.borderColor = '#bbf7d0';
                 btn.onclick = null;
-            }
+            });
         }
     }
 
@@ -1566,7 +1579,7 @@
 
     // ── CUMPLEAÑOS ──
     function checkBirthdays() {
-        const today = new Date().toISOString().slice(5, 10);
+        const today = getLocalDateString().slice(5, 10);
         const bdays = patients.filter(p => p.fechaNacimiento && p.fechaNacimiento.slice(5, 10) === today);
         const container = document.getElementById('birthdayList');
         if(container) {
@@ -1787,7 +1800,7 @@
             await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
             await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
                 patientId: plan.patientId,
-                fecha: new Date().toISOString().split('T')[0],
+                fecha: getLocalDateString(),
                 hora: new Date().toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit', hour12:false }),
                 motivo: `Abono Cuota ${nuevasCuotas}/${plan.totalCuotas}`,
                 monto: amount, estado: 'completada', fechaCreacion: new Date()
@@ -1845,7 +1858,7 @@
         const container = document.getElementById('appointmentsList');
         if(!container) return;
         const sFilter = document.getElementById('filterAppointmentStatus').value;
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getLocalDateString();
         let filtered = appointments;
         if(sFilter === 'activas') filtered = appointments.filter(a => a.estado !== 'completada' && a.estado !== 'cancelada');
         else if(sFilter === 'hoy') filtered = appointments.filter(a => a.fecha === todayStr);
@@ -2345,7 +2358,7 @@
             if(cuotas > 1 && montoTotalPlan > 0 && p) {
                 await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').add({
                     patientId: p.id,
-                    fechaInicio: new Date().toISOString().split('T')[0],
+                    fechaInicio: getLocalDateString(),
                     totalCuotas: cuotas, cuotasPagadas: 0,
                     montoTotal: montoTotalPlan, saldoPendiente: montoTotalPlan,
                     estado: 'activo'
@@ -2581,6 +2594,14 @@
     }
 
     // 🔥 COBRO DESDE AGENDA MÉDICA CON DESCUENTO DE DEUDAS AUTOMÁTICO 🔥
+    function calculateTotal() {
+        const subtotal = Math.max(0, Number.parseFloat(document.getElementById('billingSubtotal').value) || 0);
+        const iva = document.getElementById('billingIva').checked ? subtotal * 0.15 : 0;
+        document.getElementById('billingTotalDisplay').textContent = `$${(subtotal + iva).toFixed(2)}`;
+    }
+
+    function closeBillingModal() { document.getElementById('billingModal').classList.add('hidden'); }
+
     async function submitBilling() {
         const aptId = document.getElementById('billingAptId').value;
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
@@ -2656,6 +2677,290 @@
             });
         });
     })();
+
+    function mostrarMensaje(message, type = 'success') {
+        const container = document.getElementById('formMessage');
+        if (!container) return;
+        container.textContent = message;
+        container.className = '';
+        container.style.background = type === 'error' ? '#fef2f2' : '#f0fdf4';
+        container.style.border = `1px solid ${type === 'error' ? '#fecaca' : '#bbf7d0'}`;
+        container.style.color = type === 'error' ? '#b91c1c' : '#15803d';
+        container.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        clearTimeout(container._messageTimer);
+        container._messageTimer = setTimeout(() => container.classList.add('hidden'), 4500);
+    }
+
+    function renderHolidayCalendar() {
+        const grid = document.getElementById('calDaysGrid');
+        const label = document.getElementById('calMonthLabel');
+        if (!grid || !label) return;
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        label.textContent = `${monthNames[month]} ${year}`;
+        grid.replaceChildren();
+        grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;';
+        ['L','M','M','J','V','S','D'].forEach(day => {
+            const cell = document.createElement('div');
+            cell.textContent = day;
+            cell.style.cssText = 'font-size:10px;font-weight:800;color:var(--txt2);text-align:center;padding-bottom:4px;';
+            grid.appendChild(cell);
+        });
+        const firstDay = new Date(year, month, 1).getDay();
+        const offset = firstDay === 0 ? 6 : firstDay - 1;
+        for (let i = 0; i < offset; i++) grid.appendChild(document.createElement('div'));
+        const days = new Date(year, month + 1, 0).getDate();
+        for (let day = 1; day <= days; day++) {
+            const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = String(day);
+            button.setAttribute('aria-pressed', String(holidays.includes(date)));
+            const paint = selected => {
+                button.style.cssText = `aspect-ratio:1;border-radius:6px;border:1px solid ${selected ? '#fecaca' : 'var(--border)'};font-size:11px;font-weight:700;cursor:pointer;background:${selected ? '#fef2f2' : '#fff'};color:${selected ? '#dc2626' : 'var(--txt1)'};`;
+                button.setAttribute('aria-pressed', String(selected));
+            };
+            paint(holidays.includes(date));
+            button.onclick = () => {
+                holidays = holidays.includes(date) ? holidays.filter(value => value !== date) : [...holidays, date].sort();
+                paint(holidays.includes(date));
+            };
+            grid.appendChild(button);
+        }
+    }
+
+    function changeCalMonth(offset) {
+        currentCalDate.setDate(1);
+        currentCalDate.setMonth(currentCalDate.getMonth() + offset);
+        renderHolidayCalendar();
+    }
+
+    function openSettingsModal() {
+        const data = clinicDataGlobal || {};
+        document.getElementById('clinicName').value = data.nombre || '';
+        document.getElementById('clinicRuc').value = data.ruc || '';
+        document.getElementById('clinicPhone').value = data.telefono || '';
+        document.getElementById('clinicAddress').value = data.direccion || '';
+        document.getElementById('clinicColor').value = /^#[0-9a-f]{6}$/i.test(data.color || '') ? data.color : '#0891b2';
+        document.getElementById('hInicio').value = data.horarioInicio || '08:00';
+        document.getElementById('hFin').value = data.horarioFin || '18:00';
+        document.getElementById('hAlmuerzoInicio').value = data.almuerzoInicio || '13:00';
+        document.getElementById('hAlmuerzoFin').value = data.almuerzoFin || '14:00';
+        document.getElementById('duracionCita').value = String(data.duracionCita || 30);
+        const preview = document.getElementById('clinicLogoPreview');
+        if (preview) preview.src = data.logo || 'img/logo.png';
+        holidays = Array.isArray(data.diasNoLaborables) ? [...data.diasNoLaborables] : [];
+        currentCalDate = new Date();
+        renderHolidayCalendar();
+        checkCalendarSyncUI();
+        document.getElementById('settingsModal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+
+    function previewLogo(input) {
+        const file = input.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) {
+            alert('Selecciona una imagen de hasta 2 MB.');
+            input.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = event => { document.getElementById('clinicLogoPreview').src = event.target.result; };
+        reader.readAsDataURL(file);
+    }
+
+    async function saveClinicSettings() {
+        const name = document.getElementById('clinicName').value.trim();
+        const start = document.getElementById('hInicio').value;
+        const end = document.getElementById('hFin').value;
+        const toMinutes = value => {
+            const [hours, minutes] = value.split(':').map(Number);
+            return hours * 60 + minutes;
+        };
+        if (!name) return mostrarMensaje('Escribe el nombre comercial de la clínica.', 'error');
+        if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(start) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(end) || toMinutes(start) >= toMinutes(end)) {
+            return mostrarMensaje('El horario de cierre debe ser posterior al horario de apertura.', 'error');
+        }
+        const logoInput = document.getElementById('clinicLogoInput');
+        let logo = clinicDataGlobal?.logo || '';
+        try {
+            if (logoInput.files?.[0]) {
+                const logoRef = storage.ref(`clinicas/${parentDoctorId}/logo`);
+                await logoRef.put(logoInput.files[0]);
+                logo = await logoRef.getDownloadURL();
+            }
+            const newData = {
+                nombre: name,
+                ruc: document.getElementById('clinicRuc').value.trim(),
+                telefono: document.getElementById('clinicPhone').value.trim(),
+                direccion: document.getElementById('clinicAddress').value.trim(),
+                color: document.getElementById('clinicColor').value,
+                horarioInicio: start,
+                horarioFin: end,
+                almuerzoInicio: document.getElementById('hAlmuerzoInicio').value,
+                almuerzoFin: document.getElementById('hAlmuerzoFin').value,
+                duracionCita: Number(document.getElementById('duracionCita').value) || 30,
+                diasNoLaborables: [...new Set(holidays)].sort(),
+                logo
+            };
+            await db.collection('clinics').doc(parentDoctorId).update({ clinicInfo: { ...(clinicDataGlobal || {}), ...newData } });
+            try { await db.collection('users').doc(parentDoctorId).update({ clinicInfo: { ...(clinicDataGlobal || {}), ...newData } }); } catch (mirrorError) {}
+            clinicDataGlobal = { ...(clinicDataGlobal || {}), ...newData };
+            holidays = newData.diasNoLaborables;
+            applyClinicBranding();
+            closeSettingsModal();
+            mostrarMensaje('Configuración guardada correctamente.', 'success');
+        } catch (error) {
+            console.error('Error guardando configuración de la clínica dental:', error);
+            mostrarMensaje('No se pudo guardar la configuración. Inténtalo de nuevo.', 'error');
+        }
+    }
+
+    async function openHistoryModal(patientId) {
+        if (!patientId || !parentDoctorId) return;
+        currentPatientIdForImages = patientId;
+        const patient = patients.find(item => item.id === patientId);
+        const timeline = document.getElementById('historyTimeline');
+        document.getElementById('historyPatientInfo').textContent = `${patient?.nombre || 'Paciente'} · CI: ${patient?.cedula || 'N/A'}`;
+        document.getElementById('historyModal').classList.remove('hidden');
+        document.getElementById('chartContainer').classList.add('hidden');
+        timeline.textContent = 'Cargando historial…';
+        try {
+            const snapshot = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(patientId).collection('vitals').orderBy('fecha', 'asc').get();
+            timeline.replaceChildren();
+            if (snapshot.empty) {
+                timeline.textContent = 'Sin historial clínico registrado.';
+                if (vitalsChartInstance) { vitalsChartInstance.destroy(); vitalsChartInstance = null; }
+            } else {
+                const labels = [], weights = [];
+                snapshot.docs.forEach(doc => {
+                    const record = doc.data() || {};
+                    const date = record.fecha?.toDate ? record.fecha.toDate() : new Date(record.fecha || 0);
+                    const dateText = Number.isNaN(date.getTime()) ? 'Fecha no disponible' : date.toLocaleDateString('es-EC', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const card = document.createElement('article');
+                    card.className = 'history-card';
+                    const dateNode = document.createElement('div');
+                    dateNode.textContent = `📅 ${dateText}`;
+                    dateNode.style.cssText = 'font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;';
+                    const note = document.createElement('div');
+                    note.textContent = record.diagnostico || 'Consulta sin nota clínica.';
+                    note.style.cssText = 'font-size:13px;color:#374151;font-weight:600;line-height:1.5;white-space:pre-wrap;';
+                    card.append(dateNode, note);
+                    const oral = record.indicadoresBucales;
+                    if (oral && typeof oral === 'object') {
+                        const oralNote = document.createElement('div');
+                        oralNote.textContent = `Índices bucales CPO: ${oral.cpo?.C || 0}/${oral.cpo?.P || 0}/${oral.cpo?.O || 0} · CEO: ${oral.ceo?.C || 0}/${oral.ceo?.E || 0}/${oral.ceo?.O || 0}`;
+                        oralNote.style.cssText = 'font-size:11.5px;color:#64748b;font-weight:700;margin-top:7px;';
+                        card.appendChild(oralNote);
+                    }
+                    const recs = Array.isArray(record.recomendaciones) ? record.recomendaciones : [];
+                    if (recs.length) {
+                        const list = document.createElement('ul');
+                        list.style.cssText = 'padding-left:18px;margin:10px 0 0;color:#92400e;font-size:12px;';
+                        recs.forEach(value => { const item = document.createElement('li'); item.textContent = value; list.appendChild(item); });
+                        card.appendChild(list);
+                    }
+                    timeline.appendChild(card);
+                    if (record.peso && Number.isFinite(Number(record.peso))) { labels.push(dateText); weights.push(Number(record.peso)); }
+                });
+                if (vitalsChartInstance) { vitalsChartInstance.destroy(); vitalsChartInstance = null; }
+                const canvas = document.getElementById('vitalsChartCanvas');
+                if (weights.length && typeof Chart !== 'undefined' && canvas) {
+                    document.getElementById('chartContainer').classList.remove('hidden');
+                    vitalsChartInstance = new Chart(canvas, { type: 'line', data: { labels, datasets: [{ label: 'Peso (kg)', data: weights, borderColor: '#0891b2', backgroundColor: 'rgba(8,145,178,.1)', fill: true, tension: .35 }] }, options: { responsive: true, maintainAspectRatio: false } });
+                }
+            }
+        } catch (error) {
+            timeline.textContent = 'Error cargando el historial clínico.';
+            console.error('Error cargando expediente odontológico:', error);
+        }
+        await loadPatientImages(patientId);
+    }
+
+    function closeHistoryModal() {
+        document.getElementById('historyModal').classList.add('hidden');
+        if (vitalsChartInstance) { vitalsChartInstance.destroy(); vitalsChartInstance = null; }
+    }
+
+    async function uploadPatientImage(input) {
+        const file = input.files?.[0];
+        if (!file || !currentPatientIdForImages) return;
+        if (!(file.type.startsWith('image/') || file.type === 'application/pdf') || file.size > 10 * 1024 * 1024) {
+            alert('Selecciona una imagen o PDF de hasta 10 MB.'); input.value = ''; return;
+        }
+        const button = document.getElementById('btnUploadImg');
+        if (button) { button.disabled = true; button.textContent = 'Subiendo…'; }
+        let uploadedRef = null;
+        try {
+            const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-120) || 'archivo';
+            uploadedRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${safeName}`);
+            await uploadedRef.put(file);
+            const url = await uploadedRef.getDownloadURL();
+            await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(currentPatientIdForImages).collection('images').add({ url, nombre: file.name, fechaCreacion: new Date() });
+            await loadPatientImages(currentPatientIdForImages);
+            mostrarMensaje('Archivo adjuntado al expediente.', 'success');
+        } catch (error) {
+            if (uploadedRef) { try { await uploadedRef.delete(); } catch (cleanupError) {} }
+            console.error('Error subiendo archivo odontológico:', error);
+            alert('No se pudo subir el archivo. Inténtalo de nuevo.');
+        } finally {
+            if (button) { button.disabled = false; button.textContent = 'Subir archivo'; }
+            input.value = '';
+        }
+    }
+
+    async function loadPatientImages(patientId) {
+        const gallery = document.getElementById('patientImagesGallery');
+        if (!gallery) return;
+        gallery.textContent = 'Cargando archivos…';
+        try {
+            const snapshot = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(patientId).collection('images').orderBy('fechaCreacion', 'desc').get();
+            gallery.replaceChildren();
+            if (snapshot.empty) { gallery.textContent = 'No hay archivos adjuntos.'; return; }
+            snapshot.docs.forEach(doc => {
+                const file = doc.data() || {};
+                let url;
+                try { url = new URL(file.url, window.location.href); if (!['https:', 'http:'].includes(url.protocol)) return; } catch (error) { return; }
+                const link = document.createElement('a');
+                link.href = url.href; link.target = '_blank'; link.rel = 'noopener noreferrer';
+                link.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;padding:8px;border:1px solid var(--border);border-radius:8px;background:#fff;text-decoration:none;overflow:hidden;';
+                if (String(file.nombre || '').toLowerCase().endsWith('.pdf')) {
+                    const icon = document.createElement('span'); icon.textContent = '📄'; icon.style.fontSize = '26px'; link.appendChild(icon);
+                } else {
+                    const image = document.createElement('img'); image.src = url.href; image.alt = file.nombre || 'Imagen del expediente'; image.loading = 'lazy'; image.style.cssText = 'width:100%;height:70px;object-fit:cover;'; link.appendChild(image);
+                }
+                const name = document.createElement('span'); name.textContent = file.nombre || 'Archivo'; name.style.cssText = 'width:100%;font-size:10px;font-weight:700;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;'; link.appendChild(name);
+                gallery.appendChild(link);
+            });
+            if (!gallery.childElementCount) gallery.textContent = 'No hay archivos válidos para mostrar.';
+        } catch (error) { gallery.textContent = 'No se pudieron cargar los archivos.'; console.error(error); }
+    }
+
+    function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
+    function closePromotionsModal() { document.getElementById('promotionsModal').classList.add('hidden'); }
+
+    async function sendPromotion() {
+        const message = document.getElementById('promoMessage').value.trim();
+        if (!message) return alert('Escribe el mensaje de la campaña.');
+        const button = document.getElementById('btnSendPromo'); button.disabled = true; button.textContent = 'Enviando…';
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/promotions/send`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, mensajePromocion: message, instruccionesIA: document.getElementById('promoTargeting').value.trim() || 'A todos' }) });
+            const data = await response.json();
+            if (!response.ok || !data.success) throw new Error(data.error || 'No se pudo enviar la campaña.');
+            closePromotionsModal(); mostrarMensaje(`Campaña enviada a ${data.enviados ?? 0} pacientes.`, 'success');
+        } catch (error) { alert(`Error enviando la campaña: ${error.message}`); }
+        finally { button.disabled = false; button.textContent = 'Enviar Inteligente ✦'; }
+    }
+
+    async function copiarMiLink() {
+        if (!parentDoctorId) return mostrarMensaje('Espera a que cargue la clínica e inténtalo de nuevo.', 'error');
+        const bookingUrl = new URL('agendar.html', window.location.href); bookingUrl.searchParams.set('doc', parentDoctorId);
+        try { await navigator.clipboard.writeText(bookingUrl.href); mostrarMensaje('Enlace de reservas copiado.', 'success'); }
+        catch (error) { window.prompt('Copia este enlace de reservas:', bookingUrl.href); }
+    }
 
     function toggleMobileMenu() {
         const sidebar = document.getElementById('appSidebar');
