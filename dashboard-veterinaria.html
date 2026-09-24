@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
     <style>
@@ -113,8 +112,8 @@
         /* ── Main ── */
         #appMain { 
             margin-left: var(--sidebar-w); 
-            flex: 1; 
-            width: calc(100% - var(--sidebar-w)); 
+            flex: 1;
+            width: calc(100% - var(--sidebar-w));
             height: 100vh; 
             display: flex; 
             flex-direction: column; 
@@ -216,7 +215,7 @@
         .rx-tab-pane { display: none; padding: 22px 26px; }
         .rx-tab-pane.active { display: block; animation: fadeIn 0.25s ease-out; }
 
-        /* ── Modals (Ampliados para usar más espacio visual) ── */
+        /* ── Modals ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
         .modal-box-large { width: 100%; max-width: 1000px !important; }
@@ -351,7 +350,7 @@
             </button>
             <button onclick="openMetaModal()" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-                Meta Omnicanal
+                WhatsApp Asistencitas
             </button>
         </nav>
 
@@ -1181,7 +1180,7 @@
                                 <option value="45">45 minutos</option>
                                 <option value="60">1 hora</option>
                                 <option value="90">1 hora y media</option>
-                                <option value="120">2 hours</option>
+                                <option value="120">2 horas</option>
                             </select>
                         </div>
                     </div>
@@ -1256,7 +1255,7 @@
         fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
 
-    // 🔥 MODIFICADA: COMPROBACIÓN DE SDK + COEXISTENCIA CLOUD API v3 🔥
+    // 🔥 MODIFICADA: VERIFICACIÓN DEL SDK Y SOPORTE DE COEXISTENCIA v3 🔥
     function launchMetaEmbeddedSignup() {
         if (typeof FB === 'undefined') {
             mostrarMensaje('El script de Meta no se ha cargado. Revisa tu conexión a internet o bloqueador de anuncios.', 'error');
@@ -1752,7 +1751,7 @@
                 </td>
                 <td><span style="font-weight:800;color:#dc2626;font-size:15px;">$${saldo}</span></td>
                 <td>
-                    <button onclick="openPayInstallment('${plan.id}', '${p?.nombre}')" class="btn btn-primary btn-sm">💳 Abonar</button>
+                    <button onclick="openPayInstallment('${plan.id}', '${p?.nombre || 'Paciente'}')" class="btn btn-primary btn-sm">💳 Abonar</button>
                 </td>
             </tr>`;
         }).join('');
@@ -1791,12 +1790,12 @@
             });
 
             const p = patients.find(x => x.id === plan.patientId);
-            const pName = p ? p.nombre : 'Paciente';
+            const pName = p?.nombre || 'Paciente';
             
             // Generar Comprobante PDF
             imprimirComprobantePago(pName, amount, `Abono de tratamiento (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
 
-            if(p && p.telefonoWhatsApp) {
+            if(p?.telefonoWhatsApp) {
                 const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
@@ -2147,7 +2146,7 @@
             const nuevoBloque = `\n\n--- HALLAZGOS DEL MAPA ---\n${textoGenerado}\n--- FIN HALLAZGOS ---`;
             document.getElementById('mspExamen').value = currentText + nuevoBloque;
         } else {
-            document.getElementById('mspExamen').value = currentText || 'Examen físico visual normal.';
+            document.getElementById('mspExamen').value = currentText;
         }
     }
 
@@ -2258,7 +2257,7 @@
             let montoTotalPlan = parseFloat(document.getElementById('montoTotalPlan').value) || 0;
             recList.push(`⚠️ Plan Financiero: Diferido en ${cuotas} cuota(s). Monto Total: $${montoTotalPlan.toFixed(2)}`);
 
-            if(cuotas > 1 && montoTotalPlan > 0) {
+            if(cuotas > 1 && montoTotalPlan > 0 && p) {
                 await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').add({
                     patientId: p.id,
                     fechaInicio: new Date().toISOString().split('T')[0],
@@ -2271,7 +2270,7 @@
 
         let nextDate = document.getElementById('rxNextDate').value;
         let nextTime = document.getElementById('rxNextTime').value;
-        if(nextDate && nextTime) {
+        if(nextDate && nextTime && p) {
             recList.push(`📅 Recordatorio: Próximo control o refuerzo de vacuna programado para: ${nextDate} a las ${nextTime}`);
 
             await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
@@ -2289,7 +2288,7 @@
         }
 
         try {
-            if(diagFinal || meds.length > 0 || customVitalsStr.length > 0) {
+            if(p && (diagFinal || meds.length > 0 || customVitalsStr.length > 0)) {
                 await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(p.id).collection('vitals').add({
                     fecha: new Date(), diagnostico: diagFinal, recommendations: recList, ...vitalsObj
                 });
@@ -2301,17 +2300,19 @@
                 recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() 
             });
 
-            await fetch(`${API_BASE_URL}/send-prescription`, {
-                method:'POST', headers: {'Content-Type': 'application/json'},
-                body:JSON.stringify({
-                    clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
-                    diagnostico: diagFinal, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal
-                })
-            });
+            if(p?.telefonoWhatsApp) {
+                await fetch(`${API_BASE_URL}/send-prescription`, {
+                    method:'POST', headers: {'Content-Type': 'application/json'},
+                    body:JSON.stringify({
+                        clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
+                        diagnostico: diagFinal, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal
+                    })
+                });
+            }
 
             closePrescriptionModal();
             document.getElementById('billingAptId').value = aptId;
-            document.getElementById('billingPatName').textContent = p.nombre;
+            document.getElementById('billingPatName').textContent = p?.nombre || 'Paciente';
             document.getElementById('billingSubtotal').value = '';
             document.getElementById('billingTotalDisplay').textContent = '$0.00';
             document.getElementById('billingIva').checked = false;
@@ -2326,9 +2327,9 @@
     // ── FUNCIONES DE IMPRESIÓN VETERINARIA ──
     function imprimirRecetaVet() {
         const patientName = document.getElementById('rxPatientName').textContent;
-        const motivo = document.getElementById('mspMotivo').value || '';
-        const anamnesis = document.getElementById('mspAnamnesis').value || '';
-        const examen = document.getElementById('mspExamen').value || '';
+        const motivo = document.getElementById('mspMotivo').value || 'Sin motivo registrado.';
+        const anamnesis = document.getElementById('mspAnamnesis').value || 'Sin historial previo.';
+        const examen = document.getElementById('mspExamen').value || 'Sin hallazgos marcados.';
         const diag = document.getElementById('rxDiagnostico').value || 'Sin diagnóstico ingresado.';
         const recs = document.getElementById('rxRecomendaciones').value || 'Sin recomendaciones adicionales.';
         
@@ -2514,8 +2515,8 @@
             const p = patients.find(x=>x.id===apt?.patientId);
             
             // BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO - ej. CIRUGÍAS/VACUNAS)
-            const planActivo = planesPago.find(x => x.patientId === p.id && x.estado === 'activo');
-            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
+            const planActivo = p ? planesPago.find(x => x.patientId === p.id && x.estado === 'activo') : null;
+            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p?.nombre || 'Mascota'}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
             
             if (planActivo) {
                 const nuevoSaldo = Math.max(0, planActivo.saldoPendiente - total);
@@ -2528,10 +2529,10 @@
                     estado: estadoPlan
                 });
                 
-                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p?.nombre || 'Mascota'}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
             }
 
-            imprimirComprobantePago(p.nombre, total, apt.motivo);
+            imprimirComprobantePago(p?.nombre || 'Mascota', total, apt?.motivo);
 
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
@@ -2543,7 +2544,7 @@
             closeBillingModal();
             mostrarMensaje(`Cobro de $${total.toFixed(2)} registrado. Comprobante enviado.`, 'success');
             await loadAppointments();
-            if (planActivo) await loadPlanesPago(); // Actualizar finanzas en tiempo real
+            if (planActivo) await loadPlanesPago(); 
         } catch(e) { alert('Error registrando cobro.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Finalizar y Enviar`; }
     }
@@ -2587,10 +2588,11 @@
         monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
 
         const firstDay = new Date(year, month, 1).getDay();
+        const startOffset = firstDay === 0 ? 6 : firstDay - 1; 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        ['D','L','M','M','J','V','S'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
-        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div></div>`;
+        ['L','M','M','J','V','S','D'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+        for (let i = 0; i < startOffset; i++) grid.innerHTML += `<div></div>`;
         for (let day = 1; day <= daysInMonth; day++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             const isHoliday = holidays.includes(dateStr);
