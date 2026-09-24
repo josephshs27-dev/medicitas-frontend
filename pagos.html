@@ -115,13 +115,17 @@
                 </div>
             </div>
 
+            <div id="renewalDisabledNotice" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+                El plan está activo para el período pagado, pero PayPhone no habilitó la renovación automática. Contacta a soporte antes de la fecha indicada para evitar una interrupción.
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 bg-gradient-to-br from-indigo-900 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-20 translate-x-20 blur-2xl"></div>
                     <p class="text-indigo-200 font-bold uppercase tracking-widest text-xs mb-6">Resumen de Suscripción</p>
                     <div class="flex flex-col sm:flex-row gap-8 items-start sm:items-end justify-between">
                         <div>
-                            <p class="text-sm text-slate-300 mb-1">Tu próximo cobro automático será el:</p>
+                            <p class="text-sm text-slate-300 mb-1" id="nextBillingLabel">Tu próximo cobro automático será el:</p>
                             <p class="text-4xl sm:text-5xl font-black text-white" id="nextBillingDate">-- de --</p>
                         </div>
                         <div class="text-left sm:text-right">
@@ -183,6 +187,45 @@
         const PAYPHONE_TOKEN = "WUPQ68USXcdiO_ZIUY-D2gQMKDyZ7ZNJmMgw__Yr8ISbV55fB4S6G-AVsfgSr_q_2ZjRZMC3-tJseaQO4vbuSUH50_M67MSYVIqwEcqmu00rORvVdnI3eDZlkDTcBtnoLf5JUI2ojuUQEDEJ4cXiWNymaPPiY22nro-H9CXrXc1t3JCsO__wjXF_xrHCC5UUnWCX0mT0qjxeXVjt1UwV6f73106FyjmHoh9mjgFRnqKDRII4BZc1_KeW0FUatBNn3KoH6kNPpIc7z4B3RZCCOTmKNjNt-Pg9oZdrgQeMST5lLrwKBxRl-BRAJsdHiu9U4CvNAQ";
 
         let currentUserUid = null;
+
+        const API_BASE_URL = 'https://api.asistencitas.com';
+
+        async function confirmPayphoneAtBackend(ppId, clientTxId, recurringConsent) {
+            const user = auth.currentUser;
+            if (!user) throw new Error('Inicia sesión para confirmar el pago.');
+
+            const idToken = await user.getIdToken();
+            const response = await fetch(`${API_BASE_URL}/api/payphone/confirm`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+                body: JSON.stringify({ ppId, clientTxId, recurringConsent: recurringConsent === true })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                const error = new Error(result.error || 'No se pudo confirmar el pago.');
+                error.code = result.code || '';
+                error.status = response.status;
+                throw error;
+            }
+            return result;
+        }
+
+        function clearPendingPayphonePayment() {
+            localStorage.removeItem('pendingPayphoneId');
+            localStorage.removeItem('pendingPayphoneTxId');
+            localStorage.removeItem('pendingPayphoneConsent');
+        }
+
+        function showPaymentRetry(message) {
+            const loadingView = document.getElementById('loadingView');
+            document.querySelector('.loader-text').textContent = message;
+            const retryButton = document.createElement('button');
+            retryButton.type = 'button';
+            retryButton.className = 'mt-4 rounded-xl bg-indigo-600 px-5 py-3 font-bold text-white hover:bg-indigo-700';
+            retryButton.textContent = 'Reintentar confirmación';
+            retryButton.addEventListener('click', () => window.location.reload(), { once: true });
+            loadingView.appendChild(retryButton);
+        }
         let isPayphoneRendered = false;
         let currentPlanPrice = 20; 
 
@@ -195,54 +238,36 @@
                 const savedTxId = localStorage.getItem('pendingPayphoneTxId');
 
                 if (savedPpId && savedTxId) {
-                    document.querySelector('.loader-text').textContent = "Confirmando tu pago con el banco, no cierres esta ventana...";
+                    document.querySelector('.loader-text').textContent = 'Confirmando tu pago con el banco...';
                     document.getElementById('loadingView').classList.remove('hidden');
-                    
+
                     try {
-                        const response = await fetch("https://pay.payphonetodoesposible.com/api/button/V2/Confirm", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${PAYPHONE_TOKEN}`
-                            },
-                            body: JSON.stringify({ id: parseInt(savedPpId), clientTxId: savedTxId })
-                        });
-
-                        const data = await response.json();
-                        
-                        if (data.transactionStatus === "Approved" || data.statusCode === 3) {
-                            let updateData = {
-                                estadoSuscripcion: 'activo',
-                                suscripcionPayphone: true,
-                                payphoneTransaccionId: savedPpId,
-                                fechaUltimoCobro: firebase.firestore.FieldValue.serverTimestamp()
-                            };
-                            
-                            if (data.cardToken) {
-                                updateData.payphoneCardToken = data.cardToken;
-                            }
-
-                            try { await db.collection('clinics').doc(currentUserUid).update(updateData); } catch(e){}
-                            try { await db.collection('users').doc(currentUserUid).update(updateData); } catch(e){}
-
-                            // Limpiar el salvavidas
-                            localStorage.removeItem('pendingPayphoneId');
-                            localStorage.removeItem('pendingPayphoneTxId');
-
-                            window.location.href = 'index.html';
-                            return; 
+                        const result = await confirmPayphoneAtBackend(
+                            savedPpId,
+                            savedTxId,
+                            localStorage.getItem('pendingPayphoneConsent') === 'true'
+                        );
+                        clearPendingPayphonePayment();
+                        if (!result.recurringEnabled) {
+                            alert('El pago fue aprobado. La renovación automática no quedó habilitada; contacta a soporte para revisar el método de pago.');
                         } else {
-                            localStorage.removeItem('pendingPayphoneId');
-                            localStorage.removeItem('pendingPayphoneTxId');
-                            alert("❌ El banco rechazó la tarjeta o cancelaste el proceso. Intenta de nuevo.");
+                            alert('Pago aprobado y renovación automática habilitada.');
+                        }
+                        window.location.href = 'index.html';
+                        return;
+                    } catch (error) {
+                        if (error.code === 'PAYMENT_DECLINED') {
+                            clearPendingPayphonePayment();
+                            alert('El banco no aprobó el pago. Puedes intentarlo nuevamente.');
                             window.location.reload();
                             return;
                         }
-                    } catch (err) {
-                        localStorage.removeItem('pendingPayphoneId');
-                        localStorage.removeItem('pendingPayphoneTxId');
-                        alert("Hubo un error de conexión al confirmar el pago. Inténtalo de nuevo.");
-                        window.location.reload();
+
+                        const canRetrySamePayment = ![400, 403, 404, 409].includes(error.status);
+                        if (!canRetrySamePayment) clearPendingPayphonePayment();
+                        showPaymentRetry(canRetrySamePayment
+                            ? 'No pudimos verificar el pago todavía. Conservamos la referencia para que puedas reintentar. ' + error.message
+                            : 'No se pudo validar esta referencia. Contacta a soporte antes de volver a pagar. ' + error.message);
                         return;
                     }
                 }
@@ -268,8 +293,13 @@
                         document.getElementById('loadingView').classList.add('hidden');
                         document.getElementById('mainContainer').classList.remove('hidden');
 
-                        if (userData.estadoSuscripcion === 'activo' && userData.suscripcionPayphone) {
+                        if (userData.estadoSuscripcion === 'activo') {
                             document.getElementById('activeBillingView').classList.remove('hidden');
+
+                            if (!userData.suscripcionPayphone) {
+                                document.getElementById('renewalDisabledNotice').classList.remove('hidden');
+                                document.getElementById('nextBillingLabel').textContent = 'Tu período pagado termina aproximadamente el:';
+                            }
                             
                             let nextDate = new Date();
                             if(userData.fechaUltimoCobro) {
@@ -316,6 +346,7 @@
                     btnHorizontal: true,
                     btnCard: true,
                     createOrder: function(actions) {
+                        localStorage.setItem('pendingPayphoneConsent', document.getElementById('legalCheck').checked ? 'true' : 'false');
                         return actions.prepare({
                             amount: amountInCents, 
                             amountWithoutTax: amountInCents,
@@ -324,40 +355,44 @@
                             storeCard: true 
                         });
                     },
-                    onComplete: function(model, actions) {
-                        actions.confirm({
-                            id: model.id,
-                            clientTxId: model.clientTxId
-                        }).then(async function(value) {
-                            
-                            alert("✅ Pago exitoso procesado por PayPhone.");
-                            
-                            try {
-                                let updateData = {
-                                    estadoSuscripcion: 'activo',
-                                    suscripcionPayphone: true,
-                                    payphoneTransaccionId: model.id,
-                                    fechaUltimoCobro: firebase.firestore.FieldValue.serverTimestamp()
-                                };
-
-                                if (value.cardToken) {
-                                    updateData.payphoneCardToken = value.cardToken;
-                                }
-
-                                try { await db.collection('clinics').doc(currentUserUid).update(updateData); } catch(e){}
-                                try { await db.collection('users').doc(currentUserUid).update(updateData); } catch(e){}
-                                
-                                window.location.href = 'index.html'; 
-                            } catch (e) {
-                                console.error("Error BD:", e);
-                                alert("El pago fue recibido, pero hubo un error de red al guardarlo. Contacta a soporte.");
-                            }
-                            
-                        }).catch(function(err) {
-                            alert("❌ El pago no pudo ser confirmado por el banco. Intenta de nuevo.");
-                        });
+                    onComplete: async function(model) {
+                    const ppId = model && model.id;
+                    const clientTxId = model && (model.clientTxId || model.clientTransactionId);
+                    if (!ppId || !clientTxId) {
+                        alert('PayPhone no devolvió la referencia necesaria para confirmar el pago. Contacta a soporte antes de volver a pagar.');
+                        return;
                     }
-                }).render("#pp-button-box"); 
+
+                    localStorage.setItem('pendingPayphoneId', String(ppId));
+                    localStorage.setItem('pendingPayphoneTxId', String(clientTxId));
+                    localStorage.setItem('pendingPayphoneConsent', document.getElementById('legalCheck').checked ? 'true' : 'false');
+                    document.getElementById('mainContainer').classList.add('hidden');
+                    document.getElementById('loadingView').classList.remove('hidden');
+                    document.querySelector('.loader-text').textContent = 'Verificando el pago con PayPhone...';
+
+                    try {
+                        const result = await confirmPayphoneAtBackend(ppId, clientTxId, document.getElementById('legalCheck').checked);
+                        clearPendingPayphonePayment();
+                        if (!result.recurringEnabled) {
+                            alert('El pago fue aprobado, pero la renovación automática no quedó habilitada. Contacta a soporte para revisar tu cuenta.');
+                        } else {
+                            alert('Pago aprobado y renovación automática habilitada.');
+                        }
+                        window.location.href = 'index.html';
+                    } catch (error) {
+                        if (error.code === 'PAYMENT_DECLINED') {
+                            clearPendingPayphonePayment();
+                            alert('El banco no aprobó el pago. Puedes intentarlo nuevamente.');
+                            window.location.reload();
+                            return;
+                        }
+                        const canRetrySamePayment = ![400, 403, 404, 409].includes(error.status);
+                        if (!canRetrySamePayment) clearPendingPayphonePayment();
+                        showPaymentRetry(canRetrySamePayment
+                            ? 'No pudimos verificar el pago todavía. Conservamos la referencia para que puedas reintentar. ' + error.message
+                            : 'No se pudo validar esta referencia. Contacta a soporte antes de volver a pagar. ' + error.message);
+                    }
+                } }).render("#pp-button-box"); 
 
                 isPayphoneRendered = true;
 
