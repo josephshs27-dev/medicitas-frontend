@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistencitas Pro — Nutrición</title>
+    <title>Asistencitas Pro — Clínica Veterinaria</title>
     <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,18 +12,20 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
     <style>
         *, *::before, *::after { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         :root {
-            --sidebar-bg: #064e3b; 
-            --sidebar-hover: rgba(16, 185, 129, 0.15);
-            --sidebar-active: rgba(16, 185, 129, 0.25);
+            /* Paleta Índigo/Morada para Veterinaria */
+            --sidebar-bg: #1e1b4b; 
+            --sidebar-hover: rgba(79, 70, 229, 0.15);
+            --sidebar-active: rgba(79, 70, 229, 0.25);
             --sidebar-sep: rgba(255,255,255,0.07);
-            --accent: #10b981; 
-            --accent-dark: #059669; 
-            --accent-light: #ecfdf5; 
+            --accent: #4f46e5; 
+            --accent-dark: #4338ca; 
+            --accent-light: #e0e7ff; 
             --page: #f1f5f9;
             --card: #ffffff;
             --border: #e2e8f0;
@@ -52,7 +54,7 @@
         }
         .loader-ring {
             width: 44px; height: 44px; border-radius: 50%;
-            border: 3px solid rgba(16, 185, 129, 0.2);
+            border: 3px solid rgba(79, 70, 229, 0.2);
             border-top-color: var(--accent);
             animation: spin 0.8s linear infinite;
         }
@@ -118,7 +120,7 @@
             flex-direction: column; 
             overflow: hidden; 
         }
-        
+
         .topbar {
             background: white; border-bottom: 1px solid var(--border);
             padding: 0 32px; height: 58px;
@@ -127,7 +129,7 @@
         }
         .topbar-title { font-size: 15px; font-weight: 800; color: var(--txt1); }
         .topbar-meta { font-size: 12px; color: var(--txt2); font-weight: 500; }
-        .topbar-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-light); color: var(--accent-dark); border: 1px solid #6ee7b7; padding: 4px 12px; border-radius: 99px; font-size: 11.5px; font-weight: 700; }
+        .topbar-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-light); color: var(--accent-dark); border: 1px solid #c7d2fe; padding: 4px 12px; border-radius: 99px; font-size: 11.5px; font-weight: 700; }
 
         #formMessage { border-radius: 9px; padding: 12px 18px; font-size: 13px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
 
@@ -153,7 +155,7 @@
 
         /* ── Forms ── */
         .finput { width: 100%; padding: 9px 13px; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; font-size: 13px; font-weight: 600; color: var(--txt1); outline: none; transition: border-color 0.15s, box-shadow 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .finput:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+        .finput:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
         .flabel { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--txt2); margin-bottom: 5px; }
 
         /* ── Buttons ── */
@@ -168,6 +170,11 @@
         .btn-secondary:hover { background: #f8fafc; }
         .btn-ghost { background: transparent; color: var(--txt2); }
         .btn-ghost:hover { background: #f1f5f9; color: var(--txt1); }
+        .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #fee2e2; }
+        .btn-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .btn-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .btn-warn { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
         .btn-full { width: 100%; justify-content: center; }
 
         /* ── Table ── */
@@ -181,7 +188,35 @@
         /* ── Avatar ── */
         .avatar { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; color: white; }
 
-        /* ── Modals ── */
+        /* ── Separator ── */
+        .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+        /* 🔥 MAPA ANATÓMICO VETERINARIO (Silueta Perfil) 🔥 */
+        .vet-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 24px 12px; background: #f5f3ff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        .v-row { display: flex; gap: 4px; justify-content: center; width: 100%; position: relative; }
+        .v-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 8.5px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1; z-index: 2; }
+        .v-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); z-index: 10; }
+        .v-part.has-finding { background: #fee2e2; border-color: #f87171; color: #dc2626; z-index: 5; }
+
+        /* Silueta Estilizada del Perro de Perfil Completo */
+        .v-head { width: 45px; height: 38px; border-radius: 50% 50% 12px 12px; margin-top: 5px; }
+        .v-neck { width: 28px; height: 18px; border-radius: 4px; margin-top: -3px; z-index: 1; }
+        .v-body-main { width: 110px; height: 60px; border-radius: 12px 25px 12px 12px; margin-top: -3px; }
+        .legs-container { display: flex; justify-content: space-around; width: 110px; margin-top: -10px; z-index: 1; }
+        .legs-group { display: flex; gap: 2px; } 
+        .v-leg { width: 16px; height: 50px; border-radius: 4px; border-width: 1px 2px 2px 1px; } 
+        .has-finding.v-leg { z-index: 6; }
+        .v-tail { width: 45px; height: 12px; border-radius: 20px; transform: rotate(-35deg); margin-left: -20px; margin-top: 15px; }
+
+        /* 🔥 PESTAÑAS (TABS) PARA OPTIMIZAR ESPACIO 🔥 */
+        .rx-tabs-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding: 0 26px; background: #fafbfc; overflow-x: auto; flex-shrink: 0; }
+        .rx-tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+        .rx-tab-btn:hover { color: var(--txt1); }
+        .rx-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .rx-tab-pane { display: none; padding: 22px 26px; }
+        .rx-tab-pane.active { display: block; animation: fadeIn 0.25s ease-out; }
+
+        /* ── Modals (Ampliados para usar más espacio visual) ── */
         .modal-wrap { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal-box { background: white; border-radius: 16px; box-shadow: 0 24px 64px rgba(0,0,0,0.22); overflow: hidden; animation: slideUp 0.22s ease-out; display: flex; flex-direction: column; max-height: 95vh; }
         .modal-box-large { width: 100%; max-width: 1000px !important; }
@@ -194,28 +229,8 @@
         .modal-close-btn { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: var(--txt2); font-size: 20px; line-height: 1; transition: background 0.15s; }
         .modal-close-btn:hover { background: #f1f5f9; color: var(--txt1); }
 
-        /* 🔥 PESTAÑAS (TABS) PARA OPTIMIZAR ESPACIO 🔥 */
-        .rx-tabs-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding: 0 26px; background: #fafbfc; overflow-x: auto; flex-shrink: 0; }
-        .rx-tab-btn { padding: 12px 16px; background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--txt3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
-        .rx-tab-btn:hover { color: var(--txt1); }
-        .rx-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-        .rx-tab-pane { display: none; padding: 22px 26px; }
-        .rx-tab-pane.active { display: block; animation: fadeIn 0.25s ease-out; }
-
-        /* ── Mapa Antropométrico (Nutrición) ── */
-        .nutri-map { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 20px 12px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
-        .n-row { display: flex; gap: 4px; justify-content: center; width: 100%; }
-        .n-part { background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--txt2); cursor: pointer; transition: all 0.15s; user-select: none; text-align: center; line-height: 1.1; }
-        .n-part:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); transform: translateY(-1px); }
-        .n-part.has-issue { background: #fef3c7; border-color: #f59e0b; color: #b45309; } 
-        .n-head { width: 40px; height: 40px; border-radius: 50%; }
-        .n-chest { width: 70px; height: 45px; border-radius: 8px 8px 4px 4px; }
-        .n-abdomen { width: 75px; height: 50px; border-radius: 4px 4px 16px 16px; }
-        .n-arm { width: 25px; height: 80px; border-radius: 12px; }
-        .n-leg { width: 35px; height: 80px; border-radius: 8px 8px 16px 16px; }
-
-        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(0.4) sepia(1) saturate(3) hue-rotate(150deg); }
-        .spinner { border: 3px solid rgba(16,185,129,0.15); border-top: 3px solid var(--accent); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
+        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(0.4) sepia(1) saturate(3) hue-rotate(240deg); }
+        .spinner { border: 3px solid rgba(79, 70, 229, 0.15); border-top: 3px solid var(--accent); border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
         .search-wrap { position: relative; }
         .search-wrap input { padding-left: 36px !important; }
         .search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--txt3); pointer-events: none; }
@@ -231,7 +246,7 @@
         .fc-theme-standard th { background: #f8fafc; padding: 8px 0; color: var(--txt2); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
         .fc-scrollgrid { border-color: var(--border) !important; }
 
-        /* 🔥 CALENDARIO INTERACTIVO (DÍAS NO LABORABLES) 🔥 */
+        /* 🔥 ESTILOS CALENDARIO INTERACTIVO (DÍAS NO LABORABLES) 🔥 */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.15s; background: white; color: var(--txt1); }
         .cal-day:hover { background: #f1f5f9; border-color: #cbd5e1; }
@@ -259,7 +274,7 @@
             .modal-ft .btn { width: 100%; }
             .panel-body-np, .panel-body { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
             .dtable { min-width: 600px; } 
-            .nutri-map { transform: scale(0.95); transform-origin: top center; margin-bottom: -10px; }
+            .vet-map { transform: scale(0.95); transform-origin: top center; margin-bottom: -10px; }
             .mobile-menu-btn { display: flex !important; }
         }
         
@@ -274,11 +289,11 @@
 <div id="authCheckOverlay">
     <div style="display:flex;flex-direction:column;align-items:center;gap:20px;">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect width="48" height="48" rx="12" fill="rgba(16,185,129,0.15)"/>
-            <path d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM22 28.828L16.586 23.414L18 22L22 26L30 18L31.414 19.414L22 28.828Z" fill="#10b981"/>
+            <rect width="48" height="48" rx="12" fill="rgba(79, 70, 229, 0.15)"/>
+            <path d="M24 10C16.268 10 10 16.268 10 24C10 31.732 16.268 38 24 38C31.732 38 38 31.732 38 24C38 16.268 31.732 10 24 10ZM22 28.828L16.586 23.414L18 22L22 26L30 18L31.414 19.414L22 28.828Z" fill="#4f46e5"/>
         </svg>
         <div class="loader-ring"></div>
-        <p class="loader-text">Iniciando Asistencitas · Nutrición</p>
+        <p class="loader-text">Iniciando Asistencitas · Veterinaria</p>
     </div>
 </div>
 
@@ -291,7 +306,7 @@
             </div>
             <div>
                 <div id="navTitle" class="sb-logo-title">Asistencitas</div>
-                <div class="sb-logo-sub">Nutrición y Dietética</div>
+                <div class="sb-logo-sub">Clínica Veterinaria</div>
             </div>
         </div>
 
@@ -304,9 +319,9 @@
             </button>
             <button onclick="switchTab('agenda')" id="tabBtnAgenda" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                Agenda de Controles
+                Agenda Lista
             </button>
-            
+
             <button onclick="switchTab('calendario')" id="tabBtnCalendario" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM16 3v4M8 3v4M4 11h16M10 15h4M12 13v4"/></svg>
                 Calendario Visual
@@ -314,7 +329,7 @@
 
             <button onclick="switchTab('pacientes')" id="tabBtnPacientes" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Pacientes
+                Pacientes / Mascotas
             </button>
             <button onclick="switchTab('finanzas')" id="tabBtnFinanzas" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
@@ -322,7 +337,7 @@
             </button>
             <button onclick="switchTab('insumos')" id="tabBtnInsumos" class="nav-link">
                 <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                Inventario
+                Inventario Clínico
             </button>
 
             <div class="sb-section-label" style="margin-top:10px;">Herramientas</div>
@@ -370,7 +385,7 @@
             <div style="display:flex;align-items:center;gap:12px;">
                 <span class="topbar-tag">
                     <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                    Módulo Nutrición
+                    Módulo Veterinario
                 </span>
                 <span class="topbar-meta" id="topbarDate"></span>
             </div>
@@ -397,11 +412,10 @@
             <div id="dashboardView" class="hidden">
 
                 <div id="tabContentDashboard" class="slide-up">
-
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
                         <div>
                             <h2 style="font-size:18px;font-weight:800;color:var(--txt1);margin:0;">Resumen General</h2>
-                            <p style="font-size:12.5px;color:var(--txt2);margin:3px 0 0;">Estadísticas de controles y rendimiento</p>
+                            <p style="font-size:12.5px;color:var(--txt2);margin:3px 0 0;">Estadísticas de actividad clínica</p>
                         </div>
                         <select id="financeFilter" onchange="updateDashboardStats()" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:white;font-size:12.5px;font-weight:700;color:var(--txt1);outline:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
                             <option value="mes">Este mes</option>
@@ -412,30 +426,30 @@
 
                     <div class="kpi-grid">
                         <div class="kpi-card">
-                            <div class="kpi-icon" style="background:#ecfdf5;">
-                                <svg width="20" height="20" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <div class="kpi-icon" style="background:var(--accent-light);">
+                                <svg width="20" height="20" fill="none" stroke="var(--accent-dark)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             </div>
-                            <div class="kpi-label">Controles del período</div>
+                            <div class="kpi-label">Citas del período</div>
                             <div class="kpi-value accent" id="kpiCitas">0</div>
-                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#10b981,#34d399);"></div>
+                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,var(--accent),var(--accent-dark));"></div>
                         </div>
 
                         <div class="kpi-card">
-                            <div class="kpi-icon" style="background:#f0fdfa;">
-                                <svg width="20" height="20" fill="none" stroke="#0d9488" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402-2.599-1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div class="kpi-icon" style="background:#f0fdf4;">
+                                <svg width="20" height="20" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402-2.599-1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <div class="kpi-label">Ingresos reales</div>
-                            <div class="kpi-value money" style="color:#0d9488;" id="kpiIngresos">$0.00</div>
-                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#0d9488,#14b8a6);"></div>
+                            <div class="kpi-value money" style="color:#16a34a;" id="kpiIngresos">$0.00</div>
+                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#16a34a,#22c55e);"></div>
                         </div>
 
                         <div class="kpi-card">
-                            <div class="kpi-icon" style="background:#f8fafc;">
-                                <svg width="20" height="20" fill="none" stroke="#475569" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <div class="kpi-icon" style="background:#eff6ff;">
+                                <svg width="20" height="20" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </div>
                             <div class="kpi-label">Total pacientes</div>
-                            <div class="kpi-value" style="color:#475569;" id="kpiPacientes">0</div>
-                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#475569,#94a3b8);"></div>
+                            <div class="kpi-value" style="color:#2563eb;" id="kpiPacientes">0</div>
+                            <div class="kpi-accent-bar" style="background:linear-gradient(90deg,#2563eb,#60a5fa);"></div>
                         </div>
 
                         <div class="kpi-card">
@@ -455,7 +469,7 @@
                             <svg width="16" height="16" fill="none" stroke="var(--accent)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span style="font-size:13px;font-weight:700;color:var(--txt1);">Panel de control clínico</span>
                         </div>
-                        <p style="font-size:12.5px;color:var(--txt2);line-height:1.6;margin:0;">Navega por los módulos desde el panel lateral para gestionar controles de peso, pacientes, planes trimestrales y suplementos. Los datos de métricas se actualizan en tiempo real.</p>
+                        <p style="font-size:12.5px;color:var(--txt2);line-height:1.6;margin:0;">Navega por los módulos desde el panel lateral para gestionar consultas, pacientes, planes y stock de vacunas/medicinas. Los datos de métricas se actualizan en tiempo real.</p>
                     </div>
                 </div>
 
@@ -465,7 +479,7 @@
                         <div class="panel" style="height:fit-content;">
                             <div class="panel-head">
                                 <div>
-                                    <div class="panel-title">Nuevo Control</div>
+                                    <div class="panel-title">Nuevo Turno</div>
                                     <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Registro manual de cita</div>
                                 </div>
                                 <div style="width:32px;height:32px;background:var(--accent-light);border-radius:8px;display:flex;align-items:center;justify-content:center;">
@@ -476,7 +490,7 @@
                                 <form id="appointmentForm">
                                     <div style="display:flex;flex-direction:column;gap:12px;">
                                         <div>
-                                            <label class="flabel">Paciente *</label>
+                                            <label class="flabel">Paciente (Mascota) *</label>
                                             <select id="patientSelect" required class="finput">
                                                 <option value="">Seleccionar paciente...</option>
                                             </select>
@@ -493,7 +507,7 @@
                                         </div>
                                         <div>
                                             <label class="flabel">Motivo *</label>
-                                            <input type="text" id="appointmentReason" placeholder="Ej: Control mensual" class="finput">
+                                            <input type="text" id="appointmentReason" placeholder="Ej: Vacuna, Consulta" class="finput">
                                         </div>
                                         <div>
                                             <label class="flabel">Estado</label>
@@ -518,7 +532,7 @@
                         <div class="panel" style="display:flex;flex-direction:column;overflow:hidden;">
                             <div class="panel-head" style="flex-shrink:0;">
                                 <div>
-                                    <div class="panel-title">Agenda Nutricional</div>
+                                    <div class="panel-title">Agenda Veterinaria</div>
                                     <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Citas programadas en lista</div>
                                 </div>
                                 <select id="filterAppointmentStatus" onchange="renderAppointments()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:white;font-size:12.5px;font-weight:700;color:var(--txt1);outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">
@@ -538,7 +552,7 @@
                     <div class="panel" style="height: calc(100vh - 120px); display: flex; flex-direction: column;">
                         <div class="panel-head" style="flex-shrink: 0;">
                             <div>
-                                <div class="panel-title">Calendario Visual Nutricional</div>
+                                <div class="panel-title">Calendario Visual Clínico</div>
                                 <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Visión gráfica general y gestión</div>
                             </div>
                         </div>
@@ -553,12 +567,12 @@
                         <div class="panel-head">
                             <div>
                                 <div class="panel-title">Directorio de Pacientes</div>
-                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Historiales de composición corporal y planes</div>
+                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Historiales clínicos de mascotas y dueños</div>
                             </div>
                             <div style="display:flex;gap:8px;align-items:center;">
                                 <div class="search-wrap">
                                     <svg class="search-icon" width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                                    <input type="text" id="searchPatientInput" placeholder="Buscar nombre o cédula..." class="finput" style="width:220px;">
+                                    <input type="text" id="searchPatientInput" placeholder="Buscar mascota o dueño..." class="finput" style="width:220px;">
                                 </div>
                                 <button onclick="openNewPatientModal()" class="btn btn-primary btn-md">
                                     <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -576,8 +590,8 @@
                     <div class="panel">
                         <div class="panel-head">
                             <div>
-                                <div class="panel-title">Planes Trimestrales / Cuotas</div>
-                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Control de abonos y saldos pendientes por paciente</div>
+                                <div class="panel-title">Planes de Tratamiento · Cuotas</div>
+                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Control de abonos y saldos pendientes (ej. Cirugías, Planes Vacunales)</div>
                             </div>
                         </div>
                         <div class="panel-body-np" style="overflow-x:auto;">
@@ -601,8 +615,8 @@
                     <div class="panel">
                         <div class="panel-head">
                             <div>
-                                <div class="panel-title">Inventario de Productos</div>
-                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Control de stock de suplementos y materiales</div>
+                                <div class="panel-title">Inventario Clínico</div>
+                                <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Control de stock de vacunas y material</div>
                             </div>
                             <button onclick="openAddInsumoModal()" class="btn btn-primary btn-md">
                                 <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -613,7 +627,7 @@
                             <table class="dtable">
                                 <thead>
                                     <tr>
-                                        <th>Nombre / Producto</th>
+                                        <th>Nombre del insumo</th>
                                         <th>Stock actual</th>
                                         <th>Ajuste rápido</th>
                                     </tr>
@@ -633,18 +647,37 @@
     <div class="modal-box" style="width:100%;max-width:400px;">
         <div class="modal-hd" style="background:var(--accent-light);">
             <div>
-                <div class="modal-title">Medidas Corporales</div>
-                <div class="modal-sub">Registro de métricas base</div>
+                <div class="modal-title">Triaje y Constantes</div>
+                <div class="modal-sub">Registro de métricas de la mascota</div>
             </div>
             <button onclick="closeTriageModal()" class="modal-close-btn">&times;</button>
         </div>
         <div class="modal-bd">
             <input type="hidden" id="triageAppointmentId">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                <div><label class="flabel">Edad</label><input type="number" id="triEdad" class="finput"></div>
+                <div style="grid-column:span 2;"><label class="flabel">Especie / Raza</label><input type="text" id="triRaza" placeholder="Ej: Canino / Poodle" class="finput"></div>
+                <div><label class="flabel">Edad</label><input type="text" id="triEdad" placeholder="Ej: 2 años" class="finput"></div>
                 <div><label class="flabel">Peso (kg)</label><input type="number" step="0.1" id="triPeso" class="finput"></div>
-                <div><label class="flabel">Altura (cm)</label><input type="number" step="0.1" id="triAltura" class="finput"></div>
-                <div><label class="flabel">% Grasa</label><input type="number" step="0.1" id="triGrasa" class="finput"></div>
+                
+                <div>
+                    <label class="flabel">Sexo</label>
+                    <select id="triSexo" class="finput">
+                        <option value="">Seleccionar...</option>
+                        <option value="Macho">Macho</option>
+                        <option value="Hembra">Hembra</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="flabel">Reproductivo</label>
+                    <select id="triRepro" class="finput">
+                        <option value="">Seleccionar...</option>
+                        <option value="Entero">Entero (Intacto)</option>
+                        <option value="Castrado/Esterilizado">Castrado/Esterilizado</option>
+                    </select>
+                </div>
+
+                <div><label class="flabel">Temp (°C)</label><input type="number" step="0.1" id="triTemp" class="finput"></div>
+                <div><label class="flabel">FC (bpm)</label><input type="number" id="triRitmo" class="finput"></div>
             </div>
         </div>
         <div class="modal-ft" style="justify-content:stretch;">
@@ -658,108 +691,122 @@
     <div class="modal-box modal-box-large" style="display:flex;flex-direction:column;">
         <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
             <div>
-                <div class="modal-title">Evolución y Plan Nutricional</div>
+                <div class="modal-title">Ficha Clínica Veterinaria</div>
                 <div class="modal-sub" id="rxPatientName">Paciente</div>
             </div>
             <button onclick="closePrescriptionModal()" class="modal-close-btn">&times;</button>
         </div>
         
         <div class="rx-tabs-nav cs">
-            <button type="button" class="rx-tab-btn active" onclick="switchRxTab('tab-eval', this)">1. Evaluación e IA</button>
-            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-mapa', this)">2. Mapa Corporal</button>
-            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-plan', this)">3. Plan Nutricional</button>
+            <button type="button" class="rx-tab-btn active" onclick="switchRxTab('tab-anamnesis', this)">1. Anamnesis e IA</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-fisico', this)">2. Examen Físico</button>
+            <button type="button" class="rx-tab-btn" onclick="switchRxTab('tab-plan', this)">3. Plan y Vacunas</button>
         </div>
 
-        <div style="flex:1;overflow-y:auto;" class="cs">
+        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
             <input type="hidden" id="rxAppointmentId">
 
-            <div id="tab-eval" class="rx-tab-pane active">
+            <div id="tab-anamnesis" class="rx-tab-pane active">
                 <div style="display:flex;flex-direction:column;gap:18px;">
                     
                     <div style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));border-radius:12px;padding:20px;">
                         <div style="color:white;font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                            Copiloto IA Nutricional
+                            Copiloto Veterinario (IA)
                         </div>
-                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe: Bajar carbohidratos, ayuno de 12h, recetar desayuno con huevos y avena..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
+                        <textarea id="rxBorrador" rows="2" placeholder="Dicta o escribe: Canino poodle 2 años, macho entero, presenta vómito desde ayer, deshidratación leve. Aplicar protector gástrico..." style="width:100%;padding:10px 12px;border-radius:8px;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#0f172a;resize:none;"></textarea>
                         <button type="button" onclick="procesarConIA()" id="btnCopiloto" style="width:100%;margin-top:10px;padding:10px;border-radius:8px;background:white;color:var(--accent-dark);font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-                            ESTRUCTURAR PLAN CON IA ✦
+                            ESTRUCTURAR FICHA CON IA ✦
                         </button>
                     </div>
 
                     <div class="panel">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Métricas y Calculadora Metabólica</div></div>
-                        <div class="panel-body">
-                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
-                                <div style="grid-column:span 2;">
-                                    <label class="flabel">Sexo Biológico (Para calcular TMB)</label>
-                                    <select id="rxSexo" class="finput" onchange="calcularMetricasNutricionales()">
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Información General y Reporte</div></div>
+                        <div class="panel-body" style="display:flex;flex-direction:column;gap:12px;">
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                                <div style="grid-column:span 2;"><label class="flabel">Especie / Raza</label><input type="text" id="rxRaza" placeholder="Ej: Felino / Persa" class="finput"></div>
+                                <div><label class="flabel">Edad</label><input type="text" id="rxEdad" class="finput"></div>
+                                
+                                <div>
+                                    <label class="flabel">Sexo</label>
+                                    <select id="rxSexo" class="finput">
                                         <option value="">Seleccionar...</option>
-                                        <option value="M">Masculino</option>
-                                        <option value="F">Femenino</option>
+                                        <option value="Macho">Macho</option>
+                                        <option value="Hembra">Hembra</option>
                                     </select>
                                 </div>
-                                <div><label class="flabel">Edad (Años)</label><input type="number" id="rxEdad" class="finput" oninput="calcularMetricasNutricionales()"></div>
-                                <div><label class="flabel">% Grasa Corporal</label><input type="number" step="0.1" id="rxGrasa" class="finput"></div>
-                                
-                                <div><label class="flabel">Peso (kg)</label><input type="number" step="0.1" id="rxPeso" class="finput" oninput="calcularMetricasNutricionales()"></div>
-                                <div><label class="flabel">Altura (cm)</label><input type="number" step="0.1" id="rxAltura" class="finput" oninput="calcularMetricasNutricionales()"></div>
-                                
-                                <div style="grid-column:span 2; display:flex; gap:10px;">
-                                    <div style="flex:1; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px; text-align:center;">
-                                        <div class="flabel" style="color:#065f46; margin-bottom:2px;">IMC</div>
-                                        <div id="rxImcDisplay" style="font-size:16px; font-weight:800; color:#15803d;">0.0</div>
-                                        <div id="rxImcStatus" style="font-size:10px; font-weight:700; color:#16a34a;">-</div>
-                                    </div>
-                                    <div style="flex:1; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px; text-align:center;">
-                                        <div class="flabel" style="color:#1e40af; margin-bottom:2px;">TMB (Calorías Base)</div>
-                                        <div id="rxTmbDisplay" style="font-size:16px; font-weight:800; color:#1d4ed8;">0 kcal</div>
-                                        <div style="font-size:10px; font-weight:700; color:#3b82f6;">Mifflin-St Jeor</div>
-                                    </div>
+                                <div>
+                                    <label class="flabel">Reproductivo</label>
+                                    <select id="rxRepro" class="finput">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Entero">Entero (Intacto)</option>
+                                        <option value="Castrado/Esterilizado">Castrado/Esterilizado</option>
+                                    </select>
                                 </div>
-                                <input type="hidden" id="rxImcVal">
-                                <input type="hidden" id="rxTmbVal">
                             </div>
+                            <div><label class="flabel">Motivo de Consulta</label><input type="text" id="mspMotivo" class="finput"></div>
+                            <div><label class="flabel">Anamnesis (Reporte del Dueño)</label><textarea id="mspAnamnesis" rows="3" class="finput" style="resize:none;"></textarea></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="tab-mapa" class="rx-tab-pane">
-                <div style="display:flex;flex-direction:column;gap:18px;">
+            <div id="tab-fisico" class="rx-tab-pane">
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                    
+                    <div class="panel">
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Constantes Vitales</div></div>
+                        <div class="panel-body">
+                            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                                <div><label class="flabel">Peso (kg)</label><input type="number" step="0.1" id="rxPeso" class="finput"></div>
+                                <div><label class="flabel">Temp (°C)</label><input type="number" step="0.1" id="rxTemp" class="finput"></div>
+                                <div><label class="flabel">FC (bpm)</label><input type="number" id="rxRitmo" class="finput"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px;">
-                            <label class="flabel" style="margin:0; color:var(--accent-dark);">Composición Corporal Visual</label>
-                            <button type="button" onclick="limpiarMapaNutri()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
+                            <label class="flabel" style="margin:0; color:var(--accent-dark);">Evaluación Física Visual</label>
+                            <button type="button" onclick="limpiarMapaVet()" class="btn btn-ghost btn-sm" style="font-size:10px; padding:2px 8px; height:auto;">Limpiar Mapa</button>
                         </div>
                         <div style="position:relative;">
-                            <div class="nutri-map">
-                                <div class="n-row"><div id="part-Rostro_Cuello" class="n-part n-head" onclick="abrirSelectorNutri(event, 'Rostro/Cuello', 'Rostro_Cuello')">Cara</div></div>
-                                <div class="n-row">
-                                    <div id="part-Brazo_Derecho" class="n-part n-arm" onclick="abrirSelectorNutri(event, 'Brazo Derecho', 'Brazo_Derecho')">B.D</div>
-                                    <div style="display:flex; flex-direction:column; gap:4px;">
-                                        <div id="part-Zona_Pectoral" class="n-part n-chest" onclick="abrirSelectorNutri(event, 'Zona Pectoral', 'Zona_Pectoral')">Tórax</div>
-                                        <div id="part-Abdomen_Cintura" class="n-part n-abdomen" onclick="abrirSelectorNutri(event, 'Abdomen/Cintura', 'Abdomen_Cintura')">Abdomen</div>
-                                    </div>
-                                    <div id="part-Brazo_Izquierdo" class="n-part n-arm" onclick="abrirSelectorNutri(event, 'Brazo Izquierdo', 'Brazo_Izquierdo')">B.I</div>
+                            <div class="vet-map">
+                                <div class="v-row"><div id="vpart-Cabeza" class="v-part v-head" onclick="abrirSelectorVet(event, 'Cabeza')">Cabeza</div></div>
+                                <div class="v-row"><div id="vpart-Cuello" class="v-part v-neck" onclick="abrirSelectorVet(event, 'Cuello')"></div></div>
+                                <div class="v-row" style="align-items: flex-start; justify-content: flex-start; padding-left: 20px;">
+                                    <div id="vpart-Torso_Lomo" class="v-part v-body-main" onclick="abrirSelectorVet(event, 'Torso/Lomo')">Torso / Lomo</div>
+                                    <div id="vpart-Cola" class="v-part v-tail" onclick="abrirSelectorVet(event, 'Cola')">Cola</div>
                                 </div>
-                                <div class="n-row">
-                                    <div id="part-Pierna_Derecha" class="n-part n-leg" onclick="abrirSelectorNutri(event, 'Pierna Derecha', 'Pierna_Derecha')">P.D</div>
-                                    <div id="part-Pierna_Izquierda" class="n-part n-leg" onclick="abrirSelectorNutri(event, 'Pierna Izquierda', 'Pierna_Izquierda')">P.I</div>
+                                <div class="legs-container">
+                                    <div class="legs-group">
+                                        <div id="vpart-Pata_Delantera_Izquierda" class="v-part v-leg" style="border-right-width:2px; border-bottom-width:2px;" onclick="abrirSelectorVet(event, 'Pata Delantera Izquierda')">P.D.I</div>
+                                        <div id="vpart-Pata_Delantera_Derecha" class="v-part v-leg" style="margin-left: -5px; border-left-width:0; background: #fafafa; border-color: #cbd5e1; z-index: 1;" onclick="abrirSelectorVet(event, 'Pata Delantera Derecha')">P.D.D</div>
+                                    </div>
+                                    <div class="legs-group">
+                                        <div id="vpart-Pata_Trasera_Izquierda" class="v-part v-leg" style="border-right-width:2px; border-bottom-width:2px;" onclick="abrirSelectorVet(event, 'Pata Trasera Izquierda')">P.T.I</div>
+                                        <div id="vpart-Pata_Trasera_Derecha" class="v-part v-leg" style="margin-left: -5px; border-left-width:0; background: #fafafa; border-color: #cbd5e1; z-index: 1;" onclick="abrirSelectorVet(event, 'Pata Trasera Derecha')">P.T.D</div>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div id="nutriSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:170px; transform: translateX(-50%); margin-top:5px;">
-                                <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Región: <span id="selectedNutriPart" style="color:var(--txt1);"></span></div>
-                                <button type="button" onclick="marcarNutri('Exceso de Grasa / Adiposidad')" style="font-size:11px; font-weight:700; color:#b45309; background:#fef3c7; border:none; padding:5px; border-radius:4px; cursor:pointer;">Grasa Localizada</button>
-                                <button type="button" onclick="marcarNutri('Retención de Líquidos / Edema')" style="font-size:11px; font-weight:700; color:#1d4ed8; background:#eff6ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Retención de Líquidos</button>
-                                <button type="button" onclick="marcarNutri('Déficit de Masa Muscular')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Déficit Muscular</button>
-                                <button type="button" onclick="marcarNutri('Pliegue Alterado')" style="font-size:11px; font-weight:700; color:#6d28d9; background:#f5f3ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Pliegue Alterado</button>
-                                <button type="button" onclick="marcarNutri('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Rango Adecuado</button>
+                            <div id="vetSelector" class="hidden" style="position:absolute; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 10px 25px rgba(0,0,0,0.1); padding:8px; z-index:100; display:none; flex-direction:column; gap:4px; width:160px; transform: translateX(-50%); margin-top:5px;">
+                                <div style="font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px; border-bottom:1px solid var(--border);">Zona: <span id="selectedVetPart" style="color:var(--txt1);"></span></div>
+                                <button type="button" onclick="marcarVet('Dolor / Sensibilidad')" style="font-size:11px; font-weight:700; color:#dc2626; background:#fef2f2; border:none; padding:5px; border-radius:4px; cursor:pointer;">Dolor / Sensibilidad</button>
+                                <button type="button" onclick="marcarVet('Masa / Bulto')" style="font-size:11px; font-weight:700; color:#c2410c; background:#fff7ed; border:none; padding:5px; border-radius:4px; cursor:pointer;">Masa / Bulto</button>
+                                <button type="button" onclick="marcarVet('Herida / Lesión de piel')" style="font-size:11px; font-weight:700; color:#9d174d; background:#fdf2f8; border:none; padding:5px; border-radius:4px; cursor:pointer;">Herida / Piel</button>
+                                <button type="button" onclick="marcarVet('Parásitos externos')" style="font-size:11px; font-weight:700; color:#4f46e5; background:#e0e7ff; border:none; padding:5px; border-radius:4px; cursor:pointer;">Parásitos Ext.</button>
+                                <button type="button" onclick="marcarVet('sano')" style="font-size:11px; font-weight:700; color:var(--txt2); background:white; border:1px solid var(--border); padding:5px; border-radius:4px; cursor:pointer; margin-top:4px;">Normal</button>
                             </div>
                         </div>
-                        <textarea id="rxDiagnostico" rows="4" placeholder="El análisis antropométrico y diagnóstico se generará aquí..." class="finput" style="resize:vertical; margin-top:8px; font-size:13px;"></textarea>
+                        <textarea id="mspExamen" rows="3" placeholder="Detalle los hallazgos del examen físico..." class="finput" style="resize:vertical; margin-top:8px; font-size:12px;"></textarea>
                     </div>
+
+                    <div>
+                        <label class="flabel">Diagnóstico / Hallazgos Finales</label>
+                        <textarea id="rxDiagnostico" rows="2" class="finput" style="resize:none;"></textarea>
+                    </div>
+
                 </div>
             </div>
 
@@ -767,26 +814,26 @@
                 <div style="display:flex;flex-direction:column;gap:18px;">
                     <div>
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                            <label class="flabel" style="margin:0;color:var(--accent-dark);">Dieta / Suplementación</label>
-                            <button type="button" onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #6ee7b7;">+ Agregar Comida</button>
+                            <label class="flabel" style="margin:0;color:var(--accent-dark);">💊 Receta / Tratamiento Interno</label>
+                            <button type="button" onclick="addMedicineRow()" class="btn btn-sm" style="background:var(--accent-light);color:var(--accent-dark);border:1px solid #c7d2fe;">+ Agregar</button>
                         </div>
                         <div id="medicinesContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
                     </div>
 
                     <div>
-                        <label class="flabel" style="color:#c2410c;">Metas y Recomendaciones Generales</label>
+                        <label class="flabel" style="color:#c2410c;">Recomendaciones al Dueño / Dieta</label>
                         <textarea id="rxRecomendaciones" rows="3" class="finput" style="background:#fff7ed;border-color:#fed7aa;resize:none;"></textarea>
                     </div>
 
                     <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
                         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:0;">
                             <input type="checkbox" id="checkTratamiento" onchange="toggleCuotas()" style="width:18px;height:18px;accent-color:var(--accent);">
-                            <span style="font-size:13px;font-weight:700;color:var(--txt1);">Plan Nutricional de Varios Meses / Cuotas</span>
+                            <span style="font-size:13px;font-weight:700;color:var(--txt1);">Tratamiento Largo / Cirugía en Cuotas</span>
                         </label>
                         <div id="divCuotas" class="hidden" style="margin-top:14px;display:none;">
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                                 <div>
-                                    <label class="flabel">N° Meses / Cuotas</label>
+                                    <label class="flabel">N° Sesiones / Cuotas</label>
                                     <input type="number" id="numCuotas" value="1" min="1" class="finput" style="font-size:18px;font-weight:800;text-align:center;">
                                 </div>
                                 <div>
@@ -800,25 +847,25 @@
                     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;">
                         <div style="font-size:13px;font-weight:800;color:#1e40af;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
                             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            Auto-Agendar Próximo Control
+                            Auto-Agendar Próximo Control / Vacuna
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                             <input type="date" id="rxNextDate" class="finput" style="border-color:#bfdbfe;">
                             <input type="time" id="rxNextTime" class="finput" style="border-color:#bfdbfe;">
                         </div>
-                        <p style="font-size:11px;color:#3b82f6;font-weight:600;margin:8px 0 0;">Se creará el turno en la agenda y en Google Calendar.</p>
+                        <p style="font-size:11px;color:#3b82f6;font-weight:600;margin:8px 0 0;">Ideal para recordatorios anuales de vacunación o desparasitación (se crea en tu Google Calendar).</p>
                     </div>
                 </div>
             </div>
-            
+
         </div>
         <div class="modal-ft" style="flex-shrink:0; justify-content: flex-end; align-items: center;">
-            <button onclick="imprimirPlanNutricional()" class="btn btn-ghost btn-lg" style="margin-right:auto; color: #475569;">
+            <button onclick="imprimirRecetaVet()" class="btn btn-ghost btn-lg" style="margin-right:auto; color: #475569;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                Imprimir Plan
+                Imprimir Receta / Ficha
             </button>
             <button onclick="closePrescriptionModal()" class="btn btn-secondary btn-lg">Cancelar</button>
-            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="min-width: 180px;">
+            <button id="btnSubmitPrescription" onclick="submitPrescription()" class="btn btn-primary btn-lg" style="min-width:180px;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Guardar y Cobrar
             </button>
@@ -831,7 +878,7 @@
         <div class="modal-hd" style="background:#f0fdf4;">
             <div>
                 <div class="modal-title">Registrar Cobro</div>
-                <div class="modal-sub">Control a <strong id="billingPatName"></strong></div>
+                <div class="modal-sub">Atención a <strong id="billingPatName"></strong></div>
             </div>
             <button onclick="closeBillingModal()" class="modal-close-btn">&times;</button>
         </div>
@@ -865,17 +912,17 @@
 <div id="patientModal" class="modal-wrap hidden" style="z-index:82;">
     <div class="modal-box" style="width:100%;max-width:420px;">
         <div class="modal-hd">
-            <div class="modal-title" id="patientModalTitle">Registrar Paciente</div>
+            <div class="modal-title" id="patientModalTitle">Registrar Mascota/Dueño</div>
             <button onclick="closePatientModal()" class="modal-close-btn">&times;</button>
         </div>
         <div class="modal-bd">
             <input type="hidden" id="editPatientId">
             <div style="display:flex;flex-direction:column;gap:12px;">
-                <div><label class="flabel">Cédula / RUC *</label><input type="text" id="patientCedula" class="finput"></div>
-                <div><label class="flabel">Nombre Completo *</label><input type="text" id="patientName" class="finput"></div>
-                <div><label class="flabel">WhatsApp *</label><input type="tel" id="patientPhone" placeholder="593..." class="finput"></div>
-                <div><label class="flabel">Email</label><input type="email" id="patientEmail" class="finput"></div>
-                <div><label class="flabel">Fecha de Nacimiento</label><input type="date" id="patientDob" class="finput"></div>
+                <div><label class="flabel">Nombre Mascota + (Dueño) *</label><input type="text" id="patientName" class="finput"></div>
+                <div><label class="flabel">Cédula Dueño *</label><input type="text" id="patientCedula" class="finput"></div>
+                <div><label class="flabel">WhatsApp Dueño *</label><input type="tel" id="patientPhone" placeholder="593..." class="finput"></div>
+                <div><label class="flabel">Email Dueño</label><input type="email" id="patientEmail" class="finput"></div>
+                <div><label class="flabel">Fecha de Nacimiento Mascota</label><input type="date" id="patientDob" class="finput"></div>
             </div>
         </div>
         <div class="modal-ft">
@@ -918,7 +965,7 @@
     <div class="modal-box modal-box-xl" style="display:flex;flex-direction:column;">
         <div class="modal-hd" style="background:var(--accent-light);flex-shrink:0;">
             <div>
-                <div class="modal-title">Expediente Nutricional</div>
+                <div class="modal-title">Expediente Clínico Veterinario</div>
                 <div class="modal-sub" id="historyPatientInfo">Cargando...</div>
             </div>
             <button onclick="closeHistoryModal()" class="modal-close-btn">&times;</button>
@@ -926,15 +973,15 @@
         <div style="flex:1;overflow-y:auto;padding:24px 26px;background:#f8fafc;" class="cs">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                 <div style="display:flex;flex-direction:column;gap:16px;">
-                    <div id="chartContainer" class="panel hidden" style="height:250px;">
-                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución Corporal</div></div>
+                    <div id="chartContainer" class="panel hidden" style="height:220px;">
+                        <div class="panel-head"><div class="panel-title" style="font-size:13px;">Evolución de Peso (kg)</div></div>
                         <div style="padding:16px;height:calc(100% - 53px);">
                             <canvas id="vitalsChartCanvas"></canvas>
                         </div>
                     </div>
                     <div class="panel">
                         <div class="panel-head">
-                            <div class="panel-title" style="font-size:13px;">Exámenes Bioquímicos</div>
+                            <div class="panel-title" style="font-size:13px;">Exámenes / Radiografías</div>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <input type="file" id="patientImageUpload" class="hidden" accept="image/*,application/pdf" onchange="uploadPatientImage(this)">
                                 <button id="btnUploadImg" onclick="document.getElementById('patientImageUpload').click()" class="btn btn-secondary btn-sm">
@@ -944,12 +991,12 @@
                             </div>
                         </div>
                         <div class="panel-body">
-                            <div id="patientImagesGallery" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-height:180px;overflow-y:auto;" class="cs"></div>
+                            <div id="patientImagesGallery" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-height:400px;overflow-y:auto;" class="cs"></div>
                         </div>
                     </div>
                 </div>
                 <div class="panel" style="display:flex;flex-direction:column;overflow:hidden;">
-                    <div class="panel-head" style="flex-shrink:0;"><div class="panel-title" style="font-size:13px;">Historial de Controles</div></div>
+                    <div class="panel-head" style="flex-shrink:0;"><div class="panel-title" style="font-size:13px;">Historial de Consultas</div></div>
                     <div id="historyTimeline" class="cs" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;"></div>
                 </div>
             </div>
@@ -967,19 +1014,19 @@
 <div id="addInsumoModal" class="modal-wrap hidden" style="z-index:82;">
     <div class="modal-box" style="width:100%;max-width:380px;">
         <div class="modal-hd">
-            <div class="modal-title">Agregar Producto</div>
+            <div class="modal-title">Agregar Insumo</div>
             <button onclick="document.getElementById('addInsumoModal').classList.add('hidden')" class="modal-close-btn">&times;</button>
         </div>
         <div class="modal-bd">
             <div style="display:flex;flex-direction:column;gap:12px;">
-                <div><label class="flabel">Nombre / Producto *</label><input type="text" id="insumoName" placeholder="Ej: Proteína Whey" class="finput"></div>
+                <div><label class="flabel">Nombre del insumo *</label><input type="text" id="insumoName" placeholder="Ej: Vacuna Rabia" class="finput"></div>
                 <div><label class="flabel">Cantidad inicial</label><input type="number" id="insumoQty" class="finput"></div>
                 <div>
                     <label class="flabel">Categoría</label>
                     <select id="insumoCat" class="finput">
-                        <option value="Suplemento">Suplemento</option>
-                        <option value="Material Medición">Material Medición</option>
-                        <option value="Oficina">Oficina</option>
+                        <option value="Vacunas">Vacunas</option>
+                        <option value="Medicamento">Medicamento</option>
+                        <option value="Alimento/PetShop">Alimento/PetShop</option>
                     </select>
                 </div>
             </div>
@@ -1006,7 +1053,7 @@
                     <svg width="26" height="26" fill="none" stroke="#be185d" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
                 </div>
             </div>
-            <textarea id="bdayGiftText" rows="4" placeholder="Ej: ¡Feliz Cumpleaños! Tu control de peso de hoy es GRATIS..." class="finput" style="background:#fdf2f8;border-color:#fbcfe8;resize:none;"></textarea>
+            <textarea id="bdayGiftText" rows="4" placeholder="Ej: ¡Guau! Feliz Cumpleaños, tu peludito tiene un baño gratis hoy..." class="finput" style="background:#fdf2f8;border-color:#fbcfe8;resize:none;"></textarea>
         </div>
         <div class="modal-ft">
             <button onclick="document.getElementById('birthdayModal').classList.add('hidden')" class="btn btn-ghost btn-md" style="flex:1;">Cancelar</button>
@@ -1026,7 +1073,7 @@
         </div>
         <div class="modal-bd">
             <div style="display:flex;flex-direction:column;gap:12px;">
-                <div><label class="flabel">Instrucción de segmento</label><input type="text" id="promoTargeting" placeholder="Ej: Pacientes en déficit calórico" class="finput" style="border-color:#fed7aa;background:#fff7ed;"></div>
+                <div><label class="flabel">Instrucción de segmento</label><input type="text" id="promoTargeting" placeholder="Ej: Dueños de caninos" class="finput" style="border-color:#fed7aa;background:#fff7ed;"></div>
                 <div><label class="flabel">Mensaje base</label><textarea id="promoMessage" rows="5" class="finput" placeholder="Escribe el mensaje de la campaña..." style="border-color:#fed7aa;background:#fff7ed;resize:none;"></textarea></div>
             </div>
         </div>
@@ -1037,7 +1084,6 @@
     </div>
 </div>
 
-<!-- 🔥 NUEVO MODAL META CLOUD API 🔥 -->
 <div id="metaModal" class="modal-wrap hidden" style="z-index:62;">
     <div class="modal-box" style="width:100%;max-width:420px;">
         <div class="modal-hd" style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));">
@@ -1048,121 +1094,37 @@
             <button onclick="closeMetaModal()" class="modal-close-btn" style="color:rgba(255,255,255,0.7);">&times;</button>
         </div>
         <div class="modal-bd" style="background:#f8fafc;">
-            <div style="display:flex;flex-direction:column;gap:10px;">
-                <div style="background:white;border:1px solid #bbf7d0;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:space-between;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;background:#f0fdf4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">📱</div>
-                        <span style="font-size:13.5px;font-weight:700;color:var(--txt1);">WhatsApp Business</span>
-                    </div>
-                    <span id="waStatusBadge" style="padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Desconectado</span>
+            <div id="waDisconnectedView" style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+                <p style="font-size:13px; color:var(--txt2); font-weight:600; margin:0; text-align:center;">
+                    Conecta tu número directamente con los servidores de WhatsApp para activar la IA.
+                </p>
+                <div style="width:240px; height:180px; background:white; border:2px dashed var(--border); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
+                    <svg width="40" height="40" fill="none" stroke="#4f46e5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    <span style="color:var(--txt3); font-weight:700; font-size:12px; text-align:center; padding:0 10px;">
+                        Soporte oficial Cloud API (Embedded Signup)
+                    </span>
                 </div>
+                <button id="btnConectarMeta" onclick="launchMetaEmbeddedSignup()" class="btn btn-primary btn-md btn-full" style="max-width:240px;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    Vincular WhatsApp
+                </button>
             </div>
-        </div>
-        <div class="modal-ft" style="padding:14px 26px;border-top:1px solid var(--border);background:white;">
-            <button id="btnMetaConnect" onclick="iniciarConexionMeta()" class="btn btn-primary btn-md btn-full">
-                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                Vincular WhatsApp Oficial
-            </button>
-            <button id="btnMetaDisconnect" onclick="desvincularWa()" class="btn btn-secondary btn-md btn-full hidden" style="color:#dc2626; border-color:#fecaca; background:#fef2f2; margin-top:8px;">
-                Desvincular Integración
-            </button>
+
+            <div id="waConnectedView" class="hidden" style="display:none; flex-direction:column; align-items:center; gap:16px;">
+                <div style="width:64px; height:64px; background:#e0e7ff; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #c7d2fe;">
+                    <svg width="32" height="32" fill="none" stroke="#4338ca" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:var(--txt1); margin:0 0 4px;">WhatsApp Vinculado</h3>
+                    <p style="font-size:13px; color:var(--txt2); margin:0;">El asistente de Inteligencia Artificial está operando de forma estable vía Cloud API.</p>
+                </div>
+                <button onclick="desvincularWa()" class="btn btn-secondary btn-md" style="color:#dc2626; border-color:#fecaca; background:#fef2f2; margin-top:8px;">
+                    Desvincular Integración
+                </button>
+            </div>
         </div>
     </div>
 </div>
-
-<div id="settingsModal" class="modal-wrap hidden" style="z-index:72;align-items:flex-start;padding-top:20px;padding-bottom:20px;">
-    <div class="modal-box" style="width:100%;max-width:680px;max-height:95vh;display:flex;flex-direction:column;">
-        <div class="modal-hd" style="flex-shrink:0;">
-            <div class="modal-title">Configuración del Centro Nutricional</div>
-            <button onclick="closeSettingsModal()" class="modal-close-btn">&times;</button>
-        </div>
-        <div style="flex:1;overflow-y:auto;padding:24px 26px;" class="cs">
-            <div style="display:flex;flex-direction:column;gap:22px;">
-
-                <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;">
-                    <div>
-                        <div class="flabel" style="text-align:center;margin-bottom:8px;">Logo</div>
-                        <div style="width:100px;height:100px;background:#f8fafc;border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;" onclick="document.getElementById('clinicLogoInput').click()">
-                            <img id="clinicLogoPreview" src="img/logo.png" style="width:100%;height:100%;object-fit:contain;">
-                            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:800;" onmouseenter="this.style.display='flex'" onmouseleave="this.style.display='none'">CAMBIAR</div>
-                        </div>
-                        <input type="file" id="clinicLogoInput" class="hidden" accept="image/*" onchange="previewLogo(this)">
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:12px;">
-                        <div><label class="flabel">Nombre Comercial</label><input type="text" id="clinicName" class="finput"></div>
-                        <div><label class="flabel">RUC</label><input type="text" id="clinicRuc" class="finput"></div>
-                        <div style="display:grid;grid-template-columns:1fr auto;gap:12px;">
-                            <div><label class="flabel">Teléfono</label><input type="tel" id="clinicPhone" class="finput"></div>
-                            <div>
-                                <label class="flabel">Color Marca</label>
-                                <input type="color" id="clinicColor" value="#10b981" style="width:100%;height:42px;border:1px solid var(--border);border-radius:8px;padding:2px 4px;cursor:pointer;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <hr class="sep" style="border-top:1px solid var(--border);margin:0;">
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                    <div style="background:var(--accent-light);border:1px solid #6ee7b7;border-radius:10px;padding:16px;">
-                        <div class="panel-title" style="font-size:13px;margin-bottom:10px;color:var(--accent-dark);">Horario Laboral</div>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <input type="time" id="hInicio" class="finput" style="flex:1;">
-                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">hasta</span>
-                            <input type="time" id="hFin" class="finput" style="flex:1;">
-                        </div>
-                        <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
-                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">Almuerzo:</span>
-                            <input type="time" id="hAlmuerzoInicio" class="finput" style="flex:1;" title="Inicio de almuerzo">
-                            <span style="font-size:12px;font-weight:700;color:var(--txt2);">a</span>
-                            <input type="time" id="hAlmuerzoFin" class="finput" style="flex:1;" title="Fin de almuerzo">
-                        </div>
-                        <div style="margin-top:10px;">
-                            <label class="flabel" style="color:var(--accent-dark);">Duración por Control</label>
-                            <select id="duracionCita" class="finput">
-                                <option value="15">15 minutos</option>
-                                <option value="30">30 minutos</option>
-                                <option value="45">45 minutos</option>
-                                <option value="60">1 hora</option>
-                                <option value="90">1 hora y media</option>
-                                <option value="120">2 horas</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:16px;">
-                        <div class="panel-title" style="font-size:13px;margin-bottom:10px;">Días No Laborables</div>
-                        <div id="holidayCalendar" class="mt-2 bg-white border border-slate-200 rounded-lg p-3">
-                            <div class="flex justify-between items-center mb-3">
-                                <button type="button" onclick="changeCalMonth(-1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">◀</button>
-                                <span id="calMonthLabel" style="font-size:11px; font-weight:800; text-transform:uppercase;">Mes</span>
-                                <button type="button" onclick="changeCalMonth(1)" class="btn btn-ghost btn-sm" style="padding:2px 8px;">▶</button>
-                            </div>
-                            <div class="cal-grid" id="calDaysGrid"></div>
-                        </div>
-                        <p style="font-size:9.5px; color:var(--txt3); margin-top:8px; font-weight:600;">Haz clic en un día para marcarlo como feriado/vacaciones. La agenda bloqueará esos días.</p>
-                    </div>
-                </div>
-
-                <div><label class="flabel">Dirección Física</label><input type="text" id="clinicAddress" class="finput"></div>
-
-                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;display:flex;align-items:center;justify-content:space-between;">
-                    <div>
-                        <div style="font-size:13.5px;font-weight:800;color:#1e40af;margin-bottom:3px;">Google Calendar</div>
-                        <div style="font-size:12px;color:#3b82f6;font-weight:500;">Vincula tu agenda para auto-agendar pacientes</div>
-                    </div>
-                    <button id="btnSyncCalendar" onclick="syncGoogleCalendar()" class="btn btn-md" style="background:white;color:#1d4ed8;border:1px solid #bfdbfe;white-space:nowrap;">
-                        Vincular cuenta
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="modal-ft" style="justify-content:flex-end;flex-shrink:0;">
-            <button onclick="closeSettingsModal()" class="btn btn-secondary btn-md">Cancelar</button>
-            <button onclick="saveClinicSettings()" class="btn btn-primary btn-md" style="min-width:140px;">Guardar cambios</button>
-        </div>
-    </div>
-</div>
-
 
 <script>
     // Set today date in topbar
@@ -1173,11 +1135,19 @@
             el.textContent = d.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
         }
     })();
-    // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
 
+    // ── TABS NAVEGACIÓN ──
+    function switchRxTab(tabId, btn) {
+        document.querySelectorAll('.rx-tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.rx-tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        if(btn) btn.classList.add('active');
+    }
+
+    // ── META / FACEBOOK SDK EMBEDDED SIGNUP ──
     window.fbAsyncInit = function() {
         FB.init({
-            appId      : '2479673065791422', // ⚠️ ID DE TU APP DE META
+            appId      : '2479673065791422', 
             cookie     : true,
             xfbml      : true,
             version    : 'v18.0'
@@ -1193,13 +1163,13 @@
     }(document, 'script', 'facebook-jssdk'));
 
     // 🔥 MODIFICADA: VERIFICACIÓN DEL SDK Y SOPORTE DE COEXISTENCIA v3 🔥
-    function iniciarConexionMeta() {
+    function launchMetaEmbeddedSignup() {
         if (typeof FB === 'undefined') {
-            mostrarMensaje('Tu red o navegador está bloqueando el script de Facebook. Verifica tu conexión.', 'error');
+            mostrarMensaje('El script de Meta no se ha cargado. Revisa tu conexión a internet o bloqueador de anuncios.', 'error');
             return;
         }
 
-        const btn = document.getElementById('btnMetaConnect');
+        const btn = document.getElementById('btnConectarMeta');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Abriendo ventana...';
         btn.disabled = true;
 
@@ -1209,39 +1179,40 @@
                 guardarCredencialesMetaEnBackend(codigoOauth);
             } else {
                 mostrarMensaje('Conexión cancelada por el usuario.', 'error');
-                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp Oficial`;
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
                 btn.disabled = false;
             }
         }, {
-            config_id: '1020182057736220', // Tu ID de configuración de Embedded Signup
+            config_id: '1020182057736220', 
             response_type: 'code',
             override_default_response_type: true,
-            scope: 'whatsapp_business_management,whatsapp_business_messaging', 
+            scope: 'whatsapp_business_management,whatsapp_business_messaging',
             extras: { 
                 featureType: 'whatsapp_business_app_onboarding', // <-- HABILITA COEXISTENCIA WPP BUSINESS
-                sessionInfoVersion: '3'                          // <-- ONBOARDING VERSIÓN 3
+                sessionInfoVersion: '3',                         // <-- VERSIÓN 3
+                setup: {
+                    prefetched_profile: {
+                        name: document.getElementById('clinicName').value || 'Clínica Veterinaria'
+                    }
+                } 
             }
         });
     }
 
     async function guardarCredencialesMetaEnBackend(codigoOauth) {
-        const btn = document.getElementById('btnMetaConnect');
+        const btn = document.getElementById('btnConectarMeta');
         btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Guardando...';
         
         try {
             const res = await fetch(`${API_BASE_URL}/api/meta/exchange-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    clinicId: parentDoctorId,
-                    doctorId: parentDoctorId,
-                    authCode: codigoOauth
-                })
+                body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, authCode: codigoOauth })
             });
             const data = await res.json();
             
             if(data.success) {
-                mostrarMensaje('¡Cuentas de Meta vinculadas con éxito!', 'success');
+                mostrarMensaje('¡WhatsApp vinculado exitosamente con Cloud API!', 'success');
                 clinicDataGlobal.metaPhoneId = data.metaPhoneId; 
                 clinicDataGlobal.fbPageToken = data.fbPageToken;
                 actualizarUiWa(true); 
@@ -1250,9 +1221,9 @@
             }
         } catch(e) {
             mostrarMensaje('Error guardando credenciales: ' + e.message, 'error');
-            btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp Oficial`;
+            btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
             btn.disabled = false;
-        } 
+        }
     }
 
     async function desvincularWa() {
@@ -1272,41 +1243,40 @@
         }
     }
 
-    function actualizarUiWa(isConnected) {
-        const badge = document.getElementById('waStatusBadge');
-        const btnConnect = document.getElementById('btnMetaConnect');
-        const btnDisconnect = document.getElementById('btnMetaDisconnect');
-
-        if(isConnected) {
-            badge.textContent = "Conectado ✓";
-            badge.style.background = "#f0fdf4";
-            badge.style.color = "#16a34a";
-            badge.style.borderColor = "#bbf7d0";
-            
-            btnConnect.classList.add('hidden');
-            btnDisconnect.classList.remove('hidden');
-        } else {
-            badge.textContent = "Desconectado";
-            badge.style.background = "#fef2f2";
-            badge.style.color = "#dc2626";
-            badge.style.borderColor = "#fecaca";
-
-            btnConnect.classList.remove('hidden');
-            btnConnect.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp Oficial`;
-            btnConnect.disabled = false;
-            btnDisconnect.classList.add('hidden');
-        }
-    }
-
     function openMetaModal() { 
         document.getElementById('metaModal').classList.remove('hidden'); 
-        actualizarUiWa(!!clinicDataGlobal?.metaPhoneId);
+        checkWhatsappStatus(); 
     }
     
     function closeMetaModal() { 
         document.getElementById('metaModal').classList.add('hidden'); 
     }
 
+    async function checkWhatsappStatus() {
+        if(!parentDoctorId) return;
+        const isConnected = clinicDataGlobal && clinicDataGlobal.metaPhoneId;
+        actualizarUiWa(isConnected);
+    }
+
+    function actualizarUiWa(isConnected) {
+        const vDisc = document.getElementById('waDisconnectedView');
+        const vConn = document.getElementById('waConnectedView');
+        const btn = document.getElementById('btnConectarMeta');
+        
+        if(isConnected) {
+            vDisc.style.display = 'none';
+            vConn.style.display = 'flex';
+        } else {
+            vDisc.style.display = 'flex';
+            vConn.style.display = 'none';
+            if(btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right:6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg> Vincular WhatsApp`;
+            }
+        }
+    }
+
+    // ── CONFIGURACIÓN FIREBASE ──
     const API_BASE_URL = "https://api.asistencitas.com";
     const firebaseConfig = {
         apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc",
@@ -1335,13 +1305,12 @@
     let planesPago = [];
     let insumos = [];
     let currentPatientIdForImages = null;
-    let vitalsChartInstance = null;
     let editPatientId = null;
 
     let holidays = [];
     let currentCalDate = new Date();
-    
-    let calendarInstance = null;
+    let calendarInstance = null; // FullCalendar
+    let vitalsChartInstance = null; // Chart de Historial
 
     function normalizarTelefono(phone) {
         if (!phone) return '';
@@ -1364,6 +1333,7 @@
             if (userDoc.exists) {
                 const data = userDoc.data();
                 
+                // LÓGICA DE AUTO-SUSPENSIÓN Y BADGE
                 if (data.estadoSuscripcion === 'activo' && data.fechaUltimoCobro) {
                     const ahora = new Date();
                     const fechaPago = data.fechaUltimoCobro.toDate ? data.fechaUltimoCobro.toDate() : new Date(data.fechaUltimoCobro);
@@ -1382,16 +1352,15 @@
                     document.getElementById('subscriptionBadge').classList.remove('hidden');
                 }
 
-                const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'nutricion';
-                if (esp !== 'nutricion' && data.rol !== 'vendedor') {
+                const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'veterinaria';
+                if (esp !== 'veterinaria' && data.rol !== 'vendedor') {
                     window.location.href = `dashboard-${esp}.html`; return;
                 }
                 parentDoctorId = user.uid; // Esta es la bóveda de la clínica
-                clinicDataGlobal = data.clinicInfo || { especialidad: 'nutricion' };
-                holidays = clinicDataGlobal.diasNoLaborables || [];
-
+                clinicDataGlobal = data.clinicInfo || { especialidad: 'veterinaria' };
                 clinicDataGlobal.metaPhoneId = data.metaPhoneId;
                 clinicDataGlobal.fbPageToken = data.fbPageToken;
+                holidays = clinicDataGlobal.diasNoLaborables || [];
 
                 if (data.estadoSuscripcion === 'suspendido') {
                     document.getElementById('dashboardView').classList.add('hidden');
@@ -1439,16 +1408,16 @@
         }
     }
 
-    // ── TABS NAVEGACIÓN CONSULTA NUTRICIONAL ──
+    // ── TABS NAVEGACIÓN ──
     function switchTab(tabId) {
         const tabs = ['dashboard', 'agenda', 'calendario', 'pacientes', 'finanzas', 'insumos'];
         const titles = {
             dashboard: 'Métricas y Estadísticas',
-            agenda: 'Agenda de Controles',
+            agenda: 'Agenda Veterinaria',
             calendario: 'Calendario Visual',
             pacientes: 'Directorio de Pacientes',
             finanzas: 'Finanzas y Planes',
-            insumos: 'Inventario de Productos'
+            insumos: 'Inventario Clínico'
         };
         tabs.forEach(t => {
             const cap = t.charAt(0).toUpperCase() + t.slice(1);
@@ -1463,66 +1432,7 @@
         if(tabId === 'dashboard') updateDashboardStats();
         if(tabId === 'finanzas') renderPlanesPago();
         if(tabId === 'calendario') {
-            setTimeout(() => { renderFullCalendar(); }, 50); 
-        }
-    }
-
-    function switchRxTab(tabId, btn) {
-        document.querySelectorAll('.rx-tab-pane').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.rx-tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        if(btn) btn.classList.add('active');
-    }
-
-    // 🔥 CALCULADORAS AUTOMÁTICAS: IMC y TMB (Mifflin-St Jeor) 🔥
-    function calcularMetricasNutricionales() {
-        const peso = parseFloat(document.getElementById('rxPeso').value);
-        const alturaCm = parseFloat(document.getElementById('rxAltura').value);
-        const edad = parseFloat(document.getElementById('rxEdad').value);
-        const sexo = document.getElementById('rxSexo').value;
-        
-        const imcDisplay = document.getElementById('rxImcDisplay');
-        const imcStatus = document.getElementById('rxImcStatus');
-        const tmbDisplay = document.getElementById('rxTmbDisplay');
-        const rxImcVal = document.getElementById('rxImcVal');
-        const rxTmbVal = document.getElementById('rxTmbVal');
-        
-        // 1. Calcular IMC
-        if(peso && alturaCm) {
-            const alturaM = alturaCm / 100;
-            const imc = (peso / (alturaM * alturaM)).toFixed(1);
-            rxImcVal.value = imc;
-            imcDisplay.textContent = imc;
-            
-            let color = '#15803d'; // Normal
-            let texto = 'Normal';
-            
-            if(imc < 18.5) { color = '#ca8a04'; texto = 'Bajo peso'; }
-            else if(imc >= 25 && imc < 30) { color = '#ea580c'; texto = 'Sobrepeso'; }
-            else if(imc >= 30) { color = '#dc2626'; texto = 'Obesidad'; }
-            
-            imcStatus.textContent = texto;
-            imcStatus.style.color = color;
-            imcDisplay.style.color = color;
-        } else {
-            rxImcVal.value = '';
-            imcDisplay.textContent = '0.0';
-            imcStatus.textContent = '-';
-        }
-
-        // 2. Calcular TMB
-        if(peso && alturaCm && edad && sexo) {
-            let tmb = (10 * peso) + (6.25 * alturaCm) - (5 * edad);
-            if(sexo === 'M') {
-                tmb = tmb + 5;
-            } else {
-                tmb = tmb - 161;
-            }
-            rxTmbVal.value = Math.round(tmb);
-            tmbDisplay.textContent = Math.round(tmb) + " kcal";
-        } else {
-            rxTmbVal.value = '';
-            tmbDisplay.textContent = "0 kcal";
+            setTimeout(() => { renderFullCalendar(); }, 50);
         }
     }
 
@@ -1537,7 +1447,7 @@
         const body = document.getElementById('insumosTableBody');
         if(!body) return;
         if(insumos.length === 0) {
-            body.innerHTML = '<tr><td colspan="3" style="padding:32px;text-align:center;color:#94a3b8;font-weight:600;">No hay productos registrados.</td></tr>';
+            body.innerHTML = '<tr><td colspan="3" style="padding:32px;text-align:center;color:#94a3b8;font-weight:600;">No hay insumos registrados.</td></tr>';
             return;
         }
         body.innerHTML = insumos.map(i => `
@@ -1563,13 +1473,13 @@
         const name = document.getElementById('insumoName').value.trim();
         const qty = parseInt(document.getElementById('insumoQty').value) || 0;
         const cat = document.getElementById('insumoCat').value;
-        if(!name) return alert("Ingresa el nombre del producto.");
+        if(!name) return alert("Ingresa el nombre del insumo.");
         try {
             await db.collection('clinics').doc(parentDoctorId).collection('insumos').add({ nombre: name, stock: qty, categoria: cat });
             document.getElementById('addInsumoModal').classList.add('hidden');
             document.getElementById('insumoName').value = '';
             document.getElementById('insumoQty').value = '';
-            mostrarMensaje("Producto agregado correctamente.", "success");
+            mostrarMensaje("Insumo agregado correctamente.", "success");
             loadInsumos();
         } catch(e) { alert("Error al guardar."); }
     }
@@ -1619,11 +1529,11 @@
             const data = await res.json();
             if(!res.ok) throw new Error(data.error || "Fallo en el servidor");
             window.open(data.url, 'GoogleAuth', 'width=600,height=700');
-            mostrarMensaje('Autoriza en la ventana emergente. Guardaremos la cita automáticamente.', 'success');
+            mostrarMensaje('Autoriza en la ventana emergente. Guardaremos la sesión automáticamente.', 'success');
             const checkInterval = setInterval(async () => {
                 let doc = await db.collection('clinics').doc(parentDoctorId).get();
                 if(!doc.exists) doc = await db.collection('users').doc(parentDoctorId).get();
-                
+
                 const gToken = doc.data().clinicInfo?.gCalendarToken;
                 if(gToken && gToken !== clinicDataGlobal.gCalendarToken) {
                     clearInterval(checkInterval);
@@ -1656,7 +1566,7 @@
         }
     }
 
-    // ── NUEVO: FULLCALENDAR INTEGRATION ──
+    // ── FULLCALENDAR INTEGRATION ──
     function renderFullCalendar() {
         const calendarEl = document.getElementById('calendarDiv');
         if (!calendarEl) return;
@@ -1666,15 +1576,15 @@
             const name = pat ? pat.nombre : 'Desconocido';
             const startTime = `${apt.fecha}T${apt.hora}:00`;
             
-            let eventColor = '#10b981'; // accent default (Nutrición verde)
-            if (apt.estado === 'confirmada') eventColor = '#059669'; 
-            if (apt.estado === 'completada') eventColor = '#047857'; 
+            let eventColor = '#4f46e5'; // Índigo pendiente
+            if (apt.estado === 'confirmada') eventColor = '#4338ca'; 
+            if (apt.estado === 'completada') eventColor = '#312e81'; 
             if (apt.estado === 'cancelada') eventColor = '#ef4444'; 
             if (apt.estado === 'pendiente_confirmacion_paciente') eventColor = '#8b5cf6'; 
 
             return {
                 id: apt.id,
-                title: `${name} ${apt.motivo ? \`(\${apt.motivo})\` : ''}`,
+                title: `${name} ${apt.motivo ? `(${apt.motivo})` : ''}`,
                 start: startTime,
                 color: eventColor,
                 extendedProps: { estado: apt.estado }
@@ -1789,12 +1699,10 @@
             const p = patients.find(x => x.id === plan.patientId);
             const pName = p?.nombre || 'Paciente';
             
-            // Generar Comprobante de Abono en PDF
-            imprimirComprobantePago(pName, amount, `Abono de plan nutricional (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
+            imprimirComprobantePago(pName, amount, `Abono de tratamiento (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
 
-            // Notificar por WhatsApp sobre el descuento de deuda
             if(p?.telefonoWhatsApp) {
-                const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${pName}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+                const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${pName}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
                     body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
@@ -1859,10 +1767,10 @@
         const statusCfg = {
             'pendiente': { label:'Pendiente', bg:'#fef3c7', color:'#92400e' },
             'pendiente_confirmacion_paciente': { label:'Propuesta IA', bg:'#ede9fe', color:'#5b21b6' },
-            'confirmada': { label:'Confirmada', bg:'#d1fae5', color:'#065f46' },
-            'completada': { label:'Completada', bg:'#dbeafe', color:'#1e40af' },
+            'confirmada': { label:'Confirmada', bg:'#cffafe', color:'#164e63' },
+            'completada': { label:'Completada', bg:'#e0f2fe', color:'#1e40af' },
         };
-        const avatarPalette = ['#10b981','#059669','#34d399','#047857','#059669'];
+        const avatarPalette = ['#4f46e5','#4338ca','#3730a3','#6366f1','#8b5cf6'];
 
         container.innerHTML = filtered.map((apt, idx) => {
             const p = patients.find(pat => pat.id === apt.patientId);
@@ -1891,9 +1799,9 @@
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
-                    ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
-                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Medidas</button>
-                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">🥗 Plan</button>
+                    ${isPend ? `<button onclick="confirmAppointmentManually('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#cffafe;color:#164e63;border:1px solid #a5f3fc;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✅ Confirmar</button>` : ''}
+                    <button onclick="openTriageModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Constantes</button>
+                    <button onclick="openPrescriptionModal('${apt.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">⚕️ Atender</button>
                     <button onclick="openHistoryModal('${p?.id}')" style="padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
                 </div>
             </div>`;
@@ -1901,7 +1809,7 @@
     }
 
     function renderPatientsDirectory(list) {
-        const avatarPalette = ['#10b981','#059669','#34d399','#047857','#059669'];
+        const avatarPalette = ['#4f46e5','#4338ca','#3730a3','#6366f1','#8b5cf6'];
         document.getElementById('patientsDirectoryList').innerHTML = list.map((p, idx) => {
             const initials = p.nombre.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
             const avatarBg = avatarPalette[idx % avatarPalette.length];
@@ -1910,11 +1818,11 @@
                     <div style="width:42px;height:42px;border-radius:10px;background:${avatarBg};display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:15px;flex-shrink:0;">${initials}</div>
                     <div>
                         <div style="font-weight:800;font-size:14px;color:#0f172a;">${p.nombre}</div>
-                        <div style="font-size:11.5px;color:#64748b;font-weight:600;margin-top:1px;">CI: ${p.cedula||'N/A'}</div>
+                        <div style="font-size:11.5px;color:#64748b;font-weight:600;margin-top:1px;">CI Dueño: ${p.cedula||'N/A'}</div>
                     </div>
                 </div>
                 <div style="font-size:12.5px;color:var(--accent);font-weight:700;margin-bottom:4px;">📱 ${p.telefonoWhatsApp||'—'}</div>
-                ${p.fechaNacimiento ? `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#fdf2f8;border-radius:99px;font-size:10.5px;color:#9d174d;font-weight:700;margin-top:4px;">🎂 ${p.fechaNacimiento}</div>` : ''}
+                ${p.fechaNacimiento ? `<div style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;background:#fdf2f8;border-radius:99px;font-size:10.5px;color:#9d174d;font-weight:700;margin-top:4px;">🎂 Nac: ${p.fechaNacimiento}</div>` : ''}
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;">
                     <button onclick="openEditPatientModal('${p.id}')" style="padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">✏️ Editar</button>
                     <button onclick="openHistoryModal('${p.id}')" style="padding:7px;border-radius:7px;font-size:11.5px;font-weight:700;background:#f8fafc;color:#475569;border:1px solid #e2e8f0;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">📖 Historial</button>
@@ -1925,7 +1833,7 @@
 
     function openNewPatientModal() {
         editPatientId = null;
-        document.getElementById('patientModalTitle').textContent = "Registrar Paciente";
+        document.getElementById('patientModalTitle').textContent = "Registrar Mascota/Dueño";
         ['patientCedula','patientName','patientPhone','patientEmail'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('patientDob').value = '';
         document.getElementById('patientModal').classList.remove('hidden');
@@ -1963,7 +1871,7 @@
                 const exist = await db.collection('clinics').doc(parentDoctorId).collection('patients').where('cedula','==',cedula).get();
                 if(!exist.empty) { btn.disabled=false; btn.textContent="Guardar"; return alert("Esta cédula ya está registrada."); }
                 await db.collection('clinics').doc(parentDoctorId).collection('patients').add({ nombre, cedula, telefonoWhatsApp: phone, email, fechaNacimiento: dob, fechaRegistro: new Date(), activo: true });
-                mostrarMensaje("Paciente registrado exitosamente.", "success");
+                mostrarMensaje("Mascota registrada exitosamente.", "success");
             }
             closePatientModal();
             await loadPatients();
@@ -2007,13 +1915,13 @@
     // ── TRIAGE ──
     function openTriageModal(aptId) {
         document.getElementById('triageAppointmentId').value = aptId;
-        ['triEdad','triPeso','triAltura','triGrasa'].forEach(id => {
+        ['triRaza','triEdad','triPeso','triTemp','triRitmo','triSexo','triRepro'].forEach(id => {
             const el = document.getElementById(id);
             if(el) el.value = '';
         });
         const apt = appointments.find(x => x.id === aptId);
         if(apt && apt.triaje) {
-            ['edad','peso','altura','grasa'].forEach(key => {
+            ['raza','edad','peso','temp','ritmo','sexo','repro'].forEach(key => {
                 const input = document.getElementById('tri' + key.charAt(0).toUpperCase() + key.slice(1));
                 if(input && apt.triaje[key]) input.value = apt.triaje[key];
             });
@@ -2025,45 +1933,51 @@
     async function saveTriage() {
         const aptId = document.getElementById('triageAppointmentId').value;
         const data = {
+            raza: document.getElementById('triRaza').value,
             edad: document.getElementById('triEdad').value,
+            sexo: document.getElementById('triSexo').value,
+            repro: document.getElementById('triRepro').value,
             peso: document.getElementById('triPeso').value,
-            altura: document.getElementById('triAltura').value,
-            grasa: document.getElementById('triGrasa').value,
+            temp: document.getElementById('triTemp').value,
+            ritmo: document.getElementById('triRitmo').value,
         };
         try {
             await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ triaje: data });
-            mostrarMensaje('Medidas guardadas.', 'success');
+            mostrarMensaje('Constantes guardadas.', 'success');
             closeTriageModal();
             await loadAppointments();
-        } catch(e) { alert('Error guardando medidas.'); }
+        } catch(e) { alert('Error guardando constantes.'); }
     }
 
-    // ── PRESCRIPTION (NUTRICION CON TABS Y CALCULADORAS) ──
     function openPrescriptionModal(aptId) {
-        initMapaNutri(); 
+        initMapaVet(); 
         
         const firstTabBtn = document.querySelector('.rx-tabs-nav .rx-tab-btn');
-        if(firstTabBtn) switchRxTab('tab-eval', firstTabBtn);
+        if(firstTabBtn) switchRxTab('tab-anamnesis', firstTabBtn);
         
         const apt = appointments.find(a => a.id === aptId);
         const p = patients.find(x => x.id === apt?.patientId);
         document.getElementById('rxAppointmentId').value = aptId;
         document.getElementById('rxPatientName').textContent = p?.nombre || 'Paciente';
+        
+        document.getElementById('mspMotivo').value = apt?.mspMotivo || '';
+        document.getElementById('mspAnamnesis').value = apt?.mspAnamnesis || '';
+        document.getElementById('mspExamen').value = apt?.mspExamen || '';
+        
         document.getElementById('rxDiagnostico').value = apt?.diagnostico || '';
         document.getElementById('rxRecomendaciones').value = apt?.recomendaciones?.join('\n') || '';
         document.getElementById('rxBorrador').value = '';
         
-        document.getElementById('rxSexo').value = '';
-        ['rxEdad', 'rxPeso', 'rxAltura', 'rxGrasa'].forEach(id => {
+        ['rxRaza', 'rxEdad', 'rxPeso', 'rxTemp', 'rxRitmo', 'rxSexo', 'rxRepro'].forEach(id => {
             const input = document.getElementById(id);
-            input.value = '';
-            if(apt && apt.triaje) {
-                const key = id.replace('rx', '').toLowerCase();
-                if(apt.triaje[key]) input.value = apt.triaje[key];
+            if(input) {
+                input.value = '';
+                if(apt && apt.triaje) {
+                    const key = id.replace('rx', '').toLowerCase();
+                    if(apt.triaje[key]) input.value = apt.triaje[key];
+                }
             }
         });
-        
-        calcularMetricasNutricionales();
 
         document.getElementById('rxNextDate').value = '';
         document.getElementById('rxNextTime').value = '';
@@ -2080,8 +1994,8 @@
         const div = document.createElement('div');
         div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;';
         div.innerHTML = `
-            <input type="text" placeholder="Alimento/Suplemento (Ej: Pechuga 150g)" class="finput med-name" style="font-size:12.5px;" value="${med?.medicamento||''}">
-            <input type="text" placeholder="Comida (Ej: Almuerzo)" class="finput med-dose" style="font-size:12.5px;" value="${med?.dosis||''}">
+            <input type="text" placeholder="Medicamento/Insumo/Vacuna" class="finput med-name" style="font-size:12.5px;" value="${med?.medicamento||''}">
+            <input type="text" placeholder="Dosis / Vía" class="finput med-dose" style="font-size:12.5px;" value="${med?.dosis||''}">
             <button onclick="this.parentElement.remove()" style="width:30px;height:30px;border-radius:7px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>`;
         document.getElementById('medicinesContainer').appendChild(div);
     }
@@ -2091,6 +2005,66 @@
         document.getElementById('divCuotas').style.display = checked ? 'block' : 'none';
     }
 
+    // ── LÓGICA DEL MAPA CLÍNICO VETERINARIO (SILUETA) ──
+    let parteVetActual = null;
+    let estadoVet = {};
+
+    function initMapaVet() {
+        estadoVet = {};
+        document.querySelectorAll('.v-part').forEach(el => el.classList.remove('has-finding'));
+        document.getElementById('mspExamen').value = '';
+    }
+
+    function abrirSelectorVet(e, parte) {
+        parteVetActual = parte;
+        document.getElementById('selectedVetPart').textContent = parte;
+        const selector = document.getElementById('vetSelector');
+        selector.style.display = 'flex';
+        selector.style.left = e.target.offsetLeft + (e.target.offsetWidth/2) + 'px';
+        selector.style.top = (e.target.offsetTop + e.target.offsetHeight) + 'px';
+    }
+
+    function marcarVet(hallazgo) {
+        if(!parteVetActual) return;
+        const partId = parteVetActual.replace(/ /g, '_').replace(/\//g, '_');
+        const el = document.getElementById(`vpart-${partId}`);
+        if(!el) return;
+        
+        if(hallazgo !== 'sano') {
+            el.classList.add('has-finding');
+            estadoVet[parteVetActual] = hallazgo;
+        } else {
+            el.classList.remove('has-finding');
+            delete estadoVet[parteVetActual];
+        }
+        
+        document.getElementById('vetSelector').style.display = 'none';
+        actualizarTextoVet();
+    }
+
+    function actualizarTextoVet() {
+        let currentText = document.getElementById('mspExamen').value;
+        const regex = /\n\n--- HALLAZGOS DEL MAPA ---\n([\s\S]*?)--- FIN HALLAZGOS ---/g;
+        currentText = currentText.replace(regex, '').trim();
+
+        if(Object.keys(estadoVet).length > 0) {
+            const textoGenerado = Object.keys(estadoVet).map(parte => `• ${parte}: ${estadoVet[parte]}`).join('\n');
+            const nuevoBloque = `\n\n--- HALLAZGOS DEL MAPA ---\n${textoGenerado}\n--- FIN HALLAZGOS ---`;
+            document.getElementById('mspExamen').value = currentText + nuevoBloque;
+        } else {
+            document.getElementById('mspExamen').value = currentText || 'Examen físico visual normal.';
+        }
+    }
+
+    function limpiarMapaVet() { initMapaVet(); }
+
+    document.addEventListener('click', (e) => {
+        if(!e.target.closest('.v-part') && !e.target.closest('#vetSelector')) {
+            const sel = document.getElementById('vetSelector');
+            if(sel) sel.style.display = 'none';
+        }
+    });
+
     async function procesarConIA() {
         const borrador = document.getElementById('rxBorrador').value.trim();
         if(!borrador) return alert("Escribe notas primero para que la IA pueda estructurarlas.");
@@ -2098,29 +2072,34 @@
         btn.textContent = 'Analizando...'; btn.disabled = true;
         try {
             let datosExtras = [];
-            const imcStr = document.getElementById('rxImcDisplay').textContent;
-            const tmbStr = document.getElementById('rxTmbDisplay').textContent;
-            
-            ['rxEdad', 'rxPeso', 'rxAltura', 'rxGrasa'].forEach(id => {
-                const val = document.getElementById(id).value;
-                const label = document.getElementById(id).previousElementSibling.textContent;
-                if(val) datosExtras.push(`${label}: ${val}`);
+            ['rxRaza', 'rxEdad', 'rxSexo', 'rxRepro', 'rxPeso', 'rxTemp', 'rxRitmo'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el && el.value) {
+                    const label = el.previousElementSibling.textContent;
+                    datosExtras.push(`${label}: ${el.value}`);
+                }
             });
-            if(imcStr !== '0.0') datosExtras.push(`IMC Calculado: ${imcStr}`);
-            if(tmbStr !== '0 kcal') datosExtras.push(`Gasto Metabólico Basal: ${tmbStr}`);
-            
-            const contextoClinico = datosExtras.length > 0 ? "Datos corporales: " + datosExtras.join(', ') : "";
+            const contextoClinico = datosExtras.length > 0 ? "Datos del paciente: " + datosExtras.join(', ') : "";
 
             const res = await fetch(`${API_BASE_URL}/api/ia-copilot`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ notasBorrador: borrador, especialidad: 'nutricion', contextoClinico })
+                body: JSON.stringify({ notasBorrador: borrador, especialidad: 'veterinaria', contextoClinico })
             });
             const data = await res.json();
             
-            let currentDiag = document.getElementById('rxDiagnostico').value;
-            if(data.diagnostico) {
-                document.getElementById('rxDiagnostico').value = currentDiag ? currentDiag + "\n\nAnálisis Clínico (IA):\n" + data.diagnostico : data.diagnostico;
+            if(data.motivo_consulta) document.getElementById('mspMotivo').value = data.motivo_consulta;
+            if(data.anamnesis) document.getElementById('mspAnamnesis').value = data.anamnesis;
+            
+            let currentExamen = document.getElementById('mspExamen').value;
+            if(data.examen_fisico) {
+                if(!currentExamen || currentExamen.includes('normal')) {
+                    document.getElementById('mspExamen').value = data.examen_fisico;
+                } else {
+                    document.getElementById('mspExamen').value = currentExamen + "\n\nAnálisis IA:\n" + data.examen_fisico;
+                }
             }
+            
+            if(data.diagnostico) document.getElementById('rxDiagnostico').value = data.diagnostico;
             
             if(Array.isArray(data.recomendaciones)) document.getElementById('rxRecomendaciones').value = data.recomendaciones.join('\n');
             else if (data.recomendaciones) document.getElementById('rxRecomendaciones').value = data.recomendaciones;
@@ -2130,9 +2109,9 @@
                 data.receta.forEach(m => addMedicineRow(m));
             } else { addMedicineRow(); }
             
-            mostrarMensaje('Plan estructurado por IA con éxito.', 'success');
+            mostrarMensaje('Ficha Veterinaria estructurada por IA con éxito.', 'success');
         } catch(e) { alert('Error al conectar con la IA. Inténtalo de nuevo.'); }
-        finally { btn.innerHTML = 'ESTRUCTURAR PLAN CON IA ✦'; btn.disabled = false; }
+        finally { btn.innerHTML = 'ESTRUCTURAR FICHA CON IA ✦'; btn.disabled = false; }
     }
 
     async function submitPrescription() {
@@ -2143,29 +2122,32 @@
         const a = appointments.find(x => x.id === aptId);
         const p = patients.find(x => x.id === a?.patientId);
 
-        let diag = document.getElementById('rxDiagnostico').value;
+        let mspMotivo = document.getElementById('mspMotivo').value;
+        let mspAnamnesis = document.getElementById('mspAnamnesis').value;
+        let mspExamen = document.getElementById('mspExamen').value;
+        let rxDiagnostico = document.getElementById('rxDiagnostico').value;
+
+        let diagFinal = "";
+        if (mspMotivo || mspAnamnesis || mspExamen || rxDiagnostico) {
+            diagFinal += `[Ficha Clínica Veterinaria]\n`;
+            if(mspMotivo) diagFinal += `- Motivo: ${mspMotivo}\n`;
+            if(mspAnamnesis) diagFinal += `- Anamnesis: ${mspAnamnesis}\n`;
+            if(mspExamen) diagFinal += `- Examen Físico: ${mspExamen}\n`;
+            if(rxDiagnostico) diagFinal += `- Diagnóstico Final: ${rxDiagnostico}\n\n`;
+        }
+
         let customVitalsStr = [];
         let vitalsObj = {};
-
-        // Recolectar datos
-        ['rxEdad', 'rxPeso', 'rxAltura', 'rxGrasa'].forEach(id => {
-            const val = document.getElementById(id).value;
-            const label = document.getElementById(id).previousElementSibling.textContent;
-            if(val) {
-                customVitalsStr.push(`${label}: ${val}`);
-                vitalsObj[id.replace('rx', '').toLowerCase()] = val;
+        ['rxRaza', 'rxEdad', 'rxSexo', 'rxRepro', 'rxPeso', 'rxTemp', 'rxRitmo'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el && el.value) {
+                const label = el.previousElementSibling.textContent;
+                customVitalsStr.push(`${label}: ${el.value}`);
+                vitalsObj[id.replace('rx', '').toLowerCase()] = el.value;
             }
         });
-        
-        // Agregar IMC y TMB
-        const calcImc = document.getElementById('rxImcVal').value;
-        const calcTmb = document.getElementById('rxTmbVal').value;
-        const calcSexo = document.getElementById('rxSexo').value;
-        if(calcImc) { customVitalsStr.push(`IMC: ${calcImc}`); vitalsObj.imc = calcImc; }
-        if(calcTmb) { customVitalsStr.push(`TMB: ${calcTmb} kcal`); vitalsObj.tmb = calcTmb; }
-        if(calcSexo) { vitalsObj.sexo = calcSexo; }
 
-        if (customVitalsStr.length > 0) diag = `[Composición Corporal: ${customVitalsStr.join(' | ')}]\n\n${diag}`;
+        if (customVitalsStr.length > 0) diagFinal = `[Datos y Constantes: ${customVitalsStr.join(' | ')}]\n\n${diagFinal}`;
 
         const meds = [];
         Array.from(document.getElementById('medicinesContainer').children).forEach(r => {
@@ -2179,7 +2161,7 @@
         if(document.getElementById('checkTratamiento').checked) {
             let cuotas = parseInt(document.getElementById('numCuotas').value) || 1;
             let montoTotalPlan = parseFloat(document.getElementById('montoTotalPlan').value) || 0;
-            recList.push(`⚠️ Plan Nutricional Financiero: Paquete de ${cuotas} controles/cuotas. Monto Total: $${montoTotalPlan.toFixed(2)}`);
+            recList.push(`⚠️ Plan Financiero: Diferido en ${cuotas} cuota(s). Monto Total: $${montoTotalPlan.toFixed(2)}`);
 
             if(cuotas > 1 && montoTotalPlan > 0 && p) {
                 await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').add({
@@ -2194,167 +2176,126 @@
 
         let nextDate = document.getElementById('rxNextDate').value;
         let nextTime = document.getElementById('rxNextTime').value;
-        if(nextDate && nextTime) {
-            recList.push(`📅 Tu próximo control nutricional queda agendado para: ${nextDate} a las ${nextTime}`);
+        if(nextDate && nextTime && p) {
+            recList.push(`📅 Recordatorio: Próximo control o refuerzo de vacuna programado para: ${nextDate} a las ${nextTime}`);
 
-            if(p) {
-                await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
-                    patientId: p.id,
-                    fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
-                    motivo: 'Control Nutricional (Auto-Agendado)', fechaCreacion: new Date()
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
+                patientId: p.id,
+                fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
+                motivo: 'Control / Refuerzo de Vacuna (Auto-Agendado)', fechaCreacion: new Date()
+            });
+
+            if(clinicDataGlobal.gCalendarToken) {
+                fetch(`${API_BASE_URL}/api/calendar/create-event`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control / Vacuna', tokenGCalendar: clinicDataGlobal.gCalendarToken })
                 });
-
-                if(clinicDataGlobal.gCalendarToken) {
-                    fetch(`${API_BASE_URL}/api/calendar/create-event`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control Nutricional', tokenGCalendar: clinicDataGlobal.gCalendarToken })
-                    });
-                }
             }
         }
 
-        if (p) {
-            try {
-                if(diag || meds.length > 0 || customVitalsStr.length > 0) {
-                    await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(p.id).collection('vitals').add({
-                        fecha: new Date(), diagnostico: diag, recomendaciones: recList, ...vitalsObj
-                    });
-                }
-            } catch(e) {}
-        }
+        try {
+            if(p && (diagFinal || meds.length > 0 || customVitalsStr.length > 0)) {
+                await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(p.id).collection('vitals').add({
+                    fecha: new Date(), diagnostico: diagFinal, recommendations: recList, ...vitalsObj
+                });
+            }
 
-        await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ diagnostico: diag, recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() });
-
-        if(p?.telefonoWhatsApp) {
-            await fetch(`${API_BASE_URL}/send-prescription`, {
-                method:'POST', headers: {'Content-Type': 'application/json'},
-                body:JSON.stringify({
-                    clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
-                    diagnostico: diag, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal
-                })
+            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ 
+                diagnostico: diagFinal, 
+                mspMotivo, mspAnamnesis, mspExamen,
+                recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() 
             });
-        }
 
-        closePrescriptionModal();
-        document.getElementById('billingAptId').value = aptId;
-        document.getElementById('billingPatName').textContent = p?.nombre || 'Paciente';
-        document.getElementById('billingSubtotal').value = '';
-        document.getElementById('billingTotalDisplay').textContent = '$0.00';
-        document.getElementById('billingIva').checked = false;
-        document.getElementById('billingModal').classList.remove('hidden');
+            if(p?.telefonoWhatsApp) {
+                await fetch(`${API_BASE_URL}/send-prescription`, {
+                    method:'POST', headers: {'Content-Type': 'application/json'},
+                    body:JSON.stringify({
+                        clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, patientName: p.nombre,
+                        diagnostico: diagFinal, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal
+                    })
+                });
+            }
 
-        await loadAppointments();
-        await loadPlanesPago();
-        btn.disabled = false;
-        btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; 
+            closePrescriptionModal();
+            document.getElementById('billingAptId').value = aptId;
+            document.getElementById('billingPatName').textContent = p?.nombre || 'Paciente/Mascota';
+            document.getElementById('billingSubtotal').value = '';
+            document.getElementById('billingTotalDisplay').textContent = '$0.00';
+            document.getElementById('billingIva').checked = false;
+            document.getElementById('billingModal').classList.remove('hidden');
+
+            await loadAppointments();
+            await loadPlanesPago();
+        } catch(e) { alert('Error al generar la receta o enviar a WhatsApp.'); }
+        finally { btn.disabled=false; btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Guardar y Cobrar`; }
     }
 
-    // ── FUNCIONES DE IMPRESIÓN NUTRICIONAL ──
-    function imprimirComprobantePago(patientName, total, motivo) {
-        const printWindow = window.open('', '_blank', 'width=400,height=600');
-        const fechaStr = new Date().toLocaleDateString('es-ES') + ' ' + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
-        printWindow.document.write(`
-            <html>
-            <head>
-                <title>Comprobante de Pago - ${patientName}</title>
-                <style>
-                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px; color: #1f2937; line-height: 1.5; font-size: 14px; text-align: center; }
-                    .header { border-bottom: 2px dashed #e5e7eb; padding-bottom: 15px; margin-bottom: 15px; }
-                    h1 { color: #0f172a; margin: 0 0 5px 0; font-size: 18px; text-transform: uppercase; }
-                    .details { text-align: left; margin-bottom: 20px; }
-                    .details div { margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
-                    .total { font-size: 20px; font-weight: 800; color: #10b981; margin: 20px 0; border: 2px solid #10b981; padding: 10px; border-radius: 8px; }
-                    .footer { font-size: 11px; color: #64748b; margin-top: 30px; }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h1>${clinicDataGlobal?.nombre || 'Centro Nutricional'}</h1>
-                    <div>RUC: ${clinicDataGlobal?.ruc || 'N/A'}</div>
-                    <div>${clinicDataGlobal?.direccion || ''}</div>
-                    <div>Tel: ${clinicDataGlobal?.telefono || ''}</div>
-                </div>
-                <h2>COMPROBANTE DE CAJA</h2>
-                <div class="details">
-                    <div><b>Fecha:</b> ${fechaStr}</div>
-                    <div><b>Paciente:</b> ${patientName}</div>
-                    <div><b>Concepto:</b> ${motivo || 'Servicios Nutricionales'}</div>
-                </div>
-                <div class="total">
-                    TOTAL: $${Number(total).toFixed(2)}
-                </div>
-                <div class="footer">
-                    ¡Gracias por su confianza!<br>
-                    Este documento es un comprobante de abono/pago de servicios.
-                </div>
-                <script>
-                    window.onload = function() { window.print(); window.close(); }
-                <\/script>
-            </body>
-            </html>
-        `);
-        printWindow.document.close();
-    }
-
-    function imprimirPlanNutricional() {
+    // ── FUNCIONES DE IMPRESIÓN VETERINARIA ──
+    function imprimirRecetaVet() {
         const patientName = document.getElementById('rxPatientName').textContent;
-        const diag = document.getElementById('rxDiagnostico').value || 'Sin análisis antropométrico registrado.';
-        const recs = document.getElementById('rxRecomendaciones').value || 'Sin metas ni recomendaciones adicionales.';
+        const motivo = document.getElementById('mspMotivo').value || '';
+        const anamnesis = document.getElementById('mspAnamnesis').value || '';
+        const examen = document.getElementById('mspExamen').value || '';
+        const diag = document.getElementById('rxDiagnostico').value || 'Sin diagnóstico ingresado.';
+        const recs = document.getElementById('rxRecomendaciones').value || 'Sin recomendaciones adicionales.';
         
         let medsHtml = '';
         document.querySelectorAll('#medicinesContainer > div').forEach(r => {
              const n = r.querySelector('.med-name').value;
              const d = r.querySelector('.med-dose').value;
-             if(n) medsHtml += `<li style="margin-bottom: 8px;"><b>${n}</b><br><span style="color:#4b5563;">Comida: ${d}</span></li>`;
+             if(n) medsHtml += `<li style="margin-bottom: 8px;"><b>${n}</b><br><span style="color:#4b5563;">Indicación: ${d}</span></li>`;
         });
-        if(medsHtml === '') medsHtml = '<li>No se han especificado suplementos o alimentos.</li>';
+        if(medsHtml === '') medsHtml = '<li>No se han especificado medicamentos ni vacunas.</li>';
 
         const printWindow = window.open('', '_blank', 'width=800,height=800');
         printWindow.document.write(`
             <html>
             <head>
-                <title>Plan Nutricional - ${patientName}</title>
+                <title>Ficha Veterinaria - ${patientName}</title>
                 <style>
                     body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #1f2937; line-height: 1.6; }
                     .header { text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px; }
-                    h1 { color: #065f46; margin: 0 0 10px 0; font-size: 24px; }
-                    h2 { color: #10b981; font-size: 18px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-top: 30px; }
-                    .meta-info { display: flex; justify-content: space-between; font-size: 14px; color: #4b5563; font-weight: bold; }
+                    h1 { color: #4338ca; margin: 0 0 10px 0; font-size: 24px; }
+                    h2 { color: #4f46e5; font-size: 18px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-top: 30px; }
+                    .meta-info { display: flex; justify-content: space-between; font-size: 14px; color: #4b5563; font-weight: bold; margin-bottom: 20px;}
                     .content-section { margin-bottom: 20px; }
                     .signature { margin-top: 80px; text-align: center; color: #6b7280; font-size: 14px; }
+                    .rp { font-size: 24px; font-weight: bold; color: #4338ca; margin-bottom: 10px; }
                 </style>
             </head>
             <body>
                 <div class="header">
-                    <h1>${clinicDataGlobal?.nombre || 'Centro de Nutrición y Dietética'}</h1>
+                    <h1>${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}</h1>
                     <p style="margin:0; color:#6b7280; font-size: 12px;">${clinicDataGlobal?.direccion || ''} | Tel: ${clinicDataGlobal?.telefono || ''}</p>
                 </div>
                 
                 <div class="meta-info">
-                    <span>Paciente: ${patientName}</span>
+                    <span>Paciente (Mascota/Dueño): ${patientName}</span>
                     <span>Fecha: ${new Date().toLocaleDateString('es-ES')}</span>
                 </div>
 
-                <h2>Análisis Antropométrico y Diagnóstico</h2>
                 <div class="content-section">
-                    <p>${diag.replace(/\n/g, '<br>')}</p>
+                    <p><b>Motivo de Consulta:</b> ${motivo || 'Sin especificar'}</p>
+                    <p><b>Anamnesis:</b> ${anamnesis || 'Sin especificar'}</p>
+                    <p><b>Examen Físico:</b><br>${examen.replace(/\n/g, '<br>')}</p>
+                    <p><b>Diagnóstico:</b> ${diag}</p>
                 </div>
 
-                <h2>Dieta / Suplementación Asignada</h2>
+                <div class="rp">Rp.</div>
                 <div class="content-section">
-                    <ul style="padding-left: 20px;">
+                    <ul style="padding-left: 20px; list-style-type: none;">
                         ${medsHtml}
                     </ul>
                 </div>
 
-                <h2>Metas y Recomendaciones Generales</h2>
+                <h2>Indicaciones / Cuidados en Casa</h2>
                 <div class="content-section">
                     <p>${recs.replace(/\n/g, '<br>')}</p>
                 </div>
 
                 <div class="signature">
                     __________________________________________<br><br>
-                    Firma del Nutricionista / Especialista
+                    Firma del Médico Veterinario
                 </div>
                 <script>
                     window.onload = function() { window.print(); window.close(); }
@@ -2378,33 +2319,33 @@
         printWindow.document.write(`
             <html>
             <head>
-                <title>Expediente Nutricional - ${patientName}</title>
+                <title>Expediente Veterinario - ${patientName}</title>
                 <style>
                     body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #1f2937; line-height: 1.5; }
                     .header { text-align: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px; }
-                    h1 { color: #065f46; margin: 0 0 10px 0; font-size: 24px; }
+                    h1 { color: #4338ca; margin: 0 0 10px 0; font-size: 24px; }
                     .meta-info { font-size: 16px; color: #111827; font-weight: bold; margin-bottom: 30px; }
-                    .history-card { border: 1px solid #e2e8f0; border-left: 4px solid #10b981; padding: 15px; margin-bottom: 20px; border-radius: 4px; page-break-inside: avoid; }
-                    .date { font-weight: bold; color: #059669; margin-bottom: 8px; font-size: 14px; }
+                    .history-card { border: 1px solid #e2e8f0; border-left: 4px solid #4f46e5; padding: 15px; margin-bottom: 20px; border-radius: 4px; page-break-inside: avoid; }
+                    .date { font-weight: bold; color: #4f46e5; margin-bottom: 8px; font-size: 14px; }
                     .text-content { font-size: 13px; color: #374151; }
                     .recs-box { background: #fdf8f6; padding: 10px; margin-top: 10px; border: 1px dashed #fed7aa; border-radius: 4px; font-size: 12px; }
                 </style>
             </head>
             <body>
                 <div class="header">
-                    <h1>${clinicDataGlobal?.nombre || 'Centro de Nutrición y Dietética'}</h1>
-                    <p style="margin:0; color:#6b7280; font-size: 12px;">Reporte Completo de Evolución Corporal</p>
+                    <h1>${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}</h1>
+                    <p style="margin:0; color:#6b7280; font-size: 12px;">Reporte Completo de Evolución Clínica</p>
                 </div>
                 
                 <div class="meta-info">
                     Paciente: ${patientName}
                 </div>
 
-                <h3>Historial de Controles y Evolución</h3>
+                <h3>Historial de Consultas y Vacunación</h3>
                 ${timelineContent.replace(/style="[^"]*"/g, function(match) {
                     if(match.includes('border-left')) return 'class="history-card"';
                     if(match.includes('📅')) return 'class="date"';
-                    if(match.includes('Plan / Recomendaciones')) return 'class="recs-box"';
+                    if(match.includes('Recomendaciones')) return 'class="recs-box"';
                     return 'class="text-content"';
                 })}
 
@@ -2417,7 +2358,54 @@
         printWindow.document.close();
     }
 
-    // 🔥 COBRO DESDE LA AGENDA (ACTUALIZADO CON DESCUENTO DE DEUDA AUTOMÁTICO, MULTI-TENANT) 🔥
+    // ── FUNCION DE IMPRESIÓN COMPROBANTE ──
+    function imprimirComprobantePago(patientName, total, motivo) {
+        const printWindow = window.open('', '_blank', 'width=400,height=600');
+        const fechaStr = new Date().toLocaleDateString('es-ES') + ' ' + new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Comprobante de Pago - ${patientName}</title>
+                <style>
+                    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px; color: #1f2937; line-height: 1.5; font-size: 14px; text-align: center; }
+                    .header { border-bottom: 2px dashed #e5e7eb; padding-bottom: 15px; margin-bottom: 15px; }
+                    h1 { color: #0f172a; margin: 0 0 5px 0; font-size: 18px; text-transform: uppercase; }
+                    .details { text-align: left; margin-bottom: 20px; }
+                    .details div { margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
+                    .total { font-size: 20px; font-weight: 800; color: #4f46e5; margin: 20px 0; border: 2px solid #4f46e5; padding: 10px; border-radius: 8px; }
+                    .footer { font-size: 11px; color: #64748b; margin-top: 30px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}</h1>
+                    <div>RUC: ${clinicDataGlobal?.ruc || 'N/A'}</div>
+                    <div>${clinicDataGlobal?.direccion || ''}</div>
+                    <div>Tel: ${clinicDataGlobal?.telefono || ''}</div>
+                </div>
+                <h2>COMPROBANTE DE CAJA</h2>
+                <div class="details">
+                    <div><b>Fecha:</b> ${fechaStr}</div>
+                    <div><b>Paciente:</b> ${patientName}</div>
+                    <div><b>Concepto:</b> ${motivo || 'Servicios Veterinarios'}</div>
+                </div>
+                <div class="total">
+                    TOTAL: $${Number(total).toFixed(2)}
+                </div>
+                <div class="footer">
+                    ¡Gracias por su confianza!<br>
+                    Este documento es un comprobante de abono/pago de servicios.
+                </div>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
+    // 🔥 COBRO DESDE AGENDA MÉDICA CON DESCUENTO DE DEUDAS AUTOMÁTICO 🔥
     async function submitBilling() {
         const aptId = document.getElementById('billingAptId').value;
         const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
@@ -2432,12 +2420,11 @@
             const apt = appointments.find(a=>a.id===aptId);
             const p = patients.find(x=>x.id===apt?.patientId);
             
-            // 💡 MAGIA: BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO)
+            // BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO - ej. CIRUGÍAS/VACUNAS)
             const planActivo = p ? planesPago.find(x => x.patientId === p.id && x.estado === 'activo') : null;
-            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${p?.nombre || 'Paciente'}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
+            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p?.nombre || 'Mascota'}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
             
             if (planActivo) {
-                // Si tiene deuda, la descontamos automáticamente
                 const nuevoSaldo = Math.max(0, planActivo.saldoPendiente - total);
                 const estadoPlan = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
                 const nuevasCuotas = planActivo.cuotasPagadas + 1;
@@ -2448,14 +2435,11 @@
                     estado: estadoPlan
                 });
                 
-                // Mensaje WA modificado para deuda
-                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Centro Nutricional'}\n\n👤 Paciente: ${p?.nombre || 'Paciente'}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
+                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p?.nombre || 'Mascota'}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
             }
 
-            // Abrir el Comprobante de Pago en PDF
-            imprimirComprobantePago(p?.nombre || 'Paciente', total, apt?.motivo);
+            imprimirComprobantePago(p?.nombre || 'Mascota', total, apt?.motivo);
 
-            // Enviar WhatsApp oficial
             if(p?.telefonoWhatsApp) {
                 await fetch(`${API_BASE_URL}/send-message`, {
                     method:'POST', headers:{'Content-Type':'application/json'},
@@ -2466,286 +2450,9 @@
             closeBillingModal();
             mostrarMensaje(`Cobro de $${total.toFixed(2)} registrado. Comprobante enviado.`, 'success');
             await loadAppointments();
-            if (planActivo) await loadPlanesPago(); // Actualizar finanzas en tiempo real
+            if (planActivo) await loadPlanesPago(); 
         } catch(e) { alert('Error registrando cobro.'); }
         finally { btn.disabled=false; btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Finalizar y Enviar`; }
-    }
-
-    // ── HISTORY (Gráfico Dual: Peso y Grasa) (Multi-Tenant) ──
-    async function openHistoryModal(patientId) {
-        if(!patientId) return;
-        currentPatientIdForImages = patientId;
-        const p = patients.find(x=>x.id===patientId);
-        document.getElementById('historyPatientInfo').textContent = `${p?.nombre||''} · CI: ${p?.cedula||'N/A'}`;
-        document.getElementById('historyModal').classList.remove('hidden');
-        document.getElementById('historyTimeline').innerHTML = '<div style="display:flex;justify-content:center;padding:32px;"><div class="spinner"></div></div>';
-        try {
-            const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(patientId).collection('vitals').orderBy('fecha','asc').get();
-            if(snap.empty) {
-                document.getElementById('historyTimeline').innerHTML = '<p style="text-align:center;color:#94a3b8;font-weight:600;font-size:13px;padding:32px;">Sin historial clínico registrado.</p>';
-                document.getElementById('chartContainer').classList.add('hidden');
-                if(vitalsChartInstance) vitalsChartInstance.destroy();
-            } else {
-                const docs = snap.docs;
-                let timelineHtml = '';
-                const labels=[], dataPeso=[], dataGrasa=[];
-                for(let i=docs.length-1;i>=0;i--) {
-                    const d = docs[i].data();
-                    const dateObj = d.fecha.toDate ? d.fecha.toDate() : new Date(d.fecha);
-                    const dateStr = dateObj.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'});
-                    
-                    let vStr='';
-                    if(d.peso) vStr+=`Peso: ${d.peso}kg | `;
-                    if(d.grasa) vStr+=`Grasa: ${d.grasa}% | `;
-                    if(d.imc) vStr+=`IMC: ${d.imc}`;
-                    
-                    let recsHtml='';
-                    if(d.recomendaciones&&d.recomendaciones.length>0) {
-                        recsHtml=`<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;margin-top:10px;">
-                            <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;color:#c2410c;margin-bottom:5px;">Plan / Recomendaciones</div>
-                            ${d.recomendaciones.map(r=>`<div style="font-size:12px;color:#92400e;font-weight:600;margin-bottom:2px;">• ${r}</div>`).join('')}
-                        </div>`;
-                    }
-                    
-                    let diagHtml=(d.diagnostico||'Sin análisis.').replace(/\n/g,'<br>');
-                    
-                    timelineHtml+=`<div style="background:white;border:1px solid #e2e8f0;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 16px; margin-bottom:10px;">
-                        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:6px;">📅 ${dateStr}</div>
-                        <div style="font-size:13px;color:#374151;font-weight:600;line-height:1.5;">${diagHtml}</div>
-                        ${vStr?`<div style="font-size:11.5px;color:#64748b;font-weight:700;margin-top:6px;">${vStr}</div>`:''}
-                        ${recsHtml}
-                    </div>`;
-                    
-                    labels.unshift(dateStr);
-                    if(d.peso) dataPeso.unshift(parseFloat(d.peso));
-                    if(d.grasa) dataGrasa.unshift(parseFloat(d.grasa));
-                }
-                document.getElementById('historyTimeline').innerHTML = timelineHtml;
-                
-                const ctx = document.getElementById('vitalsChartCanvas');
-                if(vitalsChartInstance) vitalsChartInstance.destroy();
-                
-                if(dataPeso.length > 0 || dataGrasa.length > 0) {
-                    document.getElementById('chartContainer').classList.remove('hidden');
-                    const datasets = [];
-                    
-                    if(dataPeso.length > 0) {
-                        datasets.push({ 
-                            label:'Peso (kg)', 
-                            data: dataPeso, 
-                            borderColor:'#10b981', 
-                            backgroundColor:'rgba(16,185,129,0.08)', 
-                            fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#10b981',
-                            yAxisID: 'y'
-                        });
-                    }
-                    if(dataGrasa.length > 0) {
-                        datasets.push({ 
-                            label:'% Grasa', 
-                            data: dataGrasa, 
-                            borderColor:'#f59e0b', 
-                            backgroundColor:'transparent', 
-                            fill:false, tension:0.4, borderDash: [5, 5], pointRadius:4, pointBackgroundColor:'#f59e0b',
-                            yAxisID: 'y1'
-                        });
-                    }
-
-                    vitalsChartInstance = new Chart(ctx, {
-                        type:'line',
-                        data:{ labels, datasets: datasets },
-                        options:{ 
-                            responsive:true, maintainAspectRatio:false, 
-                            plugins:{ legend:{display:true, position: 'bottom', labels: {boxWidth: 12, font: {size: 10}}} }, 
-                            scales:{ 
-                                y:{ type: 'linear', display: true, position: 'left', min:0, grid:{ color:'#f1f5f9' }, title: {display: true, text: 'Peso (kg)', font: {size:10}} }, 
-                                y1:{ type: 'linear', display: true, position: 'right', min:0, grid:{ drawOnChartArea: false }, title: {display: true, text: '% Grasa', font: {size:10}} },
-                                x:{ grid:{ display:false } } 
-                            } 
-                        }
-                    });
-                } else { document.getElementById('chartContainer').classList.add('hidden'); }
-            }
-        } catch(e) { document.getElementById('historyTimeline').innerHTML='<p style="text-align:center;color:#dc2626;font-weight:600;">Error cargando historial.</p>'; }
-        loadPatientImages(patientId);
-    }
-
-    function closeHistoryModal() { document.getElementById('historyModal').classList.add('hidden'); if(vitalsChartInstance) vitalsChartInstance.destroy(); }
-
-    async function uploadPatientImage(input) {
-        const file = input.files[0]; if(!file||!currentPatientIdForImages) return;
-        const btn = document.getElementById('btnUploadImg'); btn.textContent='Subiendo...'; btn.disabled=true;
-        try {
-            const storageRef = storage.ref(`clinicas/${parentDoctorId}/pacientes/${currentPatientIdForImages}/${Date.now()}_${file.name}`);
-            await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
-            await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(currentPatientIdForImages).collection('images').add({ url, nombre: file.name, fechaCreacion: new Date() });
-            loadPatientImages(currentPatientIdForImages);
-        } catch(e) { alert('Error subiendo archivo'); }
-        finally { btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Subir archivo'; btn.disabled=false; input.value=''; }
-    }
-
-    async function loadPatientImages(pid) {
-        const gal = document.getElementById('patientImagesGallery');
-        gal.innerHTML = '<div style="display:flex;justify-content:center;grid-column:span 3;padding:16px;"><div class="spinner"></div></div>';
-        try {
-            const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').doc(pid).collection('images').orderBy('fechaCreacion','desc').get();
-            if(snap.empty) return gal.innerHTML='<p style="font-size:12px;color:#94a3b8;font-weight:600;grid-column:span 3;text-align:center;padding:16px;">No hay archivos adjuntos.</p>';
-            gal.innerHTML = snap.docs.map(doc => {
-                const data=doc.data(); const isPDF=data.nombre.toLowerCase().endsWith('.pdf');
-                return isPDF
-                    ? `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;text-align:center;cursor:pointer;" onclick="window.open('${data.url}')"><div style="font-size:26px;">📄</div><div style="font-size:9px;font-weight:700;color:#dc2626;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;">${data.nombre}</div></div>`
-                    : `<div style="cursor:pointer;overflow:hidden;border-radius:8px;border:1px solid #e2e8f0;" onclick="window.open('${data.url}')"><img src="${data.url}" style="width:100%;height:70px;object-fit:cover;display:block;"></div>`;
-            }).join('');
-        } catch(e) { gal.innerHTML='<p style="font-size:12px;color:#dc2626;font-weight:600;">Error al cargar archivos.</p>'; }
-    }
-
-    // ── PROMOTIONS ──
-    function openPromotionsModal() { document.getElementById('promotionsModal').classList.remove('hidden'); }
-    function closePromotionsModal() { document.getElementById('promotionsModal').classList.add('hidden'); }
-
-    async function sendPromotion() {
-        const targeting = document.getElementById('promoTargeting').value || 'A todos';
-        const message = document.getElementById('promoMessage').value;
-        if(!message) return alert("Escribe un mensaje publicitario.");
-        
-        const btn = document.getElementById('btnSendPromo');
-        btn.textContent='Enviando...'; btn.disabled=true;
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/promotions/send`, {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, mensajePromocion: message, instruccionesIA: targeting })
-            });
-            const data = await res.json();
-            if(data.success) {
-                mostrarMensaje(`Campaña enviada a ${data.enviados} pacientes exitosamente.`, 'success');
-                closePromotionsModal();
-            } else {
-                throw new Error(data.error);
-            }
-        } catch(e) { alert('Error enviando campaña: ' + e.message); }
-        finally { btn.textContent='Enviar Inteligente ✦'; btn.disabled=false; }
-    }
-
-    // ── META CLOUD API (NUEVA INTEGRACIÓN OFICIAL) ──
-    function openMetaModal() { 
-        document.getElementById('metaModal').classList.remove('hidden'); 
-        actualizarUiWa(!!clinicDataGlobal?.metaPhoneId);
-    }
-    
-    function closeMetaModal() { 
-        document.getElementById('metaModal').classList.add('hidden'); 
-    }
-
-    // ── CALENDARIO DIDÁCTICO Y SETTINGS ──
-    function renderHolidayCalendar() {
-        const grid = document.getElementById('calDaysGrid');
-        const monthLabel = document.getElementById('calMonthLabel');
-        if(!grid || !monthLabel) return;
-        grid.innerHTML = '';
-        
-        const year = currentCalDate.getFullYear();
-        const month = currentCalDate.getMonth();
-        monthLabel.textContent = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentCalDate);
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const startOffset = firstDay === 0 ? 6 : firstDay - 1; 
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        ['L','M','M','J','V','S','D'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
-        for (let i = 0; i < startOffset; i++) grid.innerHTML += `<div></div>`;
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const isHoliday = holidays.includes(dateStr);
-            grid.innerHTML += `<div class="cal-day ${isHoliday ? 'is-holiday' : ''}" onclick="toggleHoliday('${dateStr}')">${day}</div>`;
-        }
-    }
-
-    function toggleHoliday(dateStr) {
-        if (holidays.includes(dateStr)) {
-            holidays = holidays.filter(d => d !== dateStr);
-        } else {
-            holidays.push(dateStr);
-        }
-        renderHolidayCalendar();
-    }
-
-    function changeCalMonth(dir) {
-        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
-        renderHolidayCalendar();
-    }
-
-    function openSettingsModal() {
-        document.getElementById('clinicName').value = clinicDataGlobal?.nombre||'';
-        document.getElementById('clinicRuc').value = clinicDataGlobal?.ruc||'';
-        document.getElementById('clinicPhone').value = clinicDataGlobal?.telefono||'';
-        document.getElementById('clinicAddress').value = clinicDataGlobal?.direccion||'';
-        document.getElementById('clinicColor').value = clinicDataGlobal?.color||'#10b981';
-        document.getElementById('hInicio').value = clinicDataGlobal?.horarioInicio||'08:00';
-        document.getElementById('hFin').value = clinicDataGlobal?.horarioFin||'18:00';
-        
-        document.getElementById('hAlmuerzoInicio').value = clinicDataGlobal?.almuerzoInicio||'13:00';
-        document.getElementById('hAlmuerzoFin').value = clinicDataGlobal?.almuerzoFin||'14:00';
-        document.getElementById('duracionCita').value = clinicDataGlobal?.duracionCita||'30';
-        
-        renderHolidayCalendar(); 
-        document.getElementById('settingsModal').classList.remove('hidden');
-    }
-
-    function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-
-    function previewLogo(input) {
-        const file = input.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = e => { document.getElementById('clinicLogoPreview').src = e.target.result; };
-        reader.readAsDataURL(file);
-    }
-
-    async function saveClinicSettings() {
-        const logoInput = document.getElementById('clinicLogoInput');
-        let logoUrl = clinicDataGlobal?.logo||'';
-        if(logoInput.files[0]) {
-            const ref = storage.ref(`clinicas/${parentDoctorId}/logo`);
-            await ref.put(logoInput.files[0]);
-            logoUrl = await ref.getDownloadURL();
-        }
-        const newData = {
-            nombre: document.getElementById('clinicName').value,
-            ruc: document.getElementById('clinicRuc').value,
-            telefono: document.getElementById('clinicPhone').value,
-            direccion: document.getElementById('clinicAddress').value,
-            color: document.getElementById('clinicColor').value,
-            horarioInicio: document.getElementById('hInicio').value,
-            horarioFin: document.getElementById('hFin').value,
-            almuerzoInicio: document.getElementById('hAlmuerzoInicio').value,
-            almuerzoFin: document.getElementById('hAlmuerzoFin').value,
-            duracionCita: document.getElementById('duracionCita').value,
-            diasNoLaborables: holidays, 
-            logo: logoUrl
-        };
-        try {
-            await db.collection('clinics').doc(parentDoctorId).update({ clinicInfo: { ...clinicDataGlobal, ...newData } });
-            try { await db.collection('users').doc(parentDoctorId).update({ clinicInfo: { ...clinicDataGlobal, ...newData } }); } catch(e){}
-            clinicDataGlobal = { ...clinicDataGlobal, ...newData };
-            applyClinicBranding();
-            closeSettingsModal();
-            mostrarMensaje('Configuración guardada exitosamente.', 'success');
-        } catch(e) { alert('Error guardando configuración.'); }
-    }
-
-    function copiarMiLink() {
-        const currentPath = window.location.href.split('?')[0];
-        const basePath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-        const miLink = `${basePath}/agendar.html?doc=${parentDoctorId}`;
-        navigator.clipboard.writeText(miLink).then(()=>mostrarMensaje('¡Enlace copiado al portapapeles!','success')).catch(()=>alert("Copia manualmente: "+miLink));
-    }
-
-    function mostrarMensaje(msg, type='success') {
-        const d = document.getElementById('formMessage');
-        const isSuccess = type === 'success';
-        d.style.cssText = `padding:12px 18px;border-radius:9px;font-size:13px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;background:${isSuccess?'#f0fdf4':'#fef2f2'};border:1px solid ${isSuccess?'#bbf7d0':'#fecaca'};color:${isSuccess?'#166534':'#991b1b'};`;
-        d.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isSuccess?'M5 13l4 4L19 7':'M6 18L18 6M6 6l12 12'}"/></svg>${msg}`;
-        d.classList.remove('hidden');
-        setTimeout(()=>d.classList.add('hidden'), 3500);
     }
 
     (function initMobileUI() {
