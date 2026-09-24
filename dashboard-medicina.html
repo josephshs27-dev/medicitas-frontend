@@ -1355,6 +1355,84 @@
     let currentCalDate = new Date();
     let calendarInstance = null; // Para FullCalendar
 
+    // 🔥 SOLUCIÓN: Lógica del calendario de feriados integrada
+    function renderHolidayCalendar() {
+        const grid = document.getElementById('calDaysGrid');
+        const label = document.getElementById('calMonthLabel');
+        if(!grid || !label) return;
+
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        
+        const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        label.textContent = `${monthNames[month]} ${year}`;
+
+        grid.innerHTML = '';
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+        grid.style.gap = '4px';
+
+        // Headers de los días
+        ['L','M','M','J','V','S','D'].forEach(day => {
+            const d = document.createElement('div');
+            d.style.cssText = 'font-size:10px; font-weight:800; color:var(--txt2); text-align:center; padding-bottom:4px;';
+            d.textContent = day;
+            grid.appendChild(d);
+        });
+
+        const firstDay = new Date(year, month, 1).getDay(); 
+        const startOffset = firstDay === 0 ? 6 : firstDay - 1; 
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Espacios vacíos al inicio del mes
+        for(let i=0; i<startOffset; i++) {
+            const empty = document.createElement('div');
+            grid.appendChild(empty);
+        }
+
+        // Renderizar los días
+        for(let i=1; i<=daysInMonth; i++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+            const isHoliday = holidays.includes(dateStr);
+            
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = i;
+            btn.style.cssText = `
+                aspect-ratio: 1; border-radius: 6px; border: 1px solid var(--border);
+                font-size: 11px; font-weight: 700; cursor: pointer; display: flex;
+                align-items: center; justify-content: center; background: white; color: var(--txt1);
+                transition: all 0.15s;
+            `;
+            if(isHoliday) {
+                btn.style.background = '#fef2f2';
+                btn.style.color = '#dc2626';
+                btn.style.borderColor = '#fecaca';
+            }
+            
+            btn.onclick = () => {
+                if(holidays.includes(dateStr)) {
+                    holidays = holidays.filter(h => h !== dateStr);
+                    btn.style.background = 'white';
+                    btn.style.color = 'var(--txt1)';
+                    btn.style.borderColor = 'var(--border)';
+                } else {
+                    holidays.push(dateStr);
+                    btn.style.background = '#fef2f2';
+                    btn.style.color = '#dc2626';
+                    btn.style.borderColor = '#fecaca';
+                }
+            };
+            grid.appendChild(btn);
+        }
+    }
+
+    function changeCalMonth(offset) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + offset);
+        renderHolidayCalendar();
+    }
+    // -------------------------------------------------------------
+
     function normalizarTelefono(phone) {
         if (!phone) return '';
         let cleaned = String(phone).replace(/\D/g, '');
