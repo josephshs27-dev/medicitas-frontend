@@ -51,6 +51,11 @@
                 <p class="text-slate-500 max-w-xl mx-auto">Configura tu método de pago de forma 100% segura para habilitar la Inteligencia Artificial, envíos de WhatsApp y tu agendamiento online.</p>
             </div>
 
+            <div id="oneDollarLiveTestNotice" class="hidden mb-8 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm text-amber-950 shadow-sm">
+                <p class="font-black">Prueba real de PayPhone: USD 1,00 en un solo cobro.</p>
+                <p class="mt-1">Se cobrará el dólar indicado. Esta prueba no activa la suscripción, no guarda la tarjeta y no autoriza cobros posteriores.</p>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 
                 <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
@@ -163,6 +168,13 @@
         const urlParams = new URLSearchParams(window.location.search);
         const urlPpId = urlParams.get('id');
         const urlTxId = urlParams.get('clientTransactionId');
+        const isOneDollarLiveTestMode = urlParams.get('payphoneLiveTest') === '1'
+            || sessionStorage.getItem('payphoneLiveTestMode') === '1'
+            || (typeof urlTxId === 'string' && urlTxId.startsWith('test1_'));
+
+        if (urlParams.get('payphoneLiveTest') === '1' || (typeof urlTxId === 'string' && urlTxId.startsWith('test1_'))) {
+            sessionStorage.setItem('payphoneLiveTestMode', '1');
+        }
 
         if (urlPpId && urlTxId) {
             localStorage.setItem('pendingPayphoneId', urlPpId);
@@ -216,6 +228,10 @@
             localStorage.removeItem('pendingPayphoneConsent');
         }
 
+        function clearOneDollarLiveTestMode() {
+            sessionStorage.removeItem('payphoneLiveTestMode');
+        }
+
         function showPaymentRetry(message) {
             const loadingView = document.getElementById('loadingView');
             document.querySelector('.loader-text').textContent = message;
@@ -228,6 +244,7 @@
         }
         let isPayphoneRendered = false;
         let currentPlanPrice = 20; 
+        let currentPaymentAmount = 20;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -248,6 +265,12 @@
                             localStorage.getItem('pendingPayphoneConsent') === 'true'
                         );
                         clearPendingPayphonePayment();
+                        if (result.oneTimeTest) {
+                            clearOneDollarLiveTestMode();
+                            alert('Prueba aprobada: PayPhone confirmó el cobro real de USD 1,00. No se activó la suscripción y no se guardó la tarjeta. Verifica la transacción en PayPhone Business > Ventas.');
+                            window.location.href = 'pagos.html';
+                            return;
+                        }
                         if (!result.recurringEnabled) {
                             alert('El pago fue aprobado. La renovación automática no quedó habilitada; contacta a soporte para revisar el método de pago.');
                         } else {
@@ -286,14 +309,27 @@
                             currentPlanPrice = parseFloat(userData.precioSuscripcion);
                         }
 
-                        document.getElementById('ui-price-main').innerHTML = `$${currentPlanPrice}<span class="text-sm text-slate-400 font-medium">/mes</span>`;
-                        document.getElementById('ui-price-summary').textContent = `$${currentPlanPrice.toFixed(2)}`;
-                        document.getElementById('legalLabel').textContent = `He leído y acepto el Acuerdo Comunitario Vinculante, y autorizo el débito mensual recurrente de $${currentPlanPrice.toFixed(2)}.`;
+                        currentPaymentAmount = isOneDollarLiveTestMode ? 1 : currentPlanPrice;
+
+                        document.getElementById('ui-price-main').innerHTML = isOneDollarLiveTestMode
+                            ? '$1<span class="text-sm text-slate-400 font-medium"> pago único</span>'
+                            : `$${currentPlanPrice}<span class="text-sm text-slate-400 font-medium">/mes</span>`;
+                        document.getElementById('ui-price-summary').textContent = `$${currentPaymentAmount.toFixed(2)}`;
+                        document.getElementById('legalLabel').textContent = isOneDollarLiveTestMode
+                            ? 'Confirmo que autorizo un único cobro real de USD 1,00 para probar PayPhone. No autorizo renovaciones ni cobros futuros.'
+                            : `He leído y acepto el Acuerdo Comunitario Vinculante, y autorizo el débito mensual recurrente de $${currentPlanPrice.toFixed(2)}.`;
+                        if (isOneDollarLiveTestMode) {
+                            document.getElementById('oneDollarLiveTestNotice').classList.remove('hidden');
+                            document.querySelector('#setupBillingView h2').textContent = 'Prueba de cobro PayPhone';
+                        }
 
                         document.getElementById('loadingView').classList.add('hidden');
                         document.getElementById('mainContainer').classList.remove('hidden');
 
-                        if (userData.estadoSuscripcion === 'activo') {
+                        if (isOneDollarLiveTestMode) {
+                            document.getElementById('setupBillingView').classList.remove('hidden');
+                            document.getElementById('activeBillingView').classList.add('hidden');
+                        } else if (userData.estadoSuscripcion === 'activo') {
                             document.getElementById('activeBillingView').classList.remove('hidden');
 
                             if (!userData.suscripcionPayphone) {
@@ -339,20 +375,24 @@
             if (isChecked && !isPayphoneRendered) {
                 container.innerHTML = `<div id="pp-button-box"></div>`;
                 
-                let amountInCents = Math.round(currentPlanPrice * 100);
+                let amountInCents = Math.round(currentPaymentAmount * 100);
 
                 payphone.Button({
                     token: PAYPHONE_TOKEN,
                     btnHorizontal: true,
                     btnCard: true,
                     createOrder: function(actions) {
-                        localStorage.setItem('pendingPayphoneConsent', document.getElementById('legalCheck').checked ? 'true' : 'false');
+                        const clientTransactionId = isOneDollarLiveTestMode
+                            ? `test1_${currentUserUid}_${Date.now()}`
+                            : `sub_${currentUserUid}_${Date.now()}`;
+                        if (isOneDollarLiveTestMode) sessionStorage.setItem('payphoneLiveTestMode', '1');
+                        localStorage.setItem('pendingPayphoneConsent', !isOneDollarLiveTestMode && document.getElementById('legalCheck').checked ? 'true' : 'false');
                         return actions.prepare({
                             amount: amountInCents, 
                             amountWithoutTax: amountInCents,
                             currency: "USD",
-                            clientTransactionId: "sub_" + currentUserUid + "_" + Date.now(),
-                            storeCard: true 
+                            clientTransactionId,
+                            storeCard: !isOneDollarLiveTestMode && document.getElementById('legalCheck').checked
                         });
                     },
                     onComplete: async function(model) {
@@ -373,6 +413,12 @@
                     try {
                         const result = await confirmPayphoneAtBackend(ppId, clientTxId, document.getElementById('legalCheck').checked);
                         clearPendingPayphonePayment();
+                        if (result.oneTimeTest) {
+                            clearOneDollarLiveTestMode();
+                            alert('Prueba aprobada: PayPhone confirmó el cobro real de USD 1,00. No se activó la suscripción y no se guardó la tarjeta. Verifica la transacción en PayPhone Business > Ventas.');
+                            window.location.href = 'pagos.html';
+                            return;
+                        }
                         if (!result.recurringEnabled) {
                             alert('El pago fue aprobado, pero la renovación automática no quedó habilitada. Contacta a soporte para revisar tu cuenta.');
                         } else {
