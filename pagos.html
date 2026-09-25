@@ -297,13 +297,16 @@
 
                 // ── FLUJO 2: CARGA NORMAL DE LA VISTA ──
                 try {
-                    let userDoc = await db.collection('clinics').doc(user.uid).get();
-                    if(!userDoc.exists) {
-                        userDoc = await db.collection('users').doc(user.uid).get();
-                    }
+                    const [clinicDoc, accountDoc] = await Promise.all([
+                        db.collection('clinics').doc(user.uid).get(),
+                        db.collection('users').doc(user.uid).get()
+                    ]);
+                    const clinicData = clinicDoc.exists ? clinicDoc.data() : null;
+                    const accountData = accountDoc.exists ? accountDoc.data() : null;
+                    const userData = { ...(accountData || {}), ...(clinicData || {}) };
+                    const isDoctorAccount = clinicData?.rol === 'doctor' || accountData?.rol === 'doctor';
 
-                    if (userDoc.exists && userDoc.data().rol === 'doctor') {
-                        const userData = userDoc.data();
+                    if (isDoctorAccount) {
                         
                         if(userData.precioSuscripcion) {
                             currentPlanPrice = parseFloat(userData.precioSuscripcion);
@@ -362,6 +365,7 @@
                     }
                 } catch (error) {
                     console.error("Error cargando perfil:", error);
+                    document.querySelector('.loader-text').textContent = 'No pudimos cargar tu perfil de pagos. Verifica que sigues conectado a la misma cuenta y dominio del sistema.';
                 }
             } else {
                 window.location.href = 'index.html';

@@ -1505,9 +1505,11 @@
 
                 if (data.estadoSuscripcion === 'suspendido') {
                     document.getElementById('dashboardView').classList.add('hidden');
+                    document.getElementById('suspendedView').classList.remove('hidden');
                     document.getElementById('suspendedView').style.display = 'flex';
                 } else {
                     document.getElementById('dashboardView').classList.remove('hidden');
+                    document.getElementById('suspendedView').classList.add('hidden');
                     document.getElementById('suspendedView').style.display = 'none';
                     applyClinicBranding();
                     
