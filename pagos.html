@@ -286,10 +286,13 @@
                             return;
                         }
 
-                        const canRetrySamePayment = ![400, 403, 404, 409].includes(error.status);
+                        const testAccountNeedsEnablement = error.code === 'PAYPHONE_TEST_ACCOUNT_NOT_ALLOWED';
+                        const canRetrySamePayment = testAccountNeedsEnablement || ![400, 403, 404, 409].includes(error.status);
                         if (!canRetrySamePayment) clearPendingPayphonePayment();
                         showPaymentRetry(canRetrySamePayment
-                            ? 'No pudimos verificar el pago todavía. Conservamos la referencia para que puedas reintentar. ' + error.message
+                            ? (testAccountNeedsEnablement
+                                ? 'No vuelvas a pagar. Conservamos esta referencia, pero primero el administrador debe habilitar el UID de esta clínica en PAYPHONE_LIVE_TEST_UIDS. Después pulsa “Reintentar confirmación”; PayPhone puede revertir pagos que no se confirman dentro de 5 minutos.'
+                                : 'No pudimos verificar el pago todavía. Conservamos la referencia para que puedas reintentar. ' + error.message)
                             : 'No se pudo validar esta referencia. Contacta a soporte antes de volver a pagar. ' + error.message);
                         return;
                     }
@@ -436,10 +439,13 @@
                             window.location.reload();
                             return;
                         }
-                        const canRetrySamePayment = ![400, 403, 404, 409].includes(error.status);
+                        const testAccountNeedsEnablement = error.code === 'PAYPHONE_TEST_ACCOUNT_NOT_ALLOWED';
+                        const canRetrySamePayment = testAccountNeedsEnablement || ![400, 403, 404, 409].includes(error.status);
                         if (!canRetrySamePayment) clearPendingPayphonePayment();
                         showPaymentRetry(canRetrySamePayment
-                            ? 'No pudimos verificar el pago todavía. Conservamos la referencia para que puedas reintentar. ' + error.message
+                            ? (testAccountNeedsEnablement
+                                ? 'No vuelvas a pagar. Conservamos esta referencia, pero primero el administrador debe habilitar el UID de esta clínica en PAYPHONE_LIVE_TEST_UIDS. Después pulsa “Reintentar confirmación”; PayPhone puede revertir pagos que no se confirman dentro de 5 minutos.'
+                                : 'No pudimos verificar el pago todavía. Conservamos la referencia para que puedas reintentar. ' + error.message)
                             : 'No se pudo validar esta referencia. Contacta a soporte antes de volver a pagar. ' + error.message);
                     }
                 } }).render("#pp-button-box"); 
