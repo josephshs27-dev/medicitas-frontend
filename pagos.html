@@ -55,6 +55,10 @@
                 <p class="font-black">Prueba real de PayPhone: USD 1,00 en un solo cobro.</p>
                 <p class="mt-1">Se cobrará el dólar indicado. Esta prueba no activa la suscripción, no guarda la tarjeta y no autoriza cobros posteriores.</p>
             </div>
+            <div id="tokenizationTestNotice" class="hidden mb-8 rounded-2xl border border-indigo-300 bg-indigo-50 p-5 text-sm text-indigo-950 shadow-sm">
+                <p class="font-black">Prueba de tokenización: un único cobro real de USD 1,00.</p>
+                <p class="mt-1">Al aceptar, autorizas guardar el token de esta tarjeta para una posible suscripción mensual de <span id="tokenizationFuturePrice">$0.00</span>. Esta prueba no activa el plan ni hará cobros posteriores. Solo se tokenizan tarjetas Visa o Mastercard.</p>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 
@@ -168,17 +172,25 @@
         const urlParams = new URLSearchParams(window.location.search);
         const urlPpId = urlParams.get('id');
         const urlTxId = urlParams.get('clientTransactionId');
+        const urlCardToken = urlParams.get('ctoken') || urlParams.get('cardToken') || '';
         const isOneDollarLiveTestMode = urlParams.get('payphoneLiveTest') === '1'
             || sessionStorage.getItem('payphoneLiveTestMode') === '1'
             || (typeof urlTxId === 'string' && urlTxId.startsWith('test1_'));
+        const isTokenizationTestMode = urlParams.get('payphoneTokenizationTest') === '1'
+            || sessionStorage.getItem('payphoneTokenizationTestMode') === '1'
+            || (typeof urlTxId === 'string' && urlTxId.startsWith('tok1_'));
 
         if (urlParams.get('payphoneLiveTest') === '1' || (typeof urlTxId === 'string' && urlTxId.startsWith('test1_'))) {
             sessionStorage.setItem('payphoneLiveTestMode', '1');
+        }
+        if (urlParams.get('payphoneTokenizationTest') === '1' || (typeof urlTxId === 'string' && urlTxId.startsWith('tok1_'))) {
+            sessionStorage.setItem('payphoneTokenizationTestMode', '1');
         }
 
         if (urlPpId && urlTxId) {
             localStorage.setItem('pendingPayphoneId', urlPpId);
             localStorage.setItem('pendingPayphoneTxId', urlTxId);
+            if (urlCardToken) localStorage.setItem('pendingPayphoneCardToken', urlCardToken);
             // Limpiar la URL para evitar que el usuario recargue y repita el proceso
             window.history.replaceState({}, document.title, window.location.pathname);
         }
@@ -202,7 +214,7 @@
 
         const API_BASE_URL = 'https://api.asistencitas.com';
 
-        async function confirmPayphoneAtBackend(ppId, clientTxId, recurringConsent) {
+        async function confirmPayphoneAtBackend(ppId, clientTxId, recurringConsent, cardToken) {
             const user = auth.currentUser;
             if (!user) throw new Error('Inicia sesión para confirmar el pago.');
 
@@ -210,7 +222,7 @@
             const response = await fetch(`${API_BASE_URL}/api/payphone/confirm`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
-                body: JSON.stringify({ ppId, clientTxId, recurringConsent: recurringConsent === true })
+                body: JSON.stringify({ ppId, clientTxId, recurringConsent: recurringConsent === true, cardToken: cardToken || '' })
             });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) {
@@ -226,10 +238,25 @@
             localStorage.removeItem('pendingPayphoneId');
             localStorage.removeItem('pendingPayphoneTxId');
             localStorage.removeItem('pendingPayphoneConsent');
+            localStorage.removeItem('pendingPayphoneCardToken');
         }
 
         function clearOneDollarLiveTestMode() {
             sessionStorage.removeItem('payphoneLiveTestMode');
+        }
+
+        function clearTokenizationTestMode() {
+            sessionStorage.removeItem('payphoneTokenizationTestMode');
+        }
+
+        async function isTokenizationBackendReady(user) {
+            const idToken = await user.getIdToken();
+            const response = await fetch(`${API_BASE_URL}/api/payphone/tokenization-readiness`, {
+                headers: { Authorization: `Bearer ${idToken}` }
+            });
+            if (!response.ok) return false;
+            const result = await response.json().catch(() => ({}));
+            return result.ready === true;
         }
 
         function showPaymentRetry(message) {
@@ -262,9 +289,18 @@
                         const result = await confirmPayphoneAtBackend(
                             savedPpId,
                             savedTxId,
-                            localStorage.getItem('pendingPayphoneConsent') === 'true'
+                            localStorage.getItem('pendingPayphoneConsent') === 'true',
+                            localStorage.getItem('pendingPayphoneCardToken') || ''
                         );
                         clearPendingPayphonePayment();
+                        if (result.tokenizationTest) {
+                            clearTokenizationTestMode();
+                            alert(result.tokenizationSaved
+                                ? 'PayPhone aprobó el cobro único de USD 1,00 y el servidor guardó el token de forma protegida. La suscripción y los cobros automáticos siguen desactivados.'
+                                : 'PayPhone aprobó el cobro único de USD 1,00, pero no se pudo guardar un token válido. No repitas el pago; contacta a soporte para revisar la respuesta de PayPhone.');
+                            window.location.href = 'pagos.html';
+                            return;
+                        }
                         if (result.oneTimeTest) {
                             clearOneDollarLiveTestMode();
                             alert('Prueba aprobada: PayPhone confirmó el cobro real de USD 1,00. No se activó la suscripción y no se guardó la tarjeta. Verifica la transacción en PayPhone Business > Ventas.');
@@ -315,15 +351,28 @@
                             currentPlanPrice = parseFloat(userData.precioSuscripcion);
                         }
 
-                        currentPaymentAmount = isOneDollarLiveTestMode ? 1 : currentPlanPrice;
+                        const isOneDollarTestMode = isOneDollarLiveTestMode || isTokenizationTestMode;
+                        currentPaymentAmount = isOneDollarTestMode ? 1 : currentPlanPrice;
 
-                        document.getElementById('ui-price-main').innerHTML = isOneDollarLiveTestMode
+                        document.getElementById('ui-price-main').innerHTML = isOneDollarTestMode
                             ? '$1<span class="text-sm text-slate-400 font-medium"> pago único</span>'
                             : `$${currentPlanPrice}<span class="text-sm text-slate-400 font-medium">/mes</span>`;
                         document.getElementById('ui-price-summary').textContent = `$${currentPaymentAmount.toFixed(2)}`;
-                        document.getElementById('legalLabel').textContent = isOneDollarLiveTestMode
-                            ? 'Confirmo que autorizo un único cobro real de USD 1,00 para probar PayPhone. No autorizo renovaciones ni cobros futuros.'
+                        document.getElementById('legalLabel').textContent = isTokenizationTestMode
+                            ? `Autorizo guardar el token de mi tarjeta para futuras cuotas mensuales de $${currentPlanPrice.toFixed(2)} si activo el plan. Esta prueba cobra solo USD 1,00, no activa el plan y no autoriza otros cobros ahora.`
+                            : isOneDollarLiveTestMode
+                            ? 'Confirmo que autorizo un único cobro real de USD 1,00 para probar PayPhone. No autorizo guardar la tarjeta ni renovaciones.'
                             : `He leído y acepto el Acuerdo Comunitario Vinculante, y autorizo el débito mensual recurrente de $${currentPlanPrice.toFixed(2)}.`;
+                        if (isTokenizationTestMode) {
+                            document.getElementById('tokenizationTestNotice').classList.remove('hidden');
+                            document.getElementById('tokenizationFuturePrice').textContent = `$${currentPlanPrice.toFixed(2)}/mes`;
+                            document.querySelector('#setupBillingView h2').textContent = 'Prueba de tokenización PayPhone';
+                            if (!(await isTokenizationBackendReady(user))) {
+                                document.getElementById('loadingView').classList.remove('hidden');
+                                document.querySelector('.loader-text').textContent = 'Falta configurar de forma segura la tokenización en el servidor. No realices el pago todavía.';
+                                return;
+                            }
+                        }
                         if (isOneDollarLiveTestMode) {
                             document.getElementById('oneDollarLiveTestNotice').classList.remove('hidden');
                             document.querySelector('#setupBillingView h2').textContent = 'Prueba de cobro PayPhone';
@@ -332,7 +381,7 @@
                         document.getElementById('loadingView').classList.add('hidden');
                         document.getElementById('mainContainer').classList.remove('hidden');
 
-                        if (isOneDollarLiveTestMode) {
+                        if (isOneDollarTestMode) {
                             document.getElementById('setupBillingView').classList.remove('hidden');
                             document.getElementById('activeBillingView').classList.add('hidden');
                         } else if (userData.estadoSuscripcion === 'activo') {
@@ -389,10 +438,13 @@
                     btnHorizontal: true,
                     btnCard: true,
                     createOrder: function(actions) {
-                        const clientTransactionId = isOneDollarLiveTestMode
-                            ? `test1_${currentUserUid}_${Date.now()}`
-                            : `sub_${currentUserUid}_${Date.now()}`;
+                        const clientTransactionId = isTokenizationTestMode
+                            ? `tok1_${currentUserUid}_${Date.now()}`
+                            : isOneDollarLiveTestMode
+                                ? `test1_${currentUserUid}_${Date.now()}`
+                                : `sub_${currentUserUid}_${Date.now()}`;
                         if (isOneDollarLiveTestMode) sessionStorage.setItem('payphoneLiveTestMode', '1');
+                        if (isTokenizationTestMode) sessionStorage.setItem('payphoneTokenizationTestMode', '1');
                         localStorage.setItem('pendingPayphoneConsent', !isOneDollarLiveTestMode && document.getElementById('legalCheck').checked ? 'true' : 'false');
                         return actions.prepare({
                             amount: amountInCents, 
@@ -412,14 +464,24 @@
 
                     localStorage.setItem('pendingPayphoneId', String(ppId));
                     localStorage.setItem('pendingPayphoneTxId', String(clientTxId));
+                    const returnedCardToken = (model && (model.ctoken || model.cardToken)) || urlCardToken || localStorage.getItem('pendingPayphoneCardToken') || '';
+                    if (returnedCardToken) localStorage.setItem('pendingPayphoneCardToken', returnedCardToken);
                     localStorage.setItem('pendingPayphoneConsent', document.getElementById('legalCheck').checked ? 'true' : 'false');
                     document.getElementById('mainContainer').classList.add('hidden');
                     document.getElementById('loadingView').classList.remove('hidden');
                     document.querySelector('.loader-text').textContent = 'Verificando el pago con PayPhone...';
 
                     try {
-                        const result = await confirmPayphoneAtBackend(ppId, clientTxId, document.getElementById('legalCheck').checked);
+                        const result = await confirmPayphoneAtBackend(ppId, clientTxId, document.getElementById('legalCheck').checked, returnedCardToken);
                         clearPendingPayphonePayment();
+                        if (result.tokenizationTest) {
+                            clearTokenizationTestMode();
+                            alert(result.tokenizationSaved
+                                ? 'PayPhone aprobó el cobro único de USD 1,00 y el servidor guardó el token de forma protegida. La suscripción y los cobros automáticos siguen desactivados.'
+                                : 'PayPhone aprobó el cobro único de USD 1,00, pero no se pudo guardar un token válido. No repitas el pago; contacta a soporte para revisar la respuesta de PayPhone.');
+                            window.location.href = 'pagos.html';
+                            return;
+                        }
                         if (result.oneTimeTest) {
                             clearOneDollarLiveTestMode();
                             alert('Prueba aprobada: PayPhone confirmó el cobro real de USD 1,00. No se activó la suscripción y no se guardó la tarjeta. Verifica la transacción en PayPhone Business > Ventas.');
