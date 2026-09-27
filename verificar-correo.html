@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Confirmación de correo | Asistencitas</title>
+  <link rel="stylesheet" href="ui-polish.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; color: #172235; background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,.14), transparent 48%), #f4f7fb; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .verify-card { width: min(100%, 480px); padding: 36px 32px; border: 1px solid #e3eaf3; border-radius: 24px; background: #fff; box-shadow: 0 22px 70px rgba(15,23,42,.12); text-align: center; }
+    .brand-mark { display: grid; width: 66px; height: 66px; margin: 0 auto 20px; place-items: center; border-radius: 21px; background: #eff6ff; font-size: 31px; }
+    .eyebrow { margin: 0 0 8px; color: #2563eb; font-size: 11px; font-weight: 800; letter-spacing: .15em; }
+    h1 { margin: 0; font-size: clamp(24px, 6vw, 30px); letter-spacing: -.04em; }
+    #message { margin: 13px 0 23px; color: #607087; font-size: 15px; line-height: 1.65; }
+    .verify-link { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; padding: 0 22px; border-radius: 12px; background: #2563eb; color: white; font-size: 14px; font-weight: 750; text-decoration: none; box-shadow: 0 8px 18px rgba(37,99,235,.18); }
+    .verify-link:hover { background: #1d4ed8; }
+    .reset-form { display: grid; gap: 11px; margin: 0 0 20px; text-align: left; }
+    .reset-form label { color: #475569; font-size: 13px; font-weight: 700; }
+    .reset-form input { width: 100%; min-height: 46px; padding: 11px 13px; border: 1px solid #d8e1ed; border-radius: 11px; font: inherit; }
+    .reset-form input:focus { border-color: #60a5fa; outline: 3px solid rgba(59,130,246,.14); }
+    .reset-form button { min-height: 47px; border: 0; border-radius: 12px; background: #2563eb; color: #fff; font: inherit; font-weight: 750; cursor: pointer; }
+    .reset-form button:disabled { cursor: wait; opacity: .65; }
+    .help { margin: 22px 0 0; color: #8793a4; font-size: 12px; line-height: 1.6; }
+    a:focus-visible { outline: 3px solid rgba(59,130,246,.4); outline-offset: 3px; }
+    @media(max-width:480px) { .verify-card { padding: 30px 22px; border-radius: 20px; } }
+  </style>
+</head>
+<body>
+  <main class="verify-card" aria-live="polite">
+    <div id="brandMark" class="brand-mark" aria-hidden="true">✉️</div>
+    <p class="eyebrow">ASISTENCITAS</p>
+    <h1 id="title">Confirmando tu correo</h1>
+    <p id="message">Estamos verificando el enlace. Esto puede tomar unos segundos.</p>
+    <form id="resetPasswordForm" class="reset-form" hidden>
+      <div><label for="newPassword">Nueva contraseña</label><input id="newPassword" type="password" autocomplete="new-password" minlength="6" required></div>
+      <div><label for="confirmPassword">Confirma la nueva contraseña</label><input id="confirmPassword" type="password" autocomplete="new-password" minlength="6" required></div>
+      <button id="savePasswordButton" type="submit">Guardar contraseña</button>
+    </form>
+    <a id="continueLink" class="verify-link" href="index.html">Ir al inicio de sesión</a>
+    <p class="help">Si no solicitaste esta cuenta, puedes ignorar este mensaje.</p>
+  </main>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc",
+      authDomain: "medicitas-app.firebaseapp.com",
+      projectId: "medicitas-app",
+      storageBucket: "medicitas-app.firebasestorage.app",
+      messagingSenderId: "310910036460",
+      appId: "1:310910036460:web:1a979471880251173838c9"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    auth.languageCode = 'es';
+
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode');
+    const actionCode = params.get('oobCode');
+    const safeLoginUrl = new URL('index.html?emailVerified=1', window.location.href).toString();
+    document.getElementById('continueLink').href = safeLoginUrl;
+
+    // Remove the one-time action code from the visible browser address after reading it.
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    const title = document.getElementById('title');
+    const message = document.getElementById('message');
+    const mark = document.getElementById('brandMark');
+    const resetForm = document.getElementById('resetPasswordForm');
+    const continueLink = document.getElementById('continueLink');
+
+    if (!actionCode) {
+      title.textContent = 'Enlace no válido';
+      message.textContent = 'Este enlace está incompleto. Vuelve al acceso y solicita uno nuevo.';
+      mark.textContent = '⚠️';
+    } else if (mode === 'verifyEmail' || mode === 'recoverEmail' || mode === 'verifyAndChangeEmail') {
+      auth.applyActionCode(actionCode).then(() => {
+        title.textContent = mode === 'verifyEmail' ? 'Correo confirmado' : 'Cambio confirmado';
+        message.textContent = mode === 'verifyEmail'
+          ? '¡Listo! Tu correo quedó verificado. Ya puedes volver a Asistencitas e ingresar a tu clínica.'
+          : 'La solicitud de cambio de correo quedó confirmada. Ya puedes volver a Asistencitas.';
+        mark.textContent = '✅';
+      }).catch((error) => {
+        title.textContent = 'No se pudo confirmar';
+        if (error.code === 'auth/expired-action-code') {
+          message.textContent = 'El enlace venció. Regresa al acceso y solicita que te enviemos uno nuevo.';
+        } else if (error.code === 'auth/invalid-action-code') {
+          message.textContent = 'El enlace ya se usó o dejó de ser válido. Intenta iniciar sesión o solicita uno nuevo.';
+        } else {
+          message.textContent = 'No pudimos verificar el enlace. Comprueba tu conexión y vuelve a intentarlo.';
+        }
+        mark.textContent = '⚠️';
+      });
+    } else if (mode === 'resetPassword') {
+      auth.verifyPasswordResetCode(actionCode).then(() => {
+        title.textContent = 'Crea una nueva contraseña';
+        message.textContent = 'Elige una contraseña nueva para proteger el acceso a tu clínica.';
+        mark.textContent = '🔐';
+        resetForm.hidden = false;
+        continueLink.hidden = true;
+      }).catch(() => {
+        title.textContent = 'Enlace vencido o usado';
+        message.textContent = 'No podemos usar este enlace para cambiar la contraseña. Regresa al acceso y solicita uno nuevo.';
+        mark.textContent = '⚠️';
+      });
+    } else {
+      title.textContent = 'Acción no disponible';
+      message.textContent = 'Este enlace corresponde a una acción que no está disponible en esta página. Vuelve al acceso e intenta iniciar sesión.';
+      mark.textContent = '⚠️';
+    }
+
+    resetForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const password = document.getElementById('newPassword').value;
+      const confirmation = document.getElementById('confirmPassword').value;
+      const button = document.getElementById('savePasswordButton');
+      if (password !== confirmation) {
+        message.textContent = 'Las contraseñas no coinciden. Revísalas e inténtalo de nuevo.';
+        return;
+      }
+      button.disabled = true;
+      button.textContent = 'Guardando…';
+      try {
+        await auth.confirmPasswordReset(actionCode, password);
+        title.textContent = 'Contraseña actualizada';
+        message.textContent = 'Tu contraseña se cambió correctamente. Ya puedes ingresar con la nueva contraseña.';
+        mark.textContent = '✅';
+        resetForm.hidden = true;
+        continueLink.hidden = false;
+      } catch (error) {
+        message.textContent = error.code === 'auth/weak-password'
+          ? 'La contraseña es demasiado débil. Usa una más segura e inténtalo de nuevo.'
+          : 'No pudimos guardar la contraseña. Puede que el enlace haya vencido o ya se haya usado.';
+        button.disabled = false;
+        button.textContent = 'Guardar contraseña';
+      }
+    });
+  </script>
+</body>
+</html>

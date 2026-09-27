@@ -39,6 +39,30 @@
         <div id="authSuccess" class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl hidden text-sm font-bold text-center"></div>
         <div id="authError" class="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl hidden text-sm font-bold text-center"></div>
 
+        <section id="verificationPanel" class="verification-panel hidden" aria-labelledby="verificationTitle" aria-live="polite">
+            <div class="verification-icon" aria-hidden="true">✉️</div>
+            <p class="verification-eyebrow">UN PASO MÁS</p>
+            <h2 id="verificationTitle">Confirma tu correo</h2>
+            <p class="verification-copy">Enviamos un enlace seguro a <strong id="verificationEmail"></strong>. Confírmalo para poder ingresar a tu clínica.</p>
+            <div id="verificationNotice" class="verification-notice" role="status"></div>
+            <div class="verification-tips">
+                <span aria-hidden="true">✓</span>
+                Revisa también las carpetas de spam y promociones.
+            </div>
+
+            <form id="resendVerificationForm" class="verification-resend-form hidden">
+                <label for="resendVerificationPassword">Para reenviar el enlace, confirma tu contraseña</label>
+                <input id="resendVerificationPassword" type="password" autocomplete="current-password" required placeholder="Contraseña de tu cuenta">
+                <button type="submit" id="resendVerificationSubmit" class="verification-primary-button">Reenviar enlace</button>
+            </form>
+
+            <div class="verification-actions">
+                <button type="button" id="openResendVerification" class="verification-primary-button">No recibí el correo</button>
+                <button type="button" id="backToLoginFromVerification" class="verification-secondary-button">Volver al acceso</button>
+            </div>
+            <button type="button" id="cancelResendVerification" class="verification-cancel hidden">Cancelar reenvío</button>
+        </section>
+
         <form id="loginForm" class="space-y-4">
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-1">Email Profesional</label>
@@ -51,7 +75,7 @@
             <button type="submit" id="btnSubmitLogin" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-all shadow-lg active:scale-95 text-lg mt-2">Ingresar al Sistema</button>
         </form>
 
-        <a href="demo.html" class="mt-4 w-full flex items-center justify-center gap-2 border border-blue-100 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-3 rounded-xl transition-colors text-sm">✨ Explorar demo de las 5 especialidades</a>
+        <a id="demoLink" href="demo.html" class="mt-4 w-full flex items-center justify-center gap-2 border border-blue-100 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-3 rounded-xl transition-colors text-sm">✨ Explorar demo de las 5 especialidades</a>
 
         <div class="mt-6 pt-6 border-t border-slate-100" id="boxToggleSignup">
             <button id="toggleSignupBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors">Crear Nueva Cuenta Clínica</button>
@@ -127,6 +151,61 @@
 
         // 🔥 BANDERA PARA PREVENIR LA CARRERA DE VELOCIDAD (RACE CONDITION) 🔥
         let isSigningUp = false;
+        const VERIFICATION_COOLDOWN_MS = 60 * 1000;
+
+        function verificationStorageKey(email) {
+            return `asistencitas-verification-sent:${String(email || '').trim().toLowerCase()}`;
+        }
+
+        function verificationWaitMs(email) {
+            try {
+                const sentAt = Number(localStorage.getItem(verificationStorageKey(email)) || 0);
+                return Math.max(0, VERIFICATION_COOLDOWN_MS - (Date.now() - sentAt));
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function markVerificationSent(email) {
+            try { localStorage.setItem(verificationStorageKey(email), String(Date.now())); } catch (e) {}
+        }
+
+        function verificationActionSettings() {
+            const continueUrl = new URL('index.html', window.location.origin);
+            continueUrl.searchParams.set('emailVerified', '1');
+            return { url: continueUrl.toString(), handleCodeInApp: false };
+        }
+
+        async function sendVerificationEmail(user) {
+            auth.languageCode = 'es';
+            await user.sendEmailVerification(verificationActionSettings());
+            markVerificationSent(user.email);
+        }
+
+        function showVerificationPanel(email, message) {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('boxToggleSignup').classList.add('hidden');
+            document.getElementById('demoLink').classList.add('hidden');
+            document.getElementById('authSuccess').classList.add('hidden');
+            document.getElementById('authError').classList.add('hidden');
+            document.getElementById('verificationEmail').textContent = email || 'tu correo';
+            document.getElementById('verificationNotice').textContent = message || 'Cuando confirmes el enlace, vuelve a iniciar sesión.';
+            document.getElementById('resendVerificationForm').classList.add('hidden');
+            document.getElementById('openResendVerification').classList.remove('hidden');
+            document.getElementById('backToLoginFromVerification').classList.remove('hidden');
+            document.getElementById('cancelResendVerification').classList.add('hidden');
+            document.getElementById('verificationPanel').classList.remove('hidden');
+        }
+
+        function returnToLogin(email) {
+            document.getElementById('verificationPanel').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('boxToggleSignup').classList.remove('hidden');
+            document.getElementById('demoLink').classList.remove('hidden');
+            document.getElementById('loginEmail').value = email || document.getElementById('verificationEmail').textContent;
+            document.getElementById('loginPassword').focus();
+        }
 
         function normalizarTelefono(phone) {
             if (!phone) return '';
@@ -164,9 +243,27 @@
                 
                 try {
                     if (!user.emailVerified && user.email !== 'admin@asistencitas.com' && user.email !== 'josephshs27@gmail.com') {
-                        await auth.signOut();
+                        const email = user.email;
+                        let message = 'Tu cuenta todavía no está verificada. Usa el enlace de tu correo para continuar.';
+                        try {
+                            const waitMs = verificationWaitMs(email);
+                            if (!waitMs) {
+                                await sendVerificationEmail(user);
+                                message = 'Te reenviamos el enlace de confirmación. Abre el correo y vuelve aquí para ingresar.';
+                            } else {
+                                message = `Ya enviamos un enlace hace poco. Revisa tu correo; podrás pedir otro en ${Math.ceil(waitMs / 1000)} segundos.`;
+                            }
+                        } catch (verificationError) {
+                            message = verificationError.code === 'auth/too-many-requests'
+                                ? 'Firebase pidió esperar antes de enviar otro correo. Revisa tu bandeja y spam.'
+                                : 'No pudimos enviar el enlace ahora. Revisa la conexión e inténtalo de nuevo en un momento.';
+                        }
                         document.getElementById('loadingOverlay').classList.add('hidden');
-                        mostrarError("⚠️ Seguridad: Debes verificar tu correo electrónico para ingresar. Revisa tu bandeja de entrada o SPAM e intenta de nuevo.");
+                        const loginButton = document.getElementById('btnSubmitLogin');
+                        loginButton.innerHTML = 'Ingresar al Sistema';
+                        loginButton.disabled = false;
+                        await auth.signOut();
+                        showVerificationPanel(email, message);
                         return;
                     }
 
@@ -202,12 +299,18 @@
                         setTimeout(() => { window.location.href = urlDestino; }, 800);
 
                     } else {
-                        auth.signOut();
+                        await auth.signOut();
                         document.getElementById('loadingOverlay').classList.add('hidden');
+                        const loginButton = document.getElementById('btnSubmitLogin');
+                        loginButton.innerHTML = 'Ingresar al Sistema';
+                        loginButton.disabled = false;
                         mostrarError("Error: Bóveda de la clínica no encontrada en los servidores.");
                     }
                 } catch (e) {
                     document.getElementById('loadingOverlay').classList.add('hidden');
+                    const loginButton = document.getElementById('btnSubmitLogin');
+                    loginButton.innerHTML = 'Ingresar al Sistema';
+                    loginButton.disabled = false;
                     mostrarError("Fallo de conexión con el servidor SaaS.");
                 }
             }
@@ -228,18 +331,77 @@
                 
                 const cred = await auth.signInWithEmailAndPassword(email, pass);
                 
-                if (!cred.user.emailVerified && cred.user.email !== 'admin@asistencitas.com' && cred.user.email !== 'josephshs27@gmail.com') {
-                    await cred.user.sendEmailVerification();
-                    await auth.signOut();
-                    btn.innerHTML = 'Ingresar al Sistema';
-                    btn.disabled = false;
-                    mostrarError("⚠️ Tu cuenta no está verificada. Te hemos reenviado el enlace a tu correo. Revísalo e intenta de nuevo.");
-                    return;
-                }
             } catch (error) { 
                 btn.innerHTML = 'Ingresar al Sistema';
                 btn.disabled = false;
                 mostrarError("Correo o contraseña incorrectos."); 
+            }
+        });
+
+        document.getElementById('openResendVerification').onclick = () => {
+            const email = document.getElementById('verificationEmail').textContent;
+            document.getElementById('resendVerificationForm').classList.remove('hidden');
+            document.getElementById('openResendVerification').classList.add('hidden');
+            document.getElementById('backToLoginFromVerification').classList.add('hidden');
+            document.getElementById('cancelResendVerification').classList.remove('hidden');
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('resendVerificationPassword').focus();
+        };
+
+        document.getElementById('cancelResendVerification').onclick = () => {
+            document.getElementById('resendVerificationForm').classList.add('hidden');
+            document.getElementById('openResendVerification').classList.remove('hidden');
+            document.getElementById('backToLoginFromVerification').classList.remove('hidden');
+            document.getElementById('cancelResendVerification').classList.add('hidden');
+            document.getElementById('resendVerificationPassword').value = '';
+        };
+
+        document.getElementById('backToLoginFromVerification').onclick = () => {
+            returnToLogin(document.getElementById('verificationEmail').textContent);
+        };
+
+        document.getElementById('resendVerificationForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('verificationEmail').textContent.trim();
+            const password = document.getElementById('resendVerificationPassword').value;
+            const button = document.getElementById('resendVerificationSubmit');
+            const notice = document.getElementById('verificationNotice');
+            const waitMs = verificationWaitMs(email);
+            if (waitMs > 0) {
+                notice.textContent = `Espera ${Math.ceil(waitMs / 1000)} segundos antes de volver a pedir el correo.`;
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = 'Enviando…';
+            try {
+                const credential = await auth.signInWithEmailAndPassword(email, password);
+                await credential.user.reload();
+                if (credential.user.emailVerified) {
+                    window.location.replace('index.html?emailVerified=1');
+                    return;
+                }
+                await sendVerificationEmail(credential.user);
+                document.getElementById('resendVerificationPassword').value = '';
+                await auth.signOut();
+                document.getElementById('resendVerificationForm').classList.add('hidden');
+                document.getElementById('openResendVerification').classList.remove('hidden');
+                document.getElementById('backToLoginFromVerification').classList.remove('hidden');
+                document.getElementById('cancelResendVerification').classList.add('hidden');
+                notice.textContent = 'Listo: enviamos otro enlace. Revisa la bandeja de entrada, spam y promociones.';
+            } catch (error) {
+                const messages = {
+                    'auth/invalid-email': 'El correo no tiene un formato válido.',
+                    'auth/user-not-found': 'No encontramos una cuenta con ese correo.',
+                    'auth/wrong-password': 'La contraseña no coincide. Inténtalo nuevamente.',
+                    'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+                    'auth/too-many-requests': 'Hubo demasiados intentos. Espera un momento antes de intentarlo otra vez.',
+                    'auth/network-request-failed': 'No hay conexión. Revisa internet e inténtalo otra vez.'
+                };
+                notice.textContent = messages[error.code] || 'No pudimos reenviar el enlace. Verifica los datos e inténtalo otra vez.';
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Reenviar enlace';
             }
         });
 
@@ -290,10 +452,12 @@
             isSigningUp = true;
             btn.innerHTML = '⏳ Creando Bóveda Segura...';
             btn.disabled = true;
+            let createdUser = null;
+            let clinicCreated = false;
 
             try {
                 const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                await cred.user.sendEmailVerification();
+                createdUser = cred.user;
 
                 let colorBase = '#2563eb'; 
                 if(especialidad === 'odontologia') colorBase = '#0891b2';
@@ -325,6 +489,14 @@
                         direccion: direccion
                     }
                 });
+                clinicCreated = true;
+
+                let verificationMessage = 'Tu clínica ya quedó registrada. Confirma el correo para poder iniciar sesión.';
+                try {
+                    await sendVerificationEmail(cred.user);
+                } catch (verificationError) {
+                    verificationMessage = 'Tu clínica quedó registrada, pero no pudimos enviar el correo ahora. Usa “No recibí el correo” para solicitar otro enlace.';
+                }
                 
                 // YA ESTÁ SEGURO EN LA BASE DE DATOS. PODEMOS CERRAR SESIÓN TRANQUILOS.
                 isSigningUp = false; 
@@ -334,13 +506,28 @@
                 document.getElementById('loginForm').classList.remove('hidden');
                 document.getElementById('boxToggleSignup').classList.remove('hidden');
                 
-                mostrarExito("✅ ¡Clínica Registrada Exitosamente! Por tu seguridad, te hemos enviado un enlace de verificación a tu correo. Ábrelo para poder iniciar sesión y activar tu plan.");
+                showVerificationPanel(email, verificationMessage);
                 btn.innerHTML = 'Registrar Clínica';
                 btn.disabled = false; 
 
             } catch (e) { 
                 isSigningUp = false; // Apagamos la bandera en caso de error
-                mostrarError("Error en el registro: " + (e.message.includes('email-already-in-use') ? "El correo ya está registrado." : e.message)); 
+                if (createdUser && !clinicCreated) {
+                    let accountCleanedUp = false;
+                    try {
+                        await createdUser.delete();
+                        accountCleanedUp = true;
+                    } catch (cleanupError) {
+                        try { await auth.signOut(); } catch (signOutError) {}
+                        mostrarError('No se pudo terminar el registro. El acceso quedó creado sin la ficha clínica; contacta soporte para evitar duplicar esta cuenta.');
+                    }
+                    if (accountCleanedUp) mostrarError('No pudimos guardar la ficha clínica y cancelamos la cuenta incompleta. Revisa los datos e inténtalo otra vez.');
+                } else if (createdUser && clinicCreated) {
+                    try { await auth.signOut(); } catch (signOutError) {}
+                    showVerificationPanel(email, 'Tu clínica quedó registrada. Inicia sesión para continuar con la confirmación del correo.');
+                } else {
+                    mostrarError("Error en el registro: " + (e.code === 'auth/email-already-in-use' ? "El correo ya está registrado." : "Revisa los datos e inténtalo de nuevo."));
+                }
                 btn.innerHTML = 'Registrar Clínica';
                 btn.disabled = false; 
             }
