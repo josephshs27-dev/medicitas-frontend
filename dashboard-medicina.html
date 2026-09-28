@@ -1479,9 +1479,7 @@
                     const diferenciaDias = (ahora - fechaPago) / (1000 * 60 * 60 * 24);
 
                     if (diferenciaDias > 31) {
-                        try { await db.collection('clinics').doc(user.uid).update({ estadoSuscripcion: 'suspendido' }); } catch(e){}
-                        try { await db.collection('users').doc(user.uid).update({ estadoSuscripcion: 'suspendido' }); } catch(e){}
-                        window.location.reload(); 
+                        window.location.replace('pagos.html');
                         return;
                     }
                     
@@ -1490,6 +1488,21 @@
                     fechaVence.setDate(fechaVence.getDate() + 30);
                     document.getElementById('uiNextBillingDate').textContent = fechaVence.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
                     document.getElementById('subscriptionBadge').classList.remove('hidden');
+                }
+
+                if (data.estadoSuscripcion === 'prueba') {
+                    const trialEnd = data.trialEndsAt?.toDate ? data.trialEndsAt.toDate() : new Date(data.trialEndsAt);
+                    if (!Number.isFinite(trialEnd.getTime()) || trialEnd <= new Date()) {
+                        window.location.replace('pagos.html');
+                        return;
+                    }
+                    const daysLeft = Math.max(1, Math.ceil((trialEnd - new Date()) / 86400000));
+                    const badge = document.getElementById('subscriptionBadge');
+                    badge.classList.add('subscription-badge--trial');
+                    badge.querySelector('p').textContent = `Prueba gratuita · ${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}`;
+                    document.getElementById('uiNextBillingDate').textContent = `Termina ${trialEnd.toLocaleDateString('es-EC', { day: '2-digit', month: 'short' })}`;
+                    badge.classList.remove('hidden');
+                    setTimeout(() => window.location.replace('pagos.html'), Math.max(0, trialEnd.getTime() - Date.now() + 250));
                 }
 
                 const esp = (data.clinicInfo && data.clinicInfo.especialidad) ? data.clinicInfo.especialidad : 'medicina';

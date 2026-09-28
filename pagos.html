@@ -112,6 +112,24 @@
             </div>
         </div>
 
+        <div id="trialActiveView" class="hidden animate-fadeIn max-w-3xl mx-auto">
+            <div class="rounded-3xl border border-blue-100 bg-white p-8 shadow-xl md:p-12">
+                <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-3xl" aria-hidden="true">✨</div>
+                <p class="mb-2 text-center text-xs font-black uppercase tracking-[0.18em] text-blue-700">Acceso temporal habilitado</p>
+                <h2 class="mb-3 text-center text-3xl font-black text-slate-900">Tu prueba gratuita está activa</h2>
+                <p class="mx-auto max-w-xl text-center text-slate-600">Puedes usar los módulos durante cinco días. La prueba de USD 1 que hiciste para tokenización no activa un cobro mensual. Al terminar este período, tendrás que revisar y autorizar el plan desde esta página.</p>
+                <div class="mx-auto mt-7 max-w-md rounded-2xl bg-blue-50 px-5 py-4 text-center">
+                    <p class="text-xs font-bold uppercase tracking-wide text-blue-700">Tu acceso termina</p>
+                    <p id="trialEndDate" class="mt-1 text-2xl font-black text-slate-900">--</p>
+                    <p id="trialDaysRemaining" class="mt-1 text-sm font-semibold text-blue-800"></p>
+                </div>
+                <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                    <a href="index.html" class="rounded-xl bg-blue-600 px-6 py-3 text-center font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700">Volver al sistema</a>
+                    <button type="button" onclick="cancelSubscription()" class="rounded-xl border border-slate-200 px-6 py-3 font-bold text-slate-600 transition hover:bg-slate-50">Cancelar prueba</button>
+                </div>
+            </div>
+        </div>
+
         <div id="activeBillingView" class="hidden animate-fadeIn space-y-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
@@ -384,8 +402,24 @@
                         if (isOneDollarTestMode) {
                             document.getElementById('setupBillingView').classList.remove('hidden');
                             document.getElementById('activeBillingView').classList.add('hidden');
+                            document.getElementById('trialActiveView').classList.add('hidden');
+                        } else if (userData.estadoSuscripcion === 'prueba') {
+                            const trialEnd = userData.trialEndsAt?.toDate ? userData.trialEndsAt.toDate() : new Date(userData.trialEndsAt);
+                            if (Number.isFinite(trialEnd.getTime()) && trialEnd > new Date()) {
+                                const daysLeft = Math.max(1, Math.ceil((trialEnd - new Date()) / 86400000));
+                                document.getElementById('trialEndDate').textContent = trialEnd.toLocaleDateString('es-EC', { day: '2-digit', month: 'long', year: 'numeric' });
+                                document.getElementById('trialDaysRemaining').textContent = `Quedan ${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}.`;
+                                document.getElementById('setupBillingView').classList.add('hidden');
+                                document.getElementById('activeBillingView').classList.add('hidden');
+                                document.getElementById('trialActiveView').classList.remove('hidden');
+                            } else {
+                                document.getElementById('trialActiveView').classList.add('hidden');
+                                document.getElementById('setupBillingView').classList.remove('hidden');
+                                document.getElementById('activeBillingView').classList.add('hidden');
+                            }
                         } else if (userData.estadoSuscripcion === 'activo') {
                             document.getElementById('activeBillingView').classList.remove('hidden');
+                            document.getElementById('trialActiveView').classList.add('hidden');
 
                             if (!userData.suscripcionPayphone) {
                                 document.getElementById('renewalDisabledNotice').classList.remove('hidden');
@@ -410,6 +444,7 @@
 
                         } else {
                             document.getElementById('setupBillingView').classList.remove('hidden');
+                            document.getElementById('trialActiveView').classList.add('hidden');
                         }
 
                     } else {
@@ -525,16 +560,22 @@
         }
 
         async function cancelSubscription() {
-            if(confirm("⚠️ ¿Estás totalmente seguro de cancelar tu suscripción?\nPerderás el acceso a la Inteligencia Artificial y la integración con WhatsApp de inmediato.")) {
-                try {
-                    try { await db.collection('clinics').doc(currentUserUid).update({ estadoSuscripcion: 'suspendido', suscripcionPayphone: false }); } catch(e){}
-                    try { await db.collection('users').doc(currentUserUid).update({ estadoSuscripcion: 'suspendido', suscripcionPayphone: false }); } catch(e){}
-                    
-                    alert("Suscripción suspendida.");
-                    window.location.reload();
-                } catch(e) {
-                    alert("Error procesando la solicitud.");
-                }
+            if (!confirm("¿Deseas cancelar el acceso? Se suspenderá el plan o la prueba y se desactivará cualquier renovación configurada.")) return;
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Tu sesión expiró. Vuelve a iniciar sesión.');
+                const idToken = await user.getIdToken(true);
+                const response = await fetch(`${API_BASE_URL}/api/subscription/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+                    body: '{}'
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(result.error || 'No se pudo procesar la cancelación.');
+                alert('Acceso cancelado y renovación desactivada.');
+                window.location.reload();
+            } catch(error) {
+                alert(error.message || 'Error procesando la solicitud.');
             }
         }
     </script>

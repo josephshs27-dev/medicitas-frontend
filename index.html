@@ -148,6 +148,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const API_BASE_URL = 'https://api.asistencitas.com';
 
         // 🔥 BANDERA PARA PREVENIR LA CARRERA DE VELOCIDAD (RACE CONDITION) 🔥
         let isSigningUp = false;
@@ -278,6 +279,21 @@
                         if (data.rol === 'vendedor') { 
                             window.location.href = 'vendedor.html'; 
                             return; 
+                        }
+
+                        // El backend inicia la única prueba gratuita usando su reloj y Firestore,
+                        // solo después de verificar el correo. El navegador nunca escribe el trial.
+                        const idToken = await user.getIdToken(true);
+                        const trialResponse = await fetch(`${API_BASE_URL}/api/subscription/trial/start`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${idToken}`, 'Content-Type': 'application/json' },
+                            body: '{}'
+                        });
+                        const trialResult = await trialResponse.json().catch(() => ({}));
+                        if (!trialResponse.ok) throw new Error(trialResult.error || 'No pudimos validar el acceso de la clínica.');
+                        if (trialResult.status === 'expired') {
+                            window.location.href = 'pagos.html';
+                            return;
                         }
 
                         let especialidad = 'medicina'; 
