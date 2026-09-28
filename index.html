@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistencitas Pro - Portal de Acceso</title>
+    <title>Asistencitas Pro - Acceso y prueba gratuita</title>
+    <meta name="app-version" content="trial-5days-20260928-v1">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; frame-src *; img-src * data: blob:; font-src * data:;">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -290,6 +291,7 @@
                             body: '{}'
                         });
                         const trialResult = await trialResponse.json().catch(() => ({}));
+                        console.info('[TRIAL] Respuesta de inicio:', trialResponse.status, trialResult.status || trialResult.code || 'sin estado');
                         if (!trialResponse.ok) throw new Error(trialResult.error || 'No pudimos validar el acceso de la clínica.');
                         if (trialResult.status === 'expired') {
                             window.location.href = 'pagos.html';
@@ -323,6 +325,7 @@
                         mostrarError("Error: Bóveda de la clínica no encontrada en los servidores.");
                     }
                 } catch (e) {
+                    console.error('[ACCESO/TRIAL] No se pudo validar el acceso:', e);
                     document.getElementById('loadingOverlay').classList.add('hidden');
                     const loginButton = document.getElementById('btnSubmitLogin');
                     loginButton.innerHTML = 'Ingresar al Sistema';
