@@ -492,6 +492,7 @@
                                     <div style="display:flex;flex-direction:column;gap:12px;">
                                         <div>
                                             <label class="flabel">Paciente (Mascota) *</label>
+                                            <input id="appointmentPatientSearch" type="search" class="finput" placeholder="Buscar nombre, cédula o WhatsApp" oninput="renderAppointmentPatientOptions()" style="margin-bottom:8px;" aria-label="Buscar paciente para agendar">
                                             <select id="patientSelect" required class="finput">
                                                 <option value="">Seleccionar paciente...</option>
                                             </select>
@@ -531,16 +532,18 @@
                         </div>
 
                         <div class="panel" style="display:flex;flex-direction:column;overflow:hidden;">
-                            <div class="panel-head" style="flex-shrink:0;">
+                            <div class="panel-head" style="flex-shrink:0;flex-wrap:wrap;gap:8px;">
                                 <div>
                                     <div class="panel-title">Agenda Veterinaria</div>
                                     <div style="font-size:11.5px;color:var(--txt2);margin-top:2px;">Citas programadas en lista</div>
                                 </div>
                                 <select id="filterAppointmentStatus" onchange="renderAppointments()" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;background:white;font-size:12.5px;font-weight:700;color:var(--txt1);outline:none;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">
+                                    <option value="todas">Todas las citas</option>
                                     <option value="activas" selected>Citas activas</option>
                                     <option value="hoy">Hoy</option>
                                     <option value="completada">Completadas</option>
                                 </select>
+                                <input id="appointmentListSearch" type="search" class="finput" placeholder="Buscar paciente" oninput="renderAppointments()" style="max-width:170px;min-width:140px;flex:1;" aria-label="Buscar paciente en citas">
                             </div>
                             <div id="appointmentsList" class="cs" style="flex:1;overflow-y:auto;padding:16px;">
                                 <div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div>
@@ -957,7 +960,7 @@
         </div>
         <div class="modal-ft">
             <button onclick="document.getElementById('payInstallmentModal').classList.add('hidden')" class="btn btn-secondary btn-md" style="flex:1;">Cancelar</button>
-            <button onclick="submitInstallmentPayment()" class="btn btn-primary btn-md" style="flex:1;">Registrar Pago</button>
+            <button id="btnSubmitInstallment" onclick="submitInstallmentPayment()" class="btn btn-primary btn-md" style="flex:1;">Registrar Pago</button>
         </div>
     </div>
 </div>
@@ -1539,16 +1542,51 @@
         if(clinicDataGlobal.logo) document.getElementById('navLogoImg').src = clinicDataGlobal.logo;
     }
 
-    function checkCalendarSyncUI() {
-        if(clinicDataGlobal && clinicDataGlobal.gCalendarToken) {
-            const btn = document.getElementById('btnSyncCalendar');
-            if(btn) {
-                btn.textContent = '✓ Calendario Sincronizado';
-                btn.style.background = '#f0fdf4';
-                btn.style.color = '#16a34a';
-                btn.style.borderColor = '#bbf7d0';
-                btn.onclick = null;
+    async function clinicApi(path, body) {
+        const response = await authenticatedApiFetch(`${API_BASE_URL}${path}`, body === undefined ? {} : {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clinicId: parentDoctorId, ...body })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'No se pudo guardar la operación.');
+        return data;
+    }
+
+    async function syncAppointmentToCalendar(appointmentId) {
+        if (!clinicDataGlobal?.calendarConnected) return;
+        try { await clinicApi('/api/calendar/create-event', { appointmentId }); }
+        catch (error) { mostrarMensaje('Cita guardada. Google Calendar no pudo sincronizarla: ' + error.message, 'error'); }
+    }
+
+    let calendarReconciled = false;
+    async function checkCalendarSyncUI() {
+        try {
+            const status = await clinicApi('/api/calendar/status');
+            clinicDataGlobal.calendarConnected = status.connected === true;
+            ['btnSyncCalendar', 'btnSyncCalendarPrescription'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                if (status.connected) {
+                    btn.textContent = '✓ Calendario vinculado';
+                    btn.style.background = '#f0fdf4'; btn.style.color = '#16a34a'; btn.style.borderColor = '#bbf7d0';
+                } else {
+                    btn.textContent = 'Vincular cuenta';
+                    btn.style.background = 'white'; btn.style.color = '#1d4ed8'; btn.style.borderColor = '#bfdbfe';
+                }
+            });
+            if (!status.connected) calendarReconciled = false;
+            if (status.connected && !calendarReconciled) {
+                calendarReconciled = true;
+                clinicApi('/api/calendar/sync-upcoming', {}).then(result => {
+                    if (result.synced || result.failed) mostrarMensaje('Calendar: ' + result.synced + ' citas sincronizadas, ' + result.failed + ' pendientes.', result.failed ? 'error' : 'success');
+                }).catch(error => {
+                    calendarReconciled = false;
+                    mostrarMensaje('No se pudieron sincronizar las citas pendientes: ' + error.message, 'error');
+                });
             }
+            return status.connected;
+        } catch (error) {
+            console.error('No se pudo consultar Google Calendar:', error);
+            return false;
         }
     }
 
@@ -1668,32 +1706,51 @@
     }
 
     async function syncGoogleCalendar() {
+        if (clinicDataGlobal?.calendarConnected) {
+            try {
+                const result = await clinicApi('/api/calendar/sync-upcoming', {});
+                mostrarMensaje('Calendar: ' + result.synced + ' citas sincronizadas, ' + result.failed + ' pendientes.', result.failed ? 'error' : 'success');
+            } catch (error) { mostrarMensaje('No se pudo sincronizar Calendar: ' + error.message, 'error'); }
+            return;
+        }
+        const popup = window.open('about:blank', 'GoogleAuth', 'width=600,height=700');
+        if (!popup) return alert('Permite ventanas emergentes para vincular Google Calendar.');
         try {
-            const res = await authenticatedApiFetch(`${API_BASE_URL}/api/calendar/authUrl?clinicId=${parentDoctorId}`);
-            const data = await res.json();
-            if(!res.ok) throw new Error(data.error || "Fallo en el servidor");
-            window.open(data.url, 'GoogleAuth', 'width=600,height=700');
-            mostrarMensaje('Autoriza en la ventana emergente. Guardaremos la sesión automáticamente.', 'success');
-            const checkInterval = setInterval(async () => {
-                let doc = await db.collection('clinics').doc(parentDoctorId).get();
-                if(!doc.exists) doc = await db.collection('users').doc(parentDoctorId).get();
+            const data = await clinicApi('/api/calendar/authUrl?clinicId=' + encodeURIComponent(parentDoctorId));
+            if (!data.url) throw new Error('Google no entregó la URL de autorización.');
+            popup.location.href = data.url;
+            mostrarMensaje('Autoriza la cuenta de Google en la ventana emergente.', 'success');
+            for (let attempt = 0; attempt < 40; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                if (await checkCalendarSyncUI()) {
+                    mostrarMensaje('Google Calendar vinculado con éxito.', 'success');
 
-                const gToken = doc.data().clinicInfo?.gCalendarToken;
-                if(gToken && gToken !== clinicDataGlobal.gCalendarToken) {
-                    clearInterval(checkInterval);
-                    clinicDataGlobal.gCalendarToken = gToken;
-                    checkCalendarSyncUI();
-                    mostrarMensaje("¡Google Calendar vinculado con éxito!", "success");
+                    return;
                 }
-            }, 3000);
-        } catch(e) { alert("Error conectando con API de Google Calendar: " + e.message); }
+                if (popup.closed) break;
+            }
+            mostrarMensaje('No se confirmó la vinculación. Vuelve a intentarlo.', 'error');
+        } catch (error) {
+            popup.close();
+            alert('Error conectando Google Calendar: ' + error.message);
+        }
     }
 
     // ── PATIENTS (Multi-Tenant) ──
+    function renderAppointmentPatientOptions() {
+        const select = document.getElementById('patientSelect');
+        const selected = select.value;
+        const term = (document.getElementById('appointmentPatientSearch')?.value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        const matches = patients.filter(p => [p.nombre, p.cedula, p.telefonoWhatsApp].some(v => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(term)));
+        select.replaceChildren(new Option('Seleccionar paciente...', ''));
+        matches.forEach(p => select.add(new Option(p.nombre + (p.cedula ? ' · ' + p.cedula : ''), p.id)));
+        if (matches.some(p => p.id === selected)) select.value = selected;
+    }
+
     async function loadPatients() {
         const snap = await db.collection('clinics').doc(parentDoctorId).collection('patients').get();
         patients = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => a.nombre.localeCompare(b.nombre));
-        document.getElementById('patientSelect').innerHTML = '<option value="">Seleccionar paciente...</option>' + patients.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+        renderAppointmentPatientOptions();
         renderPatientsDirectory(patients);
         if(document.getElementById('kpiPacientes')) document.getElementById('kpiPacientes').textContent = patients.length;
     }
@@ -1792,8 +1849,8 @@
 
     // ── PLANES Y CUOTAS (Multi-Tenant) ──
     async function loadPlanesPago() {
-        const snap = await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').where('estado', '==', 'activo').get();
-        planesPago = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const result = await clinicApi('/api/finance/plans?clinicId=' + encodeURIComponent(parentDoctorId));
+        planesPago = result.plans;
         renderPlanesPago();
     }
 
@@ -1844,46 +1901,36 @@
     }
 
     // 🔥 PAGO DESDE FINANZAS (CON RECIBO PDF Y MENSAJE DE DEUDA WA, MULTI-TENANT) 🔥
+    let pendingInstallmentId = null;
     async function submitInstallmentPayment() {
         const planId = document.getElementById('installPlanId').value;
-        const amount = parseFloat(document.getElementById('installAmount').value);
-        if(!amount || amount <= 0) return alert("Ingresa un monto válido.");
+        const amountCents = Math.round(Number(document.getElementById('installAmount').value) * 100);
+        if (!Number.isSafeInteger(amountCents) || amountCents <= 0) return alert('Ingresa un monto válido.');
         const plan = planesPago.find(x => x.id === planId);
-        if(amount > plan.saldoPendiente) return alert("El monto no puede ser mayor al saldo.");
-        
-        const nuevoSaldo = plan.saldoPendiente - amount;
-        const nuevasCuotas = plan.cuotasPagadas + 1;
-        const estado = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
-        
+        if (!plan) return alert('No se encontró el plan. Recarga finanzas.');
+        if (amountCents > Math.round(Number(plan.saldoPendiente) * 100)) return alert('El abono supera el saldo pendiente.');
+        const button = document.getElementById('btnSubmitInstallment');
+        if (button) button.disabled = true;
+        pendingInstallmentId ||= crypto.randomUUID();
         try {
-            await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').doc(planId).update({ saldoPendiente: nuevoSaldo, cuotasPagadas: nuevasCuotas, estado });
-            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
-                patientId: plan.patientId,
-                fecha: getLocalDateString(),
-                hora: new Date().toLocaleTimeString('es-EC', { hour:'2-digit', minute:'2-digit', hour12:false }),
-                motivo: `Abono Cuota ${nuevasCuotas}/${plan.totalCuotas}`,
-                monto: amount, estado: 'completada', fechaCreacion: new Date()
-            });
-
-            const p = patients.find(x => x.id === plan.patientId);
-            const pName = p?.nombre || 'Paciente';
-            
-            // Generar Comprobante PDF
-            imprimirComprobantePago(pName, amount, `Abono de tratamiento (Cuota ${nuevasCuotas}/${plan.totalCuotas})`);
-
-            if(p?.telefonoWhatsApp) {
-                const msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p.nombre}\n💵 Se ha realizado el pago de $${amount.toFixed(2)} de su deuda total de $${plan.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
-                await sendWhatsappAfterSave(`${API_BASE_URL}/send-message`, {
-                    method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
-                });
-            }
-
+            const receipt = await clinicApi('/api/finance/installment', { planId, amountCents, requestId: pendingInstallmentId });
+            pendingInstallmentId = null;
+            const patient = patients.find(p => p.id === plan.patientId);
             document.getElementById('payInstallmentModal').classList.add('hidden');
-            mostrarMensaje(`Abono de $${amount.toFixed(2)} registrado exitosamente.`, 'success');
-            await loadPlanesPago();
-            await loadAppointments();
-        } catch(e) { alert("Error registrando pago."); }
+            mostrarMensaje(receipt.alreadyRecorded ? 'El abono ya estaba registrado.' : 'Abono de $' + receipt.total.toFixed(2) + ' registrado.', 'success');
+            try { await Promise.all([loadPlanesPago(), loadAppointments()]); }
+            catch (error) { mostrarMensaje('Abono guardado. Recarga el panel para actualizar las cifras.', 'error'); }
+            if (!receipt.alreadyRecorded) {
+                try { imprimirComprobantePago(patient?.nombre || 'Paciente', receipt.total, 'Abono de tratamiento'); }
+                catch (error) { console.error('No se pudo abrir el comprobante:', error); }
+                if (patient?.telefonoWhatsApp) {
+                    const message = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${patient.nombre}\n💵 Abono: $${receipt.total.toFixed(2)}\n📉 Saldo pendiente: $${receipt.balanceAfter.toFixed(2)}`;
+                    try { await sendWhatsappAfterSave(`${API_BASE_URL}/send-message`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clinicId: parentDoctorId, phoneNumber: patient.telefonoWhatsApp, message }) }); }
+                    catch (error) { mostrarMensaje('Abono guardado. No se pudo enviar WhatsApp: ' + error.message, 'error'); }
+                }
+            }
+        } catch (error) { alert('No se registró el abono: ' + error.message); }
+        finally { if (button) button.disabled = false; }
     }
 
     function updateDashboardStats() {
@@ -1906,12 +1953,14 @@
     }
 
     async function deleteAppointment(id) {
-        if(!confirm("⚠️ ¿Estás seguro de eliminar este turno?")) return;
+        if (!confirm('¿Eliminar esta cita de la agenda y Google Calendar?')) return;
         try {
-            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(id).delete();
+            const response = await authenticatedApiFetch(`${API_BASE_URL}/api/appointments/${encodeURIComponent(id)}?clinicId=${encodeURIComponent(parentDoctorId)}`, { method: 'DELETE' });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'No se pudo eliminar la cita.');
             mostrarMensaje('Cita eliminada correctamente.', 'success');
             await loadAppointments();
-        } catch(e) { alert("Error al eliminar."); }
+        } catch (error) { alert(error.message || 'Error al eliminar la cita.'); }
     }
 
     function renderAppointments() {
@@ -1924,6 +1973,11 @@
         else if(sFilter === 'hoy') filtered = appointments.filter(a => a.fecha === todayStr);
         else if(sFilter === 'completada') filtered = appointments.filter(a => a.estado === 'completada');
 
+        const searchTerm = (document.getElementById('appointmentListSearch')?.value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        if (searchTerm) filtered = filtered.filter(a => {
+            const p = patients.find(item => item.id === a.patientId);
+            return [p?.nombre, p?.cedula, p?.telefonoWhatsApp, a.motivo].some(v => String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().includes(searchTerm));
+        });
         if(filtered.length === 0) {
             container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;text-align:center;">
                 <div style="width:52px;height:52px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
@@ -2053,19 +2107,19 @@
     document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
-            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
+            await clinicApi('/api/appointments/create', {
                 patientId: document.getElementById('patientSelect').value,
                 fecha: document.getElementById('appointmentDate').value,
                 hora: document.getElementById('appointmentTime').value,
                 motivo: document.getElementById('appointmentReason').value,
                 notas: document.getElementById('appointmentNotes').value,
-                estado: document.getElementById('appointmentStatus').value,
-                fechaCreacion: new Date()
+                estado: document.getElementById('appointmentStatus').value
             });
             e.target.reset();
+            renderAppointmentPatientOptions();
             mostrarMensaje('Cita agendada correctamente.', 'success');
             await loadAppointments();
-        } catch(err) { mostrarMensaje('Error al agendar.', 'error'); }
+        } catch(err) { mostrarMensaje(err.message || 'Error al agendar.', 'error'); }
     });
 
     document.getElementById('searchPatientInput').addEventListener('input', function() {
@@ -2249,7 +2303,10 @@
                     datosExtras.push(`${label}: ${el.value}`);
                 }
             });
-            const contextoClinico = datosExtras.length > 0 ? "Datos del paciente: " + datosExtras.join(', ') : "";
+            const contextApt = appointments.find(a => a.id === document.getElementById('rxAppointmentId').value);
+            const contextPatient = patients.find(p => p.id === contextApt?.patientId);
+            const currentFields = Object.fromEntries([...document.querySelectorAll('[id^="msp"]')].filter(el => 'value' in el && el.value).map(el => [el.id, el.value]));
+            const contextoClinico = JSON.stringify({ datosEvaluados: datosExtras, paciente: contextPatient ? { nombre: contextPatient.nombre, edad: contextPatient.edad, cedula: contextPatient.cedula } : null, cita: contextApt ? { motivo: contextApt.motivo, triaje: contextApt.triaje } : null, camposActuales: currentFields }).slice(0, 10000);
 
             const res = await authenticatedApiFetch(`${API_BASE_URL}/api/ia-copilot`, {
                 method: 'POST', headers: {'Content-Type':'application/json'},
@@ -2338,32 +2395,25 @@
             recList.push(`⚠️ Plan Financiero: Diferido en ${cuotas} cuota(s). Monto Total: $${montoTotalPlan.toFixed(2)}`);
 
             if(cuotas > 1 && montoTotalPlan > 0 && p) {
-                await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').add({
-                    patientId: p.id,
-                    fechaInicio: getLocalDateString(),
-                    totalCuotas: cuotas, cuotasPagadas: 0,
-                    montoTotal: montoTotalPlan, saldoPendiente: montoTotalPlan,
-                    estado: 'activo'
-                });
+                try { await clinicApi('/api/finance/plans', { appointmentId: aptId, patientId: p.id, totalCuotas: cuotas, totalCents: Math.round(montoTotalPlan * 100) }); }
+                catch (error) {
+                    alert('No se pudo guardar el plan de pagos: ' + error.message);
+                    btn.disabled = false;
+                    btn.textContent = 'Guardar y Cobrar';
+                    return;
+                }
             }
         }
 
         let nextDate = document.getElementById('rxNextDate').value;
         let nextTime = document.getElementById('rxNextTime').value;
         if(nextDate && nextTime && p) {
-            recList.push(`📅 Recordatorio: Próximo control o refuerzo de vacuna programado para: ${nextDate} a las ${nextTime}`);
 
-            await db.collection('clinics').doc(parentDoctorId).collection('appointments').add({
-                patientId: p.id,
-                fecha: nextDate, hora: nextTime, estado: 'confirmada', monto: 0,
-                motivo: 'Control / Refuerzo de Vacuna (Auto-Agendado)', fechaCreacion: new Date()
-            });
-
-            if(clinicDataGlobal.gCalendarToken) {
-                authenticatedApiFetch(`${API_BASE_URL}/api/calendar/create-event`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, pacienteNombre: p.nombre, fecha: nextDate, hora: nextTime, motivo: 'Control / Vacuna', tokenGCalendar: clinicDataGlobal.gCalendarToken })
-                });
+            try {
+                await clinicApi('/api/appointments/create', { patientId: p.id, fecha: nextDate, hora: nextTime, motivo: 'Control / Refuerzo de Vacuna (Auto-Agendado)', estado: 'confirmada' });
+                recList.push(`📅 Recordatorio: Próximo control o refuerzo de vacuna programado para: ${nextDate} a las ${nextTime}`);
+            } catch (error) {
+                alert('La atención se guardará, pero no se pudo reservar el próximo turno: ' + error.message);
             }
         }
 
@@ -2380,7 +2430,8 @@
                 recomendaciones: recList, triaje: vitalsObj, updatedAt: new Date() 
             });
 
-            if(p?.telefonoWhatsApp) {
+            if (p?.telefonoWhatsApp) {
+                    try {
                 await sendWhatsappAfterSave(`${API_BASE_URL}/send-prescription`, {
                     method:'POST', headers: {'Content-Type': 'application/json'},
                     body:JSON.stringify({
@@ -2388,6 +2439,9 @@
                         diagnostico: diagFinal, vitals: vitalsObj, prescription: meds, recomendaciones: recList, clinicInfo: clinicDataGlobal
                     })
                 });
+                    } catch (error) {
+                        alert('Atención guardada, pero no se pudo enviar el documento por WhatsApp: ' + error.message + '. Puedes continuar con el cobro.');
+                    }
             }
 
             closePrescriptionModal();
@@ -2590,51 +2644,29 @@
 
     async function submitBilling() {
         const aptId = document.getElementById('billingAptId').value;
-        const sub = parseFloat(document.getElementById('billingSubtotal').value)||0;
-        const iva = document.getElementById('billingIva').checked ? sub*0.15 : 0;
-        const total = sub+iva;
+        const subtotalCents = Math.round(Number(document.getElementById('billingSubtotal').value) * 100);
+        if (!Number.isSafeInteger(subtotalCents) || subtotalCents <= 0) return alert('Ingresa un subtotal válido.');
         const btn = document.getElementById('btnFinalizarCobro');
-        btn.disabled=true; btn.textContent='Enviando Comprobante...';
-        
+        btn.disabled = true; btn.textContent = 'Registrando cobro...';
         try {
-            await db.collection('clinics').doc(parentDoctorId).collection('appointments').doc(aptId).update({ estado:'completada', monto: total, fechaCobro: new Date() });
-            
-            const apt = appointments.find(a=>a.id===aptId);
-            const p = patients.find(x=>x.id===apt?.patientId);
-            
-            // BUSCAR SI EL PACIENTE TIENE DEUDA (PLAN ACTIVO - ej. CIRUGÍAS/VACUNAS)
-            const planActivo = p ? planesPago.find(x => x.patientId === p.id && x.estado === 'activo') : null;
-            let msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p?.nombre || 'Mascota'}\n💵 Total Abonado: $${total.toFixed(2)}\n\nGracias por su confianza.`;
-            
-            if (planActivo) {
-                const nuevoSaldo = Math.max(0, planActivo.saldoPendiente - total);
-                const estadoPlan = nuevoSaldo <= 0.01 ? 'completado' : 'activo';
-                const nuevasCuotas = planActivo.cuotasPagadas + 1;
-                
-                await db.collection('clinics').doc(parentDoctorId).collection('planes_pago').doc(planActivo.id).update({
-                    saldoPendiente: nuevoSaldo,
-                    cuotasPagadas: nuevasCuotas,
-                    estado: estadoPlan
-                });
-                
-                msjWhatsapp = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica Veterinaria'}\n\n🐾 Paciente: ${p?.nombre || 'Mascota'}\n💵 Se ha realizado el pago de $${total.toFixed(2)} de su deuda total de $${planActivo.montoTotal.toFixed(2)}.\n📉 Saldo pendiente: $${nuevoSaldo.toFixed(2)}\n\nGracias por su confianza.`;
-            }
-
-            imprimirComprobantePago(p?.nombre || 'Mascota', total, apt?.motivo);
-
-            if(p?.telefonoWhatsApp) {
-                await sendWhatsappAfterSave(`${API_BASE_URL}/send-message`, {
-                    method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({ clinicId: parentDoctorId, doctorId: parentDoctorId, phoneNumber: p.telefonoWhatsApp, message: msjWhatsapp })
-                });
-            }
-            
+            const receipt = await clinicApi('/api/finance/collect', { appointmentId: aptId, subtotalCents, applyVat: document.getElementById('billingIva').checked });
+            const apt = appointments.find(a => a.id === aptId);
+            const patient = patients.find(p => p.id === apt?.patientId);
             closeBillingModal();
-            mostrarMensaje(`Cobro de $${total.toFixed(2)} registrado. `, 'success');
-            await loadAppointments();
-            if (planActivo) await loadPlanesPago(); 
-        } catch(e) { alert('Error registrando cobro.'); }
-        finally { btn.disabled=false; btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Finalizar y Enviar`; }
+            mostrarMensaje(receipt.alreadyRecorded ? 'El cobro ya estaba registrado.' : 'Cobro de $' + receipt.total.toFixed(2) + ' registrado.', 'success');
+            try { await Promise.all([loadAppointments(), loadPlanesPago()]); }
+            catch (error) { mostrarMensaje('Cobro guardado. Recarga el panel para actualizar las cifras.', 'error'); }
+            if (!receipt.alreadyRecorded) {
+                try { imprimirComprobantePago(patient?.nombre || 'Paciente', receipt.total, apt?.motivo || 'Consulta'); }
+                catch (error) { console.error('No se pudo abrir el comprobante:', error); }
+                if (patient?.telefonoWhatsApp) {
+                    const message = `🧾 *COMPROBANTE DE PAGO*\n🏥 ${clinicDataGlobal?.nombre || 'Clínica'}\n\n👤 Paciente: ${patient.nombre}\n💵 Total: $${receipt.total.toFixed(2)}${receipt.balanceAfter !== null ? '\n📉 Saldo pendiente: $' + receipt.balanceAfter.toFixed(2) : ''}\n\nGracias por su confianza.`;
+                    try { await sendWhatsappAfterSave(`${API_BASE_URL}/send-message`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clinicId: parentDoctorId, phoneNumber: patient.telefonoWhatsApp, message }) }); }
+                    catch (error) { mostrarMensaje('Cobro guardado. No se pudo enviar WhatsApp: ' + error.message, 'error'); }
+                }
+            }
+        } catch (error) { alert('No se registró el cobro: ' + error.message); }
+        finally { btn.disabled = false; btn.textContent = 'Finalizar y Enviar'; }
     }
 
     // ── CONFIGURACIÓN (CON HORARIOS NUEVOS) ──

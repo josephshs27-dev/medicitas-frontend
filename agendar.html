@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendar una cita</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <style>
         body { -webkit-tap-highlight-color: transparent; background-color: #f8fafc; }
         .spinner { border: 3px solid #e2e8f0; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
@@ -92,18 +90,14 @@
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpZDqGMKLOiqUOXSs84BQcXHEBYyqTDfc",
-            authDomain: "medicitas-app.firebaseapp.com",
-            projectId: "medicitas-app",
-            storageBucket: "medicitas-app.firebasestorage.app",
-            messagingSenderId: "310910036460",
-            appId: "1:310910036460:web:1a979471880251173838c9",
-            measurementId: "G-P3WWTZ3SH0"
-        };
+        const API_BASE_URL = 'https://api.asistencitas.com';
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        async function bookingApi(path, options) {
+            const response = await fetch(`${API_BASE_URL}/api/public/clinics/${encodeURIComponent(doctorId)}${path}`, options);
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'No se pudo completar la solicitud.');
+            return data;
+        }
 
         let doctorId = null;
         let clinicConfig = null;
@@ -166,12 +160,7 @@
             }
 
             try {
-                let docSnap = await db.collection('clinics').doc(doctorId).get();
-                if (!docSnap.exists) docSnap = await db.collection('users').doc(doctorId).get();
-                if (!docSnap.exists) throw new Error("Doctor no encontrado");
-                
-                const doctorData = docSnap.data();
-                clinicConfig = doctorData.clinicInfo || {};
+                clinicConfig = (await bookingApi('')).clinic;
                 
                 if(!clinicConfig.horarioInicio) clinicConfig.horarioInicio = "08:00";
                 if(!clinicConfig.horarioFin) clinicConfig.horarioFin = "17:00";
@@ -180,7 +169,7 @@
 
                 adaptarUI(clinicConfig.especialidad || 'medicina');
 
-                const displayName = clinicConfig.nombre || doctorData.nombre || 'Profesional de salud';
+                const displayName = clinicConfig.nombre || 'Profesional de salud';
                 document.title = `Agendar cita · ${displayName}`;
                 document.getElementById('docName').textContent = displayName;
                 document.getElementById('docAddress').textContent = clinicConfig.direccion || "Consultorio";
@@ -238,15 +227,10 @@
             errorLabel.classList.add('hidden');
             
             try {
-                const aptsSnap = await db.collection('appointments').where('doctorId', '==', doctorId).where('fecha', '==', date).get();
+                const availability = await bookingApi(`/availability?date=${encodeURIComponent(date)}`);
                 if (requestId !== availabilityRequestId || document.getElementById('selectedDate').value !== date) return;
                 
-                bookedTimesForDate = [];
-                aptsSnap.forEach(doc => {
-                    if(doc.data().estado !== 'cancelada') {
-                        bookedTimesForDate.push(doc.data().hora);
-                    }
-                });
+                bookedTimesForDate = availability.bookedTimes;
 
                 generarCuadriculaHorarios();
                 timeStep.classList.remove('opacity-50', 'pointer-events-none');
@@ -345,59 +329,10 @@
             const owner = ownerEl ? ownerEl.value : '';
 
             try {
-                const latestAppointments = await db.collection('appointments').where('doctorId', '==', doctorId).where('fecha', '==', date).get();
-                const timeWasTaken = latestAppointments.docs.some(doc => doc.data().estado !== 'cancelada' && doc.data().hora === time);
-                if (timeWasTaken) {
-                    clearSelectedTime();
-                    document.getElementById('selectedDate').disabled = false;
-                    btn.textContent = 'Confirmar solicitud';
-                    btn.disabled = false;
-                    alert('Ese horario acaba de ocuparse. Selecciona otro horario disponible.');
-                    document.getElementById('selectedDate').dispatchEvent(new Event('change'));
-                    return;
-                }
-
-                const patQuery = await db.collection('patients')
-                    .where('doctorId', '==', doctorId)
-                    .where('cedula', '==', cedula)
-                    .get();
-
-                let patientIdToUse = null;
-                const writeBatch = db.batch();
-
-                // 1. Crear paciente si es nuevo
-                if(patQuery.empty) {
-                    const newPatData = {
-                        doctorId: doctorId,
-                        nombre: name,
-                        cedula: cedula,
-                        telefonoWhatsApp: phone,
-                        fechaRegistro: new Date(),
-                        activo: true
-                    };
-                    if(owner) newPatData.dueno = owner; 
-
-                    const newPatRef = db.collection('patients').doc();
-                    patientIdToUse = newPatRef.id;
-                    writeBatch.set(newPatRef, newPatData);
-                } else {
-                    patientIdToUse = patQuery.docs[0].id;
-                }
-
-                // Guardar paciente nuevo y cita en una sola operación atómica.
-                const appointmentRef = db.collection('appointments').doc();
-                writeBatch.set(appointmentRef, {
-                    doctorId: doctorId,
-                    patientId: patientIdToUse,
-                    fecha: date,
-                    hora: time,
-                    motivo: "ONLINE: " + reason,
-                    monto: 0,
-                    estado: 'pendiente',
-                    notas: 'Agendado por el paciente vía Web',
-                    fechaCreacion: new Date()
+                await bookingApi('/book', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fecha: date, hora: time, nombre: name, cedula, telefonoWhatsApp: phone, motivo: reason, dueno: owner })
                 });
-                await writeBatch.commit();
 
                 document.getElementById('bookingApp').style.display = 'none';
                 
@@ -412,7 +347,7 @@
                     
                     <div class="bg-indigo-50 p-5 rounded-2xl border border-indigo-100 mb-8 w-full max-w-sm shadow-sm">
                         <p class="text-sm font-black text-indigo-900 mb-2 text-center uppercase tracking-widest">¡Todo listo!</p>
-                        <p class="text-sm text-indigo-700 text-center font-medium leading-relaxed">Nuestro asistente virtual te enviará un mensaje por WhatsApp muy pronto para confirmar los detalles.</p>
+                        <p class="text-sm text-indigo-700 text-center font-medium leading-relaxed">Tu cita aparecerá en la agenda de la clínica. Guarda la fecha y hora de tu turno.</p>
                     </div>
                     <button onclick="window.location.reload()" class="text-slate-400 hover:text-indigo-600 font-bold text-sm transition-colors border border-slate-200 px-4 py-2 rounded-lg">Agendar otra cita</button>
                 `;
@@ -420,7 +355,7 @@
                 sv.classList.add('flex');
 
             } catch (error) {
-                alert("Hubo un error de conexión al agendar. Intenta de nuevo.");
+                alert(error.message || "Hubo un error de conexión al agendar. Intenta de nuevo.");
                 console.error(error);
                 btn.textContent = 'Confirmar solicitud';
                 btn.disabled = false;
